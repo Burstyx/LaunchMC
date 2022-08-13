@@ -11,3 +11,9 @@ Bursty Launcher est similaire au célèbre launcher MultiMC. En revanche, l'inte
 - [ ] Gestion multi-compte
 - [ ] Mise à jour automatique
 - D'autres fonctionnalités 👀...
+### Concepts design de l'application ✏️
+## Gestion des instances en vue grandes icônes
+![Gestion des instances](resources/readme%20md/Group%2014.png)
+## Gestion des modpacks en vue détaillé
+![Gestion des modpacks](resources/readme%20md/Group%2015.png)
+Les designs sont susceptibles de changer. Il s'agit de prototype et non de rendu fini.
