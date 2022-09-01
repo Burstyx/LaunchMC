@@ -13,8 +13,8 @@ function createAppWindow() {
         frame: false,
         fullscreenable: false,
         show: false,
-        height: 600,
-        width: 800,
+        height: 620,
+        width: 940,
         title: "Bursty Launcher",
         webPreferences: {
             nodeIntegration: true,
@@ -29,6 +29,3 @@ electron_1.app.on("ready", () => {
         mainWindow.show();
     });
 });
-// app.on("window-all-closed", () => {
-//     app.quit()
-// })

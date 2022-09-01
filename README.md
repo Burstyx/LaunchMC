@@ -1,19 +1,17 @@
-# Bursty Launcher - Launcher Minecraft
-### C'est quoi BurstyLauncher 🤔 ?
-Bursty Launcher permettra de créer différentes instances pour chaque versions de Minecraft. Cela permet de rester organiser sans toucher au dossier du jeu pour modifier quelque chose. Il est compatible avec Curseforge et les différents API de modding (Fabric, Forge) ce qui vous permet de créer une instance Forge en quelque clic. Un système intuitif de création de modpack vous permettra de créer des modpacks optimisé facilement grâce à Curseforge et d'exporter vos profils pour qu'ils puisse être réutiliser.
-### Pourquoi utiliser BurstyLauncher 🎮 ?
-Bursty Launcher est similaire au célèbre launcher MultiMC. En revanche, l'interface de BurstyLauncher est faites pour être plus intuitif et moderne. De plus, BurstyLauncher veut mettre en avant la création de modpack avec un système de création de modpack qu'on ne retrouve pas dans d'autres launcher.
-### Les fonctionnalités 🚀
-- [ ] Création d'instance personnalisé
-- [ ] Gestion du téléchargement automatique (Java, Minecraft, Forge, Fabric)
-- [ ] Système de création de modpack
-- [ ] Connexion avec Curseforge pour les mods
-- [ ] Gestion multi-compte
-- [ ] Mise à jour automatique
-- D'autres fonctionnalités 👀...
-### Concepts design de l'application ✏️
-## Gestion des instances en vue grandes icônes
-![Gestion des instances](resources/readme%20md/Group%2014.png)
-## Gestion des modpacks en vue détaillé
-![Gestion des modpacks](resources/readme%20md/Group%2015.png)
-Les designs sont susceptibles de changer. Il s'agit de prototype et non de rendu fini.
+# Bursty Launcher - Minecraft Launcher
+### What's BurstyLauncher 🤔?
+Bursty Launcher will allow you to create different instances for each version of Minecraft. This allows you to stay organized without touching the game folder to change something. It is compatible with Curseforge and the various modding APIs (Fabric, Forge) which allows you to create a Forge instance with a few clicks.
+### Why use BurstyLauncher 🎮?
+Bursty Launcher is similar to the famous MultiMC launcher. On the other hand, the interface of BurstyLauncher is made to be more intuitive and modern.
+### Features 🚀
+- [ ] Automatic downloader (Java, Minecraft, Forge, Fabric)
+- [ ] Install mods easily with Curseforge
+- [ ] Multi-Account management (connect with Microsoft account)
+- [ ] Automatic updates
+- [ ] Search for an instance easily
+- [ ] Create multiple instances
+- Lot of futures features 👀...
+### Design concepts ✏️
+#### Gestion des instances
+![Vue de l'interface de la gestion des instances](resources/readme%20md/Group%203.png)
+These are prototypes, not finished renderings. These concepts are subject to change during development.
