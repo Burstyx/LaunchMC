@@ -10,6 +10,7 @@ Bursty Launcher is similar to the famous MultiMC launcher. On the other hand, th
 - [ ] Automatic updates
 - [ ] Search for an instance easily
 - [ ] Create multiple instances
+- [ ] Change the accent color of the interface
 - Lot of futures features 👀...
 ### Design concepts ✏️
 #### Gestion des instances
