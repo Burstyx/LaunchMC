@@ -1,10 +1,9 @@
-import {app, BrowserWindow} from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "path"
 
 let mainWindow: BrowserWindow;
 
-function createAppWindow()
-{
+function createAppWindow() {
     mainWindow = new BrowserWindow({
         backgroundColor: "#FFF",
         center: true,

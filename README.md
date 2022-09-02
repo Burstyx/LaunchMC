@@ -13,5 +13,5 @@ Bursty Launcher is similar to the famous MultiMC launcher. On the other hand, th
 - Lot of futures features 👀...
 ### Design concepts ✏️
 #### Gestion des instances
-![Vue de l'interface de la gestion des instances](resources/readme%20md/Group%203.png)
+![Vue de l'interface de la gestion des instances](resources/readme/main.png)
 These are prototypes, not finished renderings. These concepts are subject to change during development.
