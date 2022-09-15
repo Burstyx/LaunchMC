@@ -8,7 +8,7 @@ const path_1 = __importDefault(require("path"));
 let mainWindow;
 function createAppWindow() {
     mainWindow = new electron_1.BrowserWindow({
-        backgroundColor: "#FFF",
+        backgroundColor: "#2C2C2C",
         center: true,
         frame: false,
         fullscreenable: false,
@@ -21,7 +21,7 @@ function createAppWindow() {
             contextIsolation: false
         }
     });
-    mainWindow.loadFile(path_1.default.join(__dirname, "src/app.html"));
+    mainWindow.loadFile(path_1.default.join(__dirname, "app.html"));
 }
 electron_1.app.on("ready", () => {
     createAppWindow();

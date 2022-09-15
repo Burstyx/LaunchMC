@@ -1,0 +1,48 @@
+@font-face {
+  font-family: narrow;
+  src: url(../resources/fonts/PragatiNarrow-Regular.ttf);
+}
+* {
+  padding: 0;
+  margin: 0;
+  user-select: none;
+  font-family: narrow;
+}
+
+#titlebar {
+  width: 100%;
+  background-color: #1F1F1F;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  -webkit-app-region: drag;
+}
+#titlebar #app-name {
+  width: 130px;
+  font-size: 15px;
+  text-align: center;
+  color: white;
+}
+#titlebar #action-buttons {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+#titlebar #action-buttons div {
+  background-color: #484848;
+  padding: 8px 15px 8px 15px;
+  transition: background-color 0.2s;
+}
+#titlebar #action-buttons div img {
+  width: 100%;
+  height: 100%;
+}
+#titlebar #action-buttons #reduce:hover, #titlebar #action-buttons #maximize:hover {
+  background-color: #3a3a3a;
+  cursor: default;
+}
+#titlebar #action-buttons #close:hover {
+  background-color: #850303;
+  cursor: default;
+}
+
+/*# sourceMappingURL=style.css.map */
