@@ -18,9 +18,11 @@ function createAppWindow() {
         title: "Bursty Launcher",
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
         }
     });
+    require('@electron/remote/main').initialize();
+    require("@electron/remote/main").enable(mainWindow.webContents);
     mainWindow.loadFile(path_1.default.join(__dirname, "app.html"));
 }
 electron_1.app.on("ready", () => {
