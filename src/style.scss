@@ -53,3 +53,28 @@ $hovered-titlebar-closebutton-color: #850303;
         }
     }
 }
+
+#toolbar{
+    border-radius: 0 0 8px 8px;
+}
+
+#toolbar {
+    width: 100%;
+    display: flex;
+    background-color: $titlebar-color;
+    color: white;
+    div{
+        padding: 8px;
+        margin: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        p{
+            padding-left: 5px;
+        }
+        &:hover{
+            background-color: #141414;
+        }
+    }
+}

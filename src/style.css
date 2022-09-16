@@ -45,4 +45,29 @@
   cursor: default;
 }
 
+#toolbar {
+  border-radius: 0 0 8px 8px;
+}
+
+#toolbar {
+  width: 100%;
+  display: flex;
+  background-color: #1F1F1F;
+  color: white;
+}
+#toolbar div {
+  padding: 8px;
+  margin: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+#toolbar div p {
+  padding-left: 5px;
+}
+#toolbar div:hover {
+  background-color: #141414;
+}
+
 /*# sourceMappingURL=style.css.map */
