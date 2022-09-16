@@ -1,13 +1,25 @@
-const { app, BrowserWindow } = require("@electron/remote")
+const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
 
 console.log("Initialisation du module principal !");
 
 // Boutons menu titre
 const closeBtn = document.getElementById("close")
-const minimizeBtn = document.getElementById("minimize")
+const maximizeBtn = document.getElementById("maximize")
 const reducebtn = document.getElementById("reduce")
 
 closeBtn.addEventListener("click", () => {
-    console.log("close");
-    app.quit()
+    getCurrentWindow().close()
+})
+
+maximizeBtn.addEventListener("click", () => {
+    if (getCurrentWindow().isMaximized()) {
+        getCurrentWindow().restore()
+    }
+    else {
+        getCurrentWindow().maximize()
+    }
+})
+
+reducebtn.addEventListener("click", () => {
+    getCurrentWindow().minimize()
 })
