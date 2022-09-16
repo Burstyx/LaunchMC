@@ -21,6 +21,7 @@ function createAppWindow() {
             contextIsolation: false,
         }
     });
+    mainWindow.webContents.openDevTools();
     require('@electron/remote/main').initialize();
     require("@electron/remote/main").enable(mainWindow.webContents);
     mainWindow.loadFile(path_1.default.join(__dirname, "app.html"));
