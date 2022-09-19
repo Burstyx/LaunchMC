@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $titlebar-color: #1F1F1F;
 $initial-titlebar-buttons-color: #484848;
 $hovered-titlebar-buttons-color: #3a3a3a;
@@ -82,3 +84,29 @@ $hovered-titlebar-closebutton-color: #850303;
         }
     }
 }
+
+#instances{
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1050px;
+    .instance {
+        margin: 5px;
+        cursor: pointer;
+        background-position: 50%;
+        background-size: cover;
+        width: 200px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+
+        p {
+            color: white;
+            font-size: 36px;
+        }
+    }
+}
+

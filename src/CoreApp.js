@@ -1,4 +1,5 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
+const { generateInstanceBtn } = require('./utils/instanceManager')
 
 console.log("Initialisation du module principal !");
 
@@ -22,4 +23,15 @@ maximizeBtn.addEventListener("click", () => {
 
 reducebtn.addEventListener("click", () => {
     getCurrentWindow().minimize()
+})
+
+// Boutons barre d'outils
+const addBtn = document.getElementById("add")
+const instancesDiv = document.getElementById("instances")
+
+addBtn.addEventListener("click", () => {
+    element = generateInstanceBtn("https://i.ytimg.com/vi/CJOFD9eZXig/maxresdefault.jpg", "Holycuba")
+
+    // Add element to the page
+    instancesDiv.appendChild(element)
 })
