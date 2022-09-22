@@ -5,7 +5,8 @@
   "main": "src/electron.js",
   "scripts": {
     "build-js": "npx tsc",
-    "run": "npm run build-js && electron ."
+    "run": "npm run build-js && electron .",
+    "start sass watcher": "npx sass --watch ./src/style.scss ./src/style.css"
   },
   "repository": {
     "type": "git",

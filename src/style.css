@@ -70,6 +70,61 @@
   background-color: #191919;
 }
 
+#clickavoider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 50%;
+  background-color: black;
+  width: 100%;
+  height: 100%;
+}
+
+#addmenu {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  height: 85%;
+  max-width: 750px;
+  max-height: 850px;
+  position: absolute;
+  background-color: rgb(29, 29, 29);
+  border-radius: 10px;
+  box-shadow: 0 0 15px black;
+}
+#addmenu #addlabel {
+  color: white;
+  font-size: 20px;
+  text-align: center;
+}
+#addmenu #addlabelbanner {
+  background-image: url("https://image.api.playstation.com/vulcan/img/cfn/11307x4B5WLoVoIUtdewG4uJ_YuDRTwBxQy0qP8ylgazLLc01PBxbsFG1pGOWmqhZsxnNkrU3GXbdXIowBAstzlrhtQ4LCI4.png");
+  background-size: cover;
+  background-position: center;
+  width: 314;
+  height: 190;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  transition: filter 0.25s;
+}
+#addmenu #addlabelbanner p {
+  opacity: 0;
+  color: white;
+  font-size: 40px;
+  transition: opacity 0.25s;
+}
+#addmenu #addlabelbanner:hover {
+  filter: brightness(0.25);
+}
+#addmenu #addlabelbanner:hover p {
+  opacity: 1;
+}
+
 #instances {
   display: flex;
   flex-wrap: wrap;

@@ -5,17 +5,25 @@
 <body>
     <div id="titlebar">
         <p id="app-name">BurstyLauncher <span>V0.0.1</span></p>
-        <div id="action-buttons">
-            <div id="reduce"><img src="../resources/svg/reduce.svg"></div>
+        <div id="action-buttons" style="z-index: 10;">
+            <div id="reduce"><img src="../resources/svg/reduce.svg"></div>L
             <div id="maximize"><img src="../resources/svg/maximize.svg"></div>
             <div id="close"><img src="../resources/svg/close.svg"></div>
         </div>
     </div>
+    <div id="clickavoider" style="z-index: 3;"></div>
     <div id="toolbar">
         <div id="add"><img width="30" src="../resources/svg/add.svg"><p>Add</p></div>
         <div id="settings"><img width="30" src="../resources/svg/settings.svg"><p>Settings</p></div>
         <div id="about"><img width="30" src="../resources/svg/about.svg">
             <p>About</p>
+        </div>
+    </div>
+    
+    <div id="addmenu" style="z-index: 9;">
+        <p id="addlabel">Création d'une instance</p>
+        <div id="addlabelbanner">
+            <p>Change banner</p>
         </div>
     </div>
     <div id="instances">
