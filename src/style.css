@@ -6,6 +6,7 @@
   padding: 0;
   margin: 0;
   user-select: none;
+  -webkit-user-drag: none;
   font-family: narrow;
 }
 
@@ -16,6 +17,8 @@
   align-items: center;
   justify-content: space-between;
   -webkit-app-region: drag;
+  position: relative;
+  z-index: 999;
 }
 #titlebar #app-name {
   width: 130px;
@@ -74,10 +77,12 @@
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 50%;
+  transition: opacity 0.25s;
   background-color: black;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+  opacity: 0%;
 }
 
 #addmenu {
@@ -92,6 +97,23 @@
   background-color: rgb(29, 29, 29);
   border-radius: 10px;
   box-shadow: 0 0 15px black;
+  transition: opacity 0.25s;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+}
+#addmenu #closeaddmenu {
+  width: 25px;
+  position: absolute;
+  right: 0;
+  margin: 15px;
+  padding: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+#addmenu #closeaddmenu:hover {
+  background-color: #191919;
 }
 #addmenu #addlabel {
   color: white;
@@ -149,10 +171,6 @@
   color: white;
   font-size: 20px;
 }
-#addmenu #instancenameinput:focus {
-  border: 2px solid #D20000;
-  padding: 8px;
-}
 #addmenu #instanceversiontitle {
   color: white;
   text-align: center;
@@ -173,6 +191,59 @@
   color: white;
   font-size: 18px;
   cursor: pointer;
+}
+#addmenu #addmenuactionbtn {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+#addmenu #addmenuactionbtn #addmenucreatebtn {
+  background-color: #5F5F5F;
+  width: 240px;
+  text-align: center;
+  border-radius: 10px;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+#addmenu #addmenuactionbtn #addmenucreatebtn:hover {
+  background-color: #494949;
+}
+#addmenu #addmenuactionbtn #addmenucancelbtn {
+  background-color: #D20000;
+  margin: 20px;
+  width: 155px;
+  text-align: center;
+  border-radius: 10px;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+#addmenu #addmenuactionbtn #addmenucancelbtn:hover {
+  background-color: #b90000;
+}
+
+#choseversionmenu {
+  background-color: #5F5F5F;
+  pointer-events: none;
+  opacity: 0;
+  width: 50%;
+  height: 60%;
+  max-width: 700px;
+  max-height: 500px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s;
+  z-index: 2;
 }
 
 #instances {

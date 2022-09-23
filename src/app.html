@@ -5,13 +5,13 @@
 <body>
     <div id="titlebar">
         <p id="app-name">BurstyLauncher <span>V0.0.1</span></p>
-        <div id="action-buttons" style="z-index: 10;">
+        <div id="action-buttons">
             <div id="reduce"><img src="../resources/svg/reduce.svg"></div>
             <div id="maximize"><img src="../resources/svg/maximize.svg"></div>
             <div id="close"><img src="../resources/svg/close.svg"></div>
         </div>
     </div>
-    <div id="clickavoider" style="z-index: 3;"></div>
+    <div id="clickavoider"></div>
     <div id="toolbar">
         <div id="add"><img width="30" src="../resources/svg/add.svg"><p>Add</p></div>
         <div id="settings"><img width="30" src="../resources/svg/settings.svg"><p>Settings</p></div>
@@ -20,7 +20,8 @@
         </div>
     </div>
     
-    <div id="addmenu" style="z-index: 9;">
+    <div id="addmenu" class="menu">
+        <img id="closeaddmenu" src="../resources/svg/close.svg">
         <p id="addlabel">Création d'une instance</p>
         <div id="addlabelbanner">
             <div>
@@ -37,6 +38,23 @@
         <div id="instanceversion">
             <p id="instanceversionselectedversion">Vanilla - 1.12.2</p>
             <img src="../resources/svg/arrow.svg">
+        </div>
+        <div id="addmenuactionbtn">
+            <div id="addmenucreatebtn">
+                Create
+            </div>
+            <div id="addmenucancelbtn">
+                Cancel
+            </div>
+        </div>
+    </div>
+    <div id="choseversionmenu" class="menu">
+        <div id="bootloaderbtn">
+            <div id="vanillamenu"></div>
+            <div id="forgemenu"></div>
+            <div id="curseforgemenu"></div>
+            <div id="ftbmenu"></div>
+            <div id="zipmenu"></div>
         </div>
     </div>
     <div id="instances">
