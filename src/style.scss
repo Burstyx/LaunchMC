@@ -121,23 +121,78 @@ $hovered-titlebar-closebutton-color: #850303;
         height: 190;
         margin-left: auto;
         margin-right: auto;
-        display: flex;
         border-radius: 10px;
-        justify-content: center;
-        align-items: center;
-        transition: filter 0.25s;
-        p{
+        div{
+            background-color: rgba(0, 0, 0, 0.75);
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
             opacity: 0;
-            color: white;
-            font-size: 40px;
-            transition: opacity 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity .25s;
+            cursor: pointer;
+            p {
+                color: white;
+                font-size: 40px;
+                transition: opacity 0.25s;
+            }
         }
         &:hover{
-            filter: brightness(.25);
-            p{
+            div{
                 opacity: 1;
             }
         }
+    }
+
+    #instancenametitle{
+        color: white;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 20px;
+    }
+    #instancenameinput{
+        margin-right: auto;
+        margin-left: auto;
+        display: block;
+        width: 360px;
+        height: 40px;
+        background-color: #5F5F5F;
+        outline: none;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+        transition: border 0.25s, padding 0.25s;
+        color: white;
+        font-size: 20px;
+        &:focus{
+            border: 2px solid #D20000;
+            padding: 8px;
+        }
+    }
+
+    #instanceversiontitle {
+        color: white;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 20px;
+    }
+
+    #instanceversion{
+        width: 340px;
+        height: 40px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+        align-items: center;
+        background-color: #5F5F5F;
+        border-radius: 10px;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
     }
 }
 
