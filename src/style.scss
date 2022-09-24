@@ -18,6 +18,50 @@ $hovered-titlebar-closebutton-color: #850303;
     font-family: narrow;
 }
 
+.checkbox{
+    background-color: transparent;
+    border: 1.5px solid white;
+    border-radius: 2px;
+    width: 15px;
+    height: 15px;
+    outline: none;
+    appearance: none;
+    transition: background-color 0.25s, border 0.25s;
+    margin-left: 5px;
+}
+
+.checkbox:checked{
+    border: 7px solid white;
+    background-color: white;
+    &::after{
+        content: '';
+        background-image: url(../resources/svg/tick.svg);
+        background-size: cover;
+        width: 14px;
+        height: 12px;
+        position: absolute;
+        transform: translate(-50%, -50%) scale(.9);
+        opacity: 1;
+    }
+}
+
+::-webkit-scrollbar{
+    width: 8px;
+    height: 8px;
+    position: absolute;
+
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(107, 107, 107);
+    border-radius: 50px;
+    box-shadow: 0 0 10px black;
+}
+
+::-webkit-scrollbar-track {
+    background-color: rgb(67, 67, 67);
+}
+
 #titlebar{
     width: 100%;
     background-color: $titlebar-color;
@@ -260,8 +304,8 @@ $hovered-titlebar-closebutton-color: #850303;
 
 #choseversionmenu{
     background-color: #5F5F5F;
-    // pointer-events: none;
-    // opacity: 0;
+    pointer-events: none;
+    opacity: 0;
     width: 50%;
     height: 60%;
     max-width: 700px;
@@ -272,6 +316,7 @@ $hovered-titlebar-closebutton-color: #850303;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    
 
     transition: opacity .25s;
 
@@ -280,7 +325,7 @@ $hovered-titlebar-closebutton-color: #850303;
     #bootloaderbtn{
         display: flex;
         width: 100%;
-        height: 65px;
+        height: 40px;
         div{
             flex-basis: 100%;
             display: flex;
@@ -289,6 +334,7 @@ $hovered-titlebar-closebutton-color: #850303;
             align-items: center;
             background-color: #202020;
             transition: background-color .25s;
+            cursor: pointer;
             &:hover{
                 background-color: #242424;
             }
@@ -314,6 +360,40 @@ $hovered-titlebar-closebutton-color: #850303;
         #zipmenu{
            
             border-radius: 0 10px 0 0;
+        }
+    }
+    #vanillaversionslist{
+        height: calc(100% - 40px);
+        border-radius: 0 0 10px 10px;
+        overflow-y: scroll;
+
+        .bootloaderinformation {
+            background-color: #353535;
+            color: white;
+            display: flex;
+            text-align: center;
+            font-size: 20px;
+            cursor: pointer;
+    
+            p:first-child {
+                flex-basis: 100%;
+            }
+    
+            p:last-child {
+                flex-basis: 100%;
+                text-transform: capitalize;
+            }
+    
+        }
+        #vanillaversionfilter{
+            display: flex;
+            margin: 0 5px;
+            .vanillafilters {
+                display: flex;
+                margin: 0 5px;
+                align-items: center;
+                color:white;
+            }
         }
     }
 }

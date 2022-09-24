@@ -1,5 +1,6 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
 const { generateInstanceBtn } = require('./utils/instanceManager')
+const { getVanillaReleaseVersions } = require("./managers/fetchBootloaderVersions")
 
 console.log("Initialisation du module principal !");
 
@@ -151,7 +152,19 @@ instanceVersion.addEventListener("click", () => {
     choseVersionMenu.style.opacity = "1"
     choseVersionMenu.style.pointerEvents = "all"
 
+    refreshList()
+
     clickavoider.style.zIndex = 2
 
     elementToCloseWhenClickingOnClickAvoider = choseVersionMenu
 })
+
+// Show all Vanilla versions
+
+const bootloaderversion = document.getElementById("bootloaderversion")
+const bootloaderversionstate = document.getElementById("bootloaderversionstate")
+const versionslist = document.getElementById("vanillaversionslist")
+
+function refreshList() {
+    getVanillaReleaseVersions(vanillaversionslist, true, true, false, false)
+}
