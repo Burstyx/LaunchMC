@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getVanillaReleaseVersions = void 0;
-function getVanillaReleaseVersions(parentList, release, snapshot, beta, alpha) {
+exports.getMinecraftVersions = void 0;
+function getMinecraftVersions(parentList, release, snapshot, beta, alpha) {
     fetch("https://piston-meta.mojang.com/mc/game/version_manifest.json").then((res) => {
         res.json().then((data) => {
             let i = 0;
@@ -26,4 +26,4 @@ function getVanillaReleaseVersions(parentList, release, snapshot, beta, alpha) {
         });
     });
 }
-exports.getVanillaReleaseVersions = getVanillaReleaseVersions;
+exports.getMinecraftVersions = getMinecraftVersions;

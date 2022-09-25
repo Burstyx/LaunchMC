@@ -1,6 +1,6 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
 const { generateInstanceBtn } = require('./utils/instanceManager')
-const { getVanillaReleaseVersions } = require("./managers/fetchBootloaderVersions")
+const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
 
 console.log("Initialisation du module principal !");
 
@@ -148,11 +148,19 @@ createAddMenuBtn.addEventListener("click", () => {
     }
 })
 
+const vanillareleasecheckbox = document.getElementById("vanillareleasecheckbox")
+const vanillasnapshotcheckbox = document.getElementById("vanillasnapshotcheckbox")
+const vanillabetacheckbox = document.getElementById("vanillabetacheckbox")
+const vanillaalphacheckbox = document.getElementById("vanillaalphacheckbox")
+
+const versionslist = document.getElementById("vanillaversionslist")
+
 instanceVersion.addEventListener("click", () => {
     choseVersionMenu.style.opacity = "1"
     choseVersionMenu.style.pointerEvents = "all"
 
-    refreshList()
+    clearVanillaVersions()
+    getMinecraftVersions(versionslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 
     clickavoider.style.zIndex = 2
 
@@ -163,8 +171,37 @@ instanceVersion.addEventListener("click", () => {
 
 const bootloaderversion = document.getElementById("bootloaderversion")
 const bootloaderversionstate = document.getElementById("bootloaderversionstate")
-const versionslist = document.getElementById("vanillaversionslist")
 
-function refreshList() {
-    getVanillaReleaseVersions(vanillaversionslist, true, true, false, false)
+
+function clearVanillaVersions() {
+    console.log("delete childs");
+    for (let i = 0; i < versionslist.length; i++) {
+        console.log(versionslist.children.item(i).id);
+        if (versionslist.children.item(i).id != "vanillaversionfilter") {
+            versionslist.removeChild(versionslist.children.item(i))
+            console.log("child" + i);
+        }
+    }
 }
+
+vanillareleasecheckbox.addEventListener("change", () => {
+    clearVanillaVersions()
+    getMinecraftVersions(versionslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    console.log(vanillareleasecheckbox.checked);
+})
+
+vanillasnapshotcheckbox.addEventListener("change", () => {
+    clearVanillaVersions()
+    getMinecraftVersions(versionslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+})
+
+vanillabetacheckbox.addEventListener("change", () => {
+    clearVanillaVersions()
+    getMinecraftVersions(versionslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    console.log("sdf");
+})
+
+vanillaalphacheckbox.addEventListener("change", () => {
+    clearVanillaVersions()
+    getMinecraftVersions(versionslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+})
