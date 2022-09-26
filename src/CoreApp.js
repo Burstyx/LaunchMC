@@ -157,13 +157,15 @@ const versionslist = document.getElementById("vanillaversionslist")
 
 const vanillabootloaderinfoslist = document.getElementById("vanillabootloaderinfoslist")
 
+const loadingVanillaVersions = document.getElementById("loadingbootloaderversions")
+
 instanceVersion.addEventListener("click", () => {
     choseVersionMenu.style.opacity = "1"
     choseVersionMenu.style.pointerEvents = "all"
 
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
-
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+ 
     clickavoider.style.zIndex = 2
 
     elementToCloseWhenClickingOnClickAvoider = choseVersionMenu
@@ -186,22 +188,20 @@ function clearVanillaVersions() {
 
 vanillareleasecheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
-    console.log(vanillareleasecheckbox.checked);
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
 
 vanillasnapshotcheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
 
 vanillabetacheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
-    console.log("sdf");
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
 
 vanillaalphacheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
