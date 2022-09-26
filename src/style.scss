@@ -304,8 +304,8 @@ $hovered-titlebar-closebutton-color: #850303;
 
 #choseversionmenu{
     background-color: #5F5F5F;
-    pointer-events: none;
-    opacity: 0;
+    // pointer-events: none;
+    // opacity: 0;
     width: 50%;
     height: 60%;
     max-width: 700px;
@@ -386,6 +386,7 @@ $hovered-titlebar-closebutton-color: #850303;
     
         }
         #vanillaversionfilter{
+            position: sticky;
             display: flex;
             margin: 0 5px;
             .vanillafilters {

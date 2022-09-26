@@ -273,8 +273,6 @@
 
 #choseversionmenu {
   background-color: #5F5F5F;
-  pointer-events: none;
-  opacity: 0;
   width: 50%;
   height: 60%;
   max-width: 700px;
@@ -338,6 +336,7 @@
   text-transform: capitalize;
 }
 #choseversionmenu #vanillaversionslist #vanillaversionfilter {
+  position: sticky;
   display: flex;
   margin: 0 5px;
 }
