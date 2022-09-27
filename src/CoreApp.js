@@ -60,8 +60,6 @@ clickavoider.addEventListener("click", () => {
         return
     }
 
-    console.log(elementToCloseWhenClickingOnClickAvoider);
-
     elementToCloseWhenClickingOnClickAvoider.style.opacity = "0"
     elementToCloseWhenClickingOnClickAvoider.style.pointerEvents = "none"
 
@@ -88,13 +86,15 @@ let chosenVersion = "vanilla-1.12.2"
 const addBtn = document.getElementById("add")
 
 function refreshInstanceVersion() {
-    selectedVersion = chosenVersion.split('-')
-    if (selectedVersion[0] == "vanilla") {
-        instanceVersionAddMenuText.innerText = "Vanilla - " + selectedVersion[1]
+    const bootloadertype = chosenVersion.slice(0, chosenVersion.indexOf("-"))
+    const selectedVersion = chosenVersion.slice(chosenVersion.indexOf("-") + 1)
+    if (bootloadertype == "vanilla") {
+        instanceVersionAddMenuText.innerText = "Vanilla - " + selectedVersion
     }
-    else if (selectedVersion[0] == "forge") {
-        instanceVersionAddMenuText.innerText = "Forge - " + selectedVersion[1]
+    else if (bootloadertype == "forge") {
+        instanceVersionAddMenuText.innerText = "Forge - " + selectedVersion
     }
+    instanceName.setAttribute("placeholder", selectedVersion)
 }
 
 addBtn.addEventListener("click", () => {
@@ -158,14 +158,15 @@ const versionslist = document.getElementById("vanillaversionslist")
 const vanillabootloaderinfoslist = document.getElementById("vanillabootloaderinfoslist")
 
 const loadingVanillaVersions = document.getElementById("loadingbootloaderversions")
+const notfoundbootloaderversions = document.getElementById("notfoundbootloaderversions")
 
 instanceVersion.addEventListener("click", () => {
     choseVersionMenu.style.opacity = "1"
     choseVersionMenu.style.pointerEvents = "all"
 
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
- 
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+
     clickavoider.style.zIndex = 2
 
     elementToCloseWhenClickingOnClickAvoider = choseVersionMenu
@@ -188,20 +189,43 @@ function clearVanillaVersions() {
 
 vanillareleasecheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
 
 vanillasnapshotcheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
 
 vanillabetacheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
 })
 
 vanillaalphacheckbox.addEventListener("change", () => {
     clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+})
+
+// Chosing version
+
+function closeChooseVersionMenu() {
+    // Fermer le menu
+    choseVersionMenu.style.opacity = "0"
+    choseVersionMenu.style.pointerEvents = "none"
+
+    clickavoider.style.zIndex = "1"
+
+    elementToCloseWhenClickingOnClickAvoider = addMenu
+}
+
+document.addEventListener("click", (evt) => {
+    const elementClicked = evt.target
+    console.log(elementClicked.parentElement.classList.item(0));
+    if (elementClicked.parentElement.classList.item(0) == "vanillabootloaderinformation") {
+        let versionFound = elementClicked.parentElement.id.toString().substring(8)
+        chosenVersion = "vanilla-" + versionFound
+        closeChooseVersionMenu()
+        refreshInstanceVersion()
+    }
 })
