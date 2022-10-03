@@ -1,4 +1,4 @@
-const {dataPath, indexesPath} = require("../utils/const")
+const {dataPath, indexesPath, minecraftJarPath} = require("../utils/const")
 import os from "os"
 import fs from "fs"
 import https from "https"
@@ -22,7 +22,22 @@ export function downloadVanillaVersion(version: string, name: string){
                                 numberOfLibrariesToDownload++
                             }
                             // Download client
+                            console.log("Downloading minecraft client");
+
+                            if(!fs.existsSync(minecraftJarPath)){
+                                fs.mkdirSync(minecraftJarPath, {recursive: true})
+                            }
+                            
+                            const minecraftJarFile = fs.createWriteStream(minecraftJarPath + "/" + data["id"] + ".jar")
+                            
+                            https.get(data["downloads"]["client"]["url"], (data) => {
+                                data.pipe(minecraftJarFile)
+                            })
+
+                            console.log("Minecraft client downloaded");
+
                             // Download Libraries
+                            console.log("Downloading minecraft libraries");
                             for(let i = 0; i < data["libraries"].length; i++){
                                 if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
                                     for(let e in data["libraries"][i]["downloads"]["classifiers"]){
@@ -42,7 +57,10 @@ export function downloadVanillaVersion(version: string, name: string){
                                 numberOfLibrariesDownloaded++
                                 console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
                             }
+                            console.log("Minecraft libraries downloaded");
                             // Download indexes
+                            console.log("Downloading minecraft index");
+
                             if(!fs.existsSync(indexesPath)){
                                 fs.mkdirSync(indexesPath, {recursive: true})
                             }
@@ -52,7 +70,7 @@ export function downloadVanillaVersion(version: string, name: string){
                             https.get(data["assetIndex"]["url"], (data) => {
                                 data.pipe(indexFile)
                             })
-                            
+                            console.log("Minecraft index downloaded");
                         })
                     })
                 }

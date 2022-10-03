@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadVanillaVersion = void 0;
-const { dataPath, indexesPath } = require("../utils/const");
+const { dataPath, indexesPath, minecraftJarPath } = require("../utils/const");
 const os_1 = __importDefault(require("os"));
 const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
@@ -24,7 +24,17 @@ function downloadVanillaVersion(version, name) {
                                 numberOfLibrariesToDownload++;
                             }
                             // Download client
+                            console.log("Downloading minecraft client");
+                            if (!fs_1.default.existsSync(minecraftJarPath)) {
+                                fs_1.default.mkdirSync(minecraftJarPath, { recursive: true });
+                            }
+                            const minecraftJarFile = fs_1.default.createWriteStream(minecraftJarPath + "/" + data["id"] + ".jar");
+                            https_1.default.get(data["downloads"]["client"]["url"], (data) => {
+                                data.pipe(minecraftJarFile);
+                            });
+                            console.log("Minecraft client downloaded");
                             // Download Libraries
+                            console.log("Downloading minecraft libraries");
                             for (let i = 0; i < data["libraries"].length; i++) {
                                 if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
                                     for (let e in data["libraries"][i]["downloads"]["classifiers"]) {
@@ -45,18 +55,17 @@ function downloadVanillaVersion(version, name) {
                                 numberOfLibrariesDownloaded++;
                                 console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
                             }
+                            console.log("Minecraft libraries downloaded");
                             // Download indexes
+                            console.log("Downloading minecraft index");
                             if (!fs_1.default.existsSync(indexesPath)) {
                                 fs_1.default.mkdirSync(indexesPath, { recursive: true });
                             }
-                            console.log("a");
                             const indexFile = fs_1.default.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json");
-                            console.log("c");
-                            console.log(data["assetIndex"]["url"]);
                             https_1.default.get(data["assetIndex"]["url"], (data) => {
                                 data.pipe(indexFile);
                             });
-                            console.log('b');
+                            console.log("Minecraft index downloaded");
                         });
                     });
                 }
