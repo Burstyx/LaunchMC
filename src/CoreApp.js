@@ -1,6 +1,7 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
 const { generateInstanceBtn } = require('./utils/instanceManager')
 const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
+const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
 
 console.log("Initialisation du module principal !");
 
@@ -81,13 +82,15 @@ const instancesDiv = document.getElementById("instances")
 const instanceName = document.getElementById("instancenameinput")
 
 let chosenVersion = "vanilla-1.12.2"
+let selectedVersion = "1.12.2"
+let bootloadertype = "vanilla"
 
 
 const addBtn = document.getElementById("add")
 
 function refreshInstanceVersion() {
-    const bootloadertype = chosenVersion.slice(0, chosenVersion.indexOf("-"))
-    const selectedVersion = chosenVersion.slice(chosenVersion.indexOf("-") + 1)
+    bootloadertype = chosenVersion.slice(0, chosenVersion.indexOf("-"))
+    selectedVersion = chosenVersion.slice(chosenVersion.indexOf("-") + 1)
     if (bootloadertype == "vanilla") {
         instanceVersionAddMenuText.innerText = "Vanilla - " + selectedVersion
     }
@@ -140,12 +143,14 @@ closeAddMenuBtn.addEventListener("click", () => {
 })
 
 createAddMenuBtn.addEventListener("click", () => {
-    selectedVersion = chosenVersion.split('-')
     if (instanceName.value != "") {
         console.log("nom donné : " + instanceName.value);
+        downloadVanillaVersion(selectedVersion, instanceName.value)
     } else {
         console.log("nom non donné donc nom automatiquement donné : " + instanceName.getAttribute("placeholder"));
+        downloadVanillaVersion(selectedVersion, instanceName.getAttribute("placeholder"))
     }
+
 })
 
 const vanillareleasecheckbox = document.getElementById("vanillareleasecheckbox")
