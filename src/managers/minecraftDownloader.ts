@@ -46,16 +46,12 @@ export function downloadVanillaVersion(version: string, name: string){
                             if(!fs.existsSync(indexesPath)){
                                 fs.mkdirSync(indexesPath, {recursive: true})
                             }
-                            console.log("a");
                             
                             const indexFile = fs.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json")
-                            console.log("c");
-                            console.log(data["assetIndex"]["url"]);
                             
                             https.get(data["assetIndex"]["url"], (data) => {
                                 data.pipe(indexFile)
                             })
-                            console.log('b');
                             
                         })
                     })
