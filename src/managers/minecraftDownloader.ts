@@ -11,12 +11,17 @@ export function downloadVanillaVersion(version: string, name: string){
         res.json().then((data) => {
             
             const versions = data["versions"]
+            let numberOfLibrariesToDownload = 0
+            let numberOfLibrariesDownloaded = 0
             for(let i = 0; i < data["versions"].length; i++){
                 
                 if(data["versions"][i]["id"] == version){
                     console.log("df");
                     fetch(data["versions"][i]["url"]).then((res) => {
                         res.json().then((data) => {
+                            for(let i = 0; i < data["libraries"].length; i++){
+                                numberOfLibrariesToDownload++
+                            }
                             for(let i = 0; i < data["libraries"].length; i++){
                                 if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
                                     for(let e in data["libraries"][i]["downloads"]["classifiers"]){
@@ -33,6 +38,9 @@ export function downloadVanillaVersion(version: string, name: string){
                                 }else{
                                     downloadMinecraftLibrary(data, i)
                                 }
+                                numberOfLibrariesDownloaded++
+                                console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
+                                
                             }
                         })
                     })
@@ -43,15 +51,10 @@ export function downloadVanillaVersion(version: string, name: string){
 }
 
 function downloadMinecraftLibrary(data: any, i: number){
-    console.log("downloading : " + data["libraries"][i]["downloads"]["artifact"]["url"]);
 
     const filePath = gamePath + '/libraries/' + data['libraries'][i]['downloads']['artifact']['path']
     const fileName = filePath.split("/").pop()
     const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
-    console.log("aaa : " + filePath);
-    console.log("bbb : " + fileName);
-    console.log("ccc : " + dirPath);
-    
 
     if(!fs.existsSync(dirPath)){
         fs.mkdirSync(dirPath, {recursive: true})
@@ -59,22 +62,14 @@ function downloadMinecraftLibrary(data: any, i: number){
     const file = fs.createWriteStream(filePath)
     https.get(data["libraries"][i]["downloads"]["artifact"]["url"], (data) => {
         data.pipe(file)
-        file.on("finish", () => {
-            console.log("downloaded");
-        })
     })
 }
 
 function downloadClassifierMinecraftLibrary(data: any, e: string, i: number){
-    console.log("downloading : " +data["libraries"][i]["downloads"]["classifiers"][e]["url"]);
 
     const filePath = gamePath + '/libraries/' + data['libraries'][i]['downloads']['classifiers'][e]['path']
     const fileName = filePath.split("/").pop()
     const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
-    console.log("aaa : " + filePath);
-    console.log("bbb : " + fileName);
-    console.log("ccc : " + dirPath);
-
 
     if(!fs.existsSync(dirPath)){
         fs.mkdirSync(dirPath, {recursive: true})
@@ -82,8 +77,6 @@ function downloadClassifierMinecraftLibrary(data: any, e: string, i: number){
     const file = fs.createWriteStream(filePath)
     https.get(data["libraries"][i]["downloads"]["classifiers"][e]["url"], (data) => {
         data.pipe(file)
-        file.on("finish", () => {
-            console.log("downloaded");
-        })
+
     })
 }
