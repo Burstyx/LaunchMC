@@ -2,6 +2,7 @@ const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
 const { generateInstanceBtn } = require('./utils/instanceManager')
 const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
 const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
+const { startMinecraft } = require("./managers/startInstance")
 
 console.log("Initialisation du module principal !");
 
@@ -234,3 +235,5 @@ document.addEventListener("click", (evt) => {
         refreshInstanceVersion()
     }
 })
+
+startMinecraft()

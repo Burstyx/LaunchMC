@@ -26,7 +26,7 @@ export function downloadVanillaVersion(version: string, name: string){
 
                             if(!fs.existsSync(minecraftJarPath)){
                                 fs.mkdirSync(minecraftJarPath, {recursive: true})
-                            }
+                            } 
                             
                             const minecraftJarFile = fs.createWriteStream(minecraftJarPath + "/" + data["id"] + ".jar")
                             
