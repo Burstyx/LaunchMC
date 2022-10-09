@@ -1,16 +1,16 @@
 import fs from "fs"
-const {manifestsVersionsPath} = require("../utils/const")
+const {manifestsVersionsPath, versionsManifest} = require("../utils/const")
 import https from "https"
 import path from "path"
 
-export async function getVersionManifest(version: string){
+export async function getVersionManifest(version: string): Promise<any>{
     return await new Promise((resolve, reject) => {
         if(!fs.existsSync(manifestsVersionsPath)){
             fs.mkdirSync(manifestsVersionsPath, {recursive: true})
         }
         
         if(!fs.existsSync(manifestsVersionsPath + "/" + version + ".json")){
-            fetch("https://piston-meta.mojang.com/mc/game/version_manifest.json").then((res) => {
+            fetch(versionsManifest).then((res) => {
                 res.json().then((data) => {
                     for(let i = 0; i < data["versions"].length; i++){
                         if(data["versions"][i]["id"] == version){

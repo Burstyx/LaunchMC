@@ -235,5 +235,3 @@ document.addEventListener("click", (evt) => {
         refreshInstanceVersion()
     }
 })
-
-startMinecraft()

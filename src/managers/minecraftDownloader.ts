@@ -4,85 +4,72 @@ import fs from "fs"
 import https from "https"
 import {getVersionManifest} from "./getMinecraftVersionManifest"
 import { getMinecraftVersions } from "./fetchBootloaderVersions"
+import {startMinecraft} from "./startInstance"
 
 export async function downloadVanillaVersion(version: string, name: string){
     console.log(version);
     
     getVersionManifest(version).then((data) => {
-        console.log(data);
+        let numberOfLibrariesToDownload = 0
+        let numberOfLibrariesDownloaded = 0
+
+        // Verification of the game version
+        for(let i = 0; i < data["libraries"].length; i++){
+            numberOfLibrariesToDownload++
+        }
+        // Download client
+        console.log("Downloading minecraft client");
+
+        if(!fs.existsSync(minecraftJarPath)){
+            fs.mkdirSync(minecraftJarPath, {recursive: true})
+        } 
+        
+        const minecraftJarFile = fs.createWriteStream(minecraftJarPath + "/" + data["id"] + ".jar")
+        
+        https.get(data["downloads"]["client"]["url"], (data) => {
+            data.pipe(minecraftJarFile)
+        })
+
+        console.log("Minecraft client downloaded");
+
+        // Download Libraries
+        console.log("Downloading minecraft libraries");
+        for(let i = 0; i < data["libraries"].length; i++){
+            if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
+                for(let e in data["libraries"][i]["downloads"]["classifiers"]){
+                    if(e.includes("windows") && os.platform() == "win32"){
+                        downloadClassifierMinecraftLibrary(data, e, i)
+                    }
+                    if(e.includes("osx") && os.platform() == "darwin"){
+                        downloadClassifierMinecraftLibrary(data, e, i)
+                    }
+                    if(e.includes("linux") && os.platform() == "linux"){
+                        downloadClassifierMinecraftLibrary(data, e, i)
+                    }
+                }
+            }else{
+                downloadMinecraftLibrary(data, i)
+            }
+            numberOfLibrariesDownloaded++
+            console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
+        }
+        console.log("Minecraft libraries downloaded");
+        // Download indexes
+        console.log("Downloading minecraft index");
+
+        if(!fs.existsSync(indexesPath)){
+            fs.mkdirSync(indexesPath, {recursive: true})
+        }
+        
+        const indexFile = fs.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json")
+        
+        https.get(data["assetIndex"]["url"], (data) => {
+            data.pipe(indexFile)
+        })
+        console.log("Minecraft index downloaded");
     })
-    
-    
-    // fetch("https://piston-meta.mojang.com/mc/game/version_manifest.json").then((res) => {
-    //     res.json().then((data) => {
-    //         const versions = data["versions"]
-    //         let numberOfLibrariesToDownload = 0
-    //         let numberOfLibrariesDownloaded = 0
 
-    //         // Verification of the game version
-    //         for(let i = 0; i < data["versions"].length; i++){
-    //             if(data["versions"][i]["id"] == version){
-    //                 fetch(data["versions"][i]["url"]).then((res) => {
-    //                     res.json().then((data) => {
-    //                         for(let i = 0; i < data["libraries"].length; i++){
-    //                             numberOfLibrariesToDownload++
-    //                         }
-    //                         // Download client
-    //                         console.log("Downloading minecraft client");
-
-    //                         if(!fs.existsSync(minecraftJarPath)){
-    //                             fs.mkdirSync(minecraftJarPath, {recursive: true})
-    //                         } 
-                            
-    //                         const minecraftJarFile = fs.createWriteStream(minecraftJarPath + "/" + data["id"] + ".jar")
-                            
-    //                         https.get(data["downloads"]["client"]["url"], (data) => {
-    //                             data.pipe(minecraftJarFile)
-    //                         })
-
-    //                         console.log("Minecraft client downloaded");
-
-    //                         // Download Libraries
-    //                         console.log("Downloading minecraft libraries");
-    //                         for(let i = 0; i < data["libraries"].length; i++){
-    //                             if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
-    //                                 for(let e in data["libraries"][i]["downloads"]["classifiers"]){
-    //                                     if(e.includes("windows") && os.platform() == "win32"){
-    //                                         downloadClassifierMinecraftLibrary(data, e, i)
-    //                                     }
-    //                                     if(e.includes("osx") && os.platform() == "darwin"){
-    //                                         downloadClassifierMinecraftLibrary(data, e, i)
-    //                                     }
-    //                                     if(e.includes("linux") && os.platform() == "linux"){
-    //                                         downloadClassifierMinecraftLibrary(data, e, i)
-    //                                     }
-    //                                 }
-    //                             }else{
-    //                                 downloadMinecraftLibrary(data, i)
-    //                             }
-    //                             numberOfLibrariesDownloaded++
-    //                             console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
-    //                         }
-    //                         console.log("Minecraft libraries downloaded");
-    //                         // Download indexes
-    //                         console.log("Downloading minecraft index");
-
-    //                         if(!fs.existsSync(indexesPath)){
-    //                             fs.mkdirSync(indexesPath, {recursive: true})
-    //                         }
-                            
-    //                         const indexFile = fs.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json")
-                            
-    //                         https.get(data["assetIndex"]["url"], (data) => {
-    //                             data.pipe(indexFile)
-    //                         })
-    //                         console.log("Minecraft index downloaded");
-    //                     })
-    //                 })
-    //             }
-    //         }
-    //     })
-    // })
+    startMinecraft(version)
 }
 
 // Download Minecraft libraries

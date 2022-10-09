@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getVersionManifest = void 0;
 const fs_1 = __importDefault(require("fs"));
-const { manifestsVersionsPath } = require("../utils/const");
+const { manifestsVersionsPath, versionsManifest } = require("../utils/const");
 const https_1 = __importDefault(require("https"));
 function getVersionManifest(version) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -23,7 +23,7 @@ function getVersionManifest(version) {
                 fs_1.default.mkdirSync(manifestsVersionsPath, { recursive: true });
             }
             if (!fs_1.default.existsSync(manifestsVersionsPath + "/" + version + ".json")) {
-                fetch("https://piston-meta.mojang.com/mc/game/version_manifest.json").then((res) => {
+                fetch(versionsManifest).then((res) => {
                     res.json().then((data) => {
                         for (let i = 0; i < data["versions"].length; i++) {
                             if (data["versions"][i]["id"] == version) {
