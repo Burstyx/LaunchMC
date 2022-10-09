@@ -10,7 +10,6 @@ function startMinecraft() {
             for (let i = 0; i < minecraftArguments.length; i++) {
                 if (minecraftArguments[i] == "") {
                     minecraftArguments.splice(i, 1);
-                    minecraftArguments[i].trim();
                 }
             }
             console.log(minecraftArguments);
