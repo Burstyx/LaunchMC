@@ -1,5 +1,5 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn } = require('./utils/instanceManager')
+const { generateInstanceBtn } = require('./managers/instancesManager')
 const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
 const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
 const { startMinecraft } = require("./managers/startInstance")
@@ -143,13 +143,15 @@ closeAddMenuBtn.addEventListener("click", () => {
     closeAddMenu()
 })
 
+const addLabelBanner = document.getElementById("addlabelbanner")
+
 createAddMenuBtn.addEventListener("click", () => {
     if (instanceName.value != "") {
         console.log("nom donné : " + instanceName.value);
-        downloadVanillaVersion(selectedVersion, instanceName.value)
+        downloadVanillaVersion(selectedVersion, instanceName.value, instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
     } else {
         console.log("nom non donné donc nom automatiquement donné : " + instanceName.getAttribute("placeholder"));
-        downloadVanillaVersion(selectedVersion, instanceName.getAttribute("placeholder"))
+        downloadVanillaVersion(selectedVersion, instanceName.getAttribute("placeholder"), instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
     }
 
 })

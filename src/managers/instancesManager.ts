@@ -1,4 +1,12 @@
-export function generateInstanceBtn(imagePath: string, title: string) {
+import fs from "fs"
+const {instancesPath} = require("../utils/const")
+
+export function refreshInstancesList(imagePath: string, title: string, id: string, instanceDiv: HTMLElement){
+    console.log(fs.readdirSync(instancesPath))
+    instanceDiv.appendChild(generateInstanceBtn(imagePath, title))
+}
+
+function generateInstanceBtn(imagePath: string, title: string) {
     let element = document.createElement("div")
     let titleElement = document.createElement("p")
     titleElement.innerText = title

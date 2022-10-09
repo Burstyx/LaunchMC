@@ -13,13 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadVanillaVersion = void 0;
-const { dataPath, indexesPath, minecraftJarPath } = require("../utils/const");
+const { dataPath, indexesPath, minecraftJarPath, instancesPath } = require("../utils/const");
 const os_1 = __importDefault(require("os"));
 const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
 const getMinecraftVersionManifest_1 = require("./getMinecraftVersionManifest");
 const startInstance_1 = require("./startInstance");
-function downloadVanillaVersion(version, name) {
+const original_fs_1 = require("original-fs");
+const instancesManager_1 = require("./instancesManager");
+function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(version);
         (0, getMinecraftVersionManifest_1.getVersionManifest)(version).then((data) => {
@@ -73,6 +75,9 @@ function downloadVanillaVersion(version, name) {
             });
             console.log("Minecraft index downloaded");
         });
+        // Create related game folder
+        (0, original_fs_1.mkdirSync)(instancesPath + "/" + name, { recursive: true });
+        console.log((0, instancesManager_1.refreshInstancesList)(imagePath, name, name, instanceDiv));
         (0, startInstance_1.startMinecraft)(version);
     });
 }

@@ -1,12 +1,13 @@
-const {dataPath, indexesPath, minecraftJarPath} = require("../utils/const")
+const {dataPath, indexesPath, minecraftJarPath, instancesPath} = require("../utils/const")
 import os from "os"
 import fs from "fs"
 import https from "https"
 import {getVersionManifest} from "./getMinecraftVersionManifest"
-import { getMinecraftVersions } from "./fetchBootloaderVersions"
 import {startMinecraft} from "./startInstance"
+import { mkdirSync } from "original-fs"
+import {refreshInstancesList} from "./instancesManager"
 
-export async function downloadVanillaVersion(version: string, name: string){
+export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
     console.log(version);
     
     getVersionManifest(version).then((data) => {
@@ -68,6 +69,12 @@ export async function downloadVanillaVersion(version: string, name: string){
         })
         console.log("Minecraft index downloaded");
     })
+
+    // Create related game folder
+    mkdirSync(instancesPath + "/" + name, {recursive: true})
+
+    console.log(refreshInstancesList(imagePath, name, name, instanceDiv));
+    
 
     startMinecraft(version)
 }
