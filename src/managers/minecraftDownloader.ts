@@ -68,15 +68,14 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             data.pipe(indexFile)
         })
         console.log("Minecraft index downloaded");
+    }).then(() => {
+        // Create related game folder
+        mkdirSync(instancesPath + "/" + name, {recursive: true})
+
+        refreshInstancesList(imagePath, name, name, instanceDiv);
+
+        startMinecraft(version)
     })
-
-    // Create related game folder
-    mkdirSync(instancesPath + "/" + name, {recursive: true})
-
-    console.log(refreshInstancesList(imagePath, name, name, instanceDiv));
-    
-
-    startMinecraft(version)
 }
 
 // Download Minecraft libraries

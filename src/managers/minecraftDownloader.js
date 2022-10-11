@@ -74,11 +74,12 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 data.pipe(indexFile);
             });
             console.log("Minecraft index downloaded");
+        }).then(() => {
+            // Create related game folder
+            (0, original_fs_1.mkdirSync)(instancesPath + "/" + name, { recursive: true });
+            (0, instancesManager_1.refreshInstancesList)(imagePath, name, name, instanceDiv);
+            (0, startInstance_1.startMinecraft)(version);
         });
-        // Create related game folder
-        (0, original_fs_1.mkdirSync)(instancesPath + "/" + name, { recursive: true });
-        console.log((0, instancesManager_1.refreshInstancesList)(imagePath, name, name, instanceDiv));
-        (0, startInstance_1.startMinecraft)(version);
     });
 }
 exports.downloadVanillaVersion = downloadVanillaVersion;
