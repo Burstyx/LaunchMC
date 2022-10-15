@@ -1,8 +1,9 @@
-const {dataPath, indexesPath, minecraftJarPath, instancesPath} = require("../utils/const")
+const {dataPath, indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage} = require("../utils/const")
 import os from "os"
 import fs from "fs"
 import https from "https"
-import {getVersionManifest} from "./getMinecraftVersionManifest"
+import path from "path"
+import {getVersionManifest} from "./getManifest"
 import {startMinecraft} from "./startInstance"
 import { mkdirSync } from "original-fs"
 import {refreshInstancesList} from "./instancesManager"
@@ -10,7 +11,7 @@ import {refreshInstancesList} from "./instancesManager"
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
     console.log(version);
     
-    getVersionManifest(version).then((data) => {
+    getVersionManifest(version).then(async (data) => {
         let numberOfLibrariesToDownload = 0
         let numberOfLibrariesDownloaded = 0
 
@@ -21,24 +22,27 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         // Download client
         console.log("Downloading minecraft client");
 
-        
-        
-        const indexFile = fs.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json")
-
-        
-        https.get(data["assetIndex"]["url"], (data) => {
-            data.pipe(indexFile)
-        })
-
-        if(!fs.existsSync(minecraftJarPath)){
-            fs.mkdirSync(minecraftJarPath, {recursive: true})
+        if(!fs.existsSync(minecraftVersionPath)){
+            fs.mkdirSync(minecraftVersionPath, {recursive: true})
         } 
         
-        const minecraftJarFile = fs.createWriteStream(minecraftJarPath + "/" + data["id"] + ".jar")
+        const minecraftJarFile = fs.createWriteStream(path.join(minecraftVersionPath, version, data["id"] + ".jar"))
         
-        https.get(data["downloads"]["client"]["url"], (data) => {
-            data.pipe(minecraftJarFile)
+        await new Promise((resolve, reject) => {
+            https.get(data["downloads"]["client"]["url"], (data) => {
+                data.pipe(minecraftJarFile)
+
+                data.on("end", () => {
+                    resolve(data)
+                })
+
+                data.on("error", (err) => {
+                    console.log(err);
+                    reject(err)
+                })
+            })
         })
+        
 
         console.log("Minecraft client downloaded");
 
@@ -48,17 +52,17 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
                 for(let e in data["libraries"][i]["downloads"]["classifiers"]){
                     if(e.includes("windows") && os.platform() == "win32"){
-                        downloadClassifierMinecraftLibrary(data, e, i)
+                        await downloadClassifierMinecraftLibrary(data, e, i)
                     }
                     if(e.includes("osx") && os.platform() == "darwin"){
-                        downloadClassifierMinecraftLibrary(data, e, i)
+                        await downloadClassifierMinecraftLibrary(data, e, i)
                     }
                     if(e.includes("linux") && os.platform() == "linux"){
-                        downloadClassifierMinecraftLibrary(data, e, i)
+                        await downloadClassifierMinecraftLibrary(data, e, i)
                     }
                 }
             }else{
-                downloadMinecraftLibrary(data, i)
+                await downloadMinecraftLibrary(data, i)
             }
             numberOfLibrariesDownloaded++
             console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
@@ -71,15 +75,62 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             fs.mkdirSync(indexesPath, {recursive: true})
         }
         
-        const indexFile = fs.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json")
+        const indexFile = fs.createWriteStream(path.join(indexesPath, data["assetIndex"]["id"] + ".json"))
         
-        https.get(data["assetIndex"]["url"], (data) => {
-            data.pipe(indexFile)
+        await new Promise((resolve, reject) => {
+            https.get(data["assetIndex"]["url"], (data) => {
+                data.pipe(indexFile)
+
+                data.on("end", () => {
+                    resolve(data)
+                })
+
+                data.on("error", (err) => {
+                    reject(err)
+                })
+            })
         })
+        
         console.log("Minecraft index downloaded");
+
+        // Download Logging configuration file
+        await downloadLoggingXmlConfFile(data)
 
         // Download objects
         console.log("Downloading minecraft assets");
+
+        if(!fs.existsSync(objectPath)){
+            fs.mkdirSync(objectPath, {recursive: true})
+        }
+
+        const file = fs.readFileSync(path.join(indexesPath, data["assetIndex"]["id"] + ".json"), "utf-8")
+        const indexesData = JSON.parse(file)
+
+        for(const e in indexesData["objects"]){
+            const hash = indexesData["objects"][e]["hash"]
+            const subhash = hash.substring(0, 2)
+
+            if(!fs.existsSync(path.join(objectPath, subhash))){
+                fs.mkdirSync(path.join(objectPath, subhash))
+            }
+
+            const file = fs.createWriteStream(path.join(objectPath, subhash, hash))
+
+            await new Promise((resolve, reject) => {
+                https.get(path.join(resourcePackage, subhash, hash), (data) => {
+                    data.pipe(file)
+
+                    data.on("end", () => {
+                        resolve(data)
+                    })
+                    
+                    data.on("error", (err) => {
+                        reject(err)
+                    })
+                })
+            })
+            
+        }
 
 
         
@@ -95,36 +146,86 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
 // Download Minecraft libraries
 function downloadMinecraftLibrary(data: any, i: number){
-    const filePath = dataPath + '/libraries/' + data['libraries'][i]['downloads']['artifact']['path']
-    const fileName = filePath.split("/").pop()
-    const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
+    return new Promise((resolve, reject) => {
+        const filePath = path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path'])
+        const fileName = filePath.split("\\").pop()
+        const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
 
-    // Create folder if dir does not exist
-    if(!fs.existsSync(dirPath)){
-        fs.mkdirSync(dirPath, {recursive: true})
-    }
+        // Create folder if dir does not exist
+        if(!fs.existsSync(dirPath)){
+            fs.mkdirSync(dirPath, {recursive: true})
+        }
 
-    // Download the jar file
-    const file = fs.createWriteStream(filePath)
-    https.get(data["libraries"][i]["downloads"]["artifact"]["url"], (data) => {
-        data.pipe(file)
+        console.log(filePath);
+
+        // Download the jar file
+        const file = fs.createWriteStream(filePath)
+        https.get(data["libraries"][i]["downloads"]["artifact"]["url"], (data) => {
+            data.pipe(file)
+
+            data.on("end", () => {
+                resolve(data)
+            })
+
+            data.on("error", (err) => {
+                reject(err)
+            })
+        })
     })
 }
 
 // Download Minecraft libraries (classify by os version)
 function downloadClassifierMinecraftLibrary(data: any, e: string, i: number){
-    const filePath = dataPath + '/libraries/' + data['libraries'][i]['downloads']['classifiers'][e]['path']
-    const fileName = filePath.split("/").pop()
-    const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
+    return new Promise((resolve, reject) => {
+        const filePath = path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path'])
+        const fileName = filePath.split("\\").pop()
+        const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
 
-    // Create folder if dir does not exist
-    if(!fs.existsSync(dirPath)){
-        fs.mkdirSync(dirPath, {recursive: true})
-    }
+        // Create folder if dir does not exist
+        if(!fs.existsSync(dirPath)){
+            fs.mkdirSync(dirPath, {recursive: true})
+        }
 
-    // Download the jar file
-    const file = fs.createWriteStream(filePath)
-    https.get(data["libraries"][i]["downloads"]["classifiers"][e]["url"], (data) => {
-        data.pipe(file)
+        console.log(filePath);
+        
+        // Download the jar file
+        const file = fs.createWriteStream(filePath)
+        https.get(data["libraries"][i]["downloads"]["classifiers"][e]["url"], (data) => {
+            data.pipe(file)
+
+            data.on("end", () => {
+                resolve(data)
+            })
+
+            data.on("error", (err) => {
+                reject(err)
+            })
+        })
     })
+}
+
+function downloadLoggingXmlConfFile(data: any){
+    return new Promise((resolve, reject) => {
+        if(!data.hasOwnProperty("logging")){
+            resolve("No logging key found, step passed.")
+        }
+        if(!fs.existsSync(loggingConfPath)){
+            fs.mkdirSync(loggingConfPath, {recursive: true})
+        }
+
+        const file = fs.createWriteStream(path.join(loggingConfPath, data["logging"]["client"]["file"]["id"]))
+
+        https.get(data["logging"]["client"]["file"]["url"], (data) => {
+            data.pipe(file)
+
+            data.on("end", () => {
+                resolve(data)
+            })
+
+            data.on("error", (err) => {
+                reject(err)
+            })
+        })
+    })
+    
 }

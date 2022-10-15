@@ -1,4 +1,4 @@
-import {getVersionManifest} from "./getMinecraftVersionManifest"
+import {getVersionManifest} from "./getManifest"
 
 export function startMinecraft(version: string){
     let minecraftArguments: string[]
