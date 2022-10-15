@@ -20,6 +20,15 @@ export async function downloadVanillaVersion(version: string, name: string){
         // Download client
         console.log("Downloading minecraft client");
 
+        
+        
+        const indexFile = fs.createWriteStream(indexesPath + "/" + data["assetIndex"]["id"] + ".json")
+
+        
+        https.get(data["assetIndex"]["url"], (data) => {
+            data.pipe(indexFile)
+        })
+
         if(!fs.existsSync(minecraftJarPath)){
             fs.mkdirSync(minecraftJarPath, {recursive: true})
         } 
@@ -67,6 +76,19 @@ export async function downloadVanillaVersion(version: string, name: string){
             data.pipe(indexFile)
         })
         console.log("Minecraft index downloaded");
+
+        // Download objects
+        console.log("Downloading minecraft assets");
+
+
+        
+    }).then(() => {
+        // Create related game folder
+        mkdirSync(instancesPath + "/" + name, {recursive: true})
+
+        refreshInstancesList(imagePath, name, name, instanceDiv);
+
+        startMinecraft(version)
     })
 
     startMinecraft(version)
