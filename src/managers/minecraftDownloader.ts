@@ -15,7 +15,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         let numberOfLibrariesToDownload = 0
         let numberOfLibrariesDownloaded = 0
 
-        // Verification of the game version
+        // Verification of the game version 
         for(let i = 0; i < data["libraries"].length; i++){
             numberOfLibrariesToDownload++
         }
@@ -138,7 +138,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         // Create related game folder
         mkdirSync(instancesPath + "/" + name, {recursive: true})
 
-        refreshInstancesList(imagePath, name, name, instanceDiv);
+        refreshInstancesList(imagePath, name, instanceDiv);
 
         startMinecraft(version)
     })

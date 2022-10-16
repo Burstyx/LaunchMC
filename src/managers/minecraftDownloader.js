@@ -28,7 +28,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
         (0, getManifest_1.getVersionManifest)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
             let numberOfLibrariesToDownload = 0;
             let numberOfLibrariesDownloaded = 0;
-            // Verification of the game version
+            // Verification of the game version 
             for (let i = 0; i < data["libraries"].length; i++) {
                 numberOfLibrariesToDownload++;
             }
@@ -123,7 +123,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
         })).then(() => {
             // Create related game folder
             (0, original_fs_1.mkdirSync)(instancesPath + "/" + name, { recursive: true });
-            (0, instancesManager_1.refreshInstancesList)(imagePath, name, name, instanceDiv);
+            (0, instancesManager_1.refreshInstancesList)(imagePath, name, instanceDiv);
             (0, startInstance_1.startMinecraft)(version);
         });
     });

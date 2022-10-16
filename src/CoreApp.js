@@ -1,5 +1,5 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn } = require('./managers/instancesManager')
+const { generateInstanceBtn, getInstancesList } = require('./managers/instancesManager')
 const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
 const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
 const { startMinecraft } = require("./managers/startInstance")
@@ -237,3 +237,5 @@ document.addEventListener("click", (evt) => {
         refreshInstanceVersion()
     }
 })
+
+getInstancesList(instancesDiv)
