@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getVersions = exports.getVersionManifest = void 0;
+exports.getVersionManifest = void 0;
 const fs_1 = __importDefault(require("fs"));
 const { minecraftVersionPath, versionsManifest } = require("../utils/const");
 const https_1 = __importDefault(require("https"));
@@ -48,8 +48,3 @@ function getVersionManifest(version) {
     });
 }
 exports.getVersionManifest = getVersionManifest;
-function getVersions() {
-    return __awaiter(this, void 0, void 0, function* () {
-    });
-}
-exports.getVersions = getVersions;

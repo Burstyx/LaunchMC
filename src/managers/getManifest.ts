@@ -33,7 +33,3 @@ export async function getVersionManifest(version: string): Promise<any>{
         }
     })
 }
-
-export async function getVersions(){
-    
-}
