@@ -1,16 +1,21 @@
 import {getVersionManifest} from "./getManifest"
 
 export function startMinecraft(version: string){
-    let minecraftArguments: string[]
-
     getVersionManifest(version).then((data) => {
-        minecraftArguments = data["minecraftArguments"].split('-')
-        minecraftArguments.splice(0, 1)
-        for(let i = 0; i < minecraftArguments.length; i++){
-            if(minecraftArguments[i] == ""){
-                minecraftArguments.splice(i, 1)
+        console.log(data["minecraftArguments"]);
+
+        let minecraftArguments = data["minecraftArguments"]
+        
+        if(minecraftArguments.includes("-")){
+            let args = minecraftArguments.split('-')
+            args.splice(0, 1)
+            for(let i = 0; i < args.length; i++){
+                if(args[i] == ""){
+                    args.splice(i, 1)
+                }
             }
         }
+        
         console.log(minecraftArguments);
     })
 }

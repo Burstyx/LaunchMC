@@ -6,7 +6,7 @@ import path from "path"
 import {getVersionManifest} from "./getManifest"
 import {startMinecraft} from "./startInstance"
 import { mkdirSync } from "original-fs"
-import {refreshInstancesList} from "./instancesManager"
+import {getInstancesList} from "./instancesManager"
 
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
     console.log(version);
@@ -135,11 +135,13 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
         
     }).then(() => {
+        
         // Create related game folder
         fs.mkdirSync(instancesPath + "/" + name, {recursive: true})
         fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath}))
 
-        refreshInstancesList(imagePath, name, instanceDiv);
+        
+        getInstancesList(instanceDiv);
 
         startMinecraft(version)
     })

@@ -2,8 +2,7 @@ import fs from "fs"
 import path from "path"
 const {instancesPath} = require("../utils/const")
 
-export function refreshInstancesList(imagePath: string, title: string, instanceDiv: HTMLElement){
-    console.log(fs.readdirSync(instancesPath))
+export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement){
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title))
 }
 
@@ -37,12 +36,14 @@ function createStyleString(imagePath: string){
 }
 
 export function getInstancesList(instancesDiv: HTMLElement){
+    instancesDiv.innerHTML = ""
+    
     if(fs.existsSync(instancesPath)){
         const instances = fs.readdirSync(instancesPath)
         for(const e in instances){
             if(fs.existsSync(path.join(instancesPath, instances[e], "info.json"))){
                 const data = JSON.parse(fs.readFileSync(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
-                refreshInstancesList(data["imagePath"], instances[e], instancesDiv)
+                addInstanceElement(data["imagePath"], instances[e], instancesDiv)
             }
         }
     }
