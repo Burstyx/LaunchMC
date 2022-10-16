@@ -20,7 +20,6 @@ const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const getManifest_1 = require("./getManifest");
 const startInstance_1 = require("./startInstance");
-const original_fs_1 = require("original-fs");
 const instancesManager_1 = require("./instancesManager");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -122,7 +121,8 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             }
         })).then(() => {
             // Create related game folder
-            (0, original_fs_1.mkdirSync)(instancesPath + "/" + name, { recursive: true });
+            fs_1.default.mkdirSync(instancesPath + "/" + name, { recursive: true });
+            fs_1.default.writeFileSync(path_1.default.join(instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath }));
             (0, instancesManager_1.refreshInstancesList)(imagePath, name, instanceDiv);
             (0, startInstance_1.startMinecraft)(version);
         });

@@ -136,7 +136,8 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         
     }).then(() => {
         // Create related game folder
-        mkdirSync(instancesPath + "/" + name, {recursive: true})
+        fs.mkdirSync(instancesPath + "/" + name, {recursive: true})
+        fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath}))
 
         refreshInstancesList(imagePath, name, instanceDiv);
 
