@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInstancesList = exports.addInstanceElement = void 0;
+exports.getInstanceData = exports.getInstancesList = exports.addInstanceElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const { instancesPath } = require("../utils/const");
@@ -45,3 +45,15 @@ function getInstancesList(instancesDiv) {
     }
 }
 exports.getInstancesList = getInstancesList;
+function getInstanceData(instanceId) {
+    if (fs_1.default.existsSync(path_1.default.join(instancesPath))) {
+        const instances = fs_1.default.readdirSync(instancesPath);
+        for (const e in instances) {
+            if (instances[e] == instanceId) {
+                const data = fs_1.default.readFileSync(path_1.default.join(instancesPath, instances[e], "info.json"), "utf-8");
+                return { "data": JSON.parse(data), "gamePath": path_1.default.join(instancesPath, instances[e]) };
+            }
+        }
+    }
+}
+exports.getInstanceData = getInstanceData;

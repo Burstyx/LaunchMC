@@ -371,10 +371,16 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
+  transition: transform 0.25s, box-shadow 0.25s;
+  box-shadow: 0 0 3px black;
 }
 #instances .instance p {
   color: white;
   font-size: 36px;
+}
+#instances .instance:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 6px black;
 }
 
 /*# sourceMappingURL=style.css.map */

@@ -48,3 +48,16 @@ export function getInstancesList(instancesDiv: HTMLElement){
         }
     }
 }
+
+export function getInstanceData(instanceId: string){
+    if(fs.existsSync(path.join(instancesPath))){
+        const instances = fs.readdirSync(instancesPath)
+        for(const e in instances){
+            if(instances[e] == instanceId){
+                const data = fs.readFileSync(path.join(instancesPath, instances[e], "info.json"), "utf-8")
+
+                return {"data": JSON.parse(data), "gamePath": path.join(instancesPath, instances[e])}
+            }
+        }
+    }
+}

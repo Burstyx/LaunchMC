@@ -122,7 +122,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
         })).then(() => {
             // Create related game folder
             fs_1.default.mkdirSync(instancesPath + "/" + name, { recursive: true });
-            fs_1.default.writeFileSync(path_1.default.join(instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath }));
+            fs_1.default.writeFileSync(path_1.default.join(instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version }));
             (0, instancesManager_1.getInstancesList)(instanceDiv);
             (0, startInstance_1.startMinecraft)(version);
         });

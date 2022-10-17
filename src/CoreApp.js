@@ -1,8 +1,9 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList } = require('./managers/instancesManager')
+const { generateInstanceBtn, getInstancesList, getInstanceData } = require('./managers/instancesManager')
 const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
 const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
 const { startMinecraft } = require("./managers/startInstance")
+const { msaLogin } = require("./managers/microsoftAuth")
 
 console.log("Initialisation du module principal !");
 
@@ -229,13 +230,21 @@ function closeChooseVersionMenu() {
 
 document.addEventListener("click", (evt) => {
     const elementClicked = evt.target
-    console.log(elementClicked.parentElement.classList.item(0));
     if (elementClicked.parentElement.classList.item(0) == "vanillabootloaderinformation") {
         let versionFound = elementClicked.parentElement.id.toString().substring(8)
         chosenVersion = "vanilla-" + versionFound
         closeChooseVersionMenu()
         refreshInstanceVersion()
     }
+
+    if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
+        if (elementClicked.tagName == "P") {
+            console.log(getInstanceData(elementClicked.innerText))
+        } else {
+            console.log(getInstanceData(elementClicked.childNodes[0].innerHTML))
+        }
+    }
 })
 
 getInstancesList(instancesDiv)
+msaLogin()
