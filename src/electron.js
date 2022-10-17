@@ -14,7 +14,9 @@ function createAppWindow() {
         fullscreenable: false,
         show: false,
         height: 620,
-        width: 940,
+        width: 1080,
+        minHeight: 620,
+        minWidth: 1080,
         title: "Bursty Launcher",
         webPreferences: {
             nodeIntegration: true,

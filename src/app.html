@@ -11,6 +11,147 @@
             <div id="close"><img src="../resources/svg/close.svg"></div>
         </div>
     </div>
+    <div id="clickavoider"></div>
+    <div id="toolbar">
+        <div id="add"><img width="30" src="../resources/svg/add.svg"><p>Add</p></div>
+        <div id="settings"><img width="30" src="../resources/svg/settings.svg"><p>Settings</p></div>
+        <div id="about"><img width="30" src="../resources/svg/about.svg">
+            <p>About</p>
+        </div>
+    </div>
+    
+    <div id="addmenu" class="menu">
+        <img id="closeaddmenu" src="../resources/svg/close.svg">
+        <p id="addlabel">Création d'une instance</p>
+        <div id="addlabelbanner">
+            <div>
+                <p>Change banner</p>
+            </div>
+        </div>
+        <p id="instancenametitle">
+            Instance's Name
+        </p>
+        <input type="text" id="instancenameinput">
+        <p id="instanceversiontitle">
+            Minecraft Version
+        </p>
+        <div id="instanceversion">
+            <p id="instanceversionselectedversion"></p>
+            <img src="../resources/svg/arrow.svg">
+        </div>
+        <div id="addmenuactionbtn">
+            <div id="addmenucreatebtn">
+                Create
+            </div>
+            <div id="addmenucancelbtn">
+                Cancel
+            </div>
+        </div>
+    </div>
+    <div id="choseversionmenu" class="menu">
+        <div id="bootloaderbtn">
+            <div id="vanillamenu"><p>Vanilla</p></div>
+            <div id="forgemenu"><p>Forge</p></div>
+            <div id="curseforgemenu"><p>CurseForge</p></div>
+            <div id="ftbmenu"><p>FTB</p></div>
+            <div id="zipmenu"><p>ZIP</p></div>
+        </div>
+        <div id="vanillaversionslist">
+            <div id="vanillaversionfilter">
+                <div id="vanillaversionfilterrelease" class="vanillafilters">
+                    <p>Release</p>
+                    <input type="checkbox" id="vanillareleasecheckbox" class="checkbox" checked>
+                </div>
+                <div id="vanillaversionfiltersnapshot" class="vanillafilters">
+                    <p>Snapshot</p>
+                    <input type="checkbox" id="vanillasnapshotcheckbox" class="checkbox" checked>
+                </div>
+                <div id="vanillaversionfilterbeta" class="vanillafilters">
+                    <p>Beta</p>
+                    <input type="checkbox" id="vanillabetacheckbox" class="checkbox">
+                </div>
+                <div id="vanillaversionfilteralpha" class="vanillafilters">
+                    <p>Alpha</p>
+                    <input type="checkbox" id="vanillaalphacheckbox" class="checkbox">
+                </div>
+            </div>
+            <p id="loadingbootloaderversions">Loading</p>
+            <p id="notfoundbootloaderversions" style="display: none;">No version found</p>
+            <div id="vanillabootloaderinfoslist">
+                <!-- <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div>
+                            <div id="version0" class="bootloaderinformation">
+                                <p>1.12.2</p>
+                                <p>Release</p>
+                            </div> -->
+            </div>
+           
+        </div>
+    </div>
+    <div id="instances">
+    </div>
 </body>
-<script src="core/CoreApp.js"></script>
+<script src="CoreApp.js"></script>
 </html>
