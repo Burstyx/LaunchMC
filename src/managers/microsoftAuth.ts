@@ -1,8 +1,5 @@
 import { BrowserWindow } from "@electron/remote"
-import axios from "axios"
-const {clientId, redirectUrl, msAuth, msAccessToken, clientSecret} = require("../utils/const.js")
-import url from "url"
-import qs from "node:querystring"
+const {clientId, redirectUrl, msAuth, msAccessToken, clientSecret, xbxLiveAuth} = require("../utils/const.js")
 
 export function createOAuthLink(){
     let url = msAuth
@@ -37,23 +34,18 @@ export async function msaLogin(){
             const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code")
 
             const msFetchedData = await getAccessToken(code!)
-
-            console.log(msFetchedData);
-            
-            
-
             const accessToken = msFetchedData!["access_token"]
 
-            console.log(accessToken);
-
             const xbxLiveFetchedData = await getXbxLiveToken(accessToken)
+            const uhs = xbxLiveFetchedData!["DisplayClaims"]["xui"][0]["uhs"]
+            const token = xbxLiveFetchedData!["Token"]
+            
+            const xstsFetchedData = await getXstsToken(uhs, token)
         }
     })
 }
 
-export async function getAccessToken(code: string){
-    console.log(code);
-    
+async function getAccessToken(code: string){
     var header = new Headers();
     header.append("Content-Type", "application/x-www-form-urlencoded")
 
@@ -63,23 +55,48 @@ export async function getAccessToken(code: string){
     urlencoded.append("grant_type", "authorization_code")
     urlencoded.append("redirect_uri", redirectUrl)
 
-    console.log(redirectUrl);
-
     var response = undefined
         
-
     await fetch(msAccessToken, {method: "POST", headers: header, body: urlencoded, redirect: "follow"}).then(async (res) => {
         await res.json().then((val) => {
             response = val
         })
     }).catch((err) => {
-        console.error(err);
+        console.log("Error occured when attempting to fetch the MSA access token related to the account!");
         
+        console.error(err);
     })
 
     return response
 }
 
-export async function getXbxLiveToken(accessToken: string){
+async function getXbxLiveToken(accessToken: string){
+    var header = new Headers();
+    header.append("Content-Type", "application/json")
+    header.append("Accept", "application/json")
+
+    var urlencoded = new URLSearchParams();
+    urlencoded.append("Properties", JSON.stringify({"AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}`}))
+    urlencoded.append("RelyingParty", "http://auth.xboxlive.com")
+    urlencoded.append("TokenType", "JWT")
+
+    var bodyParam = JSON.stringify({"Properties": {"AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}`}, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT"})
+
+    var response = undefined
+
+    await fetch(xbxLiveAuth, {method: "POST", headers: header, body: bodyParam, redirect: "follow"}).then(async (res) => {
+        await res.json().then((val) => {
+            response = val
+        })
+    }).catch((err) => {
+        console.log("Error occured when attempting to fetch the XBL token related to the account!");
+        
+        console.error(err);
+    })
+
+    return response
+}
+
+async function getXstsToken(uhs: string, token: string){
 
 }

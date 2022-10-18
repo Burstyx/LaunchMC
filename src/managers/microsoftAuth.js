@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getXbxLiveToken = exports.getAccessToken = exports.msaLogin = exports.createOAuthLink = void 0;
+exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
-const { clientId, redirectUrl, msAuth, msAccessToken, clientSecret } = require("../utils/const.js");
+const { clientId, redirectUrl, msAuth, msAccessToken, clientSecret, xbxLiveAuth } = require("../utils/const.js");
 function createOAuthLink() {
     let url = msAuth;
     url += "?client_id=" + clientId;
@@ -39,10 +39,12 @@ function msaLogin() {
                 console.log("Code retrieved");
                 const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
                 const msFetchedData = yield getAccessToken(code);
-                console.log(msFetchedData);
                 const accessToken = msFetchedData["access_token"];
-                console.log(accessToken);
                 const xbxLiveFetchedData = yield getXbxLiveToken(accessToken);
+                const uhs = xbxLiveFetchedData["DisplayClaims"]["xui"][0]["uhs"];
+                const token = xbxLiveFetchedData["Token"];
+                console.log(uhs);
+                console.log(token);
             }
         }));
     });
@@ -50,7 +52,6 @@ function msaLogin() {
 exports.msaLogin = msaLogin;
 function getAccessToken(code) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log(code);
         var header = new Headers();
         header.append("Content-Type", "application/x-www-form-urlencoded");
         var urlencoded = new URLSearchParams();
@@ -58,21 +59,37 @@ function getAccessToken(code) {
         urlencoded.append("code", code);
         urlencoded.append("grant_type", "authorization_code");
         urlencoded.append("redirect_uri", redirectUrl);
-        console.log(redirectUrl);
         var response = undefined;
         yield fetch(msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
             });
         })).catch((err) => {
+            console.log("Error occured when attempting to fetch the MSA access token related to the account!");
             console.error(err);
         });
         return response;
     });
 }
-exports.getAccessToken = getAccessToken;
 function getXbxLiveToken(accessToken) {
     return __awaiter(this, void 0, void 0, function* () {
+        var header = new Headers();
+        header.append("Content-Type", "application/json");
+        header.append("Accept", "application/json");
+        var urlencoded = new URLSearchParams();
+        urlencoded.append("Properties", JSON.stringify({ "AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}` }));
+        urlencoded.append("RelyingParty", "http://auth.xboxlive.com");
+        urlencoded.append("TokenType", "JWT");
+        var bodyParam = JSON.stringify({ "Properties": { "AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}` }, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT" });
+        var response = undefined;
+        yield fetch(xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+            yield res.json().then((val) => {
+                response = val;
+            });
+        })).catch((err) => {
+            console.log("Error occured when attempting to fetch the XBL token related to the account!");
+            console.error(err);
+        });
+        return response;
     });
 }
-exports.getXbxLiveToken = getXbxLiveToken;
