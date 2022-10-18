@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
-const { clientId, redirectUrl, msAuth, msAccessToken, clientSecret, xbxLiveAuth } = require("../utils/const.js");
+const { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } = require("../utils/const.js");
 function createOAuthLink() {
     let url = msAuth;
     url += "?client_id=" + clientId;
@@ -38,18 +38,48 @@ function msaLogin() {
             if (loginWindow.webContents.getURL().includes("code=")) {
                 console.log("Code retrieved");
                 const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
-                const msFetchedData = yield getAccessToken(code);
-                const accessToken = msFetchedData["access_token"];
-                const xbxLiveFetchedData = yield getXbxLiveToken(accessToken);
-                const uhs = xbxLiveFetchedData["DisplayClaims"]["xui"][0]["uhs"];
-                const token = xbxLiveFetchedData["Token"];
-                console.log(uhs);
-                console.log(token);
+                loginWindow.close();
+                yield connectWithCode(code);
             }
         }));
     });
 }
 exports.msaLogin = msaLogin;
+function connectWithCode(code) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const msFetchedData = yield getAccessToken(code);
+        const accessToken = msFetchedData["access_token"];
+        const xbxLiveFetchedData = yield getXbxLiveToken(accessToken);
+        const uhs = xbxLiveFetchedData["DisplayClaims"]["xui"][0]["uhs"];
+        const xbxToken = xbxLiveFetchedData["Token"];
+        const xstsFetchedData = yield getXstsToken(xbxToken);
+        const xstsToken = xstsFetchedData["Token"];
+        const minecraftFetchedData = yield getMinecraftBearerToken(uhs, xstsToken);
+        const minecraftAccessToken = minecraftFetchedData["access_token"];
+        const expires_in = minecraftFetchedData["expires_in"];
+    });
+}
+function refreshAccessToken(refreshToken) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var header = new Headers();
+        header.append("Content-Type", "application/x-www-form-urlencoded");
+        var urlencoded = new URLSearchParams();
+        urlencoded.append("client_id", clientId);
+        urlencoded.append("refresh_token", refreshToken);
+        urlencoded.append("grant_type", "refresh_token");
+        urlencoded.append("redirect_uri", redirectUrl);
+        var response = undefined;
+        yield fetch(msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+            yield res.json().then((val) => {
+                response = val;
+            });
+        })).catch((err) => {
+            console.log("Error occured when attempting to refresh the MSA access token related to the account!");
+            console.error(err);
+        });
+        return response;
+    });
+}
 function getAccessToken(code) {
     return __awaiter(this, void 0, void 0, function* () {
         var header = new Headers();
@@ -76,10 +106,6 @@ function getXbxLiveToken(accessToken) {
         var header = new Headers();
         header.append("Content-Type", "application/json");
         header.append("Accept", "application/json");
-        var urlencoded = new URLSearchParams();
-        urlencoded.append("Properties", JSON.stringify({ "AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}` }));
-        urlencoded.append("RelyingParty", "http://auth.xboxlive.com");
-        urlencoded.append("TokenType", "JWT");
         var bodyParam = JSON.stringify({ "Properties": { "AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}` }, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT" });
         var response = undefined;
         yield fetch(xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
@@ -88,6 +114,41 @@ function getXbxLiveToken(accessToken) {
             });
         })).catch((err) => {
             console.log("Error occured when attempting to fetch the XBL token related to the account!");
+            console.error(err);
+        });
+        return response;
+    });
+}
+function getXstsToken(token) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var header = new Headers();
+        header.append("Content-Type", "application/json");
+        header.append("Accept", "application/json");
+        var bodyParam = JSON.stringify({ "Properties": { "SandboxId": "RETAIL", "UserTokens": [token] }, "RelyingParty": "rp://api.minecraftservices.com/", "TokenType": "JWT" });
+        var response = undefined;
+        yield fetch(xstsAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+            yield res.json().then((val) => {
+                response = val;
+            });
+        })).catch((err) => {
+            console.log("Error occured when attempting to fetch the XSTS token related to the account!");
+            console.error(err);
+        });
+        return response;
+    });
+}
+function getMinecraftBearerToken(uhs, token) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var header = new Headers();
+        header.append("Content-Type", "application/json");
+        var bodyParam = JSON.stringify({ "identityToken": `XBL3.0 x=${uhs};${token}`, "ensureLegacyEnabled": true });
+        var response = undefined;
+        yield fetch(minecraftBearerToken, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+            yield res.json().then((val) => {
+                response = val;
+            });
+        })).catch((err) => {
+            console.log("Error occured when attempting to fetch the Minecraft informations related to the account!");
             console.error(err);
         });
         return response;
