@@ -163,7 +163,7 @@
 #addmenu #closeaddmenu:hover {
   background-color: #191919;
 }
-#addmenu #addlabel {
+#addmenu #addLabel {
   color: white;
   font-size: 20px;
   text-align: center;
@@ -386,6 +386,68 @@
 #instances .instance:hover {
   transform: scale(1.01);
   box-shadow: 0 0 6px black;
+}
+
+#accountmanager {
+  background-color: rgb(29, 29, 29);
+  pointer-events: none;
+  width: 70%;
+  height: 60%;
+  max-width: 800px;
+  max-height: 700px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s;
+  z-index: 1;
+}
+#accountmanager #closeaccountmenu {
+  width: 25px;
+  position: absolute;
+  right: 0;
+  margin: 15px;
+  padding: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+#accountmanager #closeaccountmenu:hover {
+  background-color: #191919;
+}
+#accountmanager #accountLabel {
+  color: white;
+  font-size: 20px;
+  text-align: center;
+}
+#accountmanager #accountslist {
+  display: flex;
+  flex-wrap: wrap;
+}
+#accountmanager #accountslist .accountelement {
+  background: linear-gradient(rgba(1, 1, 1, 0.75), rgba(1, 1, 1, 0.75)), url("https://minotar.net/avatar/ItsBursty");
+  background-repeat: no-repeat;
+  background-clip: content-box;
+  background-size: cover;
+  background-position: 100% 50%;
+  width: 250px;
+  height: 150px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+}
+#accountmanager #accountslist .accountelement div {
+  display: flex;
+  height: 100%;
+  flex-direction: column-reverse;
+  padding: 10px;
+}
+#accountmanager #accountslist .accountelement div p {
+  color: white;
+  margin-bottom: -10px;
 }
 
 /*# sourceMappingURL=style.css.map */

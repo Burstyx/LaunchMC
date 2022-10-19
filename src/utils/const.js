@@ -19,6 +19,7 @@ exports.msAccessToken = "https://login.live.com/oauth20_token.srf"
 exports.xbxLiveAuth = "https://user.auth.xboxlive.com/user/authenticate"
 exports.xstsAuth = "https://xsts.auth.xboxlive.com/xsts/authorize"
 exports.minecraftBearerToken = "https://api.minecraftservices.com/authentication/login_with_xbox"
+exports.minecraftHeadProfilePicture = "https://minotar.net/avatar/"
 
 // Azure data
 exports.redirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient"

@@ -83,6 +83,29 @@ const instanceVersion = document.getElementById("instanceversion")
 const instancesDiv = document.getElementById("instances")
 const instanceName = document.getElementById("instancenameinput")
 
+const accountBtn = document.getElementById("account")
+const accountManager = document.getElementById("accountmanager")
+const closeaccountmenu = document.getElementById("closeaccountmenu")
+
+accountBtn.addEventListener("click", () => {
+    accountManager.style.opacity = "1"
+    accountManager.style.pointerEvents = "all"
+
+    clickavoider.style.zIndex = "1"
+    clickavoider.style.opacity = "0.5"
+    clickavoider.style.pointerEvents = "all"
+
+    elementToCloseWhenClickingOnClickAvoider = accountManager
+})
+
+closeaccountmenu.addEventListener("click", () => {
+    accountManager.style.opacity = "0"
+    accountManager.style.pointerEvents = "none"
+
+    clickavoider.style.opacity = "0"
+    clickavoider.style.pointerEvents = "none"
+})
+
 let chosenVersion = "vanilla-1.12.2"
 let selectedVersion = "1.12.2"
 let bootloadertype = "vanilla"
