@@ -390,10 +390,9 @@
 
 #accountmanager {
   background-color: rgb(29, 29, 29);
-  pointer-events: none;
   width: 70%;
-  height: 60%;
-  max-width: 800px;
+  height: 70%;
+  max-width: 900px;
   max-height: 700px;
   border-radius: 10px;
   box-shadow: 0 0 15px black;
@@ -438,6 +437,7 @@
   display: flex;
   flex-direction: column;
   margin: 15px;
+  transition: transform 0.25s, background-position 0.25s;
 }
 #accountmanager #accountslist .accountelement div {
   display: flex;
@@ -448,6 +448,28 @@
 #accountmanager #accountslist .accountelement div p {
   color: white;
   margin-bottom: -10px;
+}
+#accountmanager #accountslist .accountelement:hover {
+  transform: scale(1.05);
+  background-position: 100% 65%;
+}
+#accountmanager #accountslist .active {
+  border: solid #b90000;
+}
+#accountmanager #accountslist #addaccount {
+  background-color: rgba(48, 48, 48, 0.75);
+  width: 250px;
+  height: 150px;
+  border-radius: 10px;
+  margin: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.25s;
+}
+#accountmanager #accountslist #addaccount:hover {
+  transform: scale(1.05);
 }
 
 /*# sourceMappingURL=style.css.map */
