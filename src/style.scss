@@ -1,438 +1,437 @@
 @use "sass:math";
 
-$titlebar-color: #1F1F1F;
+$titlebar-color: #1f1f1f;
 $initial-titlebar-buttons-color: #484848;
 $hovered-titlebar-buttons-color: #3a3a3a;
 $hovered-titlebar-closebutton-color: #850303;
 
 @font-face {
-    font-family: narrow;
-    src: url(../resources/fonts/PragatiNarrow-Regular.ttf);
+  font-family: narrow;
+  src: url(../resources/fonts/PragatiNarrow-Regular.ttf);
 }
 
-*{
-    padding: 0;
-    margin: 0;
-    user-select: none;
-    -webkit-user-drag: none;
-    font-family: narrow;
+* {
+  padding: 0;
+  margin: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+  font-family: narrow;
 }
 
-.checkbox{
-    background-color: transparent;
-    border: 1.5px solid white;
-    border-radius: 2px;
-    width: 15px;
-    height: 15px;
-    outline: none;
-    appearance: none;
-    transition: background-color 0.25s, border 0.25s;
-    margin-left: 5px;
+.checkbox {
+  background-color: transparent;
+  border: 1.5px solid white;
+  border-radius: 2px;
+  width: 15px;
+  height: 15px;
+  outline: none;
+  appearance: none;
+  transition: background-color 0.25s, border 0.25s;
+  margin-left: 5px;
 }
 
-.checkbox:checked{
-    border: 7px solid white;
-    background-color: white;
-    &::after{
-        content: '';
-        background-image: url(../resources/svg/tick.svg);
-        background-size: cover;
-        width: 14px;
-        height: 12px;
-        position: absolute;
-        transform: translate(-50%, -50%) scale(.9);
-        opacity: 1;
-    }
-}
-
-::-webkit-scrollbar{
-    width: 8px;
-    height: 8px;
+.checkbox:checked {
+  border: 7px solid white;
+  background-color: white;
+  &::after {
+    content: "";
+    background-image: url(../resources/svg/tick.svg);
+    background-size: cover;
+    width: 14px;
+    height: 12px;
     position: absolute;
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 1;
+  }
+}
 
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  position: absolute;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: rgb(107, 107, 107);
-    border-radius: 50px;
-    box-shadow: 0 0 10px black;
+  background-color: rgb(107, 107, 107);
+  border-radius: 50px;
+  box-shadow: 0 0 10px black;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: rgb(67, 67, 67);
+  background-color: rgb(67, 67, 67);
 }
 
-#titlebar{
-    width: 100%;
-    background-color: $titlebar-color;
+#titlebar {
+  width: 100%;
+  background-color: $titlebar-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  -webkit-app-region: drag;
+
+  position: relative;
+  z-index: 999;
+
+  #app-name {
+    width: 130px;
+    font-size: 15px;
+    text-align: center;
+    color: white;
+
+    span {
+      color: rgb(169, 169, 169);
+    }
+  }
+
+  #action-buttons {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    -webkit-app-region: drag;
+    -webkit-app-region: no-drag;
 
-    position: relative;
-    z-index: 999;
+    div {
+      background-color: $initial-titlebar-buttons-color;
+      padding: 8px 15px 8px 15px;
+      transition: background-color 0.2s;
 
-    #app-name{
-        width: 130px;
-        font-size: 15px;
-        text-align: center;
-        color: white;
-
-        span{
-            color:rgb(169, 169, 169);
-        }
+      img {
+        width: 100%;
+        height: 100%;
+      }
     }
-
-    #action-buttons{
-        display: flex;
-        -webkit-app-region: no-drag;
-
-        div{
-            background-color: $initial-titlebar-buttons-color;
-            padding: 8px 15px 8px 15px;
-            transition: background-color 0.2s;
-
-            img{
-                width: 100%;
-                height: 100%;
-            }
-        }
-        #reduce:hover, #maximize:hover{
-            background-color: $hovered-titlebar-buttons-color;
-            cursor: default;
-        }
-        #close:hover{
-            background-color: $hovered-titlebar-closebutton-color;
-            cursor: default;
-        }
+    #reduce:hover,
+    #maximize:hover {
+      background-color: $hovered-titlebar-buttons-color;
+      cursor: default;
     }
+    #close:hover {
+      background-color: $hovered-titlebar-closebutton-color;
+      cursor: default;
+    }
+  }
 }
 
 #toolbar {
-    width: 100%;
+  width: 100%;
+  display: flex;
+  background-color: $titlebar-color;
+  color: white;
+
+  #account {
+    position: absolute;
+    right: 4px;
+  }
+
+  div {
+    padding: 6px 10px 6px 10px;
+    margin: 4px 0 4px 4px;
     display: flex;
-    background-color: $titlebar-color;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+
+    p {
+      padding: 0 5px;
+    }
+    &:hover {
+      background-color: #191919;
+    }
+  }
+}
+
+#clickavoider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.25s;
+  background-color: black;
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+  opacity: 0%;
+}
+
+#addmenu {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  height: 85%;
+  max-width: 750px;
+  max-height: 850px;
+  position: absolute;
+  background-color: rgb(29, 29, 29);
+  border-radius: 10px;
+  box-shadow: 0 0 15px black;
+
+  transition: opacity 0.25s;
+
+  z-index: 1;
+
+  pointer-events: none;
+  opacity: 0;
+
+  #closeaddmenu {
+    width: 25px;
+    position: absolute;
+    right: 0;
+    margin: 15px;
+    padding: 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    &:hover {
+      background-color: #191919;
+    }
+  }
+
+  #addlabel {
     color: white;
+    font-size: 20px;
+    text-align: center;
+  }
 
-    div{
-        padding: 6px 10px 6px 10px;
-        margin: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 5px;
-        transition: background-color 0.2s;
-
-        p{
-            padding-left: 5px;
-        }
-        &:hover{
-            background-color: #191919;
-        }
-    }
-}
-
-#clickavoider{
-    position: absolute;
-    top: 0;
-    left: 0;    
-    transition: opacity .25s;
-    background-color: black;
-    width: 100%;
-    height: 100%;
-
-    pointer-events: none;
-    opacity: 0%;
-}
-
-#addmenu{
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 85%;
-    height: 85%;
-    max-width: 750px;
-    max-height: 850px;
-    position: absolute;
-    background-color: rgb(29, 29, 29);
-    border-radius: 10px;
-    box-shadow: 0 0 15px black;
-
-    transition: opacity 0.25s;
-
-    z-index: 1;
-
-    pointer-events: none;
-    opacity: 0;
-
-    #closeaddmenu{
-        width: 25px;
-        position: absolute;
-        right: 0;
-        margin: 15px;
-        padding: 3px;
-        border-radius: 3px;
-        cursor: pointer;
-        transition: background-color 0.15s;
-        &:hover {
-            background-color: #191919;
-        }
-    }
-
-    #addlabel{
-        color:white;
-        font-size: 20px;
-        text-align: center;
-    }
-
-    #addlabelbanner{
-        background-image: url("https://image.api.playstation.com/vulcan/img/cfn/11307x4B5WLoVoIUtdewG4uJ_YuDRTwBxQy0qP8ylgazLLc01PBxbsFG1pGOWmqhZsxnNkrU3GXbdXIowBAstzlrhtQ4LCI4.png");
-        background-size: cover;
-        background-position: center;
-        width: 314;
-        height: 190;
-        margin-left: auto;
-        margin-right: auto;
-        border-radius: 10px;
-        div{
-            background-color: rgba(0, 0, 0, 0.75);
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            opacity: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity .25s;
-            cursor: pointer;
-            p {
-                color: white;
-                font-size: 40px;
-                transition: opacity 0.25s;
-            }
-        }
-        &:hover{
-            div{
-                opacity: 1;
-            }
-        }
-    }
-
-    #instancenametitle{
-        color: white;
-        text-align: center;
-        margin-top: 15px;
-        font-size: 20px;
-    }
-    #instancenameinput{
-        margin-right: auto;
-        margin-left: auto;
-        display: block;
-        width: 360px;
-        height: 40px;
-        background-color: #5F5F5F;
-        outline: none;
-        border: none;
-        border-radius: 10px;
-        padding: 10px;
-        transition: border 0.25s, padding 0.25s;
-        color: white;
-        font-size: 20px;
-    }
-
-    #instanceversiontitle {
-        color: white;
-        text-align: center;
-        margin-top: 15px;
-        font-size: 20px;
-    }
-
-    #instanceversion{
-        width: 340px;
-        height: 40px;
-        margin-left: auto;
-        margin-right: auto;
-        display: flex;
-        justify-content: space-between;
-        padding: 0 10px;
-        align-items: center;
-        background-color: #5F5F5F;
-        border-radius: 10px;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    #addmenuactionbtn{
-        position: absolute;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        
-        #addmenucreatebtn{
-            background-color: #5F5F5F;
-            width: 240px;
-            text-align: center;
-            border-radius: 10px;
-            color:white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: background-color 0.25s;
-            &:hover{
-                background-color: #494949;
-            }
-        }
-        #addmenucancelbtn {
-            background-color:#D20000;
-            margin: 20px;
-            width: 155px;
-            text-align: center;
-            border-radius: 10px;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            transition: background-color 0.25s;
-            &:hover{
-                background-color: #b90000;
-            }
-        }
-    }
-}
-
-#choseversionmenu{
-    background-color: #5F5F5F;
-    pointer-events: none;
-    opacity: 0;
-    width: 50%;
-    height: 60%;
-    max-width: 700px;
-    max-height: 500px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px black;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-
-    transition: opacity .25s;
-
-    z-index: 2;
-
-    #bootloaderbtn{
-        display: flex;
-        width: 100%;
-        height: 40px;
-        div{
-            flex-basis: 100%;
-            display: flex;
-            font-size: 22px;
-            justify-content: center;
-            align-items: center;
-            background-color: #202020;
-            transition: background-color .25s;
-            cursor: pointer;
-            &:hover{
-                background-color: #242424;
-            }
-            
-            p{
-                color: white;
-                text-align: center;
-            }
-        }
-        #vanillamenu {
-            border-radius: 10px 0 0 0;
-            background-color: #2c2c2c;
-        }
-        #forgemenu{
-            
-        }
-        #curseforgemenu{
-            
-        }
-        #ftbmenu{
-
-        }
-        #zipmenu{
-           
-            border-radius: 0 10px 0 0;
-        }
-    }
-    #vanillaversionslist{
-        height: calc(100% - 40px);
-        border-radius: 0 0 10px 10px;
-        overflow-y: scroll;
-
-        .bootloaderinformation {
-            background-color: #353535;
-            color: white;
-            display: flex;
-            text-align: center;
-            font-size: 20px;
-            cursor: pointer;
-            transition: background-color 0.25s;
-    
-            p:first-child {
-                flex-basis: 100%;
-            }
-    
-            p:last-child {
-                flex-basis: 100%;
-                text-transform: capitalize;
-            }
-
-            &:hover{
-                background-color: #3f3f3f;
-            }
-    
-        }
-
-        #vanillaversionfilter{
-            display: flex;
-            position: sticky;
-            .vanillafilters {
-                display: flex;
-                margin: 0 5px;
-                align-items: center;
-                color:white;
-            }
-        }
-    }
-}
-
-#instances{
-    display: flex;
-    flex-wrap: wrap;
+  #addlabelbanner {
+    background-image: url("https://image.api.playstation.com/vulcan/img/cfn/11307x4B5WLoVoIUtdewG4uJ_YuDRTwBxQy0qP8ylgazLLc01PBxbsFG1pGOWmqhZsxnNkrU3GXbdXIowBAstzlrhtQ4LCI4.png");
+    background-size: cover;
+    background-position: center;
+    width: 314;
+    height: 190;
     margin-left: auto;
     margin-right: auto;
-    width: 1050px;
-    margin-top: 5px;
-    .instance {
-        margin: 5px;
-        cursor: pointer;
-        background-position: 50%;
-        background-size: cover;
-        width: 200px;
-        height: 120px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        transition: transform 0.25s, box-shadow 0.25s;
-        box-shadow: 0 0 3px black;
-
-        p {
-            color: white;
-            font-size: 36px;
-        }
-        
-        &:hover{
-            transform: scale(1.01);
-            box-shadow: 0 0 6px black;
-        }
+    border-radius: 10px;
+    div {
+      background-color: rgba(0, 0, 0, 0.75);
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.25s;
+      cursor: pointer;
+      p {
+        color: white;
+        font-size: 40px;
+        transition: opacity 0.25s;
+      }
     }
+    &:hover {
+      div {
+        opacity: 1;
+      }
+    }
+  }
+
+  #instancenametitle {
+    color: white;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 20px;
+  }
+  #instancenameinput {
+    margin-right: auto;
+    margin-left: auto;
+    display: block;
+    width: 360px;
+    height: 40px;
+    background-color: #5f5f5f;
+    outline: none;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    transition: border 0.25s, padding 0.25s;
+    color: white;
+    font-size: 20px;
+  }
+
+  #instanceversiontitle {
+    color: white;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 20px;
+  }
+
+  #instanceversion {
+    width: 340px;
+    height: 40px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    align-items: center;
+    background-color: #5f5f5f;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  #addmenuactionbtn {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    #addmenucreatebtn {
+      background-color: #5f5f5f;
+      width: 240px;
+      text-align: center;
+      border-radius: 10px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: background-color 0.25s;
+      &:hover {
+        background-color: #494949;
+      }
+    }
+    #addmenucancelbtn {
+      background-color: #d20000;
+      margin: 20px;
+      width: 155px;
+      text-align: center;
+      border-radius: 10px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: background-color 0.25s;
+      &:hover {
+        background-color: #b90000;
+      }
+    }
+  }
+}
+
+#choseversionmenu {
+  background-color: #5f5f5f;
+  pointer-events: none;
+  opacity: 0;
+  width: 50%;
+  height: 60%;
+  max-width: 700px;
+  max-height: 500px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  transition: opacity 0.25s;
+
+  z-index: 2;
+
+  #bootloaderbtn {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    div {
+      flex-basis: 100%;
+      display: flex;
+      font-size: 22px;
+      justify-content: center;
+      align-items: center;
+      background-color: #202020;
+      transition: background-color 0.25s;
+      cursor: pointer;
+      &:hover {
+        background-color: #242424;
+      }
+
+      p {
+        color: white;
+        text-align: center;
+      }
+    }
+    #vanillamenu {
+      border-radius: 10px 0 0 0;
+      background-color: #2c2c2c;
+    }
+    #forgemenu {
+    }
+    #curseforgemenu {
+    }
+    #ftbmenu {
+    }
+    #zipmenu {
+      border-radius: 0 10px 0 0;
+    }
+  }
+  #vanillaversionslist {
+    height: calc(100% - 40px);
+    border-radius: 0 0 10px 10px;
+    overflow-y: scroll;
+
+    .bootloaderinformation {
+      background-color: #353535;
+      color: white;
+      display: flex;
+      text-align: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: background-color 0.25s;
+
+      p:first-child {
+        flex-basis: 100%;
+      }
+
+      p:last-child {
+        flex-basis: 100%;
+        text-transform: capitalize;
+      }
+
+      &:hover {
+        background-color: #3f3f3f;
+      }
+    }
+
+    #vanillaversionfilter {
+      display: flex;
+      position: sticky;
+      .vanillafilters {
+        display: flex;
+        margin: 0 5px;
+        align-items: center;
+        color: white;
+      }
+    }
+  }
+}
+
+#instances {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: auto;
+  margin-right: auto;
+  width: 1050px;
+  margin-top: 5px;
+  .instance {
+    margin: 5px;
+    cursor: pointer;
+    background-position: 50%;
+    background-size: cover;
+    width: 200px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: transform 0.25s, box-shadow 0.25s;
+    box-shadow: 0 0 3px black;
+
+    p {
+      color: white;
+      font-size: 36px;
+    }
+
+    &:hover {
+      transform: scale(1.01);
+      box-shadow: 0 0 6px black;
+    }
+  }
 }
