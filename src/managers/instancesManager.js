@@ -3,12 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInstanceData = exports.getInstancesList = exports.addInstanceElement = void 0;
+exports.getInstanceData = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../utils/const");
 function addInstanceElement(imagePath, title, instanceDiv) {
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title));
+    const generatedInstance = generateInstanceBtn(imagePath, title);
+    instanceDiv.appendChild(generatedInstance);
+    return generatedInstance;
 }
 exports.addInstanceElement = addInstanceElement;
 function generateInstanceBtn(imagePath, title) {
@@ -39,12 +41,17 @@ function getInstancesList(instancesDiv) {
         for (const e in instances) {
             if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                 const data = JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8"));
-                addInstanceElement(data["imagePath"], instances[e], instancesDiv);
+                const instance = addInstanceElement(data["imagePath"], instances[e], instancesDiv);
+                return instance;
             }
         }
     }
 }
 exports.getInstancesList = getInstancesList;
+function makeInstanceDownloaded(instance) {
+    instance.className = "instance";
+}
+exports.makeInstanceDownloaded = makeInstanceDownloaded;
 function getInstanceData(instanceId) {
     if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath))) {
         const instances = fs_1.default.readdirSync(const_1.instancesPath);

@@ -536,3 +536,16 @@ $hovered-titlebar-closebutton-color: #850303;
     }
   }
 }
+
+.downloading {
+  animation: downloadingAnim 1s infinite ease-in-out alternate;
+}
+
+@keyframes downloadingAnim {
+  from {
+    outline: solid 3px rgb(255, 173, 102);
+  }
+  to {
+    outline: solid 3px rgb(255, 119, 0);
+  }
+}

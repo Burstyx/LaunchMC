@@ -474,4 +474,17 @@
   transform: scale(1.05);
 }
 
+.downloading {
+  animation: downloadingAnim 1s infinite ease-in-out alternate;
+}
+
+@keyframes downloadingAnim {
+  from {
+    outline: solid 3px rgb(255, 173, 102);
+  }
+  to {
+    outline: solid 3px rgb(255, 119, 0);
+  }
+}
+
 /*# sourceMappingURL=style.css.map */

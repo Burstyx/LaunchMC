@@ -5,14 +5,23 @@ import https from "https"
 import path from "path"
 import {getVersionManifest} from "./getManifest"
 import {startMinecraft} from "./startInstance"
-import {getInstancesList} from "./instancesManager"
+import {getInstancesList, makeInstanceDownloaded} from "./instancesManager"
 
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
     console.log(version);
+
+    fs.mkdirSync(instancesPath + "/" + name, {recursive: true})
+    fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version}))
+    
+    const createdInstance = getInstancesList(instanceDiv);
+    createdInstance!.className = "instance downloading"
     
     getVersionManifest(version).then(async (data) => {
         let numberOfLibrariesToDownload = 0
         let numberOfLibrariesDownloaded = 0
+
+        // Create related game folder
+        
 
         // Verification of the game version 
         for(let i = 0; i < data["libraries"].length; i++){
@@ -158,12 +167,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
         
     }).then(() => {
-        
-        // Create related game folder
-        fs.mkdirSync(instancesPath + "/" + name, {recursive: true})
-        fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version}))
-        
-        getInstancesList(instanceDiv);
+        makeInstanceDownloaded(createdInstance!)
 
         startMinecraft(version)
     })

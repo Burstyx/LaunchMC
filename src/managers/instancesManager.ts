@@ -3,7 +3,9 @@ import path from "path"
 import { instancesPath } from "../utils/const"
 
 export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement){
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title))
+    const generatedInstance = generateInstanceBtn(imagePath, title)
+    instanceDiv.appendChild(generatedInstance)
+    return generatedInstance
 }
 
 function generateInstanceBtn(imagePath: string, title: string) {
@@ -12,7 +14,7 @@ function generateInstanceBtn(imagePath: string, title: string) {
     titleElement.innerText = title
 
     element.className = "instance"
-    
+
     const instances = document.getElementById("instances")
 
     if(instances?.hasChildNodes()){
@@ -47,6 +49,10 @@ export function getInstancesList(instancesDiv: HTMLElement){
             }
         }
     }
+}
+
+export function makeInstanceDownloaded(instance: HTMLElement){
+    instance.className = "instance"
 }
 
 export function getInstanceData(instanceId: string){

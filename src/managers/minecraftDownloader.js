@@ -24,9 +24,14 @@ const instancesManager_1 = require("./instancesManager");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(version);
+        fs_1.default.mkdirSync(const_1.instancesPath + "/" + name, { recursive: true });
+        fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version }));
+        const createdInstance = (0, instancesManager_1.getInstancesList)(instanceDiv);
+        createdInstance.className = "instance downloading";
         (0, getManifest_1.getVersionManifest)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
             let numberOfLibrariesToDownload = 0;
             let numberOfLibrariesDownloaded = 0;
+            // Create related game folder
             // Verification of the game version 
             for (let i = 0; i < data["libraries"].length; i++) {
                 numberOfLibrariesToDownload++;
@@ -137,10 +142,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 numberOfAssetsDownloaded++;
             }
         })).then(() => {
-            // Create related game folder
-            fs_1.default.mkdirSync(const_1.instancesPath + "/" + name, { recursive: true });
-            fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version }));
-            (0, instancesManager_1.getInstancesList)(instanceDiv);
+            (0, instancesManager_1.makeInstanceDownloaded)(createdInstance);
             (0, startInstance_1.startMinecraft)(version);
         });
     });
