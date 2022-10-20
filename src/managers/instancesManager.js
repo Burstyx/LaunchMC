@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInstanceData = exports.getInstancesList = exports.addInstanceElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const { instancesPath } = require("../utils/const");
+const const_1 = require("../utils/const");
 function addInstanceElement(imagePath, title, instanceDiv) {
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title));
 }
@@ -34,11 +34,11 @@ function createStyleString(imagePath) {
 }
 function getInstancesList(instancesDiv) {
     instancesDiv.innerHTML = "";
-    if (fs_1.default.existsSync(instancesPath)) {
-        const instances = fs_1.default.readdirSync(instancesPath);
+    if (fs_1.default.existsSync(const_1.instancesPath)) {
+        const instances = fs_1.default.readdirSync(const_1.instancesPath);
         for (const e in instances) {
-            if (fs_1.default.existsSync(path_1.default.join(instancesPath, instances[e], "info.json"))) {
-                const data = JSON.parse(fs_1.default.readFileSync(path_1.default.join(instancesPath, instances[e], "info.json"), "utf-8"));
+            if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
+                const data = JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8"));
                 addInstanceElement(data["imagePath"], instances[e], instancesDiv);
             }
         }
@@ -46,12 +46,12 @@ function getInstancesList(instancesDiv) {
 }
 exports.getInstancesList = getInstancesList;
 function getInstanceData(instanceId) {
-    if (fs_1.default.existsSync(path_1.default.join(instancesPath))) {
-        const instances = fs_1.default.readdirSync(instancesPath);
+    if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath))) {
+        const instances = fs_1.default.readdirSync(const_1.instancesPath);
         for (const e in instances) {
             if (instances[e] == instanceId) {
-                const data = fs_1.default.readFileSync(path_1.default.join(instancesPath, instances[e], "info.json"), "utf-8");
-                return { "data": JSON.parse(data), "gamePath": path_1.default.join(instancesPath, instances[e]) };
+                const data = fs_1.default.readFileSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8");
+                return { "data": JSON.parse(data), "gamePath": path_1.default.join(const_1.instancesPath, instances[e]) };
             }
         }
     }

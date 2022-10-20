@@ -178,6 +178,8 @@ createAddMenuBtn.addEventListener("click", () => {
         downloadVanillaVersion(selectedVersion, instanceName.getAttribute("placeholder"), instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
     }
 
+    closeAddMenu()
+
 })
 
 const vanillareleasecheckbox = document.getElementById("vanillareleasecheckbox")
@@ -270,4 +272,9 @@ document.addEventListener("click", (evt) => {
 })
 
 getInstancesList(instancesDiv)
-msaLogin()
+
+const addaccount = document.getElementById("addaccount")
+
+addaccount.addEventListener("click", () => {
+    msaLogin()
+})

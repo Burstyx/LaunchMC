@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-const {instancesPath} = require("../utils/const")
+import { instancesPath } from "../utils/const"
 
 export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement){
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title))

@@ -1,4 +1,4 @@
-const {versionsManifest, dataPath} = require("../utils/const")
+import {versionsManifest, dataPath} from "../utils/const"
 import {getVersionManifest} from "./getManifest"
 import fs from "fs"
 import path from "path"

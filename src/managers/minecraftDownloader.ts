@@ -1,11 +1,10 @@
-const {dataPath, indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage} = require("../utils/const")
+import { dataPath, indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage } from "../utils/const"
 import os from "os"
 import fs from "fs"
 import https from "https"
 import path from "path"
 import {getVersionManifest} from "./getManifest"
 import {startMinecraft} from "./startInstance"
-import { mkdirSync } from "original-fs"
 import {getInstancesList} from "./instancesManager"
 
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
@@ -106,7 +105,16 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         const file = fs.readFileSync(path.join(indexesPath, data["assetIndex"]["id"] + ".json"), "utf-8")
         const indexesData = JSON.parse(file)
 
+        var numberOfAssets = 0
+        var numberOfAssetsDownloaded = 0
+
         for(const e in indexesData["objects"]){
+            numberOfAssets++
+        }
+
+        for(const e in indexesData["objects"]){
+            console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
+            
             const hash = indexesData["objects"][e]["hash"]
             const subhash = hash.substring(0, 2)
 
@@ -116,19 +124,34 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
             const file = fs.createWriteStream(path.join(objectPath, subhash, hash))
 
-            await new Promise((resolve, reject) => {
-                https.get(path.join(resourcePackage, subhash, hash), (data) => {
-                    data.pipe(file)
+            // await new Promise((resolve, reject) => {
+            //     https.get(path.join(resourcePackage, subhash, hash), (data) => {
+            //         data.pipe(file)
 
-                    data.on("end", () => {
-                        resolve(data)
-                    })
+            //         data.on("end", () => {
+            //             numberOfAssetsDownloaded++
+            //             resolve(data)
+            //         })
                     
-                    data.on("error", (err) => {
-                        reject(err)
-                    })
-                })
+            //         data.on("error", (err) => {
+            //             reject(err)
+            //         })
+            //     })
+            // })
+
+            // let fetch = await import("node-fetch")
+
+            // await fetch.default(path.join(resourcePackage, subhash, hash)).then((data) => {
+            //     data.body?.pipe(file)
+            // })
+
+            await fetch(path.join(resourcePackage, subhash, hash)).then(async (data) => {
+                const arrayBuffer = await data.arrayBuffer()
+                const buffer = Buffer.from(arrayBuffer)
+                file.write(buffer)
             })
+
+            numberOfAssetsDownloaded++
             
         }
 

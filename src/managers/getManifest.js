@@ -14,26 +14,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getVersionManifest = void 0;
 const fs_1 = __importDefault(require("fs"));
-const { minecraftVersionPath, versionsManifest } = require("../utils/const");
+const const_1 = require("../utils/const");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 function getVersionManifest(version) {
     return __awaiter(this, void 0, void 0, function* () {
         return yield new Promise((resolve, reject) => {
-            if (!fs_1.default.existsSync(path_1.default.join(minecraftVersionPath, version))) {
-                fs_1.default.mkdirSync(path_1.default.join(minecraftVersionPath, version), { recursive: true });
+            if (!fs_1.default.existsSync(path_1.default.join(const_1.minecraftVersionPath, version))) {
+                fs_1.default.mkdirSync(path_1.default.join(const_1.minecraftVersionPath, version), { recursive: true });
             }
-            if (!fs_1.default.existsSync(path_1.default.join(minecraftVersionPath, version, version + ".json"))) {
-                fetch(versionsManifest).then((res) => {
+            if (!fs_1.default.existsSync(path_1.default.join(const_1.minecraftVersionPath, version, version + ".json"))) {
+                fetch(const_1.versionsManifest).then((res) => {
                     res.json().then((data) => {
                         for (let i = 0; i < data["versions"].length; i++) {
                             if (data["versions"][i]["id"] == version) {
-                                const indexFile = fs_1.default.createWriteStream(path_1.default.join(minecraftVersionPath, version, version + ".json"));
+                                const indexFile = fs_1.default.createWriteStream(path_1.default.join(const_1.minecraftVersionPath, version, version + ".json"));
                                 https_1.default.get(data["versions"][i]["url"], (data) => {
                                     data.pipe(indexFile);
                                     data.on("end", () => {
                                         console.log("aaa");
-                                        resolve(JSON.parse(fs_1.default.readFileSync(path_1.default.join(minecraftVersionPath, version, version + ".json"), "utf-8")));
+                                        resolve(JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.minecraftVersionPath, version, version + ".json"), "utf-8")));
                                     });
                                 });
                             }
@@ -42,7 +42,7 @@ function getVersionManifest(version) {
                 });
             }
             else {
-                resolve(JSON.parse(fs_1.default.readFileSync(path_1.default.join(minecraftVersionPath, version, version + ".json"), "utf-8")));
+                resolve(JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.minecraftVersionPath, version, version + ".json"), "utf-8")));
             }
         });
     });

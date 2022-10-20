@@ -11,12 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
-const { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } = require("../utils/const.js");
+const const_js_1 = require("../utils/const.js");
 function createOAuthLink() {
-    let url = msAuth;
-    url += "?client_id=" + clientId;
+    let url = const_js_1.msAuth;
+    url += "?client_id=" + const_js_1.clientId;
     url += "&response_type=" + "code";
-    url += "&redirect_uri=" + redirectUrl;
+    url += "&redirect_uri=" + const_js_1.redirectUrl;
     url += "&scope=XboxLive.signin%20offline_access";
     url += "&state=NOT_NEEDED";
     return url;
@@ -64,12 +64,12 @@ function refreshAccessToken(refreshToken) {
         var header = new Headers();
         header.append("Content-Type", "application/x-www-form-urlencoded");
         var urlencoded = new URLSearchParams();
-        urlencoded.append("client_id", clientId);
+        urlencoded.append("client_id", const_js_1.clientId);
         urlencoded.append("refresh_token", refreshToken);
         urlencoded.append("grant_type", "refresh_token");
-        urlencoded.append("redirect_uri", redirectUrl);
+        urlencoded.append("redirect_uri", const_js_1.redirectUrl);
         var response = undefined;
-        yield fetch(msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+        yield fetch(const_js_1.msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
             });
@@ -85,12 +85,12 @@ function getAccessToken(code) {
         var header = new Headers();
         header.append("Content-Type", "application/x-www-form-urlencoded");
         var urlencoded = new URLSearchParams();
-        urlencoded.append("client_id", clientId);
+        urlencoded.append("client_id", const_js_1.clientId);
         urlencoded.append("code", code);
         urlencoded.append("grant_type", "authorization_code");
-        urlencoded.append("redirect_uri", redirectUrl);
+        urlencoded.append("redirect_uri", const_js_1.redirectUrl);
         var response = undefined;
-        yield fetch(msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+        yield fetch(const_js_1.msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
             });
@@ -108,7 +108,7 @@ function getXbxLiveToken(accessToken) {
         header.append("Accept", "application/json");
         var bodyParam = JSON.stringify({ "Properties": { "AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}` }, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT" });
         var response = undefined;
-        yield fetch(xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+        yield fetch(const_js_1.xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
             });
@@ -126,7 +126,7 @@ function getXstsToken(token) {
         header.append("Accept", "application/json");
         var bodyParam = JSON.stringify({ "Properties": { "SandboxId": "RETAIL", "UserTokens": [token] }, "RelyingParty": "rp://api.minecraftservices.com/", "TokenType": "JWT" });
         var response = undefined;
-        yield fetch(xstsAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+        yield fetch(const_js_1.xstsAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
             });
@@ -143,7 +143,7 @@ function getMinecraftBearerToken(uhs, token) {
         header.append("Content-Type", "application/json");
         var bodyParam = JSON.stringify({ "identityToken": `XBL3.0 x=${uhs};${token}`, "ensureLegacyEnabled": true });
         var response = undefined;
-        yield fetch(minecraftBearerToken, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+        yield fetch(const_js_1.minecraftBearerToken, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
             });

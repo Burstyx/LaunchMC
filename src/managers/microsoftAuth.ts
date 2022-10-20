@@ -1,5 +1,5 @@
 import { BrowserWindow } from "@electron/remote"
-const {clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken} = require("../utils/const.js")
+import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } from "../utils/const.js"
 import {} from "./accountManager"
 
 export function createOAuthLink(){
