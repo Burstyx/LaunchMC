@@ -3,14 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInstanceData = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
+exports.getInstanceData = exports.makeInstanceDownloading = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../utils/const");
 function addInstanceElement(imagePath, title, instanceDiv) {
-    const generatedInstance = generateInstanceBtn(imagePath, title);
-    instanceDiv.appendChild(generatedInstance);
-    return generatedInstance;
+    instanceDiv.appendChild(generateInstanceBtn(imagePath, title));
 }
 exports.addInstanceElement = addInstanceElement;
 function generateInstanceBtn(imagePath, title) {
@@ -41,17 +39,29 @@ function getInstancesList(instancesDiv) {
         for (const e in instances) {
             if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                 const data = JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8"));
-                const instance = addInstanceElement(data["imagePath"], instances[e], instancesDiv);
-                return instance;
+                addInstanceElement(data["imagePath"], instances[e], instancesDiv);
             }
         }
     }
 }
 exports.getInstancesList = getInstancesList;
-function makeInstanceDownloaded(instance) {
-    instance.className = "instance";
+function makeInstanceDownloaded(id, instancesDiv) {
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        if (instancesDiv.children[i].children[0].innerHTML == id) {
+            instancesDiv.children[i].className = "instance";
+        }
+    }
 }
 exports.makeInstanceDownloaded = makeInstanceDownloaded;
+function makeInstanceDownloading(id, instancesDiv) {
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if (instancesDiv.children[i].children[0].innerHTML == id) {
+            instancesDiv.children[i].className = "instance downloading";
+        }
+    }
+}
+exports.makeInstanceDownloading = makeInstanceDownloading;
 function getInstanceData(instanceId) {
     if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath))) {
         const instances = fs_1.default.readdirSync(const_1.instancesPath);
