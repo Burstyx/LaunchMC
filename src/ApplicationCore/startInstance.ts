@@ -1,7 +1,7 @@
-import {getVersionManifest} from "./getManifest"
+import {minecraftManifestForVersion} from "../Helper/HManifests"
 
 export function startMinecraft(version: string){
-    getVersionManifest(version).then((data) => {
+    minecraftManifestForVersion(version).then((data) => {
         if(data.hasOwnProperty("minecraftArguments")){
             let minecraftArguments = data["minecraftArguments"]
         

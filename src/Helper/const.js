@@ -13,7 +13,7 @@ exports.instancesPath = exports.gamePath + "/instances";
 exports.librariesPath = exports.dataPath + "/libraries";
 exports.loggingConfPath = exports.assetsPath + "/log_configs";
 // Url
-exports.versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest.json";
+exports.versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 exports.resourcePackage = "https://resources.download.minecraft.net";
 exports.msAuth = "https://login.live.com/oauth20_authorize.srf";
 exports.msAccessToken = "https://login.live.com/oauth20_token.srf";

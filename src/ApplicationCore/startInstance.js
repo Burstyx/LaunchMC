@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.startMinecraft = void 0;
-const getManifest_1 = require("./getManifest");
+const HManifests_1 = require("../Helper/HManifests");
 function startMinecraft(version) {
-    (0, getManifest_1.getVersionManifest)(version).then((data) => {
+    (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => {
         if (data.hasOwnProperty("minecraftArguments")) {
             let minecraftArguments = data["minecraftArguments"];
             if (minecraftArguments.includes("-")) {

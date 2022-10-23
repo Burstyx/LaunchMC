@@ -13,19 +13,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadVanillaVersion = void 0;
-const const_1 = require("../utils/const");
+const const_1 = require("../Helper/const");
 const os_1 = __importDefault(require("os"));
 const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
-const getManifest_1 = require("./getManifest");
+const HManifests_1 = require("../Helper/HManifests");
 const startInstance_1 = require("./startInstance");
 const instancesManager_1 = require("./instancesManager");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(version);
         // makeInstanceDownloading(name, instanceDiv)
-        (0, getManifest_1.getVersionManifest)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
+        (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
             let numberOfLibrariesToDownload = 0;
             let numberOfLibrariesDownloaded = 0;
             // Create related game folder

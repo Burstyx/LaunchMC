@@ -12,7 +12,7 @@ export const librariesPath = dataPath + "/libraries"
 export const loggingConfPath = assetsPath + "/log_configs"
 
 // Url
-export const versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest.json"
+export const versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
 export const resourcePackage = "https://resources.download.minecraft.net"
 export const msAuth = "https://login.live.com/oauth20_authorize.srf"
 export const msAccessToken = "https://login.live.com/oauth20_token.srf"

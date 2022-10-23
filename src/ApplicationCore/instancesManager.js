@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInstanceData = exports.makeInstanceDownloading = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const const_1 = require("../utils/const");
+const const_1 = require("../Helper/const");
 function addInstanceElement(imagePath, title, instanceDiv) {
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title));
 }
