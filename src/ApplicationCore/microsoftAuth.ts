@@ -1,5 +1,5 @@
 import { BrowserWindow } from "@electron/remote"
-import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } from "../utils/const.js"
+import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } from "../Helper/const.js"
 import {} from "./accountManager"
 
 export function createOAuthLink(){

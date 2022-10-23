@@ -1,9 +1,9 @@
-import { dataPath, indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage } from "../utils/const"
+import { dataPath, indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage } from "../Helper/const"
 import os from "os"
 import fs from "fs"
 import https from "https"
 import path from "path"
-import {getVersionManifest} from "./getManifest"
+import {minecraftManifestForVersion} from "../Helper/HManifests"
 import {startMinecraft} from "./startInstance"
 import {getInstancesList, makeInstanceDownloaded, makeInstanceDownloading} from "./instancesManager"
 
@@ -12,7 +12,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
     // makeInstanceDownloading(name, instanceDiv)
     
-    getVersionManifest(version).then(async (data) => {
+    minecraftManifestForVersion(version).then(async (data) => {
         let numberOfLibrariesToDownload = 0
         let numberOfLibrariesDownloaded = 0
 

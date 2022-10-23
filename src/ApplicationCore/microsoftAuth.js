@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
-const const_js_1 = require("../utils/const.js");
+const const_js_1 = require("../Helper/const.js");
 function createOAuthLink() {
     let url = const_js_1.msAuth;
     url += "?client_id=" + const_js_1.clientId;

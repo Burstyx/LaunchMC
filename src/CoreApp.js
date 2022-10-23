@@ -1,9 +1,9 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData } = require('./managers/instancesManager')
-const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
-const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
-const { startMinecraft } = require("./managers/startInstance")
-const { msaLogin } = require("./managers/microsoftAuth")
+const { generateInstanceBtn, getInstancesList, getInstanceData } = require('./ApplicationCore/instancesManager')
+const { filteredMinecraftVersions } = require("./Helper/HVersions")
+const { downloadVanillaVersion } = require("./ApplicationCore/minecraftDownloader")
+const { startMinecraft } = require("./ApplicationCore/startInstance")
+const { msaLogin } = require("./ApplicationCore/microsoftAuth")
 
 console.log("Initialisation du module principal !");
 
@@ -143,11 +143,6 @@ addBtn.addEventListener("click", () => {
     addMenu.style.pointerEvents = "all"
 
     refreshInstanceVersion()
-
-    // element = generateInstanceBtn("https://i.ytimg.com/vi/CJOFD9eZXig/maxresdefault.jpg", "Holycuba")
-
-    // // Add element to the page
-    // instancesDiv.appendChild(element)
 })
 
 function closeAddMenu() {
@@ -194,12 +189,11 @@ const vanillabootloaderinfoslist = document.getElementById("vanillabootloaderinf
 const loadingVanillaVersions = document.getElementById("loadingbootloaderversions")
 const notfoundbootloaderversions = document.getElementById("notfoundbootloaderversions")
 
-instanceVersion.addEventListener("click", () => {
+instanceVersion.addEventListener("click", async () => {
     choseVersionMenu.style.opacity = "1"
     choseVersionMenu.style.pointerEvents = "all"
 
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    refreshVersionInfoList()
 
     clickavoider.style.zIndex = 2
 
@@ -221,25 +215,52 @@ function clearVanillaVersions() {
     }
 }
 
-vanillareleasecheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillareleasecheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
 
-vanillasnapshotcheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillasnapshotcheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
 
-vanillabetacheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillabetacheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
 
-vanillaalphacheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillaalphacheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
+
+async function refreshVersionInfoList() {
+    loadingVanillaVersions.style.display = "block"
+    notfoundbootloaderversions.style.display = "none"
+    clearVanillaVersions()
+    await filteredMinecraftVersions({ filterOptions: { alpha: vanillaalphacheckbox.checked, beta: vanillabetacheckbox.checked, release: vanillareleasecheckbox.checked, snapshot: vanillasnapshotcheckbox.checked } }).then((data) => {
+        if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+                let versionParent = document.createElement("div")
+                versionParent.id = "vanilla-" + data[i]["id"]
+                versionParent.className = "vanillabootloaderinformation bootloaderinformation"
+
+                // Create version label for the button element
+                let version = document.createElement("p")
+                version.innerText = data[i]["id"]
+
+                // Create version type label for the button element
+                let versionState = document.createElement("p")
+                versionState.innerText = data[i]["type"]
+
+                versionParent.appendChild(version)
+                versionParent.appendChild(versionState)
+                vanillabootloaderinfoslist.appendChild(versionParent)
+            }
+        } else {
+            notfoundbootloaderversions.style.display = "block"
+        }
+
+    })
+    loadingVanillaVersions.style.display = "none"
+}
 
 // Chosing version
 
