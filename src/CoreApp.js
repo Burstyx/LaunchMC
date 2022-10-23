@@ -143,11 +143,6 @@ addBtn.addEventListener("click", () => {
     addMenu.style.pointerEvents = "all"
 
     refreshInstanceVersion()
-
-    // element = generateInstanceBtn("https://i.ytimg.com/vi/CJOFD9eZXig/maxresdefault.jpg", "Holycuba")
-
-    // // Add element to the page
-    // instancesDiv.appendChild(element)
 })
 
 function closeAddMenu() {
