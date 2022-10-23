@@ -55,9 +55,6 @@ function startMinecraft(version, instanceId, opt) {
                     case "${auth_access_token}":
                         mcArgs[e] = opt["accesstoken"];
                         break;
-                    case "${clientid}":
-                        mcArgs[e] = opt["clientid"];
-                        break;
                     case "${auth_xuid}":
                         mcArgs[e] = opt["xuid"];
                         break;
@@ -67,9 +64,9 @@ function startMinecraft(version, instanceId, opt) {
                     case "${version_type}":
                         mcArgs[e] = opt["versiontype"];
                         break;
-                    case "is_demo_user":
+                    case "${is_demo_user}":
                         break;
-                    case "has_custom_resolution":
+                    case "${has_custom_resolution}":
                         break;
                     default:
                         break;

@@ -57,6 +57,8 @@ function connectWithCode(code) {
         const minecraftFetchedData = yield getMinecraftBearerToken(uhs, xstsToken);
         const minecraftAccessToken = minecraftFetchedData["access_token"];
         const expires_in = minecraftFetchedData["expires_in"];
+        console.log(minecraftFetchedData);
+        // addAccount({accesstoken: minecraftAccessToken, username: })
     });
 }
 function refreshAccessToken(refreshToken) {

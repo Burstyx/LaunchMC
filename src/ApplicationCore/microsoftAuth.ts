@@ -1,5 +1,6 @@
 import { BrowserWindow } from "@electron/remote"
 import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } from "../Helper/const.js"
+import { addAccount } from "../Helper/MicrosoftAccount.js"
 import {} from "./accountManager"
 
 export function createOAuthLink(){
@@ -56,6 +57,10 @@ async function connectWithCode(code: string){
     const minecraftFetchedData = await getMinecraftBearerToken(uhs, xstsToken)
     const minecraftAccessToken = minecraftFetchedData!["access_token"]
     const expires_in = minecraftFetchedData!["expires_in"]
+
+    
+
+    // addAccount({accesstoken: minecraftAccessToken, username: })
 }
 
 async function refreshAccessToken(refreshToken: string){

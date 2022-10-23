@@ -8,7 +8,6 @@ interface MinecraftArgsOpt {
     version: string,
     uuid: string,
     accesstoken: string,
-    clientid: string,
     xuid: string,
     usertype: string,
     versiontype: string,
@@ -66,9 +65,6 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
                         break;
                     case "${auth_access_token}":
                         mcArgs[e] = opt["accesstoken"]
-                        break;
-                    case "${clientid}":
-                        mcArgs[e] = opt["clientid"]
                         break;
                     case "${auth_xuid}":
                         mcArgs[e] = opt["xuid"]
