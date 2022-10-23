@@ -1,5 +1,5 @@
 import fs from "fs"
-const {minecraftVersionPath, versionsManifest} = require("../utils/const")
+import { minecraftVersionPath, versionsManifest } from "../utils/const"
 import https from "https"
 import path from "path"
 

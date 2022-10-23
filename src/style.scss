@@ -169,6 +169,7 @@ $hovered-titlebar-closebutton-color: #850303;
   z-index: 1;
 
   pointer-events: none;
+
   opacity: 0;
 
   #closeaddmenu {
@@ -185,7 +186,7 @@ $hovered-titlebar-closebutton-color: #850303;
     }
   }
 
-  #addlabel {
+  #addLabel {
     color: white;
     font-size: 20px;
     text-align: center;
@@ -433,5 +434,120 @@ $hovered-titlebar-closebutton-color: #850303;
       transform: scale(1.01);
       box-shadow: 0 0 6px black;
     }
+  }
+}
+
+#accountmanager {
+  background-color: rgb(29, 29, 29);
+  pointer-events: none;
+  opacity: 0;
+  width: 70%;
+  height: 70%;
+  max-width: 900px;
+  max-height: 700px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px black;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  transition: opacity 0.25s;
+
+  z-index: 1;
+
+  #closeaccountmenu {
+    width: 25px;
+    position: absolute;
+    right: 0;
+    margin: 15px;
+    padding: 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    &:hover {
+      background-color: #191919;
+    }
+  }
+
+  #accountLabel {
+    color: white;
+    font-size: 20px;
+    text-align: center;
+  }
+
+  #accountslist {
+    display: flex;
+    flex-wrap: wrap;
+    .accountelement {
+      background: linear-gradient(rgb(1, 1, 1, 0.75), rgb(1, 1, 1, 0.75)),
+        url("https://minotar.net/avatar/ItsBursty");
+      background-repeat: no-repeat;
+      background-clip: content-box;
+      background-size: cover;
+      background-position: 100% 50%;
+
+      cursor: pointer;
+
+      width: 250px;
+      height: 150px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      margin: 15px;
+      div {
+        display: flex;
+        height: 100%;
+        flex-direction: column-reverse;
+        padding: 10px;
+        p {
+          color: white;
+          margin-bottom: -10px;
+        }
+      }
+
+      transition: transform 0.25s, background-position 0.25s;
+      &:hover {
+        transform: scale(1.05);
+
+        background-position: 100% 65%;
+      }
+    }
+
+    .active {
+      border: solid #b90000;
+    }
+
+    #addaccount {
+      background-color: rgba(48, 48, 48, 0.75);
+
+      width: 250px;
+      height: 150px;
+      border-radius: 10px;
+      margin: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+
+      transition: transform 0.25s;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+.downloading {
+  animation: downloadingAnim 1s infinite ease-in-out alternate;
+}
+
+@keyframes downloadingAnim {
+  from {
+    outline: solid 3px rgb(255, 173, 102);
+  }
+  to {
+    outline: solid 3px rgb(255, 119, 0);
   }
 }

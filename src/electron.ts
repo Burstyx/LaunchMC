@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import path from "path"
+import {initialize, enable} from "@electron/remote/main"
 
 let mainWindow: BrowserWindow;
 
@@ -23,8 +24,8 @@ function createAppWindow() {
 
     mainWindow.webContents.openDevTools()
 
-    require('@electron/remote/main').initialize()
-    require("@electron/remote/main").enable(mainWindow.webContents)
+    initialize()
+    enable(mainWindow.webContents)
     mainWindow.loadFile(path.join(__dirname, "app.html"))
 }
 

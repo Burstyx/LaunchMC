@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
+const main_1 = require("@electron/remote/main");
 let mainWindow;
 function createAppWindow() {
     mainWindow = new electron_1.BrowserWindow({
@@ -24,8 +25,8 @@ function createAppWindow() {
         }
     });
     mainWindow.webContents.openDevTools();
-    require('@electron/remote/main').initialize();
-    require("@electron/remote/main").enable(mainWindow.webContents);
+    (0, main_1.initialize)();
+    (0, main_1.enable)(mainWindow.webContents);
     mainWindow.loadFile(path_1.default.join(__dirname, "app.html"));
 }
 electron_1.app.on("ready", () => {
