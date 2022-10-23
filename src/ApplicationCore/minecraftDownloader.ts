@@ -20,7 +20,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         console.log(path.join(instancesPath, name));
         
         fs.mkdirSync(path.join(instancesPath, name), {recursive: true})
-        fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version}))
+        fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name}))
         
         getInstancesList(instanceDiv);
 
@@ -171,8 +171,6 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         
     }).then(() => {
         makeInstanceDownloaded(name, instanceDiv)
-
-        startMinecraft(version)
     })
 }
 

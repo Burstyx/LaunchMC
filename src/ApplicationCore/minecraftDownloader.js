@@ -19,7 +19,6 @@ const fs_1 = __importDefault(require("fs"));
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const HManifests_1 = require("../Helper/HManifests");
-const startInstance_1 = require("./startInstance");
 const instancesManager_1 = require("./instancesManager");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,7 +30,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             // Create related game folder
             console.log(path_1.default.join(const_1.instancesPath, name));
             fs_1.default.mkdirSync(path_1.default.join(const_1.instancesPath, name), { recursive: true });
-            fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version }));
+            fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name }));
             (0, instancesManager_1.getInstancesList)(instanceDiv);
             (0, instancesManager_1.makeInstanceDownloading)(name, instanceDiv);
             // Verification of the game version 
@@ -145,7 +144,6 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             }
         })).then(() => {
             (0, instancesManager_1.makeInstanceDownloaded)(name, instanceDiv);
-            (0, startInstance_1.startMinecraft)(version);
         });
     });
 }

@@ -285,9 +285,12 @@ document.addEventListener("click", (evt) => {
 
     if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
         if (elementClicked.tagName == "P") {
-            console.log(getInstanceData(elementClicked.innerText))
+            const data = getInstanceData(elementClicked.innerText)
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: "d", clientid: "a", username: "a", usertype: "a", uuid: "a", version: "1", versiontype: "a", xuid: "a" })
+
         } else {
-            console.log(getInstanceData(elementClicked.childNodes[0].innerHTML))
+            const data = getInstanceData(elementClicked.childNodes[0].innerHTML)
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: "d", clientid: "a", username: "a", usertype: "a", uuid: "a", version: "1", versiontype: "a", xuid: "a" })
         }
     }
 })
