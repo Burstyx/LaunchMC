@@ -4,28 +4,44 @@ import fs from "fs"
 import path from "path"
 import https from "https"
 
+interface MinecraftVersionsFiltering {
+    filter: boolean,
+    filterOptions?: {
+        release: boolean,
+        snapshot: boolean,
+        beta: boolean,
+        alpha: boolean
+    }
+}
+
+class Versions{
+    minecraftVersions(opt: MinecraftVersionsFiltering){
+        if(!fs.existsSync(path.join(dataPath, "versions_manifest.json"))){
+            const file = fs.createWriteStream(path.join(dataPath, "versions_manifest.json"))
+
+            await new Promise((resolve, reject) => {
+                https.get(versionsManifest, (data) => {
+                    data.pipe(file)
+
+                    data.on("end", () => {
+                        resolve(data)
+                    })
+
+                    data.on("error", (err) => {
+                        reject(err)
+                    })
+                })
+            })
+        }
+    }
+}
+
 // Get all Minecraft version with filtering options
-export async function getMinecraftVersions(parentList: HTMLElement, loading: HTMLElement, notFound: HTMLElement, release: boolean, snapshot: boolean, beta: boolean, alpha: boolean){
+export async function (){
     loading.style.display = "block"
     notFound.style.display = "none"
 
-    if(!fs.existsSync(path.join(dataPath, "versions_manifest.json"))){
-        const file = fs.createWriteStream(path.join(dataPath, "versions_manifest.json"))
-
-        await new Promise((resolve, reject) => {
-            https.get(versionsManifest, (data) => {
-                data.pipe(file)
-
-                data.on("end", () => {
-                    resolve(data)
-                })
-
-                data.on("error", (err) => {
-                    reject(err)
-                })
-            })
-        })
-    }
+    
 
     const data = JSON.parse(fs.readFileSync(path.join(dataPath, "versions_manifest.json"), "utf-8"))
 
