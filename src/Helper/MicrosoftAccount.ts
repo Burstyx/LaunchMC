@@ -25,3 +25,7 @@ export async function addAccount(opt: AccountInfo){
 
     fs.writeFileSync(gamePath, CryptoJS.AES.encrypt(JSON.stringify(data), "a").toString(CryptoJS.format.Hex))
 }
+
+export async function getAccount(uuid: string){
+    
+}

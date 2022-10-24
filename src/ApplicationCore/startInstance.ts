@@ -66,6 +66,9 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
                     case "${auth_access_token}":
                         mcArgs[e] = opt["accesstoken"]
                         break;
+                    case "${clientid}":
+                        mcArgs[e] = ""
+                        break
                     case "${auth_xuid}":
                         mcArgs[e] = opt["xuid"]
                         break;
