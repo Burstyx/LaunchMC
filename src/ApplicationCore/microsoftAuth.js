@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
 const const_js_1 = require("../Helper/const.js");
+const MicrosoftAccount_js_1 = require("../Helper/MicrosoftAccount.js");
 function createOAuthLink() {
     let url = const_js_1.msAuth;
     url += "?client_id=" + const_js_1.clientId;
@@ -57,8 +58,27 @@ function connectWithCode(code) {
         const minecraftFetchedData = yield getMinecraftBearerToken(uhs, xstsToken);
         const minecraftAccessToken = minecraftFetchedData["access_token"];
         const expires_in = minecraftFetchedData["expires_in"];
-        console.log(minecraftFetchedData);
-        // addAccount({accesstoken: minecraftAccessToken, username: })
+        const minecraftProfileData = yield getMinecraftProfile(accessToken);
+        const username = minecraftProfileData["name"];
+        const uuid = minecraftProfileData["id"];
+        console.log(minecraftAccessToken);
+        yield (0, MicrosoftAccount_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "xbox", uuid: uuid, xuid: "" });
+    });
+}
+function getMinecraftProfile(accessToken) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var header = new Headers();
+        header.append("Authorization", accessToken);
+        var response = undefined;
+        yield fetch(const_js_1.msAccessToken, { method: "GET", headers: header, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+            yield res.json().then((val) => {
+                response = val;
+            });
+        })).catch((err) => {
+            console.log("Error occured when attempting to get the profile attached to the account!");
+            console.error(err);
+        });
+        return response;
     });
 }
 function refreshAccessToken(refreshToken) {

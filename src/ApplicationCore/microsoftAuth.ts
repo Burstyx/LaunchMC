@@ -62,6 +62,8 @@ async function connectWithCode(code: string){
     const username = minecraftProfileData!["name"]
     const uuid = minecraftProfileData!["id"]
 
+    console.log(minecraftAccessToken);
+    
     
 
     await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "xbox", uuid: uuid, xuid: ""})

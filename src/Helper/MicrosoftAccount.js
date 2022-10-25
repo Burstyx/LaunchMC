@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addAccount = exports.accountList = void 0;
+exports.getAccount = exports.addAccount = exports.accountList = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const const_1 = require("./const");
 const fs_1 = __importDefault(require("fs"));
@@ -33,3 +33,8 @@ function addAccount(opt) {
     });
 }
 exports.addAccount = addAccount;
+function getAccount(uuid) {
+    return __awaiter(this, void 0, void 0, function* () {
+    });
+}
+exports.getAccount = getAccount;
