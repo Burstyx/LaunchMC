@@ -12,10 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAccount = exports.addAccount = exports.accountList = void 0;
-const crypto_js_1 = __importDefault(require("crypto-js"));
+exports.getActiveAccount = exports.getAccount = exports.addAccount = exports.accountList = void 0;
 const const_1 = require("./const");
 const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 function accountList() {
     return __awaiter(this, void 0, void 0, function* () {
     });
@@ -23,13 +23,9 @@ function accountList() {
 exports.accountList = accountList;
 function addAccount(opt) {
     return __awaiter(this, void 0, void 0, function* () {
-        const data = JSON.parse("{ 'account' : {} }}");
-        data["account"][opt["uuid"]] = {};
-        data["account"][opt["uuid"]]["access_token"] = opt["accesstoken"];
-        data["account"][opt["uuid"]]["username"] = opt["username"];
-        data["account"][opt["uuid"]]["xuid"] = opt["xuid"];
-        data["account"][opt["uuid"]]["usertype"] = opt["usertype"];
-        fs_1.default.writeFileSync(const_1.gamePath, crypto_js_1.default.AES.encrypt(JSON.stringify(data), "a").toString(crypto_js_1.default.format.Hex));
+        let data = { "accounts": [] };
+        data["accounts"].push({ "access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": true });
+        fs_1.default.writeFileSync(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data));
     });
 }
 exports.addAccount = addAccount;
@@ -38,3 +34,14 @@ function getAccount(uuid) {
     });
 }
 exports.getAccount = getAccount;
+function getActiveAccount() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const data = JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.gamePath, "minecraft_account.json"), "utf-8"));
+        for (const e in data["accounts"]) {
+            if (data["accounts"][e]["active"] == true) {
+                return data["accounts"][e];
+            }
+        }
+    });
+}
+exports.getActiveAccount = getActiveAccount;

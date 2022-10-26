@@ -4,6 +4,7 @@ const { filteredMinecraftVersions } = require("./Helper/HVersions")
 const { downloadVanillaVersion } = require("./ApplicationCore/minecraftDownloader")
 const { startMinecraft } = require("./ApplicationCore/startInstance")
 const { msaLogin } = require("./ApplicationCore/microsoftAuth")
+const { getActiveAccount } = require("./Helper/MicrosoftAccount")
 
 console.log("Initialisation du module principal !");
 
@@ -286,11 +287,13 @@ document.addEventListener("click", (evt) => {
     if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
         if (elementClicked.tagName == "P") {
             const data = getInstanceData(elementClicked.innerText)
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: "d", clientid: "a", username: "a", usertype: "a", uuid: "a", version: "1", versiontype: "a", xuid: "a" })
+            const accountInfo = getActiveAccount()
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" })
 
         } else {
             const data = getInstanceData(elementClicked.childNodes[0].innerHTML)
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: "d", clientid: "a", username: "a", usertype: "a", uuid: "a", version: "1", versiontype: "a", xuid: "a" })
+            const accountInfo = getActiveAccount()
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" })
         }
     }
 })

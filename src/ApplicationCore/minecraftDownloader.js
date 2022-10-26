@@ -30,7 +30,6 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             // Create related game folder
             console.log(path_1.default.join(const_1.instancesPath, name));
             fs_1.default.mkdirSync(path_1.default.join(const_1.instancesPath, name), { recursive: true });
-            fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name }));
             (0, instancesManager_1.getInstancesList)(instanceDiv);
             (0, instancesManager_1.makeInstanceDownloading)(name, instanceDiv);
             // Verification of the game version 
@@ -56,6 +55,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 });
             });
             console.log("Minecraft client downloaded");
+            var librariesArg = "";
             // Download Libraries
             console.log("Downloading minecraft libraries");
             for (let i = 0; i < data["libraries"].length; i++) {
@@ -63,21 +63,26 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                     for (let e in data["libraries"][i]["downloads"]["classifiers"]) {
                         if (e.includes("windows") && os_1.default.platform() == "win32") {
                             yield downloadClassifierMinecraftLibrary(data, e, i);
+                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
                         }
                         if (e.includes("osx") && os_1.default.platform() == "darwin") {
                             yield downloadClassifierMinecraftLibrary(data, e, i);
+                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
                         }
                         if (e.includes("linux") && os_1.default.platform() == "linux") {
                             yield downloadClassifierMinecraftLibrary(data, e, i);
+                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
                         }
                     }
                 }
                 else {
                     yield downloadMinecraftLibrary(data, i);
+                    librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
                 }
                 numberOfLibrariesDownloaded++;
                 console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
             }
+            fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg }));
             console.log("Minecraft libraries downloaded");
             // Download indexes
             console.log("Downloading minecraft index");

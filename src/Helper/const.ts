@@ -10,6 +10,7 @@ export const objectPath = assetsPath + "/objects"
 export const instancesPath = gamePath + "/instances"
 export const librariesPath = dataPath + "/libraries"
 export const loggingConfPath = assetsPath + "/log_configs"
+export const legacyAssetsPath = assetsPath + "/virtual/legacy"
 
 // Url
 export const versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
@@ -20,6 +21,7 @@ export const xbxLiveAuth = "https://user.auth.xboxlive.com/user/authenticate"
 export const xstsAuth = "https://xsts.auth.xboxlive.com/xsts/authorize"
 export const minecraftBearerToken = "https://api.minecraftservices.com/authentication/login_with_xbox"
 export const minecraftHeadProfilePicture = "https://minotar.net/avatar/"
+export const playerMojangProfile = "https://api.minecraftservices.com/minecraft/profile"
 
 // Azure data
 export const redirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient"

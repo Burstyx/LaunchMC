@@ -20,7 +20,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         console.log(path.join(instancesPath, name));
         
         fs.mkdirSync(path.join(instancesPath, name), {recursive: true})
-        fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name}))
+        
         
         getInstancesList(instanceDiv);
 
@@ -57,6 +57,8 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
         console.log("Minecraft client downloaded");
 
+        var librariesArg = ""
+
         // Download Libraries
         console.log("Downloading minecraft libraries");
         for(let i = 0; i < data["libraries"].length; i++){
@@ -64,20 +66,27 @@ export async function downloadVanillaVersion(version: string, name: string, inst
                 for(let e in data["libraries"][i]["downloads"]["classifiers"]){
                     if(e.includes("windows") && os.platform() == "win32"){
                         await downloadClassifierMinecraftLibrary(data, e, i)
+                        librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";"
                     }
                     if(e.includes("osx") && os.platform() == "darwin"){
                         await downloadClassifierMinecraftLibrary(data, e, i)
+                        librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";"
                     }
                     if(e.includes("linux") && os.platform() == "linux"){
                         await downloadClassifierMinecraftLibrary(data, e, i)
+                        librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";"
                     }
                 }
             }else{
                 await downloadMinecraftLibrary(data, i)
+                librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";"
             }
             numberOfLibrariesDownloaded++
             console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
         }
+
+        fs.writeFileSync(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg}))
+
         console.log("Minecraft libraries downloaded");
         // Download indexes
         console.log("Downloading minecraft index");

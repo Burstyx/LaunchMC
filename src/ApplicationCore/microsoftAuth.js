@@ -58,21 +58,22 @@ function connectWithCode(code) {
         const minecraftFetchedData = yield getMinecraftBearerToken(uhs, xstsToken);
         const minecraftAccessToken = minecraftFetchedData["access_token"];
         const expires_in = minecraftFetchedData["expires_in"];
-        const minecraftProfileData = yield getMinecraftProfile(accessToken);
+        const minecraftProfileData = yield getMinecraftProfile(minecraftAccessToken);
         const username = minecraftProfileData["name"];
         const uuid = minecraftProfileData["id"];
         console.log(minecraftAccessToken);
-        yield (0, MicrosoftAccount_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "xbox", uuid: uuid, xuid: "" });
+        yield (0, MicrosoftAccount_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid });
     });
 }
 function getMinecraftProfile(accessToken) {
     return __awaiter(this, void 0, void 0, function* () {
         var header = new Headers();
-        header.append("Authorization", accessToken);
+        header.append("Authorization", "Bearer " + accessToken);
         var response = undefined;
-        yield fetch(const_js_1.msAccessToken, { method: "GET", headers: header, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+        yield fetch(const_js_1.playerMojangProfile, { method: "GET", headers: header, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
+                console.log(val);
             });
         })).catch((err) => {
             console.log("Error occured when attempting to get the profile attached to the account!");
