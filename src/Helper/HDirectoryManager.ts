@@ -1,8 +1,9 @@
-import fs from "fs"
+import fs from "fs/promises"
+import {existsSync} from "fs"
 
-export function makeDir(path: string){
-    if(!fs.existsSync(path)){
-        fs.mkdirSync(path, {recursive: true})
+export async function makeDir(path: string){
+    if(!existsSync(path)){
+        await fs.mkdir(path, {recursive: true})
     }
     return path
 }

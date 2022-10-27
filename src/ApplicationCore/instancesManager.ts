@@ -1,4 +1,5 @@
-import fs from "fs"
+import fs from "fs/promises"
+import {existsSync} from "fs"
 import path from "path"
 import { instancesPath } from "../Helper/const"
 
@@ -35,14 +36,14 @@ function createStyleString(imagePath: string){
     return style
 }
 
-export function getInstancesList(instancesDiv: HTMLElement){
+export async function getInstancesList(instancesDiv: HTMLElement){
     instancesDiv.innerHTML = ""
     
-    if(fs.existsSync(instancesPath)){
-        const instances = fs.readdirSync(instancesPath)
+    if(existsSync(instancesPath)){
+        const instances = await fs.readdir(instancesPath)
         for(const e in instances){
-            if(fs.existsSync(path.join(instancesPath, instances[e], "info.json"))){
-                const data = JSON.parse(fs.readFileSync(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
+            if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
+                const data = JSON.parse(await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
                 addInstanceElement(data["imagePath"], instances[e], instancesDiv)
             }
         }
@@ -66,12 +67,12 @@ export function makeInstanceDownloading(id: string, instancesDiv: HTMLElement){
     }
 }
 
-export function getInstanceData(instanceId: string){
-    if(fs.existsSync(path.join(instancesPath))){
-        const instances = fs.readdirSync(instancesPath)
+export async function getInstanceData(instanceId: string){
+    if(existsSync(path.join(instancesPath))){
+        const instances = await fs.readdir(instancesPath)
         for(const e in instances){
             if(instances[e] == instanceId){
-                const data = fs.readFileSync(path.join(instancesPath, instances[e], "info.json"), "utf-8")
+                const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8")
 
                 return {"data": JSON.parse(data), "gamePath": path.join(instancesPath, instances[e])}
             }

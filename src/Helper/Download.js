@@ -13,24 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadAsync = void 0;
-const fs_1 = __importDefault(require("fs"));
+const fs_1 = require("fs");
+const extract_zip_1 = __importDefault(require("extract-zip"));
 // Download url async
-function downloadAsync(url, dest) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => {
-            const file = fs_1.default.createWriteStream(dest);
-            // Download the file with fetch and resolve response
-            fetch(url).then((res) => __awaiter(this, void 0, void 0, function* () {
-                // Get buffer
-                const arrayBuffer = yield res.arrayBuffer();
-                const buffer = Buffer.from(arrayBuffer);
-                console.log(arrayBuffer.byteLength);
-                // Write buffer
-                file.write(buffer);
-                file.close((err) => reject(err));
+function downloadAsync(url, dest, opt) {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        const file = (0, fs_1.createWriteStream)(dest);
+        // Download the file with fetch and resolve response
+        yield fetch(url).then((res) => __awaiter(this, void 0, void 0, function* () {
+            // Get buffer
+            const arrayBuffer = yield res.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            console.log(arrayBuffer.byteLength);
+            // Write buffer
+            file.write(buffer);
+            if (opt && opt["decompress"] == true) {
+                const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
+                console.log(destWithoutExt);
+                yield (0, extract_zip_1.default)(dest, { dir: destWithoutExt });
                 resolve(res);
-            })).catch((err) => reject(err));
-        });
-    });
+                0;
+            }
+            else {
+                resolve(res);
+            }
+        })).catch((err) => reject(err));
+    }));
 }
 exports.downloadAsync = downloadAsync;

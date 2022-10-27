@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clientSecret = exports.clientId = exports.redirectUrl = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.versionsManifest = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
+exports.java17Version = exports.java8Version = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.versionsManifest = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
 const { app } = require("@electron/remote");
 // Path
 exports.gamePath = app.getPath("userData");
@@ -13,6 +13,7 @@ exports.instancesPath = exports.gamePath + "/instances";
 exports.librariesPath = exports.dataPath + "/libraries";
 exports.loggingConfPath = exports.assetsPath + "/log_configs";
 exports.legacyAssetsPath = exports.assetsPath + "/virtual/legacy";
+exports.javaPath = exports.gamePath + "/javas";
 // Url
 exports.versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 exports.resourcePackage = "https://resources.download.minecraft.net";
@@ -27,3 +28,6 @@ exports.playerMojangProfile = "https://api.minecraftservices.com/minecraft/profi
 exports.redirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient";
 exports.clientId = "67ebd24f-af85-4d3e-bcb4-a330eb0ba7e1";
 exports.clientSecret = "a0c3823e-c125-4f5f-920b-5cbf5c9efe35";
+// Java Versions
+exports.java8Version = "jdk8u345-b01";
+exports.java17Version = "jdk-17.0.5+8";

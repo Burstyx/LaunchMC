@@ -11,6 +11,7 @@ export const instancesPath = gamePath + "/instances"
 export const librariesPath = dataPath + "/libraries"
 export const loggingConfPath = assetsPath + "/log_configs"
 export const legacyAssetsPath = assetsPath + "/virtual/legacy"
+export const javaPath = gamePath + "/javas"
 
 // Url
 export const versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
@@ -27,3 +28,7 @@ export const playerMojangProfile = "https://api.minecraftservices.com/minecraft/
 export const redirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 export const clientId = "67ebd24f-af85-4d3e-bcb4-a330eb0ba7e1"
 export const clientSecret = "a0c3823e-c125-4f5f-920b-5cbf5c9efe35"
+
+// Java Versions
+export const java8Version = "jdk8u345-b01"
+export const java17Version = "jdk-17.0.5+8"

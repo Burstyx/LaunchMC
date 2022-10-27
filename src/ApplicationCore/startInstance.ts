@@ -1,10 +1,11 @@
 import {minecraftManifestForVersion} from "../Helper/HManifests"
 import cp from "child_process"
 import path from "path"
-import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath} from "../Helper/const"
+import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version} from "../Helper/const"
 import os from "os"
-import fsp from "fs/promises"
-import fs from "fs"
+import fs from "fs/promises"
+import {existsSync} from "fs"
+import { downloadJavaVersion, JavaVersions } from "./minecraftDownloader"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -70,7 +71,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
                     tempSplitedArgs[i] = assetsPath
                     break;
                 case "${assets_index_name}":
-                    tempSplitedArgs[i] = JSON.parse((await fsp.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"})).toString())["assets_index_name"]
+                    tempSplitedArgs[i] = JSON.parse((await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"})).toString())["assets_index_name"]
                     break;
                 case "${auth_uuid}":
                     tempSplitedArgs[i] = opt.uuid
@@ -88,8 +89,8 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
                     tempSplitedArgs[i] = opt.versiontype
                     break;
                 case "${game_assets}":
-                    if(!fs.existsSync(legacyAssetsPath))
-                        await fsp.mkdir(legacyAssetsPath, {recursive: true})
+                    if(!existsSync(legacyAssetsPath))
+                        await fs.mkdir(legacyAssetsPath, {recursive: true})
                     tempSplitedArgs[i] = legacyAssetsPath
                     break;
                 case "${auth_session}":
@@ -118,29 +119,58 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
 
         const libraries = await getAllFile(librariesPath)
         // console.log(libraries);
-        let librariesArg = JSON.parse(await fsp.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
-        // console.log(librariesArg);
+        let librariesArg = JSON.parse(await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
+        console.log(librariesArg);
 
         jvmArgs.push(`-cp`)
-        jvmArgs.push(`${librariesArg};${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
+        jvmArgs.push(`${librariesArg}${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
 
         jvmArgs.push("net.minecraft.client.main.Main")
         
         const fullMcArgs = [...jvmArgs, ...mcArgs]
         console.log(fullMcArgs);
 
+        // Find correct java executable
+        if(!existsSync(path.join(javaPath, java8Version))){
+            await downloadJavaVersion(JavaVersions.JDK8)
+        }
+        if(!existsSync(path.join(javaPath, java17Version))){
+            await downloadJavaVersion(JavaVersions.JDK17)
+        }
+
+        const java8 = path.join(javaPath, java8Version, java8Version, "bin", "java")
+        const java17 = path.join(javaPath, java17Version, java17Version, "bin", "java")
+
+        const majorVersion = Number(version.split(".")[1])
+        if(majorVersion >= 18){
+            console.log("Launching java 17");
+            
+            const proc = cp.spawn(java17, fullMcArgs)
+
+            proc.stdout.on("data", (data) => {
+                console.log(data.toString("utf-8"));
+            })
+
+            proc.stderr.on("data", (data) => {
+                console.error(data.toString("utf-8"));                
+            })
+        }else{
+            console.log("Launching java 8");
+
+            const proc = cp.spawn(java8, fullMcArgs)
+
+            proc.stdout.on("data", (data) => {
+                console.log(data.toString("utf-8"));
+                
+            })
+
+            proc.stderr.on("data", (data) => {
+                console.error(data.toString("utf-8"));
+            })
+        }
+
         // Start Minecraft
-        const proc = cp.spawn("C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.4.101-hotspot\\bin\\java", fullMcArgs)
-
-        proc.stdout.on("data", (data) => {
-            console.log(data.toString("utf-8"));
-            
-        })
-
-        proc.stderr.on("data", (data) => {
-            console.error(data.toString("utf-8"));
-            
-        })
+        
         
         
 
@@ -160,7 +190,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
 
 async function getAllFile(pathDir: string): Promise<any> {
     let files: any[] = []
-    const items = await fsp.readdir(pathDir, {withFileTypes: true})
+    const items = await fs.readdir(pathDir, {withFileTypes: true})
     for(const item of items){        
         if(item.isDirectory()){
             files = [

@@ -275,7 +275,7 @@ function closeChooseVersionMenu() {
     elementToCloseWhenClickingOnClickAvoider = addMenu
 }
 
-document.addEventListener("click", (evt) => {
+document.addEventListener("click", async (evt) => {
     const elementClicked = evt.target
     if (elementClicked.parentElement.classList.item(0) == "vanillabootloaderinformation") {
         let versionFound = elementClicked.parentElement.id.toString().substring(8)
@@ -286,13 +286,13 @@ document.addEventListener("click", (evt) => {
 
     if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
         if (elementClicked.tagName == "P") {
-            const data = getInstanceData(elementClicked.innerText)
-            const accountInfo = getActiveAccount()
+            const data = await getInstanceData(elementClicked.innerText)
+            const accountInfo = await getActiveAccount()
             startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" })
 
         } else {
-            const data = getInstanceData(elementClicked.childNodes[0].innerHTML)
-            const accountInfo = getActiveAccount()
+            const data = await getInstanceData(elementClicked.childNodes[0].innerHTML)
+            const accountInfo = await getActiveAccount()
             startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" })
         }
     }

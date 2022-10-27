@@ -18,7 +18,8 @@ const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Helper/const");
 const promises_1 = __importDefault(require("fs/promises"));
-const fs_1 = __importDefault(require("fs"));
+const fs_1 = require("fs");
+const minecraftDownloader_1 = require("./minecraftDownloader");
 function startMinecraft(version, instanceId, opt) {
     (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
         // var mcArgs = []
@@ -85,7 +86,7 @@ function startMinecraft(version, instanceId, opt) {
                     tempSplitedArgs[i] = opt.versiontype;
                     break;
                 case "${game_assets}":
-                    if (!fs_1.default.existsSync(const_1.legacyAssetsPath))
+                    if (!(0, fs_1.existsSync)(const_1.legacyAssetsPath))
                         yield promises_1.default.mkdir(const_1.legacyAssetsPath, { recursive: true });
                     tempSplitedArgs[i] = const_1.legacyAssetsPath;
                     break;
@@ -109,20 +110,43 @@ function startMinecraft(version, instanceId, opt) {
         const libraries = yield getAllFile(const_1.librariesPath);
         // console.log(libraries);
         let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
-        // console.log(librariesArg);
+        console.log(librariesArg);
         jvmArgs.push(`-cp`);
-        jvmArgs.push(`${librariesArg};${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
+        jvmArgs.push(`${librariesArg}${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
         jvmArgs.push("net.minecraft.client.main.Main");
         const fullMcArgs = [...jvmArgs, ...mcArgs];
         console.log(fullMcArgs);
+        // Find correct java executable
+        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version))) {
+            yield (0, minecraftDownloader_1.downloadJavaVersion)(minecraftDownloader_1.JavaVersions.JDK8);
+        }
+        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version))) {
+            yield (0, minecraftDownloader_1.downloadJavaVersion)(minecraftDownloader_1.JavaVersions.JDK17);
+        }
+        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Version, "bin", "java");
+        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "java");
+        const majorVersion = Number(version.split(".")[1]);
+        if (majorVersion >= 18) {
+            console.log("Launching java 17");
+            const proc = child_process_1.default.spawn(java17, fullMcArgs);
+            proc.stdout.on("data", (data) => {
+                console.log(data.toString("utf-8"));
+            });
+            proc.stderr.on("data", (data) => {
+                console.error(data.toString("utf-8"));
+            });
+        }
+        else {
+            console.log("Launching java 8");
+            const proc = child_process_1.default.spawn(java8, fullMcArgs);
+            proc.stdout.on("data", (data) => {
+                console.log(data.toString("utf-8"));
+            });
+            proc.stderr.on("data", (data) => {
+                console.error(data.toString("utf-8"));
+            });
+        }
         // Start Minecraft
-        const proc = child_process_1.default.spawn("C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.4.101-hotspot\\bin\\java", fullMcArgs);
-        proc.stdout.on("data", (data) => {
-            console.log(data.toString("utf-8"));
-        });
-        proc.stderr.on("data", (data) => {
-            console.error(data.toString("utf-8"));
-        });
         // Build command string
         // var command: string = `C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\java`
         // for(var e in mcArgs){

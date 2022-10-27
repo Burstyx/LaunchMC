@@ -1,10 +1,20 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getInstanceData = exports.makeInstanceDownloading = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
-const fs_1 = __importDefault(require("fs"));
+const promises_1 = __importDefault(require("fs/promises"));
+const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Helper/const");
 function addInstanceElement(imagePath, title, instanceDiv) {
@@ -33,16 +43,18 @@ function createStyleString(imagePath) {
     return style;
 }
 function getInstancesList(instancesDiv) {
-    instancesDiv.innerHTML = "";
-    if (fs_1.default.existsSync(const_1.instancesPath)) {
-        const instances = fs_1.default.readdirSync(const_1.instancesPath);
-        for (const e in instances) {
-            if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
-                const data = JSON.parse(fs_1.default.readFileSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8"));
-                addInstanceElement(data["imagePath"], instances[e], instancesDiv);
+    return __awaiter(this, void 0, void 0, function* () {
+        instancesDiv.innerHTML = "";
+        if ((0, fs_1.existsSync)(const_1.instancesPath)) {
+            const instances = yield promises_1.default.readdir(const_1.instancesPath);
+            for (const e in instances) {
+                if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
+                    const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8"));
+                    addInstanceElement(data["imagePath"], instances[e], instancesDiv);
+                }
             }
         }
-    }
+    });
 }
 exports.getInstancesList = getInstancesList;
 function makeInstanceDownloaded(id, instancesDiv) {
@@ -63,14 +75,16 @@ function makeInstanceDownloading(id, instancesDiv) {
 }
 exports.makeInstanceDownloading = makeInstanceDownloading;
 function getInstanceData(instanceId) {
-    if (fs_1.default.existsSync(path_1.default.join(const_1.instancesPath))) {
-        const instances = fs_1.default.readdirSync(const_1.instancesPath);
-        for (const e in instances) {
-            if (instances[e] == instanceId) {
-                const data = fs_1.default.readFileSync(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8");
-                return { "data": JSON.parse(data), "gamePath": path_1.default.join(const_1.instancesPath, instances[e]) };
+    return __awaiter(this, void 0, void 0, function* () {
+        if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath))) {
+            const instances = yield promises_1.default.readdir(const_1.instancesPath);
+            for (const e in instances) {
+                if (instances[e] == instanceId) {
+                    const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8");
+                    return { "data": JSON.parse(data), "gamePath": path_1.default.join(const_1.instancesPath, instances[e]) };
+                }
             }
         }
-    }
+    });
 }
 exports.getInstanceData = getInstanceData;

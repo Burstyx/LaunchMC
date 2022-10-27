@@ -1,16 +1,17 @@
-import fs from "fs"
+import fs from "fs/promises"
+import {existsSync} from "fs"
 import { minecraftVersionPath, versionsManifest, dataPath } from "./const"
 import path from "path"
 import {makeDir} from "./HDirectoryManager"
 import { downloadAsync } from "./Download"
 
 // Download manifest containing all versions informations
-export async function minecraftManifest(): Promise<any>{
-    return await new Promise(async (resolve, reject) => {
+export function minecraftManifest(): Promise<any>{
+    return new Promise(async (resolve, reject) => {
         // Create directory if doesn't exist
-        const manifestPath = makeDir(dataPath)
+        const manifestPath = await makeDir(dataPath)
 
-        if(!fs.existsSync(path.join(manifestPath, "versions_manifest.json"))){
+        if(!existsSync(path.join(manifestPath, "versions_manifest.json"))){
             // Download manifest and return data
             await downloadAsync(versionsManifest, path.join(manifestPath, "versions_manifest.json")).then((res) => {
                 res.json().then((data) => {
@@ -19,18 +20,18 @@ export async function minecraftManifest(): Promise<any>{
             })
         }else{
             // File already exist so return data of this file
-            resolve(JSON.parse(fs.readFileSync(path.join(manifestPath, "versions_manifest.json"), "utf-8")))
+            resolve(JSON.parse(await fs.readFile(path.join(manifestPath, "versions_manifest.json"), "utf-8")))
         }
     })
 }
 
 // Download manifest for a specific Minecraft versions
-export async function minecraftManifestForVersion(version: string): Promise<any> {
-    return await new Promise(async (resolve, reject) => {
+export function minecraftManifestForVersion(version: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
         // Create directory if doesn't exist
-        const versionPath = makeDir(path.join(minecraftVersionPath, version))
+        const versionPath = await makeDir(path.join(minecraftVersionPath, version))
 
-        if(!fs.existsSync(path.join(versionPath, `${version}.json`))){
+        if(!existsSync(path.join(versionPath, `${version}.json`))){
             // Get manifest containing all versions informations
             await minecraftManifest().then(async (data) => {
                 // Retrieve data for the wanted version
@@ -45,7 +46,7 @@ export async function minecraftManifestForVersion(version: string): Promise<any>
             })
         }else{
             // File already exist so return it
-            resolve(JSON.parse(fs.readFileSync(path.join(versionPath, `${version}.json`), "utf-8")))
+            resolve(JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8")))
         }
     })
 }

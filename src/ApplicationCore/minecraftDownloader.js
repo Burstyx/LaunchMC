@@ -12,14 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadVanillaVersion = void 0;
+exports.downloadJavaVersion = exports.JavaVersions = exports.downloadVanillaVersion = void 0;
 const const_1 = require("../Helper/const");
 const os_1 = __importDefault(require("os"));
-const fs_1 = __importDefault(require("fs"));
+const promises_1 = __importDefault(require("fs/promises"));
+const fs_1 = require("fs");
 const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const HManifests_1 = require("../Helper/HManifests");
 const instancesManager_1 = require("./instancesManager");
+const original_fs_1 = require("original-fs");
+const Download_1 = require("../Helper/Download");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(version);
@@ -29,7 +32,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             let numberOfLibrariesDownloaded = 0;
             // Create related game folder
             console.log(path_1.default.join(const_1.instancesPath, name));
-            fs_1.default.mkdirSync(path_1.default.join(const_1.instancesPath, name), { recursive: true });
+            yield promises_1.default.mkdir(path_1.default.join(const_1.instancesPath, name), { recursive: true });
             (0, instancesManager_1.getInstancesList)(instanceDiv);
             (0, instancesManager_1.makeInstanceDownloading)(name, instanceDiv);
             // Verification of the game version 
@@ -38,10 +41,10 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             }
             // Download client
             console.log("Downloading minecraft client");
-            if (!fs_1.default.existsSync(const_1.minecraftVersionPath)) {
-                fs_1.default.mkdirSync(const_1.minecraftVersionPath, { recursive: true });
+            if (!(0, fs_1.existsSync)(const_1.minecraftVersionPath)) {
+                yield promises_1.default.mkdir(const_1.minecraftVersionPath, { recursive: true });
             }
-            const minecraftJarFile = fs_1.default.createWriteStream(path_1.default.join(const_1.minecraftVersionPath, version, data["id"] + ".jar"));
+            const minecraftJarFile = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.minecraftVersionPath, version, data["id"] + ".jar"));
             yield new Promise((resolve, reject) => {
                 https_1.default.get(data["downloads"]["client"]["url"], (data) => {
                     data.pipe(minecraftJarFile);
@@ -63,15 +66,15 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                     for (let e in data["libraries"][i]["downloads"]["classifiers"]) {
                         if (e.includes("windows") && os_1.default.platform() == "win32") {
                             yield downloadClassifierMinecraftLibrary(data, e, i);
-                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
+                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";";
                         }
                         if (e.includes("osx") && os_1.default.platform() == "darwin") {
                             yield downloadClassifierMinecraftLibrary(data, e, i);
-                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
+                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";";
                         }
                         if (e.includes("linux") && os_1.default.platform() == "linux") {
                             yield downloadClassifierMinecraftLibrary(data, e, i);
-                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
+                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";";
                         }
                     }
                 }
@@ -82,14 +85,14 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 numberOfLibrariesDownloaded++;
                 console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
             }
-            fs_1.default.writeFileSync(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg }));
+            yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg }));
             console.log("Minecraft libraries downloaded");
             // Download indexes
             console.log("Downloading minecraft index");
-            if (!fs_1.default.existsSync(const_1.indexesPath)) {
-                fs_1.default.mkdirSync(const_1.indexesPath, { recursive: true });
+            if (!(0, fs_1.existsSync)(const_1.indexesPath)) {
+                yield promises_1.default.mkdir(const_1.indexesPath, { recursive: true });
             }
-            const indexFile = fs_1.default.createWriteStream(path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"));
+            const indexFile = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"));
             yield new Promise((resolve, reject) => {
                 https_1.default.get(data["assetIndex"]["url"], (data) => {
                     data.pipe(indexFile);
@@ -106,10 +109,10 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             yield downloadLoggingXmlConfFile(data);
             // Download objects
             console.log("Downloading minecraft assets");
-            if (!fs_1.default.existsSync(const_1.objectPath)) {
-                fs_1.default.mkdirSync(const_1.objectPath, { recursive: true });
+            if (!(0, fs_1.existsSync)(const_1.objectPath)) {
+                yield promises_1.default.mkdir(const_1.objectPath, { recursive: true });
             }
-            const file = fs_1.default.readFileSync(path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"), "utf-8");
+            const file = yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"), "utf-8");
             const indexesData = JSON.parse(file);
             var numberOfAssets = 0;
             var numberOfAssetsDownloaded = 0;
@@ -120,10 +123,10 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
                 const hash = indexesData["objects"][e]["hash"];
                 const subhash = hash.substring(0, 2);
-                if (!fs_1.default.existsSync(path_1.default.join(const_1.objectPath, subhash))) {
-                    fs_1.default.mkdirSync(path_1.default.join(const_1.objectPath, subhash));
+                if (!(0, fs_1.existsSync)(path_1.default.join(const_1.objectPath, subhash))) {
+                    yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash));
                 }
-                const file = fs_1.default.createWriteStream(path_1.default.join(const_1.objectPath, subhash, hash));
+                const file = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.objectPath, subhash, hash));
                 // await new Promise((resolve, reject) => {
                 //     https.get(path.join(resourcePackage, subhash, hash), (data) => {
                 //         data.pipe(file)
@@ -155,17 +158,17 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
 exports.downloadVanillaVersion = downloadVanillaVersion;
 // Download Minecraft libraries
 function downloadMinecraftLibrary(data, i) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const filePath = path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']);
         const fileName = filePath.split("\\").pop();
         const dirPath = filePath.substring(0, filePath.indexOf(fileName));
         // Create folder if dir does not exist
-        if (!fs_1.default.existsSync(dirPath)) {
-            fs_1.default.mkdirSync(dirPath, { recursive: true });
+        if (!(0, fs_1.existsSync)(dirPath)) {
+            yield promises_1.default.mkdir(dirPath, { recursive: true });
         }
         console.log(filePath);
         // Download the jar file
-        const file = fs_1.default.createWriteStream(filePath);
+        const file = (0, original_fs_1.createWriteStream)(filePath);
         https_1.default.get(data["libraries"][i]["downloads"]["artifact"]["url"], (data) => {
             data.pipe(file);
             data.on("end", () => {
@@ -175,21 +178,21 @@ function downloadMinecraftLibrary(data, i) {
                 reject(err);
             });
         });
-    });
+    }));
 }
 // Download Minecraft libraries (classify by os version)
 function downloadClassifierMinecraftLibrary(data, e, i) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const filePath = path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']);
         const fileName = filePath.split("\\").pop();
         const dirPath = filePath.substring(0, filePath.indexOf(fileName));
         // Create folder if dir does not exist
-        if (!fs_1.default.existsSync(dirPath)) {
-            fs_1.default.mkdirSync(dirPath, { recursive: true });
+        if (!(0, fs_1.existsSync)(dirPath)) {
+            yield promises_1.default.mkdir(dirPath, { recursive: true });
         }
         console.log(filePath);
         // Download the jar file
-        const file = fs_1.default.createWriteStream(filePath);
+        const file = (0, original_fs_1.createWriteStream)(filePath);
         https_1.default.get(data["libraries"][i]["downloads"]["classifiers"][e]["url"], (data) => {
             data.pipe(file);
             data.on("end", () => {
@@ -199,17 +202,17 @@ function downloadClassifierMinecraftLibrary(data, e, i) {
                 reject(err);
             });
         });
-    });
+    }));
 }
 function downloadLoggingXmlConfFile(data) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         if (!data.hasOwnProperty("logging")) {
             resolve("No logging key found, step passed.");
         }
-        if (!fs_1.default.existsSync(const_1.loggingConfPath)) {
-            fs_1.default.mkdirSync(const_1.loggingConfPath, { recursive: true });
+        if (!(0, fs_1.existsSync)(const_1.loggingConfPath)) {
+            yield promises_1.default.mkdir(const_1.loggingConfPath, { recursive: true });
         }
-        const file = fs_1.default.createWriteStream(path_1.default.join(const_1.loggingConfPath, data["logging"]["client"]["file"]["id"]));
+        const file = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.loggingConfPath, data["logging"]["client"]["file"]["id"]));
         https_1.default.get(data["logging"]["client"]["file"]["url"], (data) => {
             data.pipe(file);
             data.on("end", () => {
@@ -219,5 +222,26 @@ function downloadLoggingXmlConfFile(data) {
                 reject(err);
             });
         });
-    });
+    }));
 }
+var JavaVersions;
+(function (JavaVersions) {
+    JavaVersions[JavaVersions["JDK8"] = 0] = "JDK8";
+    JavaVersions[JavaVersions["JDK17"] = 1] = "JDK17";
+})(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
+function downloadJavaVersion(version) {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        if (!(0, fs_1.existsSync)(const_1.javaPath)) {
+            yield promises_1.default.mkdir(const_1.javaPath);
+        }
+        if (version == JavaVersions.JDK8) {
+            yield (0, Download_1.downloadAsync)("https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u345-b01/OpenJDK8U-jdk_x64_windows_hotspot_8u345b01.zip", path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), { decompress: true });
+            resolve("Java 8 downloaded");
+        }
+        if (version == JavaVersions.JDK17) {
+            yield (0, Download_1.downloadAsync)("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.5%2B8/OpenJDK17U-jdk_x64_windows_hotspot_17.0.5_8.zip", path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), { decompress: true });
+            resolve("Java 17 downloaded");
+        }
+    }));
+}
+exports.downloadJavaVersion = downloadJavaVersion;

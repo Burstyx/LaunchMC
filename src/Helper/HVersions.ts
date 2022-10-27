@@ -1,7 +1,4 @@
-import {versionsManifest, dataPath} from "./const"
 import {minecraftManifest} from "./HManifests"
-import fs from "fs"
-import path from "path"
 
 interface MinecraftVersionsFiltering {
     filterOptions: {
