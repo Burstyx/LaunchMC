@@ -7,7 +7,7 @@ interface DownloadOpt {
 }
 
 // Download url async
-export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Promise<Response> {
+export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Promise<string> {
     return new Promise(async (resolve, reject) => {
         const file = createWriteStream(dest)
 
@@ -18,23 +18,30 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
             const buffer = Buffer.from(arrayBuffer)
 
             console.log(arrayBuffer.byteLength);
-            
+
+            file.write(buffer)            
 
             // Write buffer
-            file.write(buffer)
-
             if(opt && opt["decompress"] == true){
                 
-                const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
+                    const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
 
-                console.log(destWithoutExt);
+                    console.log(destWithoutExt);
 
-                await extract(dest, {dir: destWithoutExt})
-                
-                resolve(res)
-0            }else{
-                resolve(res)
-            }
+                    await extract(dest, {dir: destWithoutExt})
+
+                    file.close()
+                    
+                    resolve(dest)
+                }else{
+                    console.log(res);
+
+                    file.close()
+                    
+                    resolve(dest)
+                }
+
+            
 
             
         }).catch((err) => reject(err))

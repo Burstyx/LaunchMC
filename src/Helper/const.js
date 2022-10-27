@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.java17Version = exports.java8Version = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.versionsManifest = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
 const { app } = require("@electron/remote");
+const path_1 = __importDefault(require("path"));
 // Path
 exports.gamePath = app.getPath("userData");
 exports.dataPath = exports.gamePath + "/datas";
@@ -10,7 +14,7 @@ exports.assetsPath = exports.dataPath + "/assets";
 exports.indexesPath = exports.assetsPath + "/indexes";
 exports.objectPath = exports.assetsPath + "/objects";
 exports.instancesPath = exports.gamePath + "/instances";
-exports.librariesPath = exports.dataPath + "/libraries";
+exports.librariesPath = path_1.default.join(exports.dataPath, "libraries");
 exports.loggingConfPath = exports.assetsPath + "/log_configs";
 exports.legacyAssetsPath = exports.assetsPath + "/virtual/legacy";
 exports.javaPath = exports.gamePath + "/javas";

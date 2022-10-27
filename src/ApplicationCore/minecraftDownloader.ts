@@ -24,8 +24,8 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         
         await fs.mkdir(path.join(instancesPath, name), {recursive: true})
         
-        
-        getInstancesList(instanceDiv);
+        await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"]}))
+        await getInstancesList(instanceDiv);
 
         makeInstanceDownloading(name, instanceDiv)
 

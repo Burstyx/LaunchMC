@@ -25,17 +25,19 @@ function downloadAsync(url, dest, opt) {
             const arrayBuffer = yield res.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
             console.log(arrayBuffer.byteLength);
-            // Write buffer
             file.write(buffer);
+            // Write buffer
             if (opt && opt["decompress"] == true) {
                 const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
                 console.log(destWithoutExt);
                 yield (0, extract_zip_1.default)(dest, { dir: destWithoutExt });
-                resolve(res);
-                0;
+                file.close();
+                resolve(dest);
             }
             else {
-                resolve(res);
+                console.log(res);
+                file.close();
+                resolve(dest);
             }
         })).catch((err) => reject(err));
     }));

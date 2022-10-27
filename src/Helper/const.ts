@@ -1,4 +1,5 @@
 const { app } = require("@electron/remote")
+import path from "path"
 
 // Path
 export const gamePath = app.getPath("userData")
@@ -8,7 +9,7 @@ export const assetsPath = dataPath + "/assets"
 export const indexesPath = assetsPath + "/indexes"
 export const objectPath = assetsPath + "/objects"
 export const instancesPath = gamePath + "/instances"
-export const librariesPath = dataPath + "/libraries"
+export const librariesPath = path.join(dataPath, "libraries")
 export const loggingConfPath = assetsPath + "/log_configs"
 export const legacyAssetsPath = assetsPath + "/virtual/legacy"
 export const javaPath = gamePath + "/javas"

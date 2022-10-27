@@ -113,19 +113,20 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
 
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
         jvmArgs.push("-Djava.library.path=" + librariesPath)
-        jvmArgs.push("-Dorg.lwjgl.librarypath=" + librariesPath)
+        // jvmArgs.push("-Dorg.lwjgl.librarypath=" + librariesPath)
 
         
 
         const libraries = await getAllFile(librariesPath)
         // console.log(libraries);
         let librariesArg = JSON.parse(await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
-        console.log(librariesArg);
+        
 
         jvmArgs.push(`-cp`)
         jvmArgs.push(`${librariesArg}${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
+        console.log(`${librariesArg}${path.join(minecraftVersionPath, version, `${version}.jar`)}`);
 
-        jvmArgs.push("net.minecraft.client.main.Main")
+        jvmArgs.push(data["mainClass"])
         
         const fullMcArgs = [...jvmArgs, ...mcArgs]
         console.log(fullMcArgs);
@@ -142,7 +143,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         const java17 = path.join(javaPath, java17Version, java17Version, "bin", "java")
 
         const majorVersion = Number(version.split(".")[1])
-        if(majorVersion >= 18){
+        if(majorVersion >= 17){
             console.log("Launching java 17");
             
             const proc = cp.spawn(java17, fullMcArgs)

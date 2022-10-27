@@ -33,7 +33,8 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             // Create related game folder
             console.log(path_1.default.join(const_1.instancesPath, name));
             yield promises_1.default.mkdir(path_1.default.join(const_1.instancesPath, name), { recursive: true });
-            (0, instancesManager_1.getInstancesList)(instanceDiv);
+            yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"] }));
+            yield (0, instancesManager_1.getInstancesList)(instanceDiv);
             (0, instancesManager_1.makeInstanceDownloading)(name, instanceDiv);
             // Verification of the game version 
             for (let i = 0; i < data["libraries"].length; i++) {

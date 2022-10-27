@@ -26,11 +26,8 @@ function minecraftManifest() {
         const manifestPath = yield (0, HDirectoryManager_1.makeDir)(const_1.dataPath);
         if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "versions_manifest.json"))) {
             // Download manifest and return data
-            yield (0, Download_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json")).then((res) => __awaiter(this, void 0, void 0, function* () {
-                yield res.json().then((data) => {
-                    resolve(data);
-                });
-            }));
+            yield (0, Download_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json"));
+            resolve(JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "versions_manifest.json"), "utf-8")));
         }
         else {
             // File already exist so return data of this file
@@ -51,9 +48,8 @@ function minecraftManifestForVersion(version) {
                 for (var i = 0; i < data["versions"].length; i++) {
                     if (data["versions"][i]["id"] == version) {
                         // Download manifest of wanted version
-                        yield (0, Download_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`)).then((data) => {
-                            resolve(data);
-                        });
+                        yield (0, Download_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`));
+                        resolve(JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8")));
                     }
                 }
             }));
