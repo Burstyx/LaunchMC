@@ -15,9 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadAsync = void 0;
 const fs_1 = require("fs");
 const extract_zip_1 = __importDefault(require("extract-zip"));
+const HDirectoryManager_1 = require("./HDirectoryManager");
 // Download url async
 function downloadAsync(url, dest, opt) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        const destDir = dest.slice(0, dest.lastIndexOf("\\"));
+        console.log("destDir:", destDir);
+        yield (0, HDirectoryManager_1.makeDir)(destDir);
         const file = (0, fs_1.createWriteStream)(dest);
         // Download the file with fetch and resolve response
         yield fetch(url).then((res) => __awaiter(this, void 0, void 0, function* () {

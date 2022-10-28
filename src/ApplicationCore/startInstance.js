@@ -125,8 +125,8 @@ function startMinecraft(version, instanceId, opt) {
         }
         const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Version, "bin", "java");
         const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "java");
-        const majorVersion = Number(version.split(".")[1]);
-        if (majorVersion >= 17) {
+        const javaVersion = data["javaVersion"]["majorVersion"];
+        if (javaVersion >= 16) {
             console.log("Launching java 17");
             const proc = child_process_1.default.spawn(java17, fullMcArgs);
             proc.stdout.on("data", (data) => {

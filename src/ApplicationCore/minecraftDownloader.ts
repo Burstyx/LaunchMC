@@ -40,24 +40,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             await fs.mkdir(minecraftVersionPath, {recursive: true})
         } 
         
-        const minecraftJarFile = createWriteStream(path.join(minecraftVersionPath, version, data["id"] + ".jar"))
-        
-        await new Promise((resolve, reject) => {
-            https.get(data["downloads"]["client"]["url"], (data) => {
-                data.pipe(minecraftJarFile)
-
-                data.on("end", () => {
-                    resolve(data)
-                })
-
-                data.on("error", (err) => {
-                    console.log(err);
-                    reject(err)
-                })
-            })
-        })
-        
-
+        await downloadAsync(data["downloads"]["client"]["url"], path.join(minecraftVersionPath, version, data["id"] + ".jar"))
         console.log("Minecraft client downloaded");
 
         var librariesArg = ""
@@ -65,25 +48,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         // Download Libraries
         console.log("Downloading minecraft libraries");
         for(let i = 0; i < data["libraries"].length; i++){
-            if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
-                for(let e in data["libraries"][i]["downloads"]["classifiers"]){
-                    if(e.includes("windows") && os.platform() == "win32"){
-                        await downloadClassifierMinecraftLibrary(data, e, i)
-                        librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";"
-                    }
-                    if(e.includes("osx") && os.platform() == "darwin"){
-                        await downloadClassifierMinecraftLibrary(data, e, i)
-                        librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";"
-                    }
-                    if(e.includes("linux") && os.platform() == "linux"){
-                        await downloadClassifierMinecraftLibrary(data, e, i)
-                        librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";"
-                    }
-                }
-            }else{
-                await downloadMinecraftLibrary(data, i)
-                librariesArg += path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";"
-            }
+            librariesArg += await downloadMinecraftLibrary(data, i)
             numberOfLibrariesDownloaded++
             console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
         }
@@ -97,23 +62,8 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         if(!existsSync(indexesPath)){
             await fs.mkdir(indexesPath, {recursive: true})
         }
-        
-        const indexFile = createWriteStream(path.join(indexesPath, data["assetIndex"]["id"] + ".json"))
-        
-        await new Promise((resolve, reject) => {
-            https.get(data["assetIndex"]["url"], (data) => {
-                data.pipe(indexFile)
 
-                data.on("end", () => {
-                    resolve(data)
-                })
-
-                data.on("error", (err) => {
-                    reject(err)
-                })
-            })
-        })
-        
+        await downloadAsync(data["assetIndex"]["url"], path.join(indexesPath, data["assetIndex"]["id"] + ".json")) 
         console.log("Minecraft index downloaded");
 
         // Download Logging configuration file
@@ -187,64 +137,131 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 }
 
 // Download Minecraft libraries
-function downloadMinecraftLibrary(data: any, i: number){
+function downloadMinecraftLibrary(data: any, i: number): Promise<string>{
     return new Promise(async (resolve, reject) => {
-        const filePath = path.join(librariesPath, data['libraries'][i]['downloads']['artifact']['path'])
-        const fileName = filePath.split("\\").pop()
-        const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
+        var pieceOfLibraryArgs = ""
 
-        // Create folder if dir does not exist
-        if(!existsSync(dirPath)){
-            await fs.mkdir(dirPath, {recursive: true})
-        }
+        if(data["libraries"][i].hasOwnProperty("rules")){
+            if(parseRule(data["libraries"][i]["rules"])){
+                if(data["libraries"][i]["downloads"].hasOwnProperty("artifact")){
+                    await downloadAsync(data["libraries"][i]["downloads"]["artifact"]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]))
+                    pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]) + ";"
+                }
+                
+                if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
+                    for(const e in data["libraries"][i]["downloads"]["classifiers"]){
+                        if(e.includes("win") && os.platform() == "win32"){
+                            await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+                            pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";"
+                        }
+                        else if((e.includes("mac") || e.includes("osx")) && os.platform() == "darwin"){
+                            await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+                            pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";"
+                        }
+                        else if(e.includes("linux") && os.platform() == "linux"){
+                            await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+                            pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";"
+                        }
+                    }
+                }
+            }
+        }else{
+            if(data["libraries"][i]["downloads"].hasOwnProperty("artifact")){
+                await downloadAsync(data["libraries"][i]["downloads"]["artifact"]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]))
+                pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]) + ";"
+            }
 
-        console.log(filePath);
+            if(data["libraries"][i]["downloads"].hasOwnProperty("classifiers")){
+                for(const e in data["libraries"][i]["downloads"]["classifiers"]){
+                    if(e.includes("win") && os.platform() == "win32"){
+                        await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+                        pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";"
+                    }
+                    else if((e.includes("mac") || e.includes("osx")) && os.platform() == "darwin"){
+                        await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+                        pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";"
+                    }
+                    else if(e.includes("linux") && os.platform() == "linux"){
+                        await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+                        pieceOfLibraryArgs += path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";"
+                    }
+                }
+            }
+        }  
 
-        // Download the jar file
-        const file = createWriteStream(filePath)
-        https.get(data["libraries"][i]["downloads"]["artifact"]["url"], (data) => {
-            data.pipe(file)
+        
 
-            data.on("end", () => {
-                resolve(data)
-            })
-
-            data.on("error", (err) => {
-                reject(err)
-            })
-        })
+        resolve(pieceOfLibraryArgs)
+        
     })
+}
+
+function parseRule(rules: any){
+    let condition = false
+    for(let i = 0; i < rules.length; i++){
+        if(rules[i].hasOwnProperty("os")){
+            if(rules[i]["os"]["name"] == "windows" && os.platform() == "win32"){
+                if(rules[i]["action"] == "allow"){
+                    condition = true
+                }else{
+                    condition = false
+                }
+            }
+            else if(rules[i]["os"]["name"] == "osx" && os.platform() == "darwin"){
+                if(rules[i]["action"] == "allow"){
+                    condition = true
+                }else{
+                    condition = false
+                }
+            }
+            else if(rules[i]["os"]["name"] == "linux" && os.platform() == "linux"){
+                if(rules[i]["action"] == "allow"){
+                    condition = true
+                }else{
+                    condition = false
+                }
+            }
+        }else{
+            if(rules[i]["action"] == "allow"){
+                condition = true
+            }else{
+                condition = false
+            }
+        }
+    }
+    return condition
 }
 
 // Download Minecraft libraries (classify by os version)
-function downloadClassifierMinecraftLibrary(data: any, e: string, i: number){
-    return new Promise(async (resolve, reject) => {
-        const filePath = path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path'])
-        const fileName = filePath.split("\\").pop()
-        const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
+// function downloadClassifierMinecraftLibrary(data: any, e: string, i: number){
+//     return new Promise(async (resolve, reject) => {
+//         const filePath = path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path'])
+//         const fileName = filePath.split("\\").pop()
+//         const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
 
-        // Create folder if dir does not exist
-        if(!existsSync(dirPath)){
-            await fs.mkdir(dirPath, {recursive: true})
-        }
+//         // Create folder if dir does not exist
+//         if(!existsSync(dirPath)){
+//             await fs.mkdir(dirPath, {recursive: true})
+//         }
 
-        console.log(filePath);
-        
-        // Download the jar file
-        const file = createWriteStream(filePath)
-        https.get(data["libraries"][i]["downloads"]["classifiers"][e]["url"], (data) => {
-            data.pipe(file)
+//         console.log(filePath);
+//         if(data["libraries"][i]["downloads"].hasOwnProperty("artifact")){
+//             await downloadAsync(data["libraries"][i]["downloads"]["artifact"]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]))
+//         }
 
-            data.on("end", () => {
-                resolve(data)
-            })
-
-            data.on("error", (err) => {
-                reject(err)
-            })
-        })
-    })
-}
+//         for(const e in data["libraries"][i]["downloads"]["classifiers"]){
+//             if(e.includes("win")){
+//                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+//             }
+//             else if(e.includes("mac") || e.includes("osx")){
+//                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+//             }
+//             else if(e.includes("linux")){
+//                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+//             }
+//         }
+//     })
+// }
 
 function downloadLoggingXmlConfFile(data: any){
     return new Promise(async (resolve, reject) => {
@@ -255,19 +272,8 @@ function downloadLoggingXmlConfFile(data: any){
             await fs.mkdir(loggingConfPath, {recursive: true})
         }
 
-        const file = createWriteStream(path.join(loggingConfPath, data["logging"]["client"]["file"]["id"]))
-
-        https.get(data["logging"]["client"]["file"]["url"], (data) => {
-            data.pipe(file)
-
-            data.on("end", () => {
-                resolve(data)
-            })
-
-            data.on("error", (err) => {
-                reject(err)
-            })
-        })
+        await downloadAsync(data["logging"]["client"]["file"]["url"], path.join(loggingConfPath, data["logging"]["client"]["file"]["id"]))
+        resolve("Log4j file downloaded")
     })
 }
 

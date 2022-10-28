@@ -17,7 +17,6 @@ const const_1 = require("../Helper/const");
 const os_1 = __importDefault(require("os"));
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
-const https_1 = __importDefault(require("https"));
 const path_1 = __importDefault(require("path"));
 const HManifests_1 = require("../Helper/HManifests");
 const instancesManager_1 = require("./instancesManager");
@@ -45,44 +44,13 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             if (!(0, fs_1.existsSync)(const_1.minecraftVersionPath)) {
                 yield promises_1.default.mkdir(const_1.minecraftVersionPath, { recursive: true });
             }
-            const minecraftJarFile = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.minecraftVersionPath, version, data["id"] + ".jar"));
-            yield new Promise((resolve, reject) => {
-                https_1.default.get(data["downloads"]["client"]["url"], (data) => {
-                    data.pipe(minecraftJarFile);
-                    data.on("end", () => {
-                        resolve(data);
-                    });
-                    data.on("error", (err) => {
-                        console.log(err);
-                        reject(err);
-                    });
-                });
-            });
+            yield (0, Download_1.downloadAsync)(data["downloads"]["client"]["url"], path_1.default.join(const_1.minecraftVersionPath, version, data["id"] + ".jar"));
             console.log("Minecraft client downloaded");
             var librariesArg = "";
             // Download Libraries
             console.log("Downloading minecraft libraries");
             for (let i = 0; i < data["libraries"].length; i++) {
-                if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
-                    for (let e in data["libraries"][i]["downloads"]["classifiers"]) {
-                        if (e.includes("windows") && os_1.default.platform() == "win32") {
-                            yield downloadClassifierMinecraftLibrary(data, e, i);
-                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";";
-                        }
-                        if (e.includes("osx") && os_1.default.platform() == "darwin") {
-                            yield downloadClassifierMinecraftLibrary(data, e, i);
-                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";";
-                        }
-                        if (e.includes("linux") && os_1.default.platform() == "linux") {
-                            yield downloadClassifierMinecraftLibrary(data, e, i);
-                            librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']) + ";";
-                        }
-                    }
-                }
-                else {
-                    yield downloadMinecraftLibrary(data, i);
-                    librariesArg += path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']) + ";";
-                }
+                librariesArg += yield downloadMinecraftLibrary(data, i);
                 numberOfLibrariesDownloaded++;
                 console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
             }
@@ -93,18 +61,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             if (!(0, fs_1.existsSync)(const_1.indexesPath)) {
                 yield promises_1.default.mkdir(const_1.indexesPath, { recursive: true });
             }
-            const indexFile = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"));
-            yield new Promise((resolve, reject) => {
-                https_1.default.get(data["assetIndex"]["url"], (data) => {
-                    data.pipe(indexFile);
-                    data.on("end", () => {
-                        resolve(data);
-                    });
-                    data.on("error", (err) => {
-                        reject(err);
-                    });
-                });
-            });
+            yield (0, Download_1.downloadAsync)(data["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"));
             console.log("Minecraft index downloaded");
             // Download Logging configuration file
             yield downloadLoggingXmlConfFile(data);
@@ -160,51 +117,123 @@ exports.downloadVanillaVersion = downloadVanillaVersion;
 // Download Minecraft libraries
 function downloadMinecraftLibrary(data, i) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-        const filePath = path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['artifact']['path']);
-        const fileName = filePath.split("\\").pop();
-        const dirPath = filePath.substring(0, filePath.indexOf(fileName));
-        // Create folder if dir does not exist
-        if (!(0, fs_1.existsSync)(dirPath)) {
-            yield promises_1.default.mkdir(dirPath, { recursive: true });
+        var pieceOfLibraryArgs = "";
+        if (data["libraries"][i].hasOwnProperty("rules")) {
+            if (parseRule(data["libraries"][i]["rules"])) {
+                if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
+                    yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["artifact"]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]));
+                    pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]) + ";";
+                }
+                if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
+                    for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
+                        if (e.includes("win") && os_1.default.platform() == "win32") {
+                            yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
+                            pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";";
+                        }
+                        else if ((e.includes("mac") || e.includes("osx")) && os_1.default.platform() == "darwin") {
+                            yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
+                            pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";";
+                        }
+                        else if (e.includes("linux") && os_1.default.platform() == "linux") {
+                            yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
+                            pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";";
+                        }
+                    }
+                }
+            }
         }
-        console.log(filePath);
-        // Download the jar file
-        const file = (0, original_fs_1.createWriteStream)(filePath);
-        https_1.default.get(data["libraries"][i]["downloads"]["artifact"]["url"], (data) => {
-            data.pipe(file);
-            data.on("end", () => {
-                resolve(data);
-            });
-            data.on("error", (err) => {
-                reject(err);
-            });
-        });
+        else {
+            if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
+                yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["artifact"]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]));
+                pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]) + ";";
+            }
+            if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
+                for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
+                    if (e.includes("win") && os_1.default.platform() == "win32") {
+                        yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
+                        pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";";
+                    }
+                    else if ((e.includes("mac") || e.includes("osx")) && os_1.default.platform() == "darwin") {
+                        yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
+                        pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";";
+                    }
+                    else if (e.includes("linux") && os_1.default.platform() == "linux") {
+                        yield (0, Download_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
+                        pieceOfLibraryArgs += path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]) + ";";
+                    }
+                }
+            }
+        }
+        resolve(pieceOfLibraryArgs);
     }));
+}
+function parseRule(rules) {
+    let condition = false;
+    for (let i = 0; i < rules.length; i++) {
+        if (rules[i].hasOwnProperty("os")) {
+            if (rules[i]["os"]["name"] == "windows" && os_1.default.platform() == "win32") {
+                if (rules[i]["action"] == "allow") {
+                    condition = true;
+                }
+                else {
+                    condition = false;
+                }
+            }
+            else if (rules[i]["os"]["name"] == "osx" && os_1.default.platform() == "darwin") {
+                if (rules[i]["action"] == "allow") {
+                    condition = true;
+                }
+                else {
+                    condition = false;
+                }
+            }
+            else if (rules[i]["os"]["name"] == "linux" && os_1.default.platform() == "linux") {
+                if (rules[i]["action"] == "allow") {
+                    condition = true;
+                }
+                else {
+                    condition = false;
+                }
+            }
+        }
+        else {
+            if (rules[i]["action"] == "allow") {
+                condition = true;
+            }
+            else {
+                condition = false;
+            }
+        }
+    }
+    return condition;
 }
 // Download Minecraft libraries (classify by os version)
-function downloadClassifierMinecraftLibrary(data, e, i) {
-    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-        const filePath = path_1.default.join(const_1.librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path']);
-        const fileName = filePath.split("\\").pop();
-        const dirPath = filePath.substring(0, filePath.indexOf(fileName));
-        // Create folder if dir does not exist
-        if (!(0, fs_1.existsSync)(dirPath)) {
-            yield promises_1.default.mkdir(dirPath, { recursive: true });
-        }
-        console.log(filePath);
-        // Download the jar file
-        const file = (0, original_fs_1.createWriteStream)(filePath);
-        https_1.default.get(data["libraries"][i]["downloads"]["classifiers"][e]["url"], (data) => {
-            data.pipe(file);
-            data.on("end", () => {
-                resolve(data);
-            });
-            data.on("error", (err) => {
-                reject(err);
-            });
-        });
-    }));
-}
+// function downloadClassifierMinecraftLibrary(data: any, e: string, i: number){
+//     return new Promise(async (resolve, reject) => {
+//         const filePath = path.join(librariesPath, data['libraries'][i]['downloads']['classifiers'][e]['path'])
+//         const fileName = filePath.split("\\").pop()
+//         const dirPath = filePath.substring(0, filePath.indexOf(fileName!))
+//         // Create folder if dir does not exist
+//         if(!existsSync(dirPath)){
+//             await fs.mkdir(dirPath, {recursive: true})
+//         }
+//         console.log(filePath);
+//         if(data["libraries"][i]["downloads"].hasOwnProperty("artifact")){
+//             await downloadAsync(data["libraries"][i]["downloads"]["artifact"]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]))
+//         }
+//         for(const e in data["libraries"][i]["downloads"]["classifiers"]){
+//             if(e.includes("win")){
+//                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+//             }
+//             else if(e.includes("mac") || e.includes("osx")){
+//                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+//             }
+//             else if(e.includes("linux")){
+//                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]))
+//             }
+//         }
+//     })
+// }
 function downloadLoggingXmlConfFile(data) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         if (!data.hasOwnProperty("logging")) {
@@ -213,16 +242,8 @@ function downloadLoggingXmlConfFile(data) {
         if (!(0, fs_1.existsSync)(const_1.loggingConfPath)) {
             yield promises_1.default.mkdir(const_1.loggingConfPath, { recursive: true });
         }
-        const file = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.loggingConfPath, data["logging"]["client"]["file"]["id"]));
-        https_1.default.get(data["logging"]["client"]["file"]["url"], (data) => {
-            data.pipe(file);
-            data.on("end", () => {
-                resolve(data);
-            });
-            data.on("error", (err) => {
-                reject(err);
-            });
-        });
+        yield (0, Download_1.downloadAsync)(data["logging"]["client"]["file"]["url"], path_1.default.join(const_1.loggingConfPath, data["logging"]["client"]["file"]["id"]));
+        resolve("Log4j file downloaded");
     }));
 }
 var JavaVersions;

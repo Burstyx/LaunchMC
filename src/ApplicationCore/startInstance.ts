@@ -1,7 +1,7 @@
 import {minecraftManifestForVersion} from "../Helper/HManifests"
 import cp from "child_process"
 import path from "path"
-import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version} from "../Helper/const"
+import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath} from "../Helper/const"
 import os from "os"
 import fs from "fs/promises"
 import {existsSync} from "fs"
@@ -115,8 +115,6 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         jvmArgs.push("-Djava.library.path=" + librariesPath)
         // jvmArgs.push("-Dorg.lwjgl.librarypath=" + librariesPath)
 
-        
-
         const libraries = await getAllFile(librariesPath)
         // console.log(libraries);
         let librariesArg = JSON.parse(await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
@@ -131,6 +129,8 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         const fullMcArgs = [...jvmArgs, ...mcArgs]
         console.log(fullMcArgs);
 
+        
+
         // Find correct java executable
         if(!existsSync(path.join(javaPath, java8Version))){
             await downloadJavaVersion(JavaVersions.JDK8)
@@ -142,8 +142,9 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         const java8 = path.join(javaPath, java8Version, java8Version, "bin", "java")
         const java17 = path.join(javaPath, java17Version, java17Version, "bin", "java")
 
-        const majorVersion = Number(version.split(".")[1])
-        if(majorVersion >= 17){
+        const javaVersion = data["javaVersion"]["majorVersion"]
+
+        if(javaVersion >= 16){
             console.log("Launching java 17");
             
             const proc = cp.spawn(java17, fullMcArgs)

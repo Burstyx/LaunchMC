@@ -1,6 +1,7 @@
 import fs from "fs/promises"
 import {createWriteStream} from "fs"
 import extract from "extract-zip"
+import { makeDir } from "./HDirectoryManager"
 
 interface DownloadOpt {
     decompress: boolean
@@ -9,6 +10,11 @@ interface DownloadOpt {
 // Download url async
 export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Promise<string> {
     return new Promise(async (resolve, reject) => {
+        const destDir = dest.slice(0, dest.lastIndexOf("\\"))
+
+        console.log("destDir:", destDir);
+        
+        await makeDir(destDir)
         const file = createWriteStream(dest)
 
         // Download the file with fetch and resolve response
@@ -33,13 +39,13 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
                     file.close()
                     
                     resolve(dest)
-                }else{
-                    console.log(res);
+            }else{
+                console.log(res);
 
-                    file.close()
-                    
-                    resolve(dest)
-                }
+                file.close()
+                
+                resolve(dest)
+            }
 
             
 
