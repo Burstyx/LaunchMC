@@ -8,6 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,6 +27,7 @@ const const_1 = require("../Helper/const");
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const minecraftDownloader_1 = require("./minecraftDownloader");
+const HDirectoryManager_1 = require("../Helper/HDirectoryManager");
 function startMinecraft(version, instanceId, opt) {
     (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
         // var mcArgs = []
@@ -105,8 +113,8 @@ function startMinecraft(version, instanceId, opt) {
         jvmArgs.push("-Xms2048M");
         jvmArgs.push("-Xmx4096M");
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
-        jvmArgs.push("-Djava.library.path=" + const_1.librariesPath);
-        jvmArgs.push("-Dorg.lwjgl.librarypath=" + path_1.default.join(const_1.librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209", "lwjgl-platform-2.9.4-nightly-20150209.jar"));
+        jvmArgs.push("-Djava.library.path=" + (yield (0, HDirectoryManager_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
+        // jvmArgs.push("-Dorg.lwjgl.librarypath=" + path.join(librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209"))
         const libraries = yield getAllFile(const_1.librariesPath);
         // console.log(libraries);
         let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
@@ -125,6 +133,9 @@ function startMinecraft(version, instanceId, opt) {
         }
         const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Version, "bin", "java");
         const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "java");
+        console.log("Extracting natives");
+        yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "jar"));
+        console.log("natives extracted");
         const javaVersion = data["javaVersion"]["majorVersion"];
         if (javaVersion >= 16) {
             console.log("Launching java 17");
@@ -138,7 +149,7 @@ function startMinecraft(version, instanceId, opt) {
         }
         else {
             console.log("Launching java 8");
-            const proc = child_process_1.default.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\java", fullMcArgs);
+            const proc = child_process_1.default.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\javaw", fullMcArgs);
             proc.stdout.on("data", (data) => {
                 console.log(data.toString("utf-8"));
             });
@@ -186,4 +197,46 @@ function buildLibrariesArgument(listOfLibraries, version, data) {
     });
 }
 function parseRule(rule) {
+}
+function extractAllNatives(libraries, nativeFolder, javaLocation) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            var e_1, _a;
+            const allLibs = libraries.split(";");
+            try {
+                for (var allLibs_1 = __asyncValues(allLibs), allLibs_1_1; allLibs_1_1 = yield allLibs_1.next(), !allLibs_1_1.done;) {
+                    const e = allLibs_1_1.value;
+                    console.log(e);
+                    child_process_1.default.exec(javaLocation + " --list --file " + e, (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
+                        var e_2, _b;
+                        const filesOfLibrary = stdout.split("\r\n");
+                        try {
+                            for (var filesOfLibrary_1 = __asyncValues(filesOfLibrary), filesOfLibrary_1_1; filesOfLibrary_1_1 = yield filesOfLibrary_1.next(), !filesOfLibrary_1_1.done;) {
+                                const n = filesOfLibrary_1_1.value;
+                                if (n.includes(".dll")) {
+                                    console.log(n);
+                                    child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
+                                }
+                            }
+                        }
+                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                        finally {
+                            try {
+                                if (filesOfLibrary_1_1 && !filesOfLibrary_1_1.done && (_b = filesOfLibrary_1.return)) yield _b.call(filesOfLibrary_1);
+                            }
+                            finally { if (e_2) throw e_2.error; }
+                        }
+                    }));
+                }
+            }
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (allLibs_1_1 && !allLibs_1_1.done && (_a = allLibs_1.return)) yield _a.call(allLibs_1);
+                }
+                finally { if (e_1) throw e_1.error; }
+            }
+            resolve("All natives are extracted");
+        }));
+    });
 }

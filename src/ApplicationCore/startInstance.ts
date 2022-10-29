@@ -6,6 +6,7 @@ import os from "os"
 import fs from "fs/promises"
 import {existsSync} from "fs"
 import { downloadJavaVersion, JavaVersions } from "./minecraftDownloader"
+import { makeDir } from "../Helper/HDirectoryManager"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -112,12 +113,17 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         jvmArgs.push("-Xmx4096M")
 
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
-        jvmArgs.push("-Djava.library.path=" + librariesPath)
-        jvmArgs.push("-Dorg.lwjgl.librarypath=" + path.join(librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209"))
+
+        jvmArgs.push("-Djava.library.path=" + await makeDir(path.join(instancesPath, instanceId, "natives")))
+
+       
+
+        // jvmArgs.push("-Dorg.lwjgl.librarypath=" + path.join(librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209"))
 
         const libraries = await getAllFile(librariesPath)
         // console.log(libraries);
         let librariesArg = JSON.parse(await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
+        
         
 
         jvmArgs.push(`-cp`)
@@ -142,6 +148,12 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         const java8 = path.join(javaPath, java8Version, java8Version, "bin", "java")
         const java17 = path.join(javaPath, java17Version, java17Version, "bin", "java")
 
+        console.log("Extracting natives");
+        
+        await extractAllNatives(librariesArg, path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Version, "bin", "jar"))
+
+        console.log("natives extracted");
+
         const javaVersion = data["javaVersion"]["majorVersion"]
 
         if(javaVersion >= 16){
@@ -159,7 +171,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         }else{
             console.log("Launching java 8");
 
-            const proc = cp.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\java", fullMcArgs)
+            const proc = cp.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\javaw", fullMcArgs)
 
             proc.stdout.on("data", (data) => {
                 console.log(data.toString("utf-8"));
@@ -217,4 +229,23 @@ async function buildLibrariesArgument(listOfLibraries: any[], version: string, d
 
 function parseRule(rule: any){
 
+}
+
+async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string){
+    return new Promise(async (resolve, reject) => {
+        const allLibs = libraries.split(";")
+        for await (const e of allLibs){
+            console.log(e);
+            cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
+                const filesOfLibrary = stdout.split("\r\n")
+                for await (const n of filesOfLibrary){
+                    if(n.includes(".dll")){
+                        console.log(n);                        
+                        cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder})
+                    }
+                }
+            })
+        }
+        resolve("All natives are extracted")
+    })
 }
