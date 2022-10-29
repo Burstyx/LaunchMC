@@ -106,7 +106,7 @@ function startMinecraft(version, instanceId, opt) {
         jvmArgs.push("-Xmx4096M");
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         jvmArgs.push("-Djava.library.path=" + const_1.librariesPath);
-        // jvmArgs.push("-Dorg.lwjgl.librarypath=" + librariesPath)
+        jvmArgs.push("-Dorg.lwjgl.librarypath=" + path_1.default.join(const_1.librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209", "lwjgl-platform-2.9.4-nightly-20150209.jar"));
         const libraries = yield getAllFile(const_1.librariesPath);
         // console.log(libraries);
         let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
@@ -138,7 +138,7 @@ function startMinecraft(version, instanceId, opt) {
         }
         else {
             console.log("Launching java 8");
-            const proc = child_process_1.default.spawn(java8, fullMcArgs);
+            const proc = child_process_1.default.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\java", fullMcArgs);
             proc.stdout.on("data", (data) => {
                 console.log(data.toString("utf-8"));
             });

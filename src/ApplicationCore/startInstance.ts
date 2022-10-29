@@ -113,7 +113,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
 
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
         jvmArgs.push("-Djava.library.path=" + librariesPath)
-        // jvmArgs.push("-Dorg.lwjgl.librarypath=" + librariesPath)
+        jvmArgs.push("-Dorg.lwjgl.librarypath=" + path.join(librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209"))
 
         const libraries = await getAllFile(librariesPath)
         // console.log(libraries);
@@ -159,7 +159,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         }else{
             console.log("Launching java 8");
 
-            const proc = cp.spawn(java8, fullMcArgs)
+            const proc = cp.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\java", fullMcArgs)
 
             proc.stdout.on("data", (data) => {
                 console.log(data.toString("utf-8"));
