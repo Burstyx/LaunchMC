@@ -171,7 +171,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         }else{
             console.log("Launching java 8");
 
-            const proc = cp.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\javaw", fullMcArgs)
+            const proc = cp.spawn(java8, fullMcArgs)
 
             proc.stdout.on("data", (data) => {
                 console.log(data.toString("utf-8"));

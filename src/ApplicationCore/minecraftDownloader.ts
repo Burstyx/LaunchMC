@@ -289,7 +289,7 @@ export function downloadJavaVersion(version: JavaVersions){
         }
 
         if(version == JavaVersions.JDK8){
-            await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u352-b08/openlogic-openjdk-8u352-b08-windows-x64.zip", path.join(javaPath, `${java8Version}.zip`), {decompress: true})
+            await downloadAsync("https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u345-b01/OpenJDK8U-jdk_x64_windows_hotspot_8u345b01.zip", path.join(javaPath, `${java8Version}.zip`), {decompress: true})
             resolve("Java 8 downloaded")
         }
             

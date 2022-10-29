@@ -149,7 +149,7 @@ function startMinecraft(version, instanceId, opt) {
         }
         else {
             console.log("Launching java 8");
-            const proc = child_process_1.default.spawn("C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\javaw", fullMcArgs);
+            const proc = child_process_1.default.spawn(java8, fullMcArgs);
             proc.stdout.on("data", (data) => {
                 console.log(data.toString("utf-8"));
             });
