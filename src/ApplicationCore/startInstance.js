@@ -29,6 +29,7 @@ const fs_1 = require("fs");
 const minecraftDownloader_1 = require("./minecraftDownloader");
 const HDirectoryManager_1 = require("../Helper/HDirectoryManager");
 function startMinecraft(version, instanceId, opt) {
+    // TODO If map_to_ressource == true -> object dans legacy
     (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
         // var mcArgs = []
         // if(data.hasOwnProperty("minecraftArguments")){
@@ -94,12 +95,12 @@ function startMinecraft(version, instanceId, opt) {
                     tempSplitedArgs[i] = opt.versiontype;
                     break;
                 case "${game_assets}":
-                    if (!(0, fs_1.existsSync)(const_1.legacyAssetsPath))
-                        yield promises_1.default.mkdir(const_1.legacyAssetsPath, { recursive: true });
-                    tempSplitedArgs[i] = const_1.legacyAssetsPath;
+                    // if(!existsSync(legacyAssetsPath))
+                    //     await fs.mkdir(legacyAssetsPath, {recursive: true})
+                    tempSplitedArgs[i] = const_1.assetsPath;
                     break;
                 case "${auth_session}":
-                    tempSplitedArgs[i] = "";
+                    tempSplitedArgs[i] = "OFFLINE";
                     break;
                 default:
                     break;
@@ -131,8 +132,8 @@ function startMinecraft(version, instanceId, opt) {
         if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version))) {
             yield (0, minecraftDownloader_1.downloadJavaVersion)(minecraftDownloader_1.JavaVersions.JDK17);
         }
-        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Version, "bin", "java");
-        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "java");
+        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Version, "bin", "javaw");
+        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "javaw");
         console.log("Extracting natives");
         yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "jar"));
         console.log("natives extracted");

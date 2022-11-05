@@ -22,6 +22,7 @@ const HManifests_1 = require("../Helper/HManifests");
 const instancesManager_1 = require("./instancesManager");
 const original_fs_1 = require("original-fs");
 const Download_1 = require("../Helper/Download");
+const HDirectoryManager_1 = require("../Helper/HDirectoryManager");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
     return __awaiter(this, void 0, void 0, function* () {
         console.log(version);
@@ -65,48 +66,61 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             console.log("Minecraft index downloaded");
             // Download Logging configuration file
             yield downloadLoggingXmlConfFile(data);
-            // Download objects
+            // Download assets
             console.log("Downloading minecraft assets");
             if (!(0, fs_1.existsSync)(const_1.objectPath)) {
                 yield promises_1.default.mkdir(const_1.objectPath, { recursive: true });
             }
             const file = yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, data["assetIndex"]["id"] + ".json"), "utf-8");
             const indexesData = JSON.parse(file);
-            var numberOfAssets = 0;
-            var numberOfAssetsDownloaded = 0;
-            for (const e in indexesData["objects"]) {
-                numberOfAssets++;
-            }
-            for (const e in indexesData["objects"]) {
-                console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
-                const hash = indexesData["objects"][e]["hash"];
-                const subhash = hash.substring(0, 2);
-                if (!(0, fs_1.existsSync)(path_1.default.join(const_1.objectPath, subhash))) {
-                    yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash));
+            if (indexesData["map_to_resources"]) {
+                var numberOfAssets = 1;
+                var numberOfAssetsDownloaded = 0;
+                for (const e in indexesData["objects"]) {
+                    numberOfAssets++;
                 }
-                const file = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.objectPath, subhash, hash));
-                // await new Promise((resolve, reject) => {
-                //     https.get(path.join(resourcePackage, subhash, hash), (data) => {
-                //         data.pipe(file)
-                //         data.on("end", () => {
-                //             numberOfAssetsDownloaded++
-                //             resolve(data)
-                //         })
-                //         data.on("error", (err) => {
-                //             reject(err)
-                //         })
-                //     })
-                // })
-                // let fetch = await import("node-fetch")
-                // await fetch.default(path.join(resourcePackage, subhash, hash)).then((data) => {
-                //     data.body?.pipe(file)
-                // })
-                yield fetch(path_1.default.join(const_1.resourcePackage, subhash, hash)).then((data) => __awaiter(this, void 0, void 0, function* () {
-                    const arrayBuffer = yield data.arrayBuffer();
-                    const buffer = Buffer.from(arrayBuffer);
-                    file.write(buffer);
-                }));
-                numberOfAssetsDownloaded++;
+                yield (0, HDirectoryManager_1.makeDir)(path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources")));
+                for (const e in indexesData["objects"]) {
+                    console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
+                    const hash = indexesData["objects"][e]["hash"];
+                    const subhash = hash.substring(0, 2);
+                    if (!(0, fs_1.existsSync)(path_1.default.join(const_1.objectPath, subhash))) {
+                        yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash));
+                    }
+                    const fullPath = path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources"), e);
+                    const fileName = fullPath.split("/").pop();
+                    const dirPath = fullPath.replace(fileName, "");
+                    yield (0, HDirectoryManager_1.makeDir)(dirPath);
+                    const file = (0, original_fs_1.createWriteStream)(path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources"), e));
+                    yield fetch(path_1.default.join(const_1.resourcePackage, subhash, hash)).then((data) => __awaiter(this, void 0, void 0, function* () {
+                        const arrayBuffer = yield data.arrayBuffer();
+                        const buffer = Buffer.from(arrayBuffer);
+                        file.write(buffer);
+                    }));
+                    numberOfAssetsDownloaded++;
+                }
+            }
+            else {
+                var numberOfAssets = 0;
+                var numberOfAssetsDownloaded = 0;
+                for (const e in indexesData["objects"]) {
+                    numberOfAssets++;
+                }
+                for (const e in indexesData["objects"]) {
+                    console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
+                    const hash = indexesData["objects"][e]["hash"];
+                    const subhash = hash.substring(0, 2);
+                    if (!(0, fs_1.existsSync)(path_1.default.join(const_1.objectPath, subhash))) {
+                        yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash));
+                    }
+                    const file = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.objectPath, subhash, hash));
+                    yield fetch(path_1.default.join(const_1.resourcePackage, subhash, hash)).then((data) => __awaiter(this, void 0, void 0, function* () {
+                        const arrayBuffer = yield data.arrayBuffer();
+                        const buffer = Buffer.from(arrayBuffer);
+                        file.write(buffer);
+                    }));
+                    numberOfAssetsDownloaded++;
+                }
             }
         })).then(() => {
             (0, instancesManager_1.makeInstanceDownloaded)(name, instanceDiv);
@@ -236,6 +250,7 @@ function parseRule(rules) {
 // }
 function downloadLoggingXmlConfFile(data) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        console.log(data);
         if (!data.hasOwnProperty("logging")) {
             resolve("No logging key found, step passed.");
         }

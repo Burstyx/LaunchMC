@@ -22,6 +22,7 @@ interface MinecraftArgsOpt {
 }
 
 export function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt ){
+    // TODO If map_to_ressource == true -> object dans legacy
     minecraftManifestForVersion(version).then(async (data) => {
         // var mcArgs = []
         // if(data.hasOwnProperty("minecraftArguments")){
@@ -90,12 +91,12 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
                     tempSplitedArgs[i] = opt.versiontype
                     break;
                 case "${game_assets}":
-                    if(!existsSync(legacyAssetsPath))
-                        await fs.mkdir(legacyAssetsPath, {recursive: true})
-                    tempSplitedArgs[i] = legacyAssetsPath
+                    // if(!existsSync(legacyAssetsPath))
+                    //     await fs.mkdir(legacyAssetsPath, {recursive: true})
+                    tempSplitedArgs[i] = assetsPath
                     break;
                 case "${auth_session}":
-                    tempSplitedArgs[i] = ""
+                    tempSplitedArgs[i] = "OFFLINE"
                     break;
                 default:
                     break;
@@ -145,8 +146,8 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
             await downloadJavaVersion(JavaVersions.JDK17)
         }
 
-        const java8 = path.join(javaPath, java8Version, java8Version, "bin", "java")
-        const java17 = path.join(javaPath, java17Version, java17Version, "bin", "java")
+        const java8 = path.join(javaPath, java8Version, java8Version, "bin", "javaw")
+        const java17 = path.join(javaPath, java17Version, java17Version, "bin", "javaw")
 
         console.log("Extracting natives");
         

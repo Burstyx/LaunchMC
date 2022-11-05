@@ -25,7 +25,7 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
 
             console.log(arrayBuffer.byteLength);
 
-            file.write(buffer)            
+            file.write(buffer)   
 
             // Write buffer
             if(opt && opt["decompress"] == true){
