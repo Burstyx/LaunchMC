@@ -93,7 +93,7 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
                 case "${game_assets}":
                     // if(!existsSync(legacyAssetsPath))
                     //     await fs.mkdir(legacyAssetsPath, {recursive: true})
-                    tempSplitedArgs[i] = assetsPath
+                    tempSplitedArgs[i] = path.join(instancesPath, instanceId, "resources")
                     break;
                 case "${auth_session}":
                     tempSplitedArgs[i] = "OFFLINE"
@@ -235,18 +235,36 @@ function parseRule(rule: any){
 async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string){
     return new Promise(async (resolve, reject) => {
         const allLibs = libraries.split(";")
-        for await (const e of allLibs){
+        for (const e of allLibs){
             console.log(e);
-            cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
-                const filesOfLibrary = stdout.split("\r\n")
-                for await (const n of filesOfLibrary){
-                    if(n.includes(".dll")){
-                        console.log(n);                        
-                        cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder})
+            await new Promise((resolve) => {
+                console.log(1);
+                
+                cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
+                    const filesOfLibrary = stdout.split("\r\n")
+                    for (const n of filesOfLibrary){
+                        console.log(2);
+                        
+                        if(n.endsWith(".dll")){
+                            console.log(3);
+                            
+                            console.log(n);                      
+                            const child = cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder}, (err, out, stderr) => {
+                                
+                                console.log("One file extracted");
+                                // resolve(1)
+                            });
+                            
+                            
+                            
+                        }
                     }
-                }
+                    resolve(1)
+                })
             })
         }
+        console.log("extracted fully");
+        
         resolve("All natives are extracted")
     })
 }

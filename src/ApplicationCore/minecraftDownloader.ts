@@ -101,8 +101,8 @@ export async function downloadVanillaVersion(version: string, name: string, inst
                 }
 
                 const fullPath = path.join(path.join(instancesPath, name, "resources"), e)
-                const fileName = fullPath.split("/").pop()
-                // const dirPath  = fullPath.replace(fileName!, "")
+                const fileName = fullPath.split("\\").pop()
+                const dirPath  = fullPath.substring(0, fullPath.indexOf(fileName!))
 
                 await makeDir(dirPath)
 

@@ -88,8 +88,8 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                         yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash));
                     }
                     const fullPath = path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources"), e);
-                    const fileName = fullPath.split("/").pop();
-                    const dirPath = fullPath.replace(fileName, "");
+                    const fileName = fullPath.split("\\").pop();
+                    const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
                     yield (0, HDirectoryManager_1.makeDir)(dirPath);
                     const file = (0, original_fs_1.createWriteStream)(path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources"), e));
                     yield fetch(path_1.default.join(const_1.resourcePackage, subhash, hash)).then((data) => __awaiter(this, void 0, void 0, function* () {

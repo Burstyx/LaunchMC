@@ -8,13 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __asyncValues = (this && this.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -97,7 +90,7 @@ function startMinecraft(version, instanceId, opt) {
                 case "${game_assets}":
                     // if(!existsSync(legacyAssetsPath))
                     //     await fs.mkdir(legacyAssetsPath, {recursive: true})
-                    tempSplitedArgs[i] = const_1.assetsPath;
+                    tempSplitedArgs[i] = path_1.default.join(const_1.instancesPath, instanceId, "resources");
                     break;
                 case "${auth_session}":
                     tempSplitedArgs[i] = "OFFLINE";
@@ -202,41 +195,29 @@ function parseRule(rule) {
 function extractAllNatives(libraries, nativeFolder, javaLocation) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            var e_1, _a;
             const allLibs = libraries.split(";");
-            try {
-                for (var allLibs_1 = __asyncValues(allLibs), allLibs_1_1; allLibs_1_1 = yield allLibs_1.next(), !allLibs_1_1.done;) {
-                    const e = allLibs_1_1.value;
-                    console.log(e);
+            for (const e of allLibs) {
+                console.log(e);
+                yield new Promise((resolve) => {
+                    console.log(1);
                     child_process_1.default.exec(javaLocation + " --list --file " + e, (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
-                        var e_2, _b;
                         const filesOfLibrary = stdout.split("\r\n");
-                        try {
-                            for (var filesOfLibrary_1 = __asyncValues(filesOfLibrary), filesOfLibrary_1_1; filesOfLibrary_1_1 = yield filesOfLibrary_1.next(), !filesOfLibrary_1_1.done;) {
-                                const n = filesOfLibrary_1_1.value;
-                                if (n.includes(".dll")) {
-                                    console.log(n);
-                                    child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
-                                }
+                        for (const n of filesOfLibrary) {
+                            console.log(2);
+                            if (n.endsWith(".dll")) {
+                                console.log(3);
+                                console.log(n);
+                                const child = child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder }, (err, out, stderr) => {
+                                    console.log("One file extracted");
+                                    // resolve(1)
+                                });
                             }
                         }
-                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                        finally {
-                            try {
-                                if (filesOfLibrary_1_1 && !filesOfLibrary_1_1.done && (_b = filesOfLibrary_1.return)) yield _b.call(filesOfLibrary_1);
-                            }
-                            finally { if (e_2) throw e_2.error; }
-                        }
+                        resolve(1);
                     }));
-                }
+                });
             }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (allLibs_1_1 && !allLibs_1_1.done && (_a = allLibs_1.return)) yield _a.call(allLibs_1);
-                }
-                finally { if (e_1) throw e_1.error; }
-            }
+            console.log("extracted fully");
             resolve("All natives are extracted");
         }));
     });
