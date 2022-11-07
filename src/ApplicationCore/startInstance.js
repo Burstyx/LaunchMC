@@ -103,12 +103,10 @@ function startMinecraft(version, instanceId, opt) {
         console.log(mcArgs);
         // Set command arguments
         var jvmArgs = [];
-        // jvmArgs.push("C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.345.1-hotspot\\bin\\java")
         jvmArgs.push("-Xms2048M");
         jvmArgs.push("-Xmx4096M");
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         jvmArgs.push("-Djava.library.path=" + (yield (0, HDirectoryManager_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
-        // jvmArgs.push("-Dorg.lwjgl.librarypath=" + path.join(librariesPath, "org", "lwjgl", "lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209"))
         const libraries = yield getAllFile(const_1.librariesPath);
         // console.log(libraries);
         let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
@@ -151,14 +149,6 @@ function startMinecraft(version, instanceId, opt) {
                 console.error(data.toString("utf-8"));
             });
         }
-        // Start Minecraft
-        // Build command string
-        // var command: string = `C:\\Users\\tonib\\Downloads\\OpenJDK8U-jdk_x64_windows_hotspot_8u345b01\\jdk8u345-b01\\bin\\java`
-        // for(var e in mcArgs){
-        //     command += ` `
-        //     command += mcArgs[e]
-        // }
-        // console.log(command);
     }));
 }
 exports.startMinecraft = startMinecraft;
@@ -180,18 +170,6 @@ function getAllFile(pathDir) {
         return files;
     });
 }
-function buildLibrariesArgument(listOfLibraries, version, data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let final = "";
-        for (let i = 0; i < listOfLibraries.length; i++) {
-            final += listOfLibraries[i] + ";";
-        }
-        final += path_1.default.join(const_1.minecraftVersionPath, version, `${version}.json`);
-        return final;
-    });
-}
-function parseRule(rule) {
-}
 function extractAllNatives(libraries, nativeFolder, javaLocation) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -207,10 +185,7 @@ function extractAllNatives(libraries, nativeFolder, javaLocation) {
                             if (n.endsWith(".dll")) {
                                 console.log(3);
                                 console.log(n);
-                                const child = child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder }, (err, out, stderr) => {
-                                    console.log("One file extracted");
-                                    // resolve(1)
-                                });
+                                child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
                             }
                         }
                         resolve(1);

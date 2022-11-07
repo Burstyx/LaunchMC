@@ -285,6 +285,11 @@ document.addEventListener("click", async (evt) => {
     }
 
     if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
+        if (elementClicked.classList.item(1) == "downloading" || elementClicked.parentElement.classList.item(1) == "downloading") {
+            console.log("Téléchargement, impossible de lancer l'instance");
+            return
+        }
+
         if (elementClicked.tagName == "P") {
             const data = await getInstanceData(elementClicked.innerText)
             const accountInfo = await getActiveAccount()
