@@ -6,7 +6,8 @@
   "scripts": {
     "build-js": "npx tsc",
     "run": "npm run build-js && electron .",
-    "start sass watcher": "npx sass --watch ./src/style.scss ./src/style.css"
+    "start sass watcher": "npx sass --watch ./src/style.scss ./src/style.css",
+    "windows build": "electron-builder build --win"
   },
   "repository": {
     "type": "git",
@@ -30,5 +31,30 @@
     "crypto-js": "^4.1.1",
     "extract-zip": "^2.0.1",
     "node-fetch": "^3.2.10"
+  },
+  "build": {
+    "appId": "fr.burstyx.burstyxlauncher",
+    "productName": "Burstyx Launcher",
+    "copyright": "GNU General Public License v3.0",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": ""
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "",
+      "uninstallerIcon": "",
+      "artifactName": "${productName}-${version}-installer.${ext}",
+      "deleteAppDataOnUninstall": true
+    }
   }
 }
