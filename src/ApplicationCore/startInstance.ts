@@ -7,6 +7,7 @@ import fs from "fs/promises"
 import {existsSync} from "fs"
 import { downloadJavaVersion, JavaVersions } from "./minecraftDownloader"
 import { makeDir } from "../Helper/HDirectoryManager"
+import { makeInstanceLoading, makeInstanceNotLoading, makeInstancePlaying } from "./instancesManager"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -21,9 +22,10 @@ interface MinecraftArgsOpt {
     }
 }
 
-export function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt ){
+export function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt, instanceDiv: HTMLElement){
     // TODO If map_to_ressource == true -> object dans legacy
     minecraftManifestForVersion(version).then(async (data) => {
+        makeInstanceLoading(instanceId, instanceDiv)
         // var mcArgs = []
         // if(data.hasOwnProperty("minecraftArguments")){
         //     var args = data["minecraftArguments"].split(" ")
@@ -151,6 +153,9 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         console.log("natives extracted");
 
         const javaVersion = data["javaVersion"]["majorVersion"]
+
+        makeInstanceNotLoading(instanceId, instanceDiv)
+        makeInstancePlaying(instanceId, instanceDiv)
 
         if(javaVersion >= 16){
             console.log("Launching java 17");

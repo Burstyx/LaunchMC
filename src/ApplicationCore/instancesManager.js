@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInstanceData = exports.makeInstanceDownloading = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
+exports.getInstanceData = exports.makeInstanceNotLoading = exports.makeInstanceLoading = exports.makeInstanceNotPlaying = exports.makeInstancePlaying = exports.makeInstanceDownloading = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
@@ -60,7 +60,7 @@ exports.getInstancesList = getInstancesList;
 function makeInstanceDownloaded(id, instancesDiv) {
     for (let i = 0; i < instancesDiv.childElementCount; i++) {
         if (instancesDiv.children[i].children[0].innerHTML == id) {
-            instancesDiv.children[i].className = "instance";
+            instancesDiv.children[i].classList.remove("downloading");
         }
     }
 }
@@ -69,11 +69,47 @@ function makeInstanceDownloading(id, instancesDiv) {
     for (let i = 0; i < instancesDiv.childElementCount; i++) {
         console.log(instancesDiv.children[i].children[0].innerHTML);
         if (instancesDiv.children[i].children[0].innerHTML == id) {
-            instancesDiv.children[i].className = "instance downloading";
+            instancesDiv.children[i].classList.add("downloading");
         }
     }
 }
 exports.makeInstanceDownloading = makeInstanceDownloading;
+function makeInstancePlaying(id, instancesDiv) {
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if (instancesDiv.children[i].children[0].innerHTML == id) {
+            instancesDiv.children[i].classList.add("playing");
+        }
+    }
+}
+exports.makeInstancePlaying = makeInstancePlaying;
+function makeInstanceNotPlaying(id, instancesDiv) {
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if (instancesDiv.children[i].children[0].innerHTML == id) {
+            instancesDiv.children[i].classList.remove("playing");
+        }
+    }
+}
+exports.makeInstanceNotPlaying = makeInstanceNotPlaying;
+function makeInstanceLoading(id, instancesDiv) {
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if (instancesDiv.children[i].children[0].innerHTML == id) {
+            instancesDiv.children[i].classList.add("loading");
+        }
+    }
+}
+exports.makeInstanceLoading = makeInstanceLoading;
+function makeInstanceNotLoading(id, instancesDiv) {
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if (instancesDiv.children[i].children[0].innerHTML == id) {
+            instancesDiv.children[i].classList.remove("loading");
+        }
+    }
+}
+exports.makeInstanceNotLoading = makeInstanceNotLoading;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath))) {

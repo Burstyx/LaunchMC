@@ -1,5 +1,5 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData } = require('./ApplicationCore/instancesManager')
+const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('./ApplicationCore/instancesManager')
 const { filteredMinecraftVersions } = require("./Helper/HVersions")
 const { downloadVanillaVersion } = require("./ApplicationCore/minecraftDownloader")
 const { startMinecraft } = require("./ApplicationCore/startInstance")
@@ -293,12 +293,12 @@ document.addEventListener("click", async (evt) => {
         if (elementClicked.tagName == "P") {
             const data = await getInstanceData(elementClicked.innerText)
             const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" })
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
 
         } else {
             const data = await getInstanceData(elementClicked.childNodes[0].innerHTML)
             const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" })
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
         }
     }
 })

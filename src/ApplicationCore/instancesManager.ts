@@ -53,7 +53,7 @@ export async function getInstancesList(instancesDiv: HTMLElement){
 export function makeInstanceDownloaded(id: string, instancesDiv: HTMLElement){
     for(let i = 0; i < instancesDiv.childElementCount; i++){
         if(instancesDiv.children[i].children[0].innerHTML == id){
-            instancesDiv.children[i].className = "instance"
+            instancesDiv.children[i].classList.remove("downloading")   
         }
     }
 }
@@ -62,7 +62,44 @@ export function makeInstanceDownloading(id: string, instancesDiv: HTMLElement){
     for(let i = 0; i < instancesDiv.childElementCount; i++){
         console.log(instancesDiv.children[i].children[0].innerHTML);
         if(instancesDiv.children[i].children[0].innerHTML == id){
-            instancesDiv.children[i].className = "instance downloading"            
+            instancesDiv.children[i].classList.add("downloading")            
+        }
+    }
+}
+
+export function makeInstancePlaying(id: string, instancesDiv: HTMLElement){
+    for(let i = 0; i < instancesDiv.childElementCount; i++){
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if(instancesDiv.children[i].children[0].innerHTML == id){
+            instancesDiv.children[i].classList.add("playing")             
+        }
+    }
+}
+
+export function makeInstanceNotPlaying(id: string, instancesDiv: HTMLElement){
+    for(let i = 0; i < instancesDiv.childElementCount; i++){
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if(instancesDiv.children[i].children[0].innerHTML == id){
+            instancesDiv.children[i].classList.remove("playing")      
+        }
+    }
+}
+
+export function makeInstanceLoading(id: string, instancesDiv: HTMLElement){
+    for(let i = 0; i < instancesDiv.childElementCount; i++){
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        if(instancesDiv.children[i].children[0].innerHTML == id){
+            instancesDiv.children[i].classList.add("loading")            
+        }
+    }
+}
+
+export function makeInstanceNotLoading(id: string, instancesDiv: HTMLElement){
+    for(let i = 0; i < instancesDiv.childElementCount; i++){
+        console.log(instancesDiv.children[i].children[0].innerHTML);
+        
+        if(instancesDiv.children[i].children[0].innerHTML == id){
+            instancesDiv.children[i].classList.remove("loading")      
         }
     }
 }

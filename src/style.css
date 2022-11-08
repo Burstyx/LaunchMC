@@ -479,12 +479,36 @@
   animation: downloadingAnim 1s infinite ease-in-out alternate;
 }
 
+.playing {
+  animation: playingAnim 1s infinite ease-in-out alternate;
+}
+
+.loading {
+  animation: loadingInstanceAnim 1s infinite ease-in-out alternate;
+}
+
 @keyframes downloadingAnim {
   from {
     outline: solid 3px rgb(255, 173, 102);
   }
   to {
     outline: solid 3px rgb(255, 119, 0);
+  }
+}
+@keyframes playingAnim {
+  from {
+    outline: solid 3px rgb(102, 255, 150);
+  }
+  to {
+    outline: solid 3px rgb(0, 255, 55);
+  }
+}
+@keyframes loadingInstanceAnim {
+  from {
+    outline: solid 3px rgb(126, 126, 126);
+  }
+  to {
+    outline: solid 3px rgb(180, 180, 180);
   }
 }
 

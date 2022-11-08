@@ -21,9 +21,11 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const minecraftDownloader_1 = require("./minecraftDownloader");
 const HDirectoryManager_1 = require("../Helper/HDirectoryManager");
-function startMinecraft(version, instanceId, opt) {
+const instancesManager_1 = require("./instancesManager");
+function startMinecraft(version, instanceId, opt, instanceDiv) {
     // TODO If map_to_ressource == true -> object dans legacy
     (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
+        (0, instancesManager_1.makeInstanceLoading)(instanceId, instanceDiv);
         // var mcArgs = []
         // if(data.hasOwnProperty("minecraftArguments")){
         //     var args = data["minecraftArguments"].split(" ")
@@ -129,6 +131,8 @@ function startMinecraft(version, instanceId, opt) {
         yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "jar"));
         console.log("natives extracted");
         const javaVersion = data["javaVersion"]["majorVersion"];
+        (0, instancesManager_1.makeInstanceNotLoading)(instanceId, instanceDiv);
+        (0, instancesManager_1.makeInstancePlaying)(instanceId, instanceDiv);
         if (javaVersion >= 16) {
             console.log("Launching java 17");
             const proc = child_process_1.default.spawn(java17, fullMcArgs);
