@@ -1,10 +1,10 @@
-import fs from "fs/promises"
 import {createWriteStream} from "fs"
 import extract from "extract-zip"
+import https from "https"
 import { makeDir } from "./HDirectoryManager"
 
 interface DownloadOpt {
-    decompress: boolean
+    decompress: boolean,
 }
 
 // Download url async
@@ -17,18 +17,27 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
         await makeDir(destDir)
         const file = createWriteStream(dest)
 
-        // Download the file with fetch and resolve response
-        await fetch(url).then(async (res) => {
-            // Get buffer
-            const arrayBuffer = await res.arrayBuffer()
-            const buffer = Buffer.from(arrayBuffer)
+        https.get(url, (res) => {
 
-            console.log(arrayBuffer.byteLength);
+            let len = parseInt(res.headers["content-length"]!, 10);
+            let cur = 0;
+            let total = len / 1048576
+            
+            res.on("data", (chunk) => {                
+                cur += chunk.length
+                console.log(100.0 * cur / len);
+                
+            })
 
-            file.write(buffer)   
+            
 
-            // Write buffer
-            if(opt && opt["decompress"] == true){
+            res.on("error", (err) => {
+                console.error(err);
+                
+            })
+
+            res.on("end", async () => {
+                if(opt && opt["decompress"] == true){
                 
                     const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
 
@@ -39,18 +48,49 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
                     file.close()
                     
                     resolve(dest)
-            }else{
-                console.log(res);
+                }else{
 
-                file.close()
-                
-                resolve(dest)
-            }
+                    file.close()
+                    
+                    resolve(dest)
+                }
+            })
 
+            res.pipe(file)
+        })
+
+        // Download the file with fetch and resolve response
+        // const response = await fetch(url)
+        // // Get buffer
+        // const arrayBuffer = await response.arrayBuffer()
+        // const buffer = Buffer.from(arrayBuffer)
+
+        // const interval = setInterval(async () => {
+        //     const reader = await res.body!.getReader().read()
+        //     response..on("data", (chunk) => {
+
+        //     })
+
+        //     const sizeToDownload = opt!.size;
+        //     const sizeDownloaded = reader!.value?.length
+
+        //     if(reader!.done){
+        //         clearInterval(interval)
+        //     }
+
+        //     console.log((sizeDownloaded! * 100)/sizeToDownload!);
             
+        // }, 1000)
 
-            
-        }).catch((err) => reject(err))
+        
+
+        
+
+        // file.write(buffer)   
+
+        // Write buffer
+        
+
 
         
     })

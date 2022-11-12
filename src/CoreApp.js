@@ -285,8 +285,13 @@ document.addEventListener("click", async (evt) => {
     }
 
     if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
-        if (elementClicked.classList.item(1) == "downloading" || elementClicked.parentElement.classList.item(1) == "downloading") {
+        if (elementClicked.classList.contains("downloading") || elementClicked.parentElement.classList.contains("downloading")) {
             console.log("Téléchargement, impossible de lancer l'instance");
+            return
+        }
+
+        if (elementClicked.classList.contains("playing") || elementClicked.parentElement.classList.contains("playing")) {
+            console.log("Jeu déjà lancé, impossible de relancer l'instance");
             return
         }
 
