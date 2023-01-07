@@ -20,7 +20,6 @@ const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const HManifests_1 = require("../Helper/HManifests");
 const instancesManager_1 = require("./instancesManager");
-const original_fs_1 = require("original-fs");
 const Download_1 = require("../Helper/Download");
 const HDirectoryManager_1 = require("../Helper/HDirectoryManager");
 function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
@@ -91,7 +90,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                     const fileName = fullPath.split("\\").pop();
                     const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
                     yield (0, HDirectoryManager_1.makeDir)(dirPath);
-                    const file = (0, original_fs_1.createWriteStream)(path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources"), e));
+                    const file = (0, fs_1.createWriteStream)(path_1.default.join(path_1.default.join(const_1.instancesPath, name, "resources"), e));
                     yield fetch(path_1.default.join(const_1.resourcePackage, subhash, hash)).then((data) => __awaiter(this, void 0, void 0, function* () {
                         const arrayBuffer = yield data.arrayBuffer();
                         const buffer = Buffer.from(arrayBuffer);
@@ -113,7 +112,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                     if (!(0, fs_1.existsSync)(path_1.default.join(const_1.objectPath, subhash))) {
                         yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash));
                     }
-                    const file = (0, original_fs_1.createWriteStream)(path_1.default.join(const_1.objectPath, subhash, hash));
+                    const file = (0, fs_1.createWriteStream)(path_1.default.join(const_1.objectPath, subhash, hash));
                     yield fetch(path_1.default.join(const_1.resourcePackage, subhash, hash)).then((data) => __awaiter(this, void 0, void 0, function* () {
                         const arrayBuffer = yield data.arrayBuffer();
                         const buffer = Buffer.from(arrayBuffer);

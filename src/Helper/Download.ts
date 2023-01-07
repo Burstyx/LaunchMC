@@ -26,7 +26,6 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
             res.on("data", (chunk) => {                
                 cur += chunk.length
                 console.log(100.0 * cur / len);
-                
             })
 
             

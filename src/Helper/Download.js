@@ -32,7 +32,6 @@ function downloadAsync(url, dest, opt) {
                 cur += chunk.length;
                 console.log(100.0 * cur / len);
             });
-            res.pipe(file);
             res.on("error", (err) => {
                 console.error(err);
             });
@@ -49,6 +48,7 @@ function downloadAsync(url, dest, opt) {
                     resolve(dest);
                 }
             }));
+            res.pipe(file);
         });
         // Download the file with fetch and resolve response
         // const response = await fetch(url)
