@@ -271,11 +271,11 @@ function downloadJavaVersion(version) {
             yield promises_1.default.mkdir(const_1.javaPath);
         }
         if (version == JavaVersions.JDK8) {
-            yield (0, Download_1.downloadAsync)("https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u345-b01/OpenJDK8U-jdk_x64_windows_hotspot_8u345b01.zip", path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), { decompress: true });
+            yield (0, Download_1.downloadAsync)("https://objects.githubusercontent.com/github-production-release-asset-2e65be/372924428/4f051b2a-52a7-407e-8087-b302dfc4bafd?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20230411%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230411T183819Z&X-Amz-Expires=300&X-Amz-Signature=2728f52944e8c8fd5b738ba5521096c5d8657894b3eeb20d4842f06916f7cfb2&X-Amz-SignedHeaders=host&actor_id=76739818&key_id=0&repo_id=372924428&response-content-disposition=attachment%3B%20filename%3DOpenJDK8U-jre_x64_windows_hotspot_8u362b09.zip&response-content-type=application%2Foctet-stream", path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), { decompress: true });
             resolve("Java 8 downloaded");
         }
         if (version == JavaVersions.JDK17) {
-            yield (0, Download_1.downloadAsync)("https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.5%2B8/OpenJDK17U-jdk_x64_windows_hotspot_17.0.5_8.zip", path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), { decompress: true });
+            yield (0, Download_1.downloadAsync)("https://objects.githubusercontent.com/github-production-release-asset-2e65be/372925194/c8ab88dc-af51-4bf1-b6a3-f350062277a3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20230411%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20230411T183835Z&X-Amz-Expires=300&X-Amz-Signature=c8acb5cf3b4e5e58b47d9837c696f941b1358892d8cf2f99f51a2adfcdc44569&X-Amz-SignedHeaders=host&actor_id=76739818&key_id=0&repo_id=372925194&response-content-disposition=attachment%3B%20filename%3DOpenJDK17U-jre_x64_windows_hotspot_17.0.6_10.zip&response-content-type=application%2Foctet-stream", path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), { decompress: true });
             resolve("Java 17 downloaded");
         }
     }));

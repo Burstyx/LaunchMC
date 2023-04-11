@@ -31,5 +31,5 @@ export const clientId = "67ebd24f-af85-4d3e-bcb4-a330eb0ba7e1"
 export const clientSecret = "a0c3823e-c125-4f5f-920b-5cbf5c9efe35"
 
 // Java Versions
-export const java8Version = "jdk8u345-b01"
-export const java17Version = "jdk-17.0.5+8"
+export const java8Version = "jdk8u362-b09-jre"
+export const java17Version = "jdk-17.0.6+10-jre"
