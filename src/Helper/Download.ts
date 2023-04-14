@@ -1,5 +1,5 @@
-import {createWriteStream} from "fs"
-import extract from "extract-zip"
+import fs from "fs"
+import AdmZip from "adm-zip"
 import https from "https"
 import { makeDir } from "./HDirectoryManager"
 
@@ -15,47 +15,87 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
         console.log("destDir:", destDir);
         
         await makeDir(destDir)
-        const file = createWriteStream(dest)
+        const file = fs.createWriteStream(dest)
 
-        https.get(url, (res) => {
+        // https.get(url, {headers: {"Content-Type": "application/octet-stream"}}, (res) => {
+        //     res.pipe(file)
 
-            let len = parseInt(res.headers["content-length"]!, 10);
-            let cur = 0;
-            let total = len / 1048576
+        //     let len = parseInt(res.headers["content-length"]!, 10);
+        //     let cur = 0;
+        //     let total = len / 1048576
             
-            res.on("data", (chunk) => {                
-                cur += chunk.length
-                console.log(100.0 * cur / len);
-            })
+        //     res.on("data", (chunk) => {                
+        //         cur += chunk.length
+        //         console.log(100.0 * cur / len);
+        //     })
 
             
 
-            res.on("error", (err) => {
-                console.error(err);
+        //     file.on("error", (err) => {
+        //         console.error(err);
                 
-            })
+        //     })
 
-            res.on("end", async () => {
-                if(opt && opt["decompress"] == true){
+        //     file.on("finish", async () => {
+        //         if(opt && opt["decompress"] == true){
                 
-                    const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
+        //             const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
 
-                    console.log(destWithoutExt);
+        //             console.log(destWithoutExt);
 
-                    await extract(dest, {dir: destWithoutExt})
+        //             const zip = new AdmZip(dest)
 
-                    file.close()
+        //             try{
+        //                 zip.extractAllTo(destWithoutExt, true)
+        //             }catch(err){
+        //                 console.error(err);
+        //             }
+
+        //             file.close()
                     
-                    resolve(dest)
-                }else{
+        //             resolve(dest)
+        //         }else{
 
-                    file.close()
+        //             file.close()
                     
-                    resolve(dest)
-                }
+        //             resolve(dest)
+        //         }
+        //     })
+        // })
+
+        fetch(url).then(res => {
+            res.arrayBuffer().then(arrayBuffer => {
+                const buffer = Buffer.from(arrayBuffer)
+
+                fs.writeFile(dest, buffer, err => {
+                    if(err){
+                        console.error(err);
+                    }else{
+                        console.log("téléchargement parfait");
+
+                        if(opt && opt["decompress"] == true){
+                            const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
+
+                            const zip = new AdmZip(dest)
+
+                            try{
+                                zip.extractAllTo(destWithoutExt, true)
+                            }catch(err){
+                                console.error(err);
+                            }
+
+                            file.close()
+                            
+                            resolve(dest)
+                        }else{
+
+                            file.close()
+                            
+                            resolve(dest)
+                        }
+                    }
+                })
             })
-
-            res.pipe(file)
         })
 
         // Download the file with fetch and resolve response

@@ -13,9 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadAsync = void 0;
-const fs_1 = require("fs");
-const extract_zip_1 = __importDefault(require("extract-zip"));
-const https_1 = __importDefault(require("https"));
+const fs_1 = __importDefault(require("fs"));
+const adm_zip_1 = __importDefault(require("adm-zip"));
 const HDirectoryManager_1 = require("./HDirectoryManager");
 // Download url async
 function downloadAsync(url, dest, opt) {
@@ -23,32 +22,65 @@ function downloadAsync(url, dest, opt) {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"));
         console.log("destDir:", destDir);
         yield (0, HDirectoryManager_1.makeDir)(destDir);
-        const file = (0, fs_1.createWriteStream)(dest);
-        https_1.default.get(url, (res) => {
-            let len = parseInt(res.headers["content-length"], 10);
-            let cur = 0;
-            let total = len / 1048576;
-            res.on("data", (chunk) => {
-                cur += chunk.length;
-                console.log(100.0 * cur / len);
+        const file = fs_1.default.createWriteStream(dest);
+        // https.get(url, {headers: {"Content-Type": "application/octet-stream"}}, (res) => {
+        //     res.pipe(file)
+        //     let len = parseInt(res.headers["content-length"]!, 10);
+        //     let cur = 0;
+        //     let total = len / 1048576
+        //     res.on("data", (chunk) => {                
+        //         cur += chunk.length
+        //         console.log(100.0 * cur / len);
+        //     })
+        //     file.on("error", (err) => {
+        //         console.error(err);
+        //     })
+        //     file.on("finish", async () => {
+        //         if(opt && opt["decompress"] == true){
+        //             const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
+        //             console.log(destWithoutExt);
+        //             const zip = new AdmZip(dest)
+        //             try{
+        //                 zip.extractAllTo(destWithoutExt, true)
+        //             }catch(err){
+        //                 console.error(err);
+        //             }
+        //             file.close()
+        //             resolve(dest)
+        //         }else{
+        //             file.close()
+        //             resolve(dest)
+        //         }
+        //     })
+        // })
+        fetch(url).then(res => {
+            res.arrayBuffer().then(arrayBuffer => {
+                const buffer = Buffer.from(arrayBuffer);
+                fs_1.default.writeFile(dest, buffer, err => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    else {
+                        console.log("téléchargement parfait");
+                        if (opt && opt["decompress"] == true) {
+                            const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
+                            const zip = new adm_zip_1.default(dest);
+                            try {
+                                zip.extractAllTo(destWithoutExt, true);
+                            }
+                            catch (err) {
+                                console.error(err);
+                            }
+                            file.close();
+                            resolve(dest);
+                        }
+                        else {
+                            file.close();
+                            resolve(dest);
+                        }
+                    }
+                });
             });
-            res.on("error", (err) => {
-                console.error(err);
-            });
-            res.on("end", () => __awaiter(this, void 0, void 0, function* () {
-                if (opt && opt["decompress"] == true) {
-                    const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
-                    console.log(destWithoutExt);
-                    yield (0, extract_zip_1.default)(dest, { dir: destWithoutExt });
-                    file.close();
-                    resolve(dest);
-                }
-                else {
-                    file.close();
-                    resolve(dest);
-                }
-            }));
-            res.pipe(file);
         });
         // Download the file with fetch and resolve response
         // const response = await fetch(url)

@@ -125,8 +125,8 @@ function startMinecraft(version, instanceId, opt, instanceDiv) {
         if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version))) {
             yield (0, minecraftDownloader_1.downloadJavaVersion)(minecraftDownloader_1.JavaVersions.JDK17);
         }
-        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Version, "bin", "javaw");
-        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "javaw");
+        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, (yield promises_1.default.readdir(path_1.default.join(const_1.javaPath, const_1.java8Version))).at(0), "bin", "javaw");
+        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, (yield promises_1.default.readdir(path_1.default.join(const_1.javaPath, const_1.java17Version))).at(0), "bin", "javaw");
         console.log("Extracting natives");
         yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "jar"));
         console.log("natives extracted");

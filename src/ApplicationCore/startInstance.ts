@@ -143,8 +143,8 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
             await downloadJavaVersion(JavaVersions.JDK17)
         }
 
-        const java8 = path.join(javaPath, java8Version, java8Version, "bin", "javaw")
-        const java17 = path.join(javaPath, java17Version, java17Version, "bin", "javaw")
+        const java8 = path.join(javaPath, java8Version, (await fs.readdir(path.join(javaPath, java8Version))).at(0)!, "bin", "javaw")
+        const java17 = path.join(javaPath, java17Version, (await fs.readdir(path.join(javaPath, java17Version))).at(0)!, "bin", "javaw")
 
         console.log("Extracting natives");
         
