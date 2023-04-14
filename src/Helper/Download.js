@@ -16,8 +16,6 @@ exports.downloadAsync = void 0;
 const fs_1 = __importDefault(require("fs"));
 const adm_zip_1 = __importDefault(require("adm-zip"));
 const HDirectoryManager_1 = require("./HDirectoryManager");
-const node_events_1 = require("node:events");
-const dlProgress = new node_events_1.EventEmitter();
 // Download url async
 function downloadAsync(url, dest, callback, opt) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {

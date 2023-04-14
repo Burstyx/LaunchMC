@@ -10,8 +10,6 @@ import {getInstancesList, makeInstanceDownloaded, makeInstanceDownloading} from 
 import { downloadAsync } from "../Helper/Download"
 import { makeDir } from "../Helper/HDirectoryManager"
 
-let progressPercentage = 0
-
 enum DlOperationStep{
     NotDownloading, // Not downloading
     Preparing, // Téléchargement des manifests
@@ -56,8 +54,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         
         //TODO Progression download for client jar
         await downloadAsync(data["downloads"]["client"]["url"], path.join(minecraftVersionPath, version, data["id"] + ".jar"), (progress: number) => {
-            console.log(`Progression: ${progress}% du téléchargement`);
-            progressPercentage += progress
+            console.log(`Progression: ${progress}% du téléchargement du client`);
         })
 
         console.log("Minecraft client downloaded");
@@ -72,7 +69,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         for(let i = 0; i < data["libraries"].length; i++){
             librariesArg += await downloadMinecraftLibrary(data, i)
             numberOfLibrariesDownloaded++
-            console.log(numberOfLibrariesDownloaded + "/" + numberOfLibrariesToDownload);
+            console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
         }
 
         await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg}))
@@ -88,7 +85,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         currentOperationStep = DlOperationStep.Assets
 
         await downloadAsync(data["assetIndex"]["url"], path.join(indexesPath, data["assetIndex"]["id"] + ".json"), (progress: number) => {
-            console.log(`Progression: ${progress}% du téléchargement`);
+            console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
         }) 
         console.log("Minecraft index downloaded");
 
@@ -117,7 +114,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
             //TODO Progression download for assets
             for(const e in indexesData["objects"]){
-                console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
+                console.log(`Progression: ${numberOfAssetsDownloaded*100/numberOfAssets}`);
                 
                 const hash = indexesData["objects"][e]["hash"]
                 const subhash = hash.substring(0, 2)
@@ -152,7 +149,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             }
 
             for(const e in indexesData["objects"]){
-                console.log("status assets : " + numberOfAssetsDownloaded + "/" + numberOfAssets);
+                console.log(`Progression: ${numberOfAssetsDownloaded*100/numberOfAssets}`);
                 
                 const hash = indexesData["objects"][e]["hash"]
                 const subhash = hash.substring(0, 2)

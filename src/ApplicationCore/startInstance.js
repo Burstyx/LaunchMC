@@ -181,18 +181,14 @@ function extractAllNatives(libraries, nativeFolder, javaLocation) {
             for (const e of allLibs) {
                 console.log(e);
                 yield new Promise((resolve) => {
-                    console.log(1);
                     child_process_1.default.exec(javaLocation + " --list --file " + e, (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
                         const filesOfLibrary = stdout.split("\r\n");
                         for (const n of filesOfLibrary) {
-                            console.log(2);
                             if (n.endsWith(".dll")) {
-                                console.log(3);
-                                console.log(n);
                                 child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
                             }
                         }
-                        resolve(1);
+                        resolve();
                     }));
                 });
             }

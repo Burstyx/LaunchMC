@@ -202,27 +202,20 @@ async function getAllFile(pathDir: string): Promise<any> {
     return files
 }
 
-async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string){
+async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string) {
     return new Promise(async (resolve, reject) => {
         const allLibs = libraries.split(";")
         for (const e of allLibs){
             console.log(e);
-            await new Promise((resolve) => {
-                console.log(1);
-                
+            await new Promise<void>((resolve) => {                
                 cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
                     const filesOfLibrary = stdout.split("\r\n")
-                    for (const n of filesOfLibrary){
-                        console.log(2);
-                        
+                    for (const n of filesOfLibrary){                        
                         if(n.endsWith(".dll")){
-                            console.log(3);
-                            
-                            console.log(n);                      
                             cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder});
                         }
                     }
-                    resolve(1)
+                    resolve()
                 })
             })
         }
