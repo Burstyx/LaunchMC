@@ -13,7 +13,9 @@ export function minecraftManifest(): Promise<any>{
 
         if(!existsSync(path.join(manifestPath, "versions_manifest.json"))){
             // Download manifest and return data
-            await downloadAsync(versionsManifest, path.join(manifestPath, "versions_manifest.json"))
+            await downloadAsync(versionsManifest, path.join(manifestPath, "versions_manifest.json"), (progress: number) => {
+                console.log(`Progression: ${progress}% du téléchargement`);
+            })
             resolve(JSON.parse(await fs.readFile(path.join(manifestPath, "versions_manifest.json"), "utf-8")))
         }else{
             // File already exist so return data of this file
@@ -35,7 +37,9 @@ export function minecraftManifestForVersion(version: string): Promise<any> {
                 for(var i = 0; i < data["versions"].length; i++){
                     if(data["versions"][i]["id"] == version){
                         // Download manifest of wanted version
-                        await downloadAsync(data["versions"][i]["url"], path.join(versionPath, `${version}.json`))
+                        await downloadAsync(data["versions"][i]["url"], path.join(versionPath, `${version}.json`), (progress: number) => {
+                            console.log(`Progression: ${progress}% du téléchargement`);
+                        })
                         resolve(JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8")))
                     }
                 }

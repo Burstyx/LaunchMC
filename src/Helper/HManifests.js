@@ -26,7 +26,9 @@ function minecraftManifest() {
         const manifestPath = yield (0, HDirectoryManager_1.makeDir)(const_1.dataPath);
         if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "versions_manifest.json"))) {
             // Download manifest and return data
-            yield (0, Download_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json"));
+            yield (0, Download_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json"), (progress) => {
+                console.log(`Progression: ${progress}% du téléchargement`);
+            });
             resolve(JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "versions_manifest.json"), "utf-8")));
         }
         else {
@@ -48,7 +50,9 @@ function minecraftManifestForVersion(version) {
                 for (var i = 0; i < data["versions"].length; i++) {
                     if (data["versions"][i]["id"] == version) {
                         // Download manifest of wanted version
-                        yield (0, Download_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`));
+                        yield (0, Download_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
+                            console.log(`Progression: ${progress}% du téléchargement`);
+                        });
                         resolve(JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8")));
                     }
                 }

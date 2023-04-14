@@ -2,13 +2,16 @@ import fs from "fs"
 import AdmZip from "adm-zip"
 import https from "https"
 import { makeDir } from "./HDirectoryManager"
+import {EventEmitter} from "node:events"
 
 interface DownloadOpt {
     decompress: boolean,
 }
 
+type CallbackProgress = (progress: number) => void;
+
 // Download url async
-export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Promise<string> {
+export function downloadAsync(url: string, dest: string, callback: CallbackProgress, opt?: DownloadOpt) {
     return new Promise(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
 
@@ -17,120 +20,55 @@ export function downloadAsync(url: string, dest: string, opt?: DownloadOpt): Pro
         await makeDir(destDir)
         const file = fs.createWriteStream(dest)
 
-        // https.get(url, {headers: {"Content-Type": "application/octet-stream"}}, (res) => {
-        //     res.pipe(file)
+        const xhr = new XMLHttpRequest();
 
-        //     let len = parseInt(res.headers["content-length"]!, 10);
-        //     let cur = 0;
-        //     let total = len / 1048576
-            
-        //     res.on("data", (chunk) => {                
-        //         cur += chunk.length
-        //         console.log(100.0 * cur / len);
-        //     })
+        xhr.onreadystatechange = () => {
+            if(xhr.readyState === XMLHttpRequest.DONE){
+                if(xhr.status === 200){
+                    const responseArrayBuffer = xhr.response;
 
-            
+                    const buffer = Buffer.from(responseArrayBuffer)
 
-        //     file.on("error", (err) => {
-        //         console.error(err);
-                
-        //     })
+                    file.write(buffer)
 
-        //     file.on("finish", async () => {
-        //         if(opt && opt["decompress"] == true){
-                
-        //             const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
+                    console.log("téléchargement terminé");
 
-        //             console.log(destWithoutExt);
+                    if(opt && opt["decompress"] == true){
+                        console.log("décompression....");
+                        
+                        const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
 
-        //             const zip = new AdmZip(dest)
+                        const zip = new AdmZip(dest)
 
-        //             try{
-        //                 zip.extractAllTo(destWithoutExt, true)
-        //             }catch(err){
-        //                 console.error(err);
-        //             }
-
-        //             file.close()
-                    
-        //             resolve(dest)
-        //         }else{
-
-        //             file.close()
-                    
-        //             resolve(dest)
-        //         }
-        //     })
-        // })
-
-        fetch(url).then(res => {
-            res.arrayBuffer().then(arrayBuffer => {
-                const buffer = Buffer.from(arrayBuffer)
-
-                fs.writeFile(dest, buffer, err => {
-                    if(err){
-                        console.error(err);
-                    }else{
-                        console.log("téléchargement parfait");
-
-                        if(opt && opt["decompress"] == true){
-                            const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
-
-                            const zip = new AdmZip(dest)
-
-                            try{
-                                zip.extractAllTo(destWithoutExt, true)
-                            }catch(err){
-                                console.error(err);
-                            }
-
-                            file.close()
-                            
-                            resolve(dest)
-                        }else{
-
-                            file.close()
-                            
-                            resolve(dest)
+                        try{
+                            zip.extractAllTo(destWithoutExt, true)
+                            console.log("décompressé !");
+                        }catch(err){
+                            console.error(err);
                         }
                     }
-                })
-            })
-        })
 
-        // Download the file with fetch and resolve response
-        // const response = await fetch(url)
-        // // Get buffer
-        // const arrayBuffer = await response.arrayBuffer()
-        // const buffer = Buffer.from(arrayBuffer)
+                    file.close()
+                    resolve(xhr.status)
+                }else{
+                    console.log("erreur de téléchargement");
+                    reject(new Error("Erreur lors du téléchargement !"))
+                }
+            }
+        }
 
-        // const interval = setInterval(async () => {
-        //     const reader = await res.body!.getReader().read()
-        //     response..on("data", (chunk) => {
+        xhr.onprogress = (evt) => {
+            const loaded = evt.loaded
+            const total = evt.total
 
-        //     })
+            const percentage = Math.round((loaded / total) * 100)
 
-        //     const sizeToDownload = opt!.size;
-        //     const sizeDownloaded = reader!.value?.length
+            callback(percentage)
+        }
 
-        //     if(reader!.done){
-        //         clearInterval(interval)
-        //     }
+        xhr.open("GET", url)
+        xhr.responseType = "arraybuffer"
 
-        //     console.log((sizeDownloaded! * 100)/sizeToDownload!);
-            
-        // }, 1000)
-
-        
-
-        
-
-        // file.write(buffer)   
-
-        // Write buffer
-        
-
-
-        
+        xhr.send()
     })
 }
