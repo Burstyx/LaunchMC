@@ -63,14 +63,17 @@ $hovered-titlebar-closebutton-color: #850303;
 
 #titlebar {
   width: 100%;
+  height: 25px;
   background-color: $titlebar-color;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  -webkit-app-region: drag;
 
-  position: relative;
-  z-index: 999;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  -webkit-app-region: drag;
 
   #app-name {
     width: 130px;
@@ -109,32 +112,46 @@ $hovered-titlebar-closebutton-color: #850303;
   }
 }
 
-#toolbar {
-  width: 100%;
+#main {
   display: flex;
-  background-color: $titlebar-color;
-  color: white;
+  flex-direction: row;
+  width: 100%;
 
-  #account {
-    position: absolute;
-    right: 4px;
+  #sidebar {
+    width: 150px;
+    height: calc(100vh - 25px);
+    display: flex;
+    flex-direction: column;
+    background-color: $titlebar-color;
+    color: white;
+    font-size: 18px;
+
+    position: sticky;
+    top: 25px;
+    #account {
+      margin-top: auto;
+    }
+
+    div {
+      padding: 6px 10px;
+      margin: 4px;
+      display: flex;
+      align-items: center;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+
+      p {
+        padding: 0 10px;
+      }
+      &:hover {
+        background-color: #0066ff;
+      }
+    }
   }
 
-  div {
-    padding: 6px 10px 6px 10px;
-    margin: 4px 0 4px 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    transition: background-color 0.2s;
-
-    p {
-      padding: 0 5px;
-    }
-    &:hover {
-      background-color: #191919;
-    }
+  #body {
+    width: 100%;
+    height: 100%;
   }
 }
 
@@ -407,33 +424,60 @@ $hovered-titlebar-closebutton-color: #850303;
 #instances {
   display: flex;
   flex-wrap: wrap;
-  margin-left: auto;
-  margin-right: auto;
-  width: 1050px;
-  margin-top: 5px;
+  width: 100%;
   .instance {
-    margin: 5px;
+    margin: 10px;
     cursor: pointer;
     background-position: 50%;
     background-size: cover;
-    width: 200px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 150px;
+    height: 200px;
     border-radius: 10px;
     transition: transform 0.25s, box-shadow 0.25s;
     box-shadow: 0 0 3px black;
 
+    overflow-x: hidden;
+
+    position: relative;
+
     p {
       color: white;
-      font-size: 36px;
+      font-size: 20px;
+      position: absolute;
+      bottom: 0;
+      text-align: center;
+      width: 100%;
     }
 
     &:hover {
       transform: scale(1.01);
       box-shadow: 0 0 6px black;
     }
+  }
+}
+
+#add {
+  position: fixed;
+  bottom: 10px;
+  left: calc(50% - 220px / 2);
+  width: 220px;
+  height: 50px;
+
+  background-color: #0066ff;
+  border-radius: 10px;
+  font-size: 25px;
+  color: white;
+  text-align: center;
+  line-height: 50px;
+
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s, box-shadow 0.1s;
+
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.025);
+    box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.5);
   }
 }
 

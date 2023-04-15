@@ -22,13 +22,15 @@
   "homepage": "https://github.com/ItsBursty/BurstyLauncher#readme",
   "devDependencies": {
     "@types/adm-zip": "^0.5.0",
+    "@types/uuid": "^9.0.1",
     "electron": "^24.1.1",
     "electron-builder": "^24.2.1",
     "typescript": "^5.0.4"
   },
   "dependencies": {
     "@electron/remote": "^2.0.9",
-    "adm-zip": "^0.5.10"
+    "adm-zip": "^0.5.10",
+    "uuid": "^9.0.0"
   },
   "build": {
     "appId": "fr.burstyx.burstyxlauncher",

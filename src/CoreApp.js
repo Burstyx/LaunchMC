@@ -296,14 +296,14 @@ document.addEventListener("click", async (evt) => {
         }
 
         if (elementClicked.tagName == "P") {
-            const data = await getInstanceData(elementClicked.innerText)
+            const data = await getInstanceData(elementClicked.parentElement.getAttribute("instanceid"))
             const accountInfo = await getActiveAccount()
             startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
 
         } else {
-            const data = await getInstanceData(elementClicked.childNodes[0].innerHTML)
+            const data = await getInstanceData(elementClicked.getAttribute("instanceid"))
             const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
+            startMinecraft(data["data"]["version"], data["data"]["id"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
         }
     }
 })

@@ -17,6 +17,7 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Helper/const");
+const uuid_1 = require("uuid");
 function addInstanceElement(imagePath, title, instanceDiv) {
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title));
 }
@@ -24,6 +25,12 @@ exports.addInstanceElement = addInstanceElement;
 function generateInstanceBtn(imagePath, title) {
     let element = document.createElement("div");
     let titleElement = document.createElement("p");
+    if (title.length > 12) {
+        title = title.substring(0, 15);
+        title += "...";
+    }
+    const uuid = (0, uuid_1.v4)();
+    element.setAttribute("instanceid", uuid);
     titleElement.innerText = title;
     element.className = "instance";
     const instances = document.getElementById("instances");
@@ -94,8 +101,7 @@ function makeInstanceNotPlaying(id, instancesDiv) {
 exports.makeInstanceNotPlaying = makeInstanceNotPlaying;
 function makeInstanceLoading(id, instancesDiv) {
     for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if (instancesDiv.children[i].children[0].innerHTML == id) {
+        if (instancesDiv.children[i].getAttribute("instanceid") == id) {
             instancesDiv.children[i].classList.add("loading");
         }
     }
@@ -103,8 +109,7 @@ function makeInstanceLoading(id, instancesDiv) {
 exports.makeInstanceLoading = makeInstanceLoading;
 function makeInstanceNotLoading(id, instancesDiv) {
     for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if (instancesDiv.children[i].children[0].innerHTML == id) {
+        if (instancesDiv.children[i].getAttribute("instanceid") == id) {
             instancesDiv.children[i].classList.remove("loading");
         }
     }
@@ -115,8 +120,9 @@ function getInstanceData(instanceId) {
         if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath))) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
             for (const e in instances) {
-                if (instances[e] == instanceId) {
-                    const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8");
+                const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8");
+                const id = JSON.parse(data)["id"];
+                if (id == instanceId) {
                     return { "data": JSON.parse(data), "gamePath": path_1.default.join(const_1.instancesPath, instances[e]) };
                 }
             }

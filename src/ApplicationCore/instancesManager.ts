@@ -2,6 +2,7 @@ import fs from "fs/promises"
 import {existsSync} from "fs"
 import path from "path"
 import { instancesPath } from "../Helper/const"
+import {v4} from "uuid"
 
 export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement){
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title))
@@ -10,6 +11,16 @@ export function addInstanceElement(imagePath: string, title: string, instanceDiv
 function generateInstanceBtn(imagePath: string, title: string) {
     let element = document.createElement("div")
     let titleElement = document.createElement("p")
+
+    if(title.length > 12){
+        title = title.substring(0, 15)
+        title += "..."
+    }
+
+    const uuid = v4()
+
+    element.setAttribute("instanceid", uuid)
+
     titleElement.innerText = title
 
     element.className = "instance"
@@ -87,18 +98,15 @@ export function makeInstanceNotPlaying(id: string, instancesDiv: HTMLElement){
 
 export function makeInstanceLoading(id: string, instancesDiv: HTMLElement){
     for(let i = 0; i < instancesDiv.childElementCount; i++){
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if(instancesDiv.children[i].children[0].innerHTML == id){
+        if(instancesDiv.children[i].getAttribute("instanceid") == id){
             instancesDiv.children[i].classList.add("loading")            
         }
     }
 }
 
 export function makeInstanceNotLoading(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        
-        if(instancesDiv.children[i].children[0].innerHTML == id){
+    for(let i = 0; i < instancesDiv.childElementCount; i++){        
+        if(instancesDiv.children[i].getAttribute("instanceid") == id){
             instancesDiv.children[i].classList.remove("loading")      
         }
     }
@@ -108,9 +116,9 @@ export async function getInstanceData(instanceId: string){
     if(existsSync(path.join(instancesPath))){
         const instances = await fs.readdir(instancesPath)
         for(const e in instances){
-            if(instances[e] == instanceId){
-                const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8")
-
+            const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8")
+            const id = JSON.parse(data)["id"]
+            if(id == instanceId){
                 return {"data": JSON.parse(data), "gamePath": path.join(instancesPath, instances[e])}
             }
         }
