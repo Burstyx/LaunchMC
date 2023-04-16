@@ -1,9 +1,10 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData } = require('./managers/instancesManager')
-const { getMinecraftVersions } = require("./managers/fetchBootloaderVersions")
-const { downloadVanillaVersion } = require("./managers/minecraftDownloader")
-const { startMinecraft } = require("./managers/startInstance")
-const { msaLogin } = require("./managers/microsoftAuth")
+const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('./ApplicationCore/instancesManager')
+const { filteredMinecraftVersions } = require("./Helper/HVersions")
+const { downloadVanillaVersion } = require("./ApplicationCore/minecraftDownloader")
+const { startMinecraft } = require("./ApplicationCore/startInstance")
+const { msaLogin } = require("./ApplicationCore/microsoftAuth")
+const { getActiveAccount } = require("./Helper/MicrosoftAccount")
 
 console.log("Initialisation du module principal !");
 
@@ -143,11 +144,6 @@ addBtn.addEventListener("click", () => {
     addMenu.style.pointerEvents = "all"
 
     refreshInstanceVersion()
-
-    // element = generateInstanceBtn("https://i.ytimg.com/vi/CJOFD9eZXig/maxresdefault.jpg", "Holycuba")
-
-    // // Add element to the page
-    // instancesDiv.appendChild(element)
 })
 
 function closeAddMenu() {
@@ -194,12 +190,11 @@ const vanillabootloaderinfoslist = document.getElementById("vanillabootloaderinf
 const loadingVanillaVersions = document.getElementById("loadingbootloaderversions")
 const notfoundbootloaderversions = document.getElementById("notfoundbootloaderversions")
 
-instanceVersion.addEventListener("click", () => {
+instanceVersion.addEventListener("click", async () => {
     choseVersionMenu.style.opacity = "1"
     choseVersionMenu.style.pointerEvents = "all"
 
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+    refreshVersionInfoList()
 
     clickavoider.style.zIndex = 2
 
@@ -221,25 +216,52 @@ function clearVanillaVersions() {
     }
 }
 
-vanillareleasecheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillareleasecheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
 
-vanillasnapshotcheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillasnapshotcheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
 
-vanillabetacheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillabetacheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
 
-vanillaalphacheckbox.addEventListener("change", () => {
-    clearVanillaVersions()
-    getMinecraftVersions(vanillabootloaderinfoslist, loadingVanillaVersions, notfoundbootloaderversions, vanillareleasecheckbox.checked, vanillasnapshotcheckbox.checked, vanillabetacheckbox.checked, vanillaalphacheckbox.checked)
+vanillaalphacheckbox.addEventListener("change", async () => {
+    refreshVersionInfoList()
 })
+
+async function refreshVersionInfoList() {
+    loadingVanillaVersions.style.display = "block"
+    notfoundbootloaderversions.style.display = "none"
+    clearVanillaVersions()
+    await filteredMinecraftVersions({ filterOptions: { alpha: vanillaalphacheckbox.checked, beta: vanillabetacheckbox.checked, release: vanillareleasecheckbox.checked, snapshot: vanillasnapshotcheckbox.checked } }).then((data) => {
+        if (data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+                let versionParent = document.createElement("div")
+                versionParent.id = "vanilla-" + data[i]["id"]
+                versionParent.className = "vanillabootloaderinformation bootloaderinformation"
+
+                // Create version label for the button element
+                let version = document.createElement("p")
+                version.innerText = data[i]["id"]
+
+                // Create version type label for the button element
+                let versionState = document.createElement("p")
+                versionState.innerText = data[i]["type"]
+
+                versionParent.appendChild(version)
+                versionParent.appendChild(versionState)
+                vanillabootloaderinfoslist.appendChild(versionParent)
+            }
+        } else {
+            notfoundbootloaderversions.style.display = "block"
+        }
+
+    })
+    loadingVanillaVersions.style.display = "none"
+}
 
 // Chosing version
 
@@ -253,7 +275,7 @@ function closeChooseVersionMenu() {
     elementToCloseWhenClickingOnClickAvoider = addMenu
 }
 
-document.addEventListener("click", (evt) => {
+document.addEventListener("click", async (evt) => {
     const elementClicked = evt.target
     if (elementClicked.parentElement.classList.item(0) == "vanillabootloaderinformation") {
         let versionFound = elementClicked.parentElement.id.toString().substring(8)
@@ -263,10 +285,25 @@ document.addEventListener("click", (evt) => {
     }
 
     if (elementClicked.classList.item(0) == "instance" || elementClicked.parentElement.classList.item(0) == "instance") {
+        if (elementClicked.classList.contains("downloading") || elementClicked.parentElement.classList.contains("downloading")) {
+            console.log("Téléchargement, impossible de lancer l'instance");
+            return
+        }
+
+        if (elementClicked.classList.contains("playing") || elementClicked.parentElement.classList.contains("playing")) {
+            console.log("Jeu déjà lancé, impossible de relancer l'instance");
+            return
+        }
+
         if (elementClicked.tagName == "P") {
-            console.log(getInstanceData(elementClicked.innerText))
+            const data = await getInstanceData(elementClicked.parentElement.getAttribute("instanceid"))
+            const accountInfo = await getActiveAccount()
+            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
+
         } else {
-            console.log(getInstanceData(elementClicked.childNodes[0].innerHTML))
+            const data = await getInstanceData(elementClicked.getAttribute("instanceid"))
+            const accountInfo = await getActiveAccount()
+            startMinecraft(data["data"]["version"], data["data"]["id"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
         }
     }
 })
