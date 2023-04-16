@@ -6,7 +6,8 @@
   "scripts": {
     "build-js": "npx tsc",
     "run": "npm run build-js && electron .",
-    "start sass watcher": "npx sass --watch ./src/style.scss ./src/style.css"
+    "start sass watcher": "npx sass --watch ./src/style.scss ./src/style.css",
+    "windows build": "electron-builder build --win"
   },
   "repository": {
     "type": "git",
@@ -20,12 +21,40 @@
   },
   "homepage": "https://github.com/ItsBursty/BurstyLauncher#readme",
   "devDependencies": {
-    "electron": "^20.3.2",
-    "electron-builder": "^23.6.0",
-    "typescript": "^4.8.4"
+    "@types/adm-zip": "^0.5.0",
+    "@types/uuid": "^9.0.1",
+    "electron": "^24.1.1",
+    "electron-builder": "^24.2.1",
+    "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.8",
-    "node-fetch": "^3.2.10"
+    "@electron/remote": "^2.0.9",
+    "adm-zip": "^0.5.10",
+    "uuid": "^9.0.0"
+  },
+  "build": {
+    "appId": "fr.burstyx.burstyxlauncher",
+    "productName": "Burstyx Launcher",
+    "copyright": "All Rights Reserved",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": ""
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "",
+      "uninstallerIcon": "",
+      "artifactName": "${productName}-${version}-installer.${ext}",
+      "deleteAppDataOnUninstall": true
+    }
   }
 }

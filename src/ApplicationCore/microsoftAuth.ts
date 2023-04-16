@@ -1,5 +1,6 @@
 import { BrowserWindow } from "@electron/remote"
-import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken } from "../utils/const.js"
+import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Helper/const.js"
+import { addAccount } from "../Helper/MicrosoftAccount.js"
 import {} from "./accountManager"
 
 export function createOAuthLink(){
@@ -56,6 +57,36 @@ async function connectWithCode(code: string){
     const minecraftFetchedData = await getMinecraftBearerToken(uhs, xstsToken)
     const minecraftAccessToken = minecraftFetchedData!["access_token"]
     const expires_in = minecraftFetchedData!["expires_in"]
+
+    const minecraftProfileData = await getMinecraftProfile(minecraftAccessToken)
+    const username = minecraftProfileData!["name"]
+    const uuid = minecraftProfileData!["id"]
+
+    console.log(minecraftAccessToken);
+    
+    
+
+    await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid})
+}
+
+async function getMinecraftProfile(accessToken: string){
+    var header = new Headers();
+    header.append("Authorization", "Bearer " + accessToken)
+
+    var response = undefined
+        
+    await fetch(playerMojangProfile, {method: "GET", headers: header, redirect: "follow"}).then(async (res) => {
+        await res.json().then((val) => {
+            response = val
+            console.log(val);
+        })
+    }).catch((err) => {
+        console.log("Error occured when attempting to get the profile attached to the account!");
+        
+        console.error(err);
+    })
+
+    return response
 }
 
 async function refreshAccessToken(refreshToken: string){
