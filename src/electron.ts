@@ -15,7 +15,7 @@ function createAppWindow() {
         width: 1080,
         minHeight: 620,
         minWidth: 1080,
-        title: "Bursty Launcher",
+        title: "Burstyx Launcher",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -26,7 +26,7 @@ function createAppWindow() {
 
     initialize()
     enable(mainWindow.webContents)
-    mainWindow.loadFile(path.join(__dirname, "app.html"))
+    mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
 }
 
 app.on("ready", () => {

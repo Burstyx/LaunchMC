@@ -16,7 +16,7 @@ exports.getInstanceData = exports.makeInstanceNotLoading = exports.makeInstanceL
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
-const const_1 = require("../Helper/const");
+const const_1 = require("../Utils/const");
 const uuid_1 = require("uuid");
 function addInstanceElement(imagePath, title, instanceDiv) {
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title));

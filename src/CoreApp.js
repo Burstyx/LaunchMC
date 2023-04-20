@@ -8,17 +8,18 @@ const { getActiveAccount } = require("./Helper/MicrosoftAccount")
 
 console.log("Initialisation du module principal !");
 
-// Variables souvent utilisé
+// Constants
 const clickavoider = document.getElementById("clickavoider")
 
-// Variables globals
-let elementToCloseWhenClickingOnClickAvoider = null;
-
-// Boutons menu titre
+// Titlebar Btns
 const closeBtn = document.getElementById("close")
 const maximizeBtn = document.getElementById("maximize")
 const reducebtn = document.getElementById("reduce")
 
+// Globals
+let elementToCloseWhenClickingOnClickAvoider = null;
+
+// Titlebar logic
 closeBtn.addEventListener("click", () => {
     getCurrentWindow().close()
 })
@@ -36,6 +37,7 @@ reducebtn.addEventListener("click", () => {
     getCurrentWindow().minimize()
 })
 
+// UI Helpers
 function closeAllMenus() {
     const menus = document.getElementsByClassName("menu")
     console.log("click avoider");
@@ -50,7 +52,7 @@ function closeAllMenus() {
 const choseVersionMenu = document.getElementById("choseversionmenu")
 const addMenu = document.getElementById("addmenu")
 
-// Logique du click avoider
+// Black background when window opened logic
 clickavoider.addEventListener("click", () => {
     if (elementToCloseWhenClickingOnClickAvoider == null) {
         return
@@ -72,9 +74,8 @@ clickavoider.addEventListener("click", () => {
     elementToCloseWhenClickingOnClickAvoider = null
 })
 
-// Boutons barre d'outils
 
-// Logique du menu add
+// Add btn logic
 
 const cancelBtn = document.getElementById("addmenucancelbtn")
 const closeAddMenuBtn = document.getElementById("closeaddmenu")

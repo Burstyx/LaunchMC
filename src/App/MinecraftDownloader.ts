@@ -1,14 +1,12 @@
-import { dataPath, indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage, javaPath, java8Version, java17Version } from "../Helper/const"
+import { indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage, javaPath, java8Version, java17Version } from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
 import {existsSync, createWriteStream} from "fs"
-import https from "https"
 import path from "path"
-import {minecraftManifestForVersion} from "../Helper/HManifests"
-import {startMinecraft} from "./startInstance"
-import {getInstancesList, makeInstanceDownloaded, makeInstanceDownloading} from "./instancesManager"
-import { downloadAsync } from "../Helper/Download"
-import { makeDir } from "../Helper/HDirectoryManager"
+import {minecraftManifestForVersion} from "../Utils/HManifests"
+import {getInstancesList, makeInstanceDownloaded, makeInstanceDownloading} from "./InstancesManager"
+import { downloadAsync } from "../Utils/HDownload"
+import { makeDir } from "../Utils/HFileManagement"
 
 enum DlOperationStep{
     NotDownloading, // Not downloading
@@ -21,8 +19,6 @@ enum DlOperationStep{
 let currentOperationStep = DlOperationStep.NotDownloading
 
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
-    console.log(version);
-
     currentOperationStep = DlOperationStep.Preparing
     
     minecraftManifestForVersion(version).then(async (data) => {

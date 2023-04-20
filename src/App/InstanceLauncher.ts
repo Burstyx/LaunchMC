@@ -1,13 +1,13 @@
-import {minecraftManifestForVersion} from "../Helper/HManifests"
+import {minecraftManifestForVersion} from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath} from "../Helper/const"
+import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath} from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
 import {existsSync} from "fs"
-import { downloadJavaVersion, JavaVersions } from "./minecraftDownloader"
-import { makeDir } from "../Helper/HDirectoryManager"
-import { makeInstanceLoading, makeInstanceNotLoading, makeInstancePlaying } from "./instancesManager"
+import { downloadJavaVersion, JavaVersions } from "./MinecraftDownloader"
+import { makeDir } from "../Utils/HFileManagement"
+import { makeInstanceLoading, makeInstanceNotLoading, makeInstancePlaying } from "./InstancesManager"
 
 interface MinecraftArgsOpt {
     username: string,

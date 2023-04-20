@@ -1,7 +1,7 @@
 import fs from "fs/promises"
 import {existsSync} from "fs"
 import path from "path"
-import { instancesPath } from "../Helper/const"
+import { instancesPath } from "../Utils/const"
 import {v4} from "uuid"
 
 export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement){

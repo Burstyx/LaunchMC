@@ -17,16 +17,16 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const const_1 = require("./const");
 const path_1 = __importDefault(require("path"));
-const HDirectoryManager_1 = require("./HDirectoryManager");
-const Download_1 = require("./Download");
+const HFileManagement_1 = require("./HFileManagement");
+const HDownload_1 = require("./HDownload");
 // Download manifest containing all versions informations
 function minecraftManifest() {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         // Create directory if doesn't exist
-        const manifestPath = yield (0, HDirectoryManager_1.makeDir)(const_1.dataPath);
+        const manifestPath = yield (0, HFileManagement_1.makeDir)(const_1.dataPath);
         if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "versions_manifest.json"))) {
             // Download manifest and return data
-            yield (0, Download_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json"), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json"), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             });
             resolve(JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "versions_manifest.json"), "utf-8")));
@@ -42,7 +42,7 @@ exports.minecraftManifest = minecraftManifest;
 function minecraftManifestForVersion(version) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         // Create directory if doesn't exist
-        const versionPath = yield (0, HDirectoryManager_1.makeDir)(path_1.default.join(const_1.minecraftVersionPath, version));
+        const versionPath = yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.minecraftVersionPath, version));
         if (!(0, fs_1.existsSync)(path_1.default.join(versionPath, `${version}.json`))) {
             // Get manifest containing all versions informations
             yield minecraftManifest().then((data) => __awaiter(this, void 0, void 0, function* () {
@@ -50,7 +50,7 @@ function minecraftManifestForVersion(version) {
                 for (var i = 0; i < data["versions"].length; i++) {
                     if (data["versions"][i]["id"] == version) {
                         // Download manifest of wanted version
-                        yield (0, Download_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
+                        yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
                             console.log(`Progression: ${progress}% du téléchargement`);
                         });
                         resolve(JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8")));

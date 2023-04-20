@@ -2,8 +2,8 @@ import fs from "fs/promises"
 import {existsSync} from "fs"
 import { minecraftVersionPath, versionsManifest, dataPath } from "./const"
 import path from "path"
-import {makeDir} from "./HDirectoryManager"
-import { downloadAsync } from "./Download"
+import {makeDir} from "./HFileManagement"
+import { downloadAsync } from "./HDownload"
 
 // Download manifest containing all versions informations
 export function minecraftManifest(): Promise<any>{

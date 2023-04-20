@@ -18,7 +18,7 @@ function createAppWindow() {
         width: 1080,
         minHeight: 620,
         minWidth: 1080,
-        title: "Bursty Launcher",
+        title: "Burstyx Launcher",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -27,7 +27,7 @@ function createAppWindow() {
     mainWindow.webContents.openDevTools();
     (0, main_1.initialize)();
     (0, main_1.enable)(mainWindow.webContents);
-    mainWindow.loadFile(path_1.default.join(__dirname, "app.html"));
+    mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app.html"));
 }
 electron_1.app.on("ready", () => {
     createAppWindow();
