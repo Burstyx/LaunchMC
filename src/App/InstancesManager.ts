@@ -62,7 +62,7 @@ export async function getInstancesList(instancesDiv: HTMLElement){
 }
 
 export async function getInstanceData(instanceId: string){
-    if(existsSync(path.join(instancesPath))){
+    if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
         for(const e in instances){
             const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8")

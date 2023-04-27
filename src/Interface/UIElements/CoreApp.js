@@ -1,7 +1,7 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
 const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('../../App/InstancesManager')
 const { filteredMinecraftVersions } = require("../../Utils/HVersions")
-const { downloadVanillaVersion } = require("../../App/MinecraftDownloader.ts")
+const { downloadVanillaVersion } = require("../../App/MinecraftDownloader")
 const { startMinecraft } = require("../../App/InstanceLauncher")
 const { msaLogin } = require("../../App/MicrosoftAuth")
 const { getActiveAccount } = require("../../Utils/HMicrosoft")

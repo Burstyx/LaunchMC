@@ -4,7 +4,7 @@ import fs from "fs/promises"
 import {existsSync, createWriteStream} from "fs"
 import path from "path"
 import {minecraftManifestForVersion} from "../Utils/HManifests"
-import {InstanceState, getInstancesList, updateInstanceState} from "./InstancesManager"
+import {InstanceState, getInstanceById, getInstancesList, updateInstanceState} from "./InstancesManager"
 import { downloadAsync } from "../Utils/HDownload"
 import { makeDir } from "../Utils/HFileManagement"
 
@@ -30,7 +30,6 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         
         await fs.mkdir(path.join(instancesPath, name), {recursive: true})
         
-        await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "id": instanceDiv.getAttribute("instanceid")}))
         await getInstancesList(instanceDiv);
 
         updateInstanceState(name, InstanceState.Downloading)
@@ -68,7 +67,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
         }
 
-        await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg}))
+        await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg, "id": instanceDiv.getAttribute("instanceid")}))
 
         console.log("Minecraft libraries downloaded");
         // Download indexes

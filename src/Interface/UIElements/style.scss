@@ -7,7 +7,7 @@ $hovered-titlebar-closebutton-color: #850303;
 
 @font-face {
   font-family: narrow;
-  src: url(../resources/fonts/PragatiNarrow-Regular.ttf);
+  src: url(./resources/fonts/PragatiNarrow-Regular.ttf);
 }
 
 * {
@@ -35,7 +35,7 @@ $hovered-titlebar-closebutton-color: #850303;
   background-color: white;
   &::after {
     content: "";
-    background-image: url(../svg/tick.svg);
+    background-image: url(./resources/svg/tick.svg);
     background-size: cover;
     width: 14px;
     height: 12px;

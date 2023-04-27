@@ -66,7 +66,7 @@ function getInstancesList(instancesDiv) {
 exports.getInstancesList = getInstancesList;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath))) {
+        if ((0, fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
             for (const e in instances) {
                 const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8");

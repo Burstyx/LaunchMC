@@ -1,6 +1,6 @@
 @font-face {
   font-family: narrow;
-  src: url(../resources/fonts/PragatiNarrow-Regular.ttf);
+  src: url(./resources/fonts/PragatiNarrow-Regular.ttf);
 }
 * {
   padding: 0;
@@ -28,7 +28,7 @@
 }
 .checkbox:checked::after {
   content: "";
-  background-image: url(../svg/tick.svg);
+  background-image: url(./resources/svg/tick.svg);
   background-size: cover;
   width: 14px;
   height: 12px;
@@ -463,8 +463,7 @@
   flex-wrap: wrap;
 }
 #accountmanager #accountslist .accountelement {
-  background: linear-gradient(rgba(1, 1, 1, 0.75), rgba(1, 1, 1, 0.75)),
-    url("https://minotar.net/avatar/ItsBursty");
+  background: linear-gradient(rgba(1, 1, 1, 0.75), rgba(1, 1, 1, 0.75)), url("https://minotar.net/avatar/ItsBursty");
   background-repeat: no-repeat;
   background-clip: content-box;
   background-size: cover;
