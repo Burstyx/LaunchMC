@@ -2,13 +2,12 @@ import fs from "fs/promises"
 import {existsSync} from "fs"
 import path from "path"
 import { instancesPath } from "../Utils/const"
-import {v4} from "uuid"
 
-export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement){
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title))
+export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement, id: string){
+    instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
 }
 
-function generateInstanceBtn(imagePath: string, title: string) {
+function generateInstanceBtn(imagePath: string, title: string, id: string) {
     let element = document.createElement("div")
     let titleElement = document.createElement("p")
 
@@ -17,9 +16,7 @@ function generateInstanceBtn(imagePath: string, title: string) {
         title += "..."
     }
 
-    const uuid = v4()
-
-    element.setAttribute("instanceid", uuid)
+    element.setAttribute("instanceid", id)
 
     titleElement.innerText = title
 
@@ -47,7 +44,7 @@ function createStyleString(imagePath: string){
     return style
 }
 
-export async function getInstancesList(instancesDiv: HTMLElement){
+export async function getInstancesList(instancesDiv: HTMLElement, id: string){
     instancesDiv.innerHTML = ""
     
     if(existsSync(instancesPath)){
@@ -55,7 +52,7 @@ export async function getInstancesList(instancesDiv: HTMLElement){
         for(const e in instances){
             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
                 const data = JSON.parse(await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
-                addInstanceElement(data["imagePath"], instances[e], instancesDiv)
+                addInstanceElement(data["imagePath"], instances[e], instancesDiv, id)
             }
         }
     }

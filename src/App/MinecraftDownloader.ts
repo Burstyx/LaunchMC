@@ -7,6 +7,7 @@ import {minecraftManifestForVersion} from "../Utils/HManifests"
 import {InstanceState, getInstanceById, getInstancesList, updateInstanceState} from "./InstancesManager"
 import { downloadAsync } from "../Utils/HDownload"
 import { makeDir } from "../Utils/HFileManagement"
+import { v4 } from "uuid"
 
 enum DlOperationStep{
     NotDownloading, // Not downloading
@@ -30,7 +31,8 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         
         await fs.mkdir(path.join(instancesPath, name), {recursive: true})
         
-        await getInstancesList(instanceDiv);
+        const instanceId = v4()
+        await getInstancesList(instanceDiv, instanceId);
 
         updateInstanceState(name, InstanceState.Downloading)
 
@@ -67,7 +69,7 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
         }
 
-        await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg, "id": instanceDiv.getAttribute("instanceid")}))
+        await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg, "id": instanceId}))
 
         console.log("Minecraft libraries downloaded");
         // Download indexes

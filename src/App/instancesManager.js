@@ -17,20 +17,18 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
-const uuid_1 = require("uuid");
-function addInstanceElement(imagePath, title, instanceDiv) {
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title));
+function addInstanceElement(imagePath, title, instanceDiv, id) {
+    instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id));
 }
 exports.addInstanceElement = addInstanceElement;
-function generateInstanceBtn(imagePath, title) {
+function generateInstanceBtn(imagePath, title, id) {
     let element = document.createElement("div");
     let titleElement = document.createElement("p");
     if (title.length > 12) {
         title = title.substring(0, 15);
         title += "...";
     }
-    const uuid = (0, uuid_1.v4)();
-    element.setAttribute("instanceid", uuid);
+    element.setAttribute("instanceid", id);
     titleElement.innerText = title;
     element.className = "instance";
     const instances = document.getElementById("instances");
@@ -49,7 +47,7 @@ function createStyleString(imagePath) {
     let style = `background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("${imagePath}");`;
     return style;
 }
-function getInstancesList(instancesDiv) {
+function getInstancesList(instancesDiv, id) {
     return __awaiter(this, void 0, void 0, function* () {
         instancesDiv.innerHTML = "";
         if ((0, fs_1.existsSync)(const_1.instancesPath)) {
@@ -57,7 +55,7 @@ function getInstancesList(instancesDiv) {
             for (const e in instances) {
                 if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                     const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf-8"));
-                    addInstanceElement(data["imagePath"], instances[e], instancesDiv);
+                    addInstanceElement(data["imagePath"], instances[e], instancesDiv, id);
                 }
             }
         }

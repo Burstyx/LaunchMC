@@ -22,6 +22,7 @@ const HManifests_1 = require("../Utils/HManifests");
 const InstancesManager_1 = require("./InstancesManager");
 const HDownload_1 = require("../Utils/HDownload");
 const HFileManagement_1 = require("../Utils/HFileManagement");
+const uuid_1 = require("uuid");
 var DlOperationStep;
 (function (DlOperationStep) {
     DlOperationStep[DlOperationStep["NotDownloading"] = 0] = "NotDownloading";
@@ -40,7 +41,8 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             // Create related game folder
             console.log(path_1.default.join(const_1.instancesPath, name));
             yield promises_1.default.mkdir(path_1.default.join(const_1.instancesPath, name), { recursive: true });
-            yield (0, InstancesManager_1.getInstancesList)(instanceDiv);
+            const instanceId = (0, uuid_1.v4)();
+            yield (0, InstancesManager_1.getInstancesList)(instanceDiv, instanceId);
             (0, InstancesManager_1.updateInstanceState)(name, InstancesManager_1.InstanceState.Downloading);
             // Verification of the game version 
             for (let i = 0; i < data["libraries"].length; i++) {
@@ -67,7 +69,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 numberOfLibrariesDownloaded++;
                 console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
             }
-            yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg, "id": instanceDiv.getAttribute("instanceid") }));
+            yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "libraries": librariesArg, "id": instanceId }));
             console.log("Minecraft libraries downloaded");
             // Download indexes
             console.log("Downloading minecraft index");
