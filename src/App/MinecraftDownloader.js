@@ -42,7 +42,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
             yield promises_1.default.mkdir(path_1.default.join(const_1.instancesPath, name), { recursive: true });
             yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": data["assetIndex"]["id"], "id": instanceDiv.getAttribute("instanceid") }));
             yield (0, InstancesManager_1.getInstancesList)(instanceDiv);
-            (0, InstancesManager_1.makeInstanceDownloading)(name, instanceDiv);
+            (0, InstancesManager_1.updateInstanceState)(name, InstancesManager_1.InstanceState.Downloading);
             // Verification of the game version 
             for (let i = 0; i < data["libraries"].length; i++) {
                 numberOfLibrariesToDownload++;
@@ -140,7 +140,7 @@ function downloadVanillaVersion(version, name, instanceDiv, imagePath) {
                 }
             }
         })).then(() => {
-            (0, InstancesManager_1.makeInstanceDownloaded)(name, instanceDiv);
+            (0, InstancesManager_1.updateInstanceState)(name, InstancesManager_1.InstanceState.Inactive);
         });
     });
 }

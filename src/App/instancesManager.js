@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInstanceData = exports.makeInstanceNotLoading = exports.makeInstanceLoading = exports.makeInstanceNotPlaying = exports.makeInstancePlaying = exports.makeInstanceDownloading = exports.makeInstanceDownloaded = exports.getInstancesList = exports.addInstanceElement = void 0;
+exports.updateInstanceState = exports.InstanceState = exports.getInstanceById = exports.getInstanceData = exports.getInstancesList = exports.addInstanceElement = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
@@ -64,57 +64,6 @@ function getInstancesList(instancesDiv) {
     });
 }
 exports.getInstancesList = getInstancesList;
-function makeInstanceDownloaded(id, instancesDiv) {
-    for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        if (instancesDiv.children[i].children[0].innerHTML == id) {
-            instancesDiv.children[i].classList.remove("downloading");
-        }
-    }
-}
-exports.makeInstanceDownloaded = makeInstanceDownloaded;
-function makeInstanceDownloading(id, instancesDiv) {
-    for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if (instancesDiv.children[i].children[0].innerHTML == id) {
-            instancesDiv.children[i].classList.add("downloading");
-        }
-    }
-}
-exports.makeInstanceDownloading = makeInstanceDownloading;
-function makeInstancePlaying(id, instancesDiv) {
-    for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if (instancesDiv.children[i].children[0].innerHTML == id) {
-            instancesDiv.children[i].classList.add("playing");
-        }
-    }
-}
-exports.makeInstancePlaying = makeInstancePlaying;
-function makeInstanceNotPlaying(id, instancesDiv) {
-    for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if (instancesDiv.children[i].children[0].innerHTML == id) {
-            instancesDiv.children[i].classList.remove("playing");
-        }
-    }
-}
-exports.makeInstanceNotPlaying = makeInstanceNotPlaying;
-function makeInstanceLoading(id, instancesDiv) {
-    for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        if (instancesDiv.children[i].getAttribute("instanceid") == id) {
-            instancesDiv.children[i].classList.add("loading");
-        }
-    }
-}
-exports.makeInstanceLoading = makeInstanceLoading;
-function makeInstanceNotLoading(id, instancesDiv) {
-    for (let i = 0; i < instancesDiv.childElementCount; i++) {
-        if (instancesDiv.children[i].getAttribute("instanceid") == id) {
-            instancesDiv.children[i].classList.remove("loading");
-        }
-    }
-}
-exports.makeInstanceNotLoading = makeInstanceNotLoading;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         if ((0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath))) {
@@ -130,3 +79,40 @@ function getInstanceData(instanceId) {
     });
 }
 exports.getInstanceData = getInstanceData;
+function getInstanceById(id) {
+    const instancesDiv = document.getElementById("instances");
+    for (let i = 0; i < instancesDiv.childElementCount; i++) {
+        if (instancesDiv.children[i].getAttribute("instanceid") == id) {
+            return instancesDiv.children[i];
+        }
+    }
+}
+exports.getInstanceById = getInstanceById;
+var InstanceState;
+(function (InstanceState) {
+    InstanceState[InstanceState["Downloading"] = 0] = "Downloading";
+    InstanceState[InstanceState["Playing"] = 1] = "Playing";
+    InstanceState[InstanceState["Loading"] = 2] = "Loading";
+    InstanceState[InstanceState["Inactive"] = 3] = "Inactive";
+})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
+function updateInstanceState(id, newState) {
+    const instance = getInstanceById(id);
+    if (instance == null) {
+        return;
+    }
+    switch (newState) {
+        case InstanceState.Downloading:
+            instance.className = "instance downloading";
+            break;
+        case InstanceState.Loading:
+            instance.className = "instance loading";
+            break;
+        case InstanceState.Playing:
+            instance.className = "instance playing";
+            break;
+        case InstanceState.Inactive:
+            instance.className = "instance";
+            break;
+    }
+}
+exports.updateInstanceState = updateInstanceState;

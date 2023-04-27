@@ -35,7 +35,7 @@ $hovered-titlebar-closebutton-color: #850303;
   background-color: white;
   &::after {
     content: "";
-    background-image: url(../resources/svg/tick.svg);
+    background-image: url(../svg/tick.svg);
     background-size: cover;
     width: 14px;
     height: 12px;

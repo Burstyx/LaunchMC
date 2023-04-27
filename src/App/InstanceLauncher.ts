@@ -7,7 +7,7 @@ import fs from "fs/promises"
 import {existsSync} from "fs"
 import { downloadJavaVersion, JavaVersions } from "./MinecraftDownloader"
 import { makeDir } from "../Utils/HFileManagement"
-import { makeInstanceLoading, makeInstanceNotLoading, makeInstancePlaying } from "./InstancesManager"
+import { InstanceState, updateInstanceState } from "./InstancesManager"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -25,7 +25,7 @@ interface MinecraftArgsOpt {
 export function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt, instanceDiv: HTMLElement){
     // TODO If map_to_ressource == true -> object dans legacy
     minecraftManifestForVersion(version).then(async (data) => {
-        makeInstanceLoading(instanceId, instanceDiv)
+        updateInstanceState(instanceId, InstanceState.Loading)
         // var mcArgs = []
         // if(data.hasOwnProperty("minecraftArguments")){
         //     var args = data["minecraftArguments"].split(" ")
@@ -154,35 +154,24 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
 
         const javaVersion = data["javaVersion"]["majorVersion"]
 
-        makeInstanceNotLoading(instanceId, instanceDiv)
-        makeInstancePlaying(instanceId, instanceDiv)
+        const javaVersionToUse = javaVersion >= 16 ? java17 : java8
 
-        if(javaVersion >= 16){
-            console.log("Launching java 17");
-            
-            const proc = cp.spawn(java17, fullMcArgs)
+        updateInstanceState(instanceId, InstanceState.Playing)
+        
+        const proc = cp.spawn(javaVersionToUse, fullMcArgs)
 
-            proc.stdout.on("data", (data) => {
-                console.log(data.toString("utf-8"));
-            })
+        proc.stdout.on("data", (data) => {
+            console.log(data.toString("utf-8"));
+        })
 
-            proc.stderr.on("data", (data) => {
-                console.error(data.toString("utf-8"));                
-            })
-        }else{
-            console.log("Launching java 8");
+        proc.stderr.on("data", (data) => {
+            console.error(data.toString("utf-8"));
+        })
 
-            const proc = cp.spawn(java8, fullMcArgs)
-
-            proc.stdout.on("data", (data) => {
-                console.log(data.toString("utf-8"));
-                
-            })
-
-            proc.stderr.on("data", (data) => {
-                console.error(data.toString("utf-8"));
-            })
-        }
+        proc.on("close", (code) => {
+            console.error("closed with code " + code);
+            updateInstanceState(instanceId, InstanceState.Inactive)
+        })
     })
 }
 

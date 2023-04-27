@@ -25,7 +25,7 @@ const InstancesManager_1 = require("./InstancesManager");
 function startMinecraft(version, instanceId, opt, instanceDiv) {
     // TODO If map_to_ressource == true -> object dans legacy
     (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
-        (0, InstancesManager_1.makeInstanceLoading)(instanceId, instanceDiv);
+        (0, InstancesManager_1.updateInstanceState)(instanceId, InstancesManager_1.InstanceState.Loading);
         // var mcArgs = []
         // if(data.hasOwnProperty("minecraftArguments")){
         //     var args = data["minecraftArguments"].split(" ")
@@ -131,28 +131,19 @@ function startMinecraft(version, instanceId, opt, instanceDiv) {
         yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "jar"));
         console.log("natives extracted");
         const javaVersion = data["javaVersion"]["majorVersion"];
-        (0, InstancesManager_1.makeInstanceNotLoading)(instanceId, instanceDiv);
-        (0, InstancesManager_1.makeInstancePlaying)(instanceId, instanceDiv);
-        if (javaVersion >= 16) {
-            console.log("Launching java 17");
-            const proc = child_process_1.default.spawn(java17, fullMcArgs);
-            proc.stdout.on("data", (data) => {
-                console.log(data.toString("utf-8"));
-            });
-            proc.stderr.on("data", (data) => {
-                console.error(data.toString("utf-8"));
-            });
-        }
-        else {
-            console.log("Launching java 8");
-            const proc = child_process_1.default.spawn(java8, fullMcArgs);
-            proc.stdout.on("data", (data) => {
-                console.log(data.toString("utf-8"));
-            });
-            proc.stderr.on("data", (data) => {
-                console.error(data.toString("utf-8"));
-            });
-        }
+        const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
+        (0, InstancesManager_1.updateInstanceState)(instanceId, InstancesManager_1.InstanceState.Playing);
+        const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
+        proc.stdout.on("data", (data) => {
+            console.log(data.toString("utf-8"));
+        });
+        proc.stderr.on("data", (data) => {
+            console.error(data.toString("utf-8"));
+        });
+        proc.on("close", (code) => {
+            console.error("closed with code " + code);
+            (0, InstancesManager_1.updateInstanceState)(instanceId, InstancesManager_1.InstanceState.Inactive);
+        });
     }));
 }
 exports.startMinecraft = startMinecraft;

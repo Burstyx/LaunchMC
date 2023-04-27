@@ -1,10 +1,10 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('./ApplicationCore/instancesManager')
-const { filteredMinecraftVersions } = require("./Helper/HVersions")
-const { downloadVanillaVersion } = require("./ApplicationCore/minecraftDownloader")
-const { startMinecraft } = require("./ApplicationCore/startInstance")
-const { msaLogin } = require("./ApplicationCore/microsoftAuth")
-const { getActiveAccount } = require("./Helper/MicrosoftAccount")
+const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('../../App/InstancesManager')
+const { filteredMinecraftVersions } = require("../../Utils/HVersions")
+const { downloadVanillaVersion } = require("../../App/MinecraftDownloader.ts")
+const { startMinecraft } = require("../../App/InstanceLauncher")
+const { msaLogin } = require("../../App/MicrosoftAuth")
+const { getActiveAccount } = require("../../Utils/HMicrosoft")
 
 console.log("Initialisation du module principal !");
 

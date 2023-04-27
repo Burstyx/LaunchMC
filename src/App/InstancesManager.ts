@@ -61,57 +61,6 @@ export async function getInstancesList(instancesDiv: HTMLElement){
     }
 }
 
-export function makeInstanceDownloaded(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){
-        if(instancesDiv.children[i].children[0].innerHTML == id){
-            instancesDiv.children[i].classList.remove("downloading")   
-        }
-    }
-}
-
-export function makeInstanceDownloading(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if(instancesDiv.children[i].children[0].innerHTML == id){
-            instancesDiv.children[i].classList.add("downloading")            
-        }
-    }
-}
-
-export function makeInstancePlaying(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if(instancesDiv.children[i].children[0].innerHTML == id){
-            instancesDiv.children[i].classList.add("playing")             
-        }
-    }
-}
-
-export function makeInstanceNotPlaying(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){
-        console.log(instancesDiv.children[i].children[0].innerHTML);
-        if(instancesDiv.children[i].children[0].innerHTML == id){
-            instancesDiv.children[i].classList.remove("playing")      
-        }
-    }
-}
-
-export function makeInstanceLoading(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){
-        if(instancesDiv.children[i].getAttribute("instanceid") == id){
-            instancesDiv.children[i].classList.add("loading")            
-        }
-    }
-}
-
-export function makeInstanceNotLoading(id: string, instancesDiv: HTMLElement){
-    for(let i = 0; i < instancesDiv.childElementCount; i++){        
-        if(instancesDiv.children[i].getAttribute("instanceid") == id){
-            instancesDiv.children[i].classList.remove("loading")      
-        }
-    }
-}
-
 export async function getInstanceData(instanceId: string){
     if(existsSync(path.join(instancesPath))){
         const instances = await fs.readdir(instancesPath)
@@ -122,5 +71,45 @@ export async function getInstanceData(instanceId: string){
                 return {"data": JSON.parse(data), "gamePath": path.join(instancesPath, instances[e])}
             }
         }
+    }
+}
+
+export function getInstanceById(id: string) {
+    const instancesDiv = document.getElementById("instances")!
+
+    for(let i = 0; i < instancesDiv.childElementCount; i++){        
+        if(instancesDiv.children[i].getAttribute("instanceid") == id){
+            return instancesDiv.children[i]     
+        }
+    }
+} 
+
+export enum InstanceState {
+    Downloading,
+    Playing,
+    Loading,
+    Inactive,
+}
+
+export function updateInstanceState(id: string, newState: InstanceState){
+    const instance = getInstanceById(id)
+    
+    if(instance == null){
+        return
+    }
+
+    switch(newState){
+        case InstanceState.Downloading:
+            instance.className = "instance downloading"
+            break
+        case InstanceState.Loading:
+            instance.className = "instance loading"
+            break
+        case InstanceState.Playing:
+            instance.className = "instance playing"
+            break
+        case InstanceState.Inactive:
+            instance.className = "instance"
+            break
     }
 }
