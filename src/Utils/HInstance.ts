@@ -88,8 +88,8 @@ export enum InstanceState {
     Inactive,
 }
 
-export function updateInstanceState(id: string, newState: InstanceState){
-    const instance = getInstanceById(id)
+export function updateInstanceState(instanceId: string, newState: InstanceState){
+    const instance = getInstanceById(instanceId)
     
     if(instance == null){
         return

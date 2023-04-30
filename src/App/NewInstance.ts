@@ -4,23 +4,31 @@ import fs from "fs/promises"
 import {existsSync, createWriteStream} from "fs"
 import path from "path"
 import {minecraftManifestForVersion} from "../Utils/HManifests"
-import {InstanceState, getInstanceById, getInstancesList, updateInstanceState} from "./CreateNewInstance"
+import {InstanceState, getInstanceById, getInstancesList, updateInstanceState} from "../Utils/HInstance"
 import { downloadAsync } from "../Utils/HDownload"
 import { makeDir } from "../Utils/HFileManagement"
 import { v4 } from "uuid"
 
-enum DlOperationStep{
-    NotDownloading, // Not downloading
-    Preparing, // Téléchargement des manifests
-    Client, // Téléchargement du client
-    Library, // Téléchargement des libraries
-    Assets // Téléchargement des assets
+interface DlOptions{
+    version: string,
 }
 
-let currentOperationStep = DlOperationStep.NotDownloading
+export async function runTask(opt: DlOptions){
+    // Préparation
+    console.log("[INFO] Préparation à la création d'une nouvelle instance");
+
+    const instanceId = v4()
+    // Créer instance
+
+    // Télécharger le fichier de manifest
+
+    // Créer le dossier et l'id
+
+    // Mettre l'état de téléchargement
+}
 
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
-    currentOperationStep = DlOperationStep.Preparing
+    updateInstanceState()
     
     minecraftManifestForVersion(version).then(async (data) => {
         let numberOfLibrariesToDownload = 0
