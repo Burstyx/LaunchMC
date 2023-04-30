@@ -5,9 +5,9 @@ import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAs
 import os from "os"
 import fs from "fs/promises"
 import {existsSync} from "fs"
-import { downloadJavaVersion, JavaVersions } from "./MinecraftDownloader"
+import { downloadJavaVersion, JavaVersions } from "./VanillaDownload"
 import { makeDir } from "../Utils/HFileManagement"
-import { InstanceState, updateInstanceState } from "./InstancesManager"
+import { InstanceState, updateInstanceState } from "./CreateNewInstance"
 
 interface MinecraftArgsOpt {
     username: string,
