@@ -4,21 +4,24 @@ import fs from "fs/promises"
 import {existsSync, createWriteStream} from "fs"
 import path from "path"
 import {minecraftManifestForVersion} from "../Utils/HManifests"
-import {InstanceState, getInstanceById, getInstancesList, updateInstanceState} from "../Utils/HInstance"
+import {InstanceState, createInstance, getInstanceById, updateInstanceState} from "../Utils/HInstance"
 import { downloadAsync } from "../Utils/HDownload"
 import { makeDir } from "../Utils/HFileManagement"
 import { v4 } from "uuid"
 
-interface DlOptions{
-    version: string,
+interface InstanceInf{
+    name: string,
+    imagePath: string
 }
 
-export async function runTask(opt: DlOptions){
+export async function runTask(version: string, opts: InstanceInf){
     // Préparation
     console.log("[INFO] Préparation à la création d'une nouvelle instance");
 
     const instanceId = v4()
     // Créer instance
+
+    createInstance(opts.name, opts.imagePath, instanceId)
 
     // Télécharger le fichier de manifest
 
@@ -28,7 +31,7 @@ export async function runTask(opt: DlOptions){
 }
 
 export async function downloadVanillaVersion(version: string, name: string, instanceDiv: HTMLElement, imagePath: string){
-    updateInstanceState()
+    // updateInstanceState()
     
     minecraftManifestForVersion(version).then(async (data) => {
         let numberOfLibrariesToDownload = 0
@@ -36,11 +39,9 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
         // Create related game folder
         console.log(path.join(instancesPath, name));
-        
-        await fs.mkdir(path.join(instancesPath, name), {recursive: true})
-        
+                
         const instanceId = v4()
-        await getInstancesList(instanceDiv, instanceId);
+        // await getInstancesList(instanceDiv, instanceId);
 
         updateInstanceState(name, InstanceState.Downloading)
 
@@ -51,7 +52,6 @@ export async function downloadVanillaVersion(version: string, name: string, inst
         // Download client
         console.log("Downloading minecraft client");
 
-        currentOperationStep = DlOperationStep.Client
 
         if(!existsSync(minecraftVersionPath)){
             await fs.mkdir(minecraftVersionPath, {recursive: true})
@@ -64,7 +64,6 @@ export async function downloadVanillaVersion(version: string, name: string, inst
 
         console.log("Minecraft client downloaded");
 
-        currentOperationStep = DlOperationStep.Library
 
         var librariesArg = ""
 
@@ -87,7 +86,6 @@ export async function downloadVanillaVersion(version: string, name: string, inst
             await fs.mkdir(indexesPath, {recursive: true})
         }
 
-        currentOperationStep = DlOperationStep.Assets
 
         await downloadAsync(data["assetIndex"]["url"], path.join(indexesPath, data["assetIndex"]["id"] + ".json"), (progress: number) => {
             console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);

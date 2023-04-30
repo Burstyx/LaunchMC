@@ -1,10 +1,19 @@
-import fs from "fs/promises"
-import {existsSync} from "fs"
+import fs from "fs"
 import path from "path"
 import { instancesPath } from "../Utils/const"
+import { makeDir } from "./HFileManagement"
 
 export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement, id: string){
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
+}
+
+export function createInstance(name: string, imagePath: string, id: string){
+    makeDir(path.join(instancesPath, name))
+
+    // TODO Instance opt in folder
+
+    const instanceDiv = document.getElementById("instances")!
+    addInstanceElement(imagePath, name, instanceDiv, id)
 }
 
 function generateInstanceBtn(imagePath: string, title: string, id: string) {
@@ -44,25 +53,25 @@ function createStyleString(imagePath: string){
     return style
 }
 
-export async function getInstancesList(instancesDiv: HTMLElement, id: string){
-    instancesDiv.innerHTML = ""
+// export async function getInstancesList(instancesDiv: HTMLElement, id: string){
+//     instancesDiv.innerHTML = ""
     
-    if(existsSync(instancesPath)){
-        const instances = await fs.readdir(instancesPath)
-        for(const e in instances){
-            if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
-                const data = JSON.parse(await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
-                addInstanceElement(data["imagePath"], instances[e], instancesDiv, id)
-            }
-        }
-    }
-}
+//     if(existsSync(instancesPath)){
+//         const instances = await fs.readdir(instancesPath)
+//         for(const e in instances){
+//             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
+//                 const data = JSON.parse(await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
+//                 addInstanceElement(data["imagePath"], instances[e], instancesDiv, id)
+//             }
+//         }
+//     }
+// }
 
 export async function getInstanceData(instanceId: string){
-    if(existsSync(instancesPath)){
-        const instances = await fs.readdir(instancesPath)
+    if(fs.existsSync(instancesPath)){
+        const instances = fs.readdirSync(instancesPath)
         for(const e in instances){
-            const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8")
+            const data = fs.readFileSync(path.join(instancesPath, instances[e], "info.json"), "utf-8")
             const id = JSON.parse(data)["id"]
             if(id == instanceId){
                 return {"data": JSON.parse(data), "gamePath": path.join(instancesPath, instances[e])}
