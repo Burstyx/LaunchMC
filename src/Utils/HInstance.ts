@@ -7,10 +7,13 @@ export function addInstanceElement(imagePath: string, title: string, instanceDiv
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
 }
 
-export function createInstance(name: string, imagePath: string, id: string){
-    makeDir(path.join(instancesPath, name))
+export async function createInstance(name: string, imagePath: string, id: string, version: string, versionData: any){
+    await makeDir(path.join(instancesPath, name))
 
     // TODO Instance opt in folder
+    fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "libraries": "", "id": id}), (err) => {
+        console.error("Impossible d'écrire la configuration de l'instance " + err);
+    })
 
     const instanceDiv = document.getElementById("instances")!
     addInstanceElement(imagePath, name, instanceDiv, id)
@@ -53,19 +56,23 @@ function createStyleString(imagePath: string){
     return style
 }
 
-// export async function getInstancesList(instancesDiv: HTMLElement, id: string){
-//     instancesDiv.innerHTML = ""
+export async function refreshInstanceList(id: string){
+    const instancesDiv = document.getElementById("instances")!
+    instancesDiv.innerHTML = ""
     
-//     if(existsSync(instancesPath)){
-//         const instances = await fs.readdir(instancesPath)
-//         for(const e in instances){
-//             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
-//                 const data = JSON.parse(await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8"))
-//                 addInstanceElement(data["imagePath"], instances[e], instancesDiv, id)
-//             }
-//         }
-//     }
-// }
+    if(fs.existsSync(instancesPath)){
+        fs.readdir(instancesPath, (err, instances) => {
+            for(const e in instances){
+                if(fs.existsSync(path.join(instancesPath, instances[e], "info.json"))){
+                    fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8", (err, data) => {
+                        const dataJson = JSON.parse(data)
+                        addInstanceElement(dataJson["imagePath"], instances[e], instancesDiv, id)
+                    })
+                }
+            }
+        })
+    }
+}
 
 export async function getInstanceData(instanceId: string){
     if(fs.existsSync(instancesPath)){

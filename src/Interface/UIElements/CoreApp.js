@@ -1,8 +1,8 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('../../App/InstancesManager')
+const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('../../Utils/HInstance')
 const { filteredMinecraftVersions } = require("../../Utils/HVersions")
-const { downloadVanillaVersion } = require("../../App/MinecraftDownloader")
-const { startMinecraft } = require("../../App/InstanceLauncher")
+const NewInstance = require("../../App/NewInstance")
+// const { startMinecraft } = require("../../App/InstanceLauncher")
 const { msaLogin } = require("../../App/MicrosoftAuth")
 const { getActiveAccount } = require("../../Utils/HMicrosoft")
 
@@ -166,13 +166,13 @@ closeAddMenuBtn.addEventListener("click", () => {
 
 const addLabelBanner = document.getElementById("addlabelbanner")
 
-createAddMenuBtn.addEventListener("click", () => {
+createAddMenuBtn.addEventListener("click", async () => {
     if (instanceName.value != "") {
         console.log("nom donné : " + instanceName.value);
-        downloadVanillaVersion(selectedVersion, instanceName.value, instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
+        await NewInstance.runTask(selectedVersion, { name: instanceName.value, imagePath: window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, "") })
     } else {
         console.log("nom non donné donc nom automatiquement donné : " + instanceName.getAttribute("placeholder"));
-        downloadVanillaVersion(selectedVersion, instanceName.getAttribute("placeholder"), instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
+        await NewInstance.runTask(selectedVersion, { name: instanceName.getAttribute("placeholder"), imagePath: window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, "") })
     }
 
     closeAddMenu()
@@ -309,7 +309,7 @@ document.addEventListener("click", async (evt) => {
     }
 })
 
-getInstancesList(instancesDiv)
+refreshInstanceList(instancesDiv)
 
 const addaccount = document.getElementById("addaccount")
 
