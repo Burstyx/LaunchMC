@@ -248,7 +248,6 @@ async function downloadMinecraftLibrary(data: any, i: number) {
     }
 
     return library
-        
 }
 
 function parseRule(rules: any){
