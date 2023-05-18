@@ -1,7 +1,7 @@
-import { indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage, javaPath, java8Version, java17Version } from "../Utils/const"
+import { indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage, javaPath, java8Version, java17Version, assetsPath } from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
-import {existsSync, createWriteStream} from "fs"
+import {existsSync, createWriteStream, readFile} from "fs"
 import path from "path"
 import {minecraftManifestForVersion} from "../Utils/HManifests"
 import {InstanceState, createInstance, getInstanceById, updateInstanceState} from "../Utils/HInstance"
@@ -22,12 +22,33 @@ export async function runTask(version: string, opts: InstanceInf){
     let numberOfLibrariesToDownload = 0
     let numberOfLibrariesDownloaded = 0
 
+    let numberOfAssetsToDownload = 0
+    let numberOfAssetsDownloaded = 0
+
     // Téléchargement/Récupération des manifests nécessaire
     const versionDataManifest = await minecraftManifestForVersion(version)
+
+    await makeDir(indexesPath)
+    await downloadAsync(versionDataManifest["assetIndex"]["url"], path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress: number) => {
+        console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
+    })
+
+    let indexDataManifest: any = null
+    readFile(path.join(indexesPath, versionDataManifest["assetsPath"]["id"] + ".json"), (err, data) => {
+        indexDataManifest = JSON.parse(data.toString("utf-8"))
+    })
+
+    if(indexDataManifest == null){
+        return
+    }
 
     // Initialisation du traking du dl
     for(let i = 0; i < versionDataManifest.libraries.length; i++){
         numberOfLibrariesToDownload++
+    }
+
+    for(let i = 0; i < indexDataManifest.objects.length; i++){
+        numberOfAssetsToDownload++
     }
 
     // Création de l'instance
@@ -54,6 +75,35 @@ export async function runTask(version: string, opts: InstanceInf){
         console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
     }
 
+    // Téléchargement des assets
+    console.log("[INFO] Téléchargement des assets");
+    
+    for(const e in indexDataManifest["objects"]){
+        console.log(`Progression: ${numberOfAssetsDownloaded*100/numberOfAssetsToDownload}`);
+        
+        const hash = indexDataManifest["objects"][e]["hash"]
+        const subhash = hash.substring(0, 2)
+
+        if(!existsSync(path.join(objectPath, subhash))){
+            await fs.mkdir(path.join(objectPath, subhash))
+        }
+
+        const fullPath = path.join(path.join(instancesPath, opts.name, "resources"), e)
+        const fileName = fullPath.split("\\").pop()
+        const dirPath  = fullPath.substring(0, fullPath.indexOf(fileName!))
+
+        await makeDir(dirPath)
+
+        const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))
+
+        await fetch(path.join(resourcePackage, subhash, hash)).then(async (data) => {
+            const arrayBuffer = await data.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
+            file.write(buffer)
+        })
+
+        numberOfAssetsDownloaded++
+    }
 
     // Créer le dossier et l'id
 
