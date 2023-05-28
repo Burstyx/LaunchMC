@@ -1,13 +1,14 @@
-import { indexesPath, minecraftVersionPath, instancesPath, librariesPath, loggingConfPath, objectPath, resourcePackage, javaPath, java8Version, java17Version, assetsPath } from "../Utils/const"
-import os from "os"
-import fs from "fs/promises"
-import {existsSync, createWriteStream, readFile} from "fs"
-import path from "path"
-import {minecraftManifestForVersion} from "../Utils/HManifests"
-import {InstanceState, createInstance, getInstanceById, updateInstanceState} from "../Utils/HInstance"
-import { downloadAsync } from "../Utils/HDownload"
-import { makeDir } from "../Utils/HFileManagement"
+import {makeDir} from "../Utils/HFileManagement"
 import { v4 } from "uuid"
+import { createWriteStream } from "fs"
+import { exists, existsSync } from "original-fs"
+import { minecraftManifestForVersion } from "../Utils/HManifests"
+import { downloadAsync } from "../Utils/HDownload"
+import { indexesPath, instancesPath, java17Version, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
+import path from "path"
+import fs from "fs/promises"
+import { createInstance } from "../Utils/HInstance"
+import os from "os"
 
 interface InstanceInf{
     name: string,
@@ -33,23 +34,25 @@ export async function runTask(version: string, opts: InstanceInf){
         console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
     })
 
-    let indexDataManifest: any = null
-    readFile(path.join(indexesPath, versionDataManifest["assetsPath"]["id"] + ".json"), (err, data) => {
-        indexDataManifest = JSON.parse(data.toString("utf-8"))
-    })
+    const indexDataManifest: any = JSON.parse((await fs.readFile(path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"))
 
     if(indexDataManifest == null){
         return
     }
+
+    console.log(indexDataManifest);
 
     // Initialisation du traking du dl
     for(let i = 0; i < versionDataManifest.libraries.length; i++){
         numberOfLibrariesToDownload++
     }
 
-    for(let i = 0; i < indexDataManifest.objects.length; i++){
+    for(const e in indexDataManifest.objects){
         numberOfAssetsToDownload++
     }
+
+    console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
+    
 
     // Création de l'instance
     const instanceId = v4()
@@ -84,9 +87,7 @@ export async function runTask(version: string, opts: InstanceInf){
         const hash = indexDataManifest["objects"][e]["hash"]
         const subhash = hash.substring(0, 2)
 
-        if(!existsSync(path.join(objectPath, subhash))){
-            await fs.mkdir(path.join(objectPath, subhash))
-        }
+        await makeDir(path.join(objectPath, subhash))
 
         const fullPath = path.join(path.join(instancesPath, opts.name, "resources"), e)
         const fileName = fullPath.split("\\").pop()
@@ -94,13 +95,17 @@ export async function runTask(version: string, opts: InstanceInf){
 
         await makeDir(dirPath)
 
-        const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))
-
-        await fetch(path.join(resourcePackage, subhash, hash)).then(async (data) => {
-            const arrayBuffer = await data.arrayBuffer()
-            const buffer = Buffer.from(arrayBuffer)
-            file.write(buffer)
+        await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(instancesPath, opts.name, "resources", e), (progress) => {
+            return
         })
+
+        // const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))
+
+        // await fetch(path.join(resourcePackage, subhash, hash)).then(async (data) => {
+        //     const arrayBuffer = await data.arrayBuffer()
+        //     const buffer = Buffer.from(arrayBuffer)
+        //     file.write(buffer)
+        // })
 
         numberOfAssetsDownloaded++
     }

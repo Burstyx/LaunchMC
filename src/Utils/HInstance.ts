@@ -8,7 +8,7 @@ export function addInstanceElement(imagePath: string, title: string, instanceDiv
 }
 
 export async function createInstance(name: string, imagePath: string, id: string, version: string, versionData: any){
-    await makeDir(path.join(instancesPath, name))
+    await makeDir(path.join(instancesPath, id))
 
     // TODO Instance opt in folder
     fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "libraries": "", "id": id}), (err) => {

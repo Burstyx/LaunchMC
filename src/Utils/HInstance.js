@@ -23,7 +23,7 @@ function addInstanceElement(imagePath, title, instanceDiv, id) {
 exports.addInstanceElement = addInstanceElement;
 function createInstance(name, imagePath, id, version, versionData) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, name));
+        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, id));
         // TODO Instance opt in folder
         fs_1.default.writeFile(path_1.default.join(const_1.instancesPath, name, "info.json"), JSON.stringify({ "imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "libraries": "", "id": id }), (err) => {
             console.error("Impossible d'écrire la configuration de l'instance " + err);

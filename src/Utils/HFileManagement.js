@@ -13,13 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.makeDir = void 0;
-const fs_1 = __importDefault(require("fs"));
+const promises_1 = __importDefault(require("fs/promises"));
+const fs_1 = require("fs");
 function makeDir(path) {
     return __awaiter(this, void 0, void 0, function* () {
-        fs_1.default.exists(path, (exist) => {
-            if (exist)
-                fs_1.default.mkdir(path, { recursive: true }, (err) => console.error("[ERROR] Erreur lors de la création d'un dossier : " + err));
-        });
+        if (!(0, fs_1.existsSync)(path))
+            yield promises_1.default.mkdir(path, { recursive: true });
         return path;
     });
 }

@@ -5,6 +5,7 @@ const NewInstance = require("../../App/NewInstance")
 // const { startMinecraft } = require("../../App/InstanceLauncher")
 const { msaLogin } = require("../../App/MicrosoftAuth")
 const { getActiveAccount } = require("../../Utils/HMicrosoft")
+const { startMinecraft } = require("../../App/StartMinecraft")
 
 console.log("Initialisation du module principal !");
 
@@ -296,16 +297,9 @@ document.addEventListener("click", async (evt) => {
             return
         }
 
-        if (elementClicked.tagName == "P") {
-            const data = await getInstanceData(elementClicked.parentElement.getAttribute("instanceid"))
-            const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
-
-        } else {
-            const data = await getInstanceData(elementClicked.getAttribute("instanceid"))
-            const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["id"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
-        }
+        const data = await getInstanceData(elementClicked.getAttribute("instanceid"))
+        const accountInfo = await getActiveAccount()
+        startMinecraft(data["data"]["version"], data["data"]["id"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
     }
 })
 

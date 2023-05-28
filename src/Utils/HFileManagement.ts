@@ -1,9 +1,8 @@
-import fs from "fs"
+import fs from "fs/promises"
+import { existsSync } from "fs"
 
 export async function makeDir(path: string){
-    fs.exists(path, (exist) => {
-        if(exist) fs.mkdir(path, {recursive: true}, (err) => console.error("[ERROR] Erreur lors de la création d'un dossier : " + err))
-    })
+    if(!existsSync(path)) await fs.mkdir(path, {recursive: true})
 
     return path
 }

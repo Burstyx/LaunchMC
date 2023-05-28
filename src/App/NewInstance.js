@@ -13,16 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadJavaVersion = exports.JavaVersions = exports.runTask = void 0;
-const const_1 = require("../Utils/const");
-const os_1 = __importDefault(require("os"));
-const promises_1 = __importDefault(require("fs/promises"));
-const fs_1 = require("fs");
-const path_1 = __importDefault(require("path"));
-const HManifests_1 = require("../Utils/HManifests");
-const HInstance_1 = require("../Utils/HInstance");
-const HDownload_1 = require("../Utils/HDownload");
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const uuid_1 = require("uuid");
+const original_fs_1 = require("original-fs");
+const HManifests_1 = require("../Utils/HManifests");
+const HDownload_1 = require("../Utils/HDownload");
+const const_1 = require("../Utils/const");
+const path_1 = __importDefault(require("path"));
+const promises_1 = __importDefault(require("fs/promises"));
+const HInstance_1 = require("../Utils/HInstance");
+const os_1 = __importDefault(require("os"));
 function runTask(version, opts) {
     return __awaiter(this, void 0, void 0, function* () {
         // Préparation
@@ -30,12 +30,27 @@ function runTask(version, opts) {
         // Variables de tracking du dl
         let numberOfLibrariesToDownload = 0;
         let numberOfLibrariesDownloaded = 0;
+        let numberOfAssetsToDownload = 0;
+        let numberOfAssetsDownloaded = 0;
         // Téléchargement/Récupération des manifests nécessaire
         const versionDataManifest = yield (0, HManifests_1.minecraftManifestForVersion)(version);
+        yield (0, HFileManagement_1.makeDir)(const_1.indexesPath);
+        yield (0, HDownload_1.downloadAsync)(versionDataManifest["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress) => {
+            console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
+        });
+        const indexDataManifest = JSON.parse((yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"));
+        if (indexDataManifest == null) {
+            return;
+        }
+        console.log(indexDataManifest);
         // Initialisation du traking du dl
         for (let i = 0; i < versionDataManifest.libraries.length; i++) {
             numberOfLibrariesToDownload++;
         }
+        for (const e in indexDataManifest.objects) {
+            numberOfAssetsToDownload++;
+        }
+        console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
         // Création de l'instance
         const instanceId = (0, uuid_1.v4)();
         yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest);
@@ -52,6 +67,28 @@ function runTask(version, opts) {
             librariesArg += yield downloadMinecraftLibrary(versionDataManifest, i);
             numberOfLibrariesDownloaded++;
             console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
+        }
+        // Téléchargement des assets
+        console.log("[INFO] Téléchargement des assets");
+        for (const e in indexDataManifest["objects"]) {
+            console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
+            const hash = indexDataManifest["objects"][e]["hash"];
+            const subhash = hash.substring(0, 2);
+            yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
+            const fullPath = path_1.default.join(path_1.default.join(const_1.instancesPath, opts.name, "resources"), e);
+            const fileName = fullPath.split("\\").pop();
+            const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
+            yield (0, HFileManagement_1.makeDir)(dirPath);
+            yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.instancesPath, opts.name, "resources", e), (progress) => {
+                return;
+            });
+            // const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))
+            // await fetch(path.join(resourcePackage, subhash, hash)).then(async (data) => {
+            //     const arrayBuffer = await data.arrayBuffer()
+            //     const buffer = Buffer.from(arrayBuffer)
+            //     file.write(buffer)
+            // })
+            numberOfAssetsDownloaded++;
         }
         // Créer le dossier et l'id
         // Mettre l'état de téléchargement
@@ -272,7 +309,7 @@ function downloadLoggingXmlConfFile(data) {
         if (!data.hasOwnProperty("logging")) {
             resolve("No logging key found, step passed.");
         }
-        if (!(0, fs_1.existsSync)(const_1.loggingConfPath)) {
+        if (!(0, original_fs_1.existsSync)(const_1.loggingConfPath)) {
             yield promises_1.default.mkdir(const_1.loggingConfPath, { recursive: true });
         }
         yield (0, HDownload_1.downloadAsync)(data["logging"]["client"]["file"]["url"], path_1.default.join(const_1.loggingConfPath, data["logging"]["client"]["file"]["id"]), (progress) => {
@@ -288,7 +325,7 @@ var JavaVersions;
 })(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
 function downloadJavaVersion(version) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-        if (!(0, fs_1.existsSync)(const_1.javaPath)) {
+        if (!(0, original_fs_1.existsSync)(const_1.javaPath)) {
             yield promises_1.default.mkdir(const_1.javaPath);
         }
         if (version == JavaVersions.JDK8) {
