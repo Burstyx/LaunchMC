@@ -42,18 +42,13 @@ function runTask(version, opts) {
         if (indexDataManifest == null) {
             return;
         }
-        console.log(indexDataManifest);
+        const instanceId = (0, uuid_1.v4)();
         // Initialisation du traking du dl
-        for (let i = 0; i < versionDataManifest.libraries.length; i++) {
-            numberOfLibrariesToDownload++;
-        }
+        numberOfLibrariesToDownload = versionDataManifest.libraries.length;
         for (const e in indexDataManifest.objects) {
             numberOfAssetsToDownload++;
         }
         console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
-        // Création de l'instance
-        const instanceId = (0, uuid_1.v4)();
-        yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest);
         // Téléchargement du client
         console.log("[INFO] Téléchargement du client");
         yield (0, HFileManagement_1.makeDir)(const_1.minecraftVersionPath);
@@ -75,11 +70,11 @@ function runTask(version, opts) {
             const hash = indexDataManifest["objects"][e]["hash"];
             const subhash = hash.substring(0, 2);
             yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
-            const fullPath = path_1.default.join(path_1.default.join(const_1.instancesPath, opts.name, "resources"), e);
+            const fullPath = path_1.default.join(const_1.instancesPath, instanceId, "resources", e);
             const fileName = fullPath.split("\\").pop();
             const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
             yield (0, HFileManagement_1.makeDir)(dirPath);
-            yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.instancesPath, opts.name, "resources", e), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), fullPath, (progress) => {
                 return;
             });
             // const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))
@@ -90,6 +85,8 @@ function runTask(version, opts) {
             // })
             numberOfAssetsDownloaded++;
         }
+        // Création de l'instance
+        yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest, librariesArg);
         // Créer le dossier et l'id
         // Mettre l'état de téléchargement
     });
@@ -204,7 +201,7 @@ function downloadMinecraftLibrary(data, i) {
         var library = "";
         if (data["libraries"][i].hasOwnProperty("rules")) {
             if (!parseRule(data["libraries"][i]["rules"])) {
-                return;
+                return "";
             }
         }
         if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {

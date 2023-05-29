@@ -1,5 +1,5 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('../../Utils/HInstance')
+const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading, refreshInstanceList } = require('../../Utils/HInstance')
 const { filteredMinecraftVersions } = require("../../Utils/HVersions")
 const NewInstance = require("../../App/NewInstance")
 // const { startMinecraft } = require("../../App/InstanceLauncher")
@@ -303,10 +303,10 @@ document.addEventListener("click", async (evt) => {
     }
 })
 
-refreshInstanceList(instancesDiv)
+refreshInstanceList()
 
 const addaccount = document.getElementById("addaccount")
 
-addaccount.addEventListener("click", () => {
-    msaLogin()
+addaccount.addEventListener("click", async () => {
+    await msaLogin()
 })

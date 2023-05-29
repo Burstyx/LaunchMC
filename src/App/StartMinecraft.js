@@ -114,7 +114,6 @@ function startMinecraft(version, instanceId, opt, instanceDiv) {
         let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${librariesArg}${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
-        console.log(`${librariesArg}${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
         jvmArgs.push(data["mainClass"]);
         const fullMcArgs = [...jvmArgs, ...mcArgs];
         console.log(fullMcArgs);
@@ -167,24 +166,18 @@ function getAllFile(pathDir) {
 }
 function extractAllNatives(libraries, nativeFolder, javaLocation) {
     return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const allLibs = libraries.split(";");
-            for (const e of allLibs) {
-                console.log(e);
-                yield new Promise((resolve) => {
-                    child_process_1.default.exec(javaLocation + " --list --file " + e, (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
-                        const filesOfLibrary = stdout.split("\r\n");
-                        for (const n of filesOfLibrary) {
-                            if (n.endsWith(".dll")) {
-                                child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
-                            }
-                        }
-                        resolve();
-                    }));
-                });
-            }
-            console.log("extracted fully");
-            resolve("All natives are extracted");
-        }));
+        const allLibs = libraries.split(";");
+        for (const e of allLibs) {
+            console.log(e);
+            child_process_1.default.exec(javaLocation + " --list --file " + e, (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
+                const filesOfLibrary = stdout.split("\r\n");
+                for (const n of filesOfLibrary) {
+                    if (n.endsWith(".dll")) {
+                        child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
+                    }
+                }
+            }));
+        }
+        return true;
     });
 }

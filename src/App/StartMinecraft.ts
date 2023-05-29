@@ -121,12 +121,9 @@ export function startMinecraft(version: string, instanceId: string, opt: Minecra
         const libraries = await getAllFile(librariesPath)
         // console.log(libraries);
         let librariesArg = JSON.parse(await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
-        
-        
 
         jvmArgs.push(`-cp`)
         jvmArgs.push(`${librariesArg}${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
-        console.log(`${librariesArg}${path.join(minecraftVersionPath, version, `${version}.jar`)}`);
 
         jvmArgs.push(data["mainClass"])
         
@@ -192,24 +189,19 @@ async function getAllFile(pathDir: string): Promise<any> {
 }
 
 async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string) {
-    return new Promise(async (resolve, reject) => {
-        const allLibs = libraries.split(";")
-        for (const e of allLibs){
-            console.log(e);
-            await new Promise<void>((resolve) => {                
-                cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
-                    const filesOfLibrary = stdout.split("\r\n")
-                    for (const n of filesOfLibrary){                        
-                        if(n.endsWith(".dll")){
-                            cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder});
-                        }
-                    }
-                    resolve()
-                })
-            })
-        }
-        console.log("extracted fully");
-        
-        resolve("All natives are extracted")
-    })
+    const allLibs = libraries.split(";")
+
+    for (const e of allLibs){
+        console.log(e);
+        cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
+            const filesOfLibrary = stdout.split("\r\n")
+            for (const n of filesOfLibrary){                        
+                if(n.endsWith(".dll")){
+                    cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder});
+                }
+            }
+        })
+    }
+
+    return true
 }

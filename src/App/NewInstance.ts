@@ -40,23 +40,16 @@ export async function runTask(version: string, opts: InstanceInf){
         return
     }
 
-    console.log(indexDataManifest);
+    const instanceId = v4()
 
     // Initialisation du traking du dl
-    for(let i = 0; i < versionDataManifest.libraries.length; i++){
-        numberOfLibrariesToDownload++
-    }
+    numberOfLibrariesToDownload = versionDataManifest.libraries.length
 
     for(const e in indexDataManifest.objects){
         numberOfAssetsToDownload++
     }
 
     console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
-    
-
-    // Création de l'instance
-    const instanceId = v4()
-    await createInstance(opts.name, opts.imagePath, instanceId, version, versionDataManifest)
 
     // Téléchargement du client
     console.log("[INFO] Téléchargement du client");
@@ -89,13 +82,13 @@ export async function runTask(version: string, opts: InstanceInf){
 
         await makeDir(path.join(objectPath, subhash))
 
-        const fullPath = path.join(path.join(instancesPath, opts.name, "resources"), e)
+        const fullPath = path.join(instancesPath, instanceId, "resources", e)
         const fileName = fullPath.split("\\").pop()
         const dirPath  = fullPath.substring(0, fullPath.indexOf(fileName!))
 
         await makeDir(dirPath)
 
-        await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(instancesPath, opts.name, "resources", e), (progress) => {
+        await downloadAsync(path.join(resourcePackage, subhash, hash), fullPath, (progress) => {
             return
         })
 
@@ -109,6 +102,9 @@ export async function runTask(version: string, opts: InstanceInf){
 
         numberOfAssetsDownloaded++
     }
+
+    // Création de l'instance
+    await createInstance(opts.name, opts.imagePath, instanceId, version, versionDataManifest, librariesArg)
 
     // Créer le dossier et l'id
 
@@ -268,7 +264,7 @@ async function downloadMinecraftLibrary(data: any, i: number) {
 
     if(data["libraries"][i].hasOwnProperty("rules")){
         if(!parseRule(data["libraries"][i]["rules"])){
-            return
+            return ""
         }
     }
 

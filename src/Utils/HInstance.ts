@@ -1,19 +1,18 @@
-import fs from "fs"
+import fs from "fs/promises"
 import path from "path"
 import { instancesPath } from "../Utils/const"
 import { makeDir } from "./HFileManagement"
+import { existsSync } from "original-fs"
 
 export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement, id: string){
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
 }
 
-export async function createInstance(name: string, imagePath: string, id: string, version: string, versionData: any){
+export async function createInstance(name: string, imagePath: string, id: string, version: string, versionData: any, libraries: string){
     await makeDir(path.join(instancesPath, id))
 
     // TODO Instance opt in folder
-    fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "libraries": "", "id": id}), (err) => {
-        console.error("Impossible d'écrire la configuration de l'instance " + err);
-    })
+    await fs.writeFile(path.join(instancesPath, id, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "libraries": libraries, "id": id}))
 
     const instanceDiv = document.getElementById("instances")!
     addInstanceElement(imagePath, name, instanceDiv, id)
@@ -56,34 +55,30 @@ function createStyleString(imagePath: string){
     return style
 }
 
-export async function refreshInstanceList(id: string){
+export async function refreshInstanceList(){
     const instancesDiv = document.getElementById("instances")!
     instancesDiv.innerHTML = ""
     
-    if(fs.existsSync(instancesPath)){
-        fs.readdir(instancesPath, (err, instances) => {
-            for(const e in instances){
-                if(fs.existsSync(path.join(instancesPath, instances[e], "info.json"))){
-                    fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf-8", (err, data) => {
-                        const dataJson = JSON.parse(data)
-                        addInstanceElement(dataJson["imagePath"], instances[e], instancesDiv, id)
-                    })
-                }
+    if(existsSync(instancesPath)){
+        const instances = await fs.readdir(instancesPath)
+
+        for(const e in instances){            
+            if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
+                const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
+
+                const dataJson = JSON.parse(data)
+                addInstanceElement(dataJson["imagePath"], dataJson["name"], instancesDiv, dataJson["id"])
             }
-        })
+        }
     }
 }
 
 export async function getInstanceData(instanceId: string){
-    if(fs.existsSync(instancesPath)){
-        const instances = fs.readdirSync(instancesPath)
-        for(const e in instances){
-            const data = fs.readFileSync(path.join(instancesPath, instances[e], "info.json"), "utf-8")
-            const id = JSON.parse(data)["id"]
-            if(id == instanceId){
-                return {"data": JSON.parse(data), "gamePath": path.join(instancesPath, instances[e])}
-            }
-        }
+    if(existsSync(instancesPath)){             
+        const data = await fs.readFile(path.join(instancesPath, instanceId, "info.json"), "utf-8")
+        const dataJson = JSON.parse(data)
+
+        return {"data": dataJson, "gamePath": path.join(instancesPath, instanceId)}
     }
 }
 
