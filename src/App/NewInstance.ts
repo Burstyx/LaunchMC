@@ -89,7 +89,8 @@ export async function runTask(version: string, opts: InstanceInf){
         await makeDir(dirPath)
 
         await downloadAsync(path.join(resourcePackage, subhash, hash), fullPath, (progress) => {
-            return
+            console.log(`Downloading ${e}`);
+            
         })
 
         // const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))

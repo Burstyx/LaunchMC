@@ -67,6 +67,8 @@ function runTask(version, opts) {
         console.log("[INFO] Téléchargement des assets");
         for (const e in indexDataManifest["objects"]) {
             console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
+            console.log("aaa");
+            console.log(e);
             const hash = indexDataManifest["objects"][e]["hash"];
             const subhash = hash.substring(0, 2);
             yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
@@ -319,7 +321,7 @@ var JavaVersions;
 (function (JavaVersions) {
     JavaVersions[JavaVersions["JDK8"] = 0] = "JDK8";
     JavaVersions[JavaVersions["JDK17"] = 1] = "JDK17";
-})(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
+})(JavaVersions || (exports.JavaVersions = JavaVersions = {}));
 function downloadJavaVersion(version) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         if (!(0, original_fs_1.existsSync)(const_1.javaPath)) {
