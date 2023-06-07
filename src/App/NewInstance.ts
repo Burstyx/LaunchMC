@@ -88,7 +88,7 @@ export async function runTask(version: string, opts: InstanceInf){
 
         await makeDir(dirPath)
 
-        await downloadAsync(path.join(resourcePackage, subhash, hash), fullPath, (progress) => {
+        await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(objectPath, subhash, hash), (progress) => {
             console.log(`Downloading ${e}`);
             
         })

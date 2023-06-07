@@ -67,8 +67,6 @@ function runTask(version, opts) {
         console.log("[INFO] Téléchargement des assets");
         for (const e in indexDataManifest["objects"]) {
             console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
-            console.log("aaa");
-            console.log(e);
             const hash = indexDataManifest["objects"][e]["hash"];
             const subhash = hash.substring(0, 2);
             yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
@@ -76,8 +74,8 @@ function runTask(version, opts) {
             const fileName = fullPath.split("\\").pop();
             const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
             yield (0, HFileManagement_1.makeDir)(dirPath);
-            yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), fullPath, (progress) => {
-                return;
+            yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.objectPath, subhash, hash), (progress) => {
+                console.log(`Downloading ${e}`);
             });
             // const file = createWriteStream(path.join(path.join(instancesPath, opts.name, "resources"), e))
             // await fetch(path.join(resourcePackage, subhash, hash)).then(async (data) => {
