@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
 const main_1 = require("@electron/remote/main");
+const DIscordRPC_1 = require("./App/DIscordRPC");
 let mainWindow;
 function createAppWindow() {
     mainWindow = new electron_1.BrowserWindow({
@@ -34,4 +35,5 @@ electron_1.app.on("ready", () => {
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.show();
     });
+    (0, DIscordRPC_1.initDiscordRPC)();
 });

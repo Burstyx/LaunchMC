@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import path from "path"
 import {initialize, enable} from "@electron/remote/main"
+import { initDiscordRPC } from "./App/DIscordRPC";
 
 let mainWindow: BrowserWindow;
 
@@ -35,4 +36,6 @@ app.on("ready", () => {
     mainWindow!.webContents.on("did-finish-load", () => {
         mainWindow.show();
     })
+
+    initDiscordRPC()
 })
