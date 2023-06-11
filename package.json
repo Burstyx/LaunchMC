@@ -22,14 +22,16 @@
   "homepage": "https://github.com/ItsBursty/BurstyLauncher#readme",
   "devDependencies": {
     "@types/adm-zip": "^0.5.0",
+    "@types/discord-rpc": "^4.0.4",
     "@types/uuid": "^9.0.1",
-    "electron": "^24.1.1",
-    "electron-builder": "^24.2.1",
-    "typescript": "^5.0.4"
+    "electron": "^24.1.2",
+    "electron-builder": "^24.2.1"
   },
   "dependencies": {
     "@electron/remote": "^2.0.9",
     "adm-zip": "^0.5.10",
+    "discord-rich-presence": "^0.0.8",
+    "discord-rpc": "^4.0.1",
     "uuid": "^9.0.0"
   },
   "build": {

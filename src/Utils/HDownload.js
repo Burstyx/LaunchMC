@@ -15,13 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.downloadAsync = void 0;
 const fs_1 = __importDefault(require("fs"));
 const adm_zip_1 = __importDefault(require("adm-zip"));
-const HDirectoryManager_1 = require("./HDirectoryManager");
+const HFileManagement_1 = require("./HFileManagement");
 // Download url async
 function downloadAsync(url, dest, callback, opt) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"));
         console.log("destDir:", destDir);
-        yield (0, HDirectoryManager_1.makeDir)(destDir);
+        yield (0, HFileManagement_1.makeDir)(destDir);
         const file = fs_1.default.createWriteStream(dest);
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {

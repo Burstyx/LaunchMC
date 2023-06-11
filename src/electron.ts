@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import path from "path"
 import {initialize, enable} from "@electron/remote/main"
+import { initDiscordRPC } from "./App/DIscordRPC";
 
 let mainWindow: BrowserWindow;
 
@@ -15,7 +16,7 @@ function createAppWindow() {
         width: 1080,
         minHeight: 620,
         minWidth: 1080,
-        title: "Bursty Launcher",
+        title: "Burstyx Launcher",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -26,7 +27,7 @@ function createAppWindow() {
 
     initialize()
     enable(mainWindow.webContents)
-    mainWindow.loadFile(path.join(__dirname, "app.html"))
+    mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
 }
 
 app.on("ready", () => {
@@ -35,4 +36,6 @@ app.on("ready", () => {
     mainWindow!.webContents.on("did-finish-load", () => {
         mainWindow.show();
     })
+
+    initDiscordRPC()
 })

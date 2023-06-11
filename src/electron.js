@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
 const main_1 = require("@electron/remote/main");
+const DIscordRPC_1 = require("./App/DIscordRPC");
 let mainWindow;
 function createAppWindow() {
     mainWindow = new electron_1.BrowserWindow({
@@ -18,7 +19,7 @@ function createAppWindow() {
         width: 1080,
         minHeight: 620,
         minWidth: 1080,
-        title: "Bursty Launcher",
+        title: "Burstyx Launcher",
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
@@ -27,11 +28,12 @@ function createAppWindow() {
     mainWindow.webContents.openDevTools();
     (0, main_1.initialize)();
     (0, main_1.enable)(mainWindow.webContents);
-    mainWindow.loadFile(path_1.default.join(__dirname, "app.html"));
+    mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app.html"));
 }
 electron_1.app.on("ready", () => {
     createAppWindow();
     mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.show();
     });
+    (0, DIscordRPC_1.initDiscordRPC)();
 });

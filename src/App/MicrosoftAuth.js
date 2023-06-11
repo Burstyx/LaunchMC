@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
-const const_js_1 = require("../Helper/const.js");
-const MicrosoftAccount_js_1 = require("../Helper/MicrosoftAccount.js");
+const const_js_1 = require("../Utils/const.js");
+const HMicrosoft_js_1 = require("../Utils/HMicrosoft.js");
 function createOAuthLink() {
     let url = const_js_1.msAuth;
     url += "?client_id=" + const_js_1.clientId;
@@ -62,7 +62,7 @@ function connectWithCode(code) {
         const username = minecraftProfileData["name"];
         const uuid = minecraftProfileData["id"];
         console.log(minecraftAccessToken);
-        yield (0, MicrosoftAccount_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid });
+        yield (0, HMicrosoft_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid });
     });
 }
 function getMinecraftProfile(accessToken) {

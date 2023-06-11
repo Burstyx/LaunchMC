@@ -1,24 +1,26 @@
 const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading } = require('./ApplicationCore/instancesManager')
-const { filteredMinecraftVersions } = require("./Helper/HVersions")
-const { downloadVanillaVersion } = require("./ApplicationCore/minecraftDownloader")
-const { startMinecraft } = require("./ApplicationCore/startInstance")
-const { msaLogin } = require("./ApplicationCore/microsoftAuth")
-const { getActiveAccount } = require("./Helper/MicrosoftAccount")
+const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading, refreshInstanceList } = require('../../Utils/HInstance')
+const { filteredMinecraftVersions } = require("../../Utils/HVersions")
+const NewInstance = require("../../App/NewInstance")
+// const { startMinecraft } = require("../../App/InstanceLauncher")
+const { msaLogin } = require("../../App/MicrosoftAuth")
+const { getActiveAccount } = require("../../Utils/HMicrosoft")
+const { startMinecraft } = require("../../App/StartMinecraft")
 
 console.log("Initialisation du module principal !");
 
-// Variables souvent utilisé
+// Constants
 const clickavoider = document.getElementById("clickavoider")
 
-// Variables globals
-let elementToCloseWhenClickingOnClickAvoider = null;
-
-// Boutons menu titre
+// Titlebar Btns
 const closeBtn = document.getElementById("close")
 const maximizeBtn = document.getElementById("maximize")
 const reducebtn = document.getElementById("reduce")
 
+// Globals
+let elementToCloseWhenClickingOnClickAvoider = null;
+
+// Titlebar logic
 closeBtn.addEventListener("click", () => {
     getCurrentWindow().close()
 })
@@ -36,6 +38,7 @@ reducebtn.addEventListener("click", () => {
     getCurrentWindow().minimize()
 })
 
+// UI Helpers
 function closeAllMenus() {
     const menus = document.getElementsByClassName("menu")
     console.log("click avoider");
@@ -50,7 +53,7 @@ function closeAllMenus() {
 const choseVersionMenu = document.getElementById("choseversionmenu")
 const addMenu = document.getElementById("addmenu")
 
-// Logique du click avoider
+// Black background when window opened logic
 clickavoider.addEventListener("click", () => {
     if (elementToCloseWhenClickingOnClickAvoider == null) {
         return
@@ -72,9 +75,8 @@ clickavoider.addEventListener("click", () => {
     elementToCloseWhenClickingOnClickAvoider = null
 })
 
-// Boutons barre d'outils
 
-// Logique du menu add
+// Add btn logic
 
 const cancelBtn = document.getElementById("addmenucancelbtn")
 const closeAddMenuBtn = document.getElementById("closeaddmenu")
@@ -165,13 +167,13 @@ closeAddMenuBtn.addEventListener("click", () => {
 
 const addLabelBanner = document.getElementById("addlabelbanner")
 
-createAddMenuBtn.addEventListener("click", () => {
+createAddMenuBtn.addEventListener("click", async () => {
     if (instanceName.value != "") {
         console.log("nom donné : " + instanceName.value);
-        downloadVanillaVersion(selectedVersion, instanceName.value, instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
+        await NewInstance.runTask(selectedVersion, { name: instanceName.value, imagePath: window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, "") })
     } else {
         console.log("nom non donné donc nom automatiquement donné : " + instanceName.getAttribute("placeholder"));
-        downloadVanillaVersion(selectedVersion, instanceName.getAttribute("placeholder"), instancesDiv, window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, ""))
+        await NewInstance.runTask(selectedVersion, { name: instanceName.getAttribute("placeholder"), imagePath: window.getComputedStyle(addLabelBanner).backgroundImage.slice(5, -2).replace(/"/g, "") })
     }
 
     closeAddMenu()
@@ -295,23 +297,16 @@ document.addEventListener("click", async (evt) => {
             return
         }
 
-        if (elementClicked.tagName == "P") {
-            const data = await getInstanceData(elementClicked.parentElement.getAttribute("instanceid"))
-            const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["name"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
-
-        } else {
-            const data = await getInstanceData(elementClicked.getAttribute("instanceid"))
-            const accountInfo = await getActiveAccount()
-            startMinecraft(data["data"]["version"], data["data"]["id"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
-        }
+        const data = await getInstanceData(elementClicked.getAttribute("instanceid"))
+        const accountInfo = await getActiveAccount()
+        startMinecraft(data["data"]["version"], data["data"]["id"], { accesstoken: accountInfo["access_token"], username: accountInfo["username"], usertype: accountInfo["usertype"], uuid: accountInfo["uuid"], versiontype: "release" }, instancesDiv)
     }
 })
 
-getInstancesList(instancesDiv)
+refreshInstanceList()
 
 const addaccount = document.getElementById("addaccount")
 
-addaccount.addEventListener("click", () => {
-    msaLogin()
+addaccount.addEventListener("click", async () => {
+    await msaLogin()
 })

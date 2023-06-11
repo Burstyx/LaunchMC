@@ -1,7 +1,7 @@
 import fs from "fs"
 import AdmZip from "adm-zip"
 import https from "https"
-import { makeDir } from "./HDirectoryManager"
+import { makeDir } from "./HFileManagement"
 import {EventEmitter} from "node:events"
 
 interface DownloadOpt {

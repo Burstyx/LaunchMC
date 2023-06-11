@@ -1,7 +1,6 @@
 import { BrowserWindow } from "@electron/remote"
-import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Helper/const.js"
-import { addAccount } from "../Helper/MicrosoftAccount.js"
-import {} from "./accountManager"
+import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Utils/const.js"
+import { addAccount } from "../Utils/HMicrosoft.js"
 
 export function createOAuthLink(){
     let url = msAuth
