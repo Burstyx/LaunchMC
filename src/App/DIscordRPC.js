@@ -15,7 +15,7 @@ const clientId = "1116091725061046353";
 function initDiscordRPC() {
     client = new discord_rpc_1.default.Client({ transport: "ipc" });
     client.on("ready", () => {
-        switchDiscordRPCState(DiscordRPCState.InGame);
+        switchDiscordRPCState(DiscordRPCState.InLauncher);
     });
     client.login({ clientId });
 }

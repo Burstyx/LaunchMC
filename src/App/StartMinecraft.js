@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startMinecraft = void 0;
+exports.extractAllNatives = exports.startMinecraft = void 0;
 const HManifests_1 = require("../Utils/HManifests");
 const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
@@ -22,28 +22,11 @@ const fs_1 = require("fs");
 const NewInstance_1 = require("./NewInstance");
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const HInstance_1 = require("../Utils/HInstance");
-function startMinecraft(version, instanceId, opt, instanceDiv) {
-    // TODO If map_to_ressource == true -> object dans legacy
-    (0, HManifests_1.minecraftManifestForVersion)(version).then((data) => __awaiter(this, void 0, void 0, function* () {
+function startMinecraft(version, instanceId, opt) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // TODO If map_to_ressource == true -> object dans legacy
+        const data = yield (0, HManifests_1.minecraftManifestForVersion)(version);
         (0, HInstance_1.updateInstanceState)(instanceId, HInstance_1.InstanceState.Loading);
-        // var mcArgs = []
-        // if(data.hasOwnProperty("minecraftArguments")){
-        //     var args = data["minecraftArguments"].split(" ")
-        //     mcArgs = args
-        // }else{
-        //     var args: any = []
-        //     for(var e in data["arguments"]["game"]){
-        //         if(data["arguments"]["game"][e].hasOwnProperty("rules")){
-        //             const rule = parseRule(data["arguments"]["game"][e])
-        //             if(rule != undefined){
-        //                 args.push(rule)
-        //             }
-        //         }else{
-        //             args.push(data["arguments"]["game"][e])
-        //         }
-        //     }
-        //     mcArgs = args
-        // } 
         // Get all Minecraft arguments
         var mcArgs = data["minecraftArguments"];
         if (mcArgs == null) {
@@ -109,7 +92,7 @@ function startMinecraft(version, instanceId, opt, instanceDiv) {
         jvmArgs.push("-Xmx4096M");
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         jvmArgs.push("-Djava.library.path=" + (yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
-        const libraries = yield getAllFile(const_1.librariesPath);
+        const libraries = yield (0, HFileManagement_1.getAllFile)(const_1.librariesPath);
         // console.log(libraries);
         let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
         jvmArgs.push(`-cp`);
@@ -143,27 +126,9 @@ function startMinecraft(version, instanceId, opt, instanceDiv) {
             console.error("closed with code " + code);
             (0, HInstance_1.updateInstanceState)(instanceId, HInstance_1.InstanceState.Inactive);
         });
-    }));
-}
-exports.startMinecraft = startMinecraft;
-function getAllFile(pathDir) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let files = [];
-        const items = yield promises_1.default.readdir(pathDir, { withFileTypes: true });
-        for (const item of items) {
-            if (item.isDirectory()) {
-                files = [
-                    ...files,
-                    ...(yield getAllFile(path_1.default.join(pathDir, item.name)))
-                ];
-            }
-            else {
-                files.push(path_1.default.join(pathDir, item.name));
-            }
-        }
-        return files;
     });
 }
+exports.startMinecraft = startMinecraft;
 function extractAllNatives(libraries, nativeFolder, javaLocation) {
     return __awaiter(this, void 0, void 0, function* () {
         const allLibs = libraries.split(";");
@@ -181,3 +146,4 @@ function extractAllNatives(libraries, nativeFolder, javaLocation) {
         return true;
     });
 }
+exports.extractAllNatives = extractAllNatives;
