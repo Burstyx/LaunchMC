@@ -15,7 +15,7 @@ interface InstanceInf{
     imagePath: string
 }
 
-export async function runTask(version: string, opts: InstanceInf){
+export async function createVanillaInstance(version: string, opts: InstanceInf){
     // Préparation
     console.log("[INFO] Préparation à la création d'une nouvelle instance");
 
@@ -98,10 +98,16 @@ export async function runTask(version: string, opts: InstanceInf){
 
     // Création de l'instance
     await createInstance(opts.name, opts.imagePath, instanceId, version, versionDataManifest, librariesArg)
+}
 
-    // Créer le dossier et l'id
+export async function patchInstanceWithForge(instanceId: string){
+    // Télécharger l'installer forge
 
-    // Mettre l'état de téléchargement
+    // Décompresser installer
+
+    // Télécharger les librairies
+
+    // Changer type de l'instance pour utiliser les bons arguments
 }
 
 // Download Minecraft libraries
@@ -207,25 +213,23 @@ export enum JavaVersions {
     JDK17
 }
 
-export function downloadJavaVersion(version: JavaVersions){
-    return new Promise(async (resolve, reject) => {
-        if(!existsSync(javaPath)){
-            await fs.mkdir(javaPath)
-        }
+export async function downloadJavaVersion(version: JavaVersions){
+    if(!existsSync(javaPath)){
+        await fs.mkdir(javaPath)
+    }
 
-        if(version == JavaVersions.JDK8){
-            await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/8u362-b09/openlogic-openjdk-jre-8u362-b09-windows-x64.zip", path.join(javaPath, `${java8Version}.zip`), (progress: number) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-            }, {decompress: true})
-            resolve("Java 8 downloaded")
-        }
-            
-        if(version == JavaVersions.JDK17){
-            await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/17.0.6+10/openlogic-openjdk-jre-17.0.6+10-windows-x64.zip", path.join(javaPath, `${java17Version}.zip`), (progress: number) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-            }, {decompress: true})
-            resolve("Java 17 downloaded")
-        }
-            
-    })
+    if(version == JavaVersions.JDK8){
+        await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/8u362-b09/openlogic-openjdk-jre-8u362-b09-windows-x64.zip", path.join(javaPath, `${java8Version}.zip`), (progress: number) => {
+            console.log(`Progression: ${progress}% du téléchargement`);
+        }, {decompress: true})
+        
+        return
+    }
+        
+    if(version == JavaVersions.JDK17){
+        await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/17.0.6+10/openlogic-openjdk-jre-17.0.6+10-windows-x64.zip", path.join(javaPath, `${java17Version}.zip`), (progress: number) => {
+            console.log(`Progression: ${progress}% du téléchargement`);
+        }, {decompress: true})
+        return
+    }
 }

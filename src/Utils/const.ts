@@ -24,6 +24,7 @@ export const xstsAuth = "https://xsts.auth.xboxlive.com/xsts/authorize"
 export const minecraftBearerToken = "https://api.minecraftservices.com/authentication/login_with_xbox"
 export const minecraftHeadProfilePicture = "https://minotar.net/avatar/"
 export const playerMojangProfile = "https://api.minecraftservices.com/minecraft/profile"
+export const forgeMaven = "https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-${type}.${ext}"
 
 // Azure data
 export const redirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient"
