@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadJavaVersion = exports.JavaVersions = exports.runTask = void 0;
+exports.downloadJavaVersion = exports.JavaVersions = exports.patchInstanceWithForge = exports.createVanillaInstance = void 0;
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const uuid_1 = require("uuid");
 const original_fs_1 = require("original-fs");
@@ -23,7 +23,7 @@ const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
 const HInstance_1 = require("../Utils/HInstance");
 const os_1 = __importDefault(require("os"));
-function runTask(version, opts) {
+function createVanillaInstance(version, opts) {
     return __awaiter(this, void 0, void 0, function* () {
         // Préparation
         console.log("[INFO] Préparation à la création d'une nouvelle instance");
@@ -81,11 +81,18 @@ function runTask(version, opts) {
         }
         // Création de l'instance
         yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest, librariesArg);
-        // Créer le dossier et l'id
-        // Mettre l'état de téléchargement
     });
 }
-exports.runTask = runTask;
+exports.createVanillaInstance = createVanillaInstance;
+function patchInstanceWithForge(instanceId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Télécharger l'installer forge
+        // Décompresser installer
+        // Télécharger les librairies
+        // Changer type de l'instance pour utiliser les bons arguments
+    });
+}
+exports.patchInstanceWithForge = patchInstanceWithForge;
 // Download Minecraft libraries
 function downloadMinecraftLibrary(data, i) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -185,7 +192,7 @@ var JavaVersions;
     JavaVersions[JavaVersions["JDK17"] = 1] = "JDK17";
 })(JavaVersions || (exports.JavaVersions = JavaVersions = {}));
 function downloadJavaVersion(version) {
-    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+    return __awaiter(this, void 0, void 0, function* () {
         if (!(0, original_fs_1.existsSync)(const_1.javaPath)) {
             yield promises_1.default.mkdir(const_1.javaPath);
         }
@@ -193,14 +200,14 @@ function downloadJavaVersion(version) {
             yield (0, HDownload_1.downloadAsync)("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/8u362-b09/openlogic-openjdk-jre-8u362-b09-windows-x64.zip", path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             }, { decompress: true });
-            resolve("Java 8 downloaded");
+            return;
         }
         if (version == JavaVersions.JDK17) {
             yield (0, HDownload_1.downloadAsync)("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/17.0.6+10/openlogic-openjdk-jre-17.0.6+10-windows-x64.zip", path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             }, { decompress: true });
-            resolve("Java 17 downloaded");
+            return;
         }
-    }));
+    });
 }
 exports.downloadJavaVersion = downloadJavaVersion;
