@@ -100,7 +100,7 @@ var InstanceState;
     InstanceState[InstanceState["Playing"] = 1] = "Playing";
     InstanceState[InstanceState["Loading"] = 2] = "Loading";
     InstanceState[InstanceState["Inactive"] = 3] = "Inactive";
-})(InstanceState || (exports.InstanceState = InstanceState = {}));
+})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceState(instanceId, newState) {
     const instance = getInstanceById(instanceId);
     if (instance == null) {

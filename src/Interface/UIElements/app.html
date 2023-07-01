@@ -1,123 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="titlebar">
-        <p id="app-name">BurstyLauncher <span>V0.0.1</span></p>
-        <div id="action-buttons">
-            <div id="reduce"><img src="./resources/svg/reduce.svg"></div>
-            <div id="maximize"><img src="./resources/svg/maximize.svg"></div>
-            <div id="close"><img src="./resources/svg/close.svg"></div>
+    <div id="window">
+        <div id="header">
+            <div id="header-title">
+                <p>BLauncher - <span>v0.0.1</span></p>
+            </div>
+            <div id="header-menu">
+                <div id="header-menu-explore" class="header-menu-btn active">
+                    Explore
+                </div>
+                <div id="header-menu-instances" class="header-menu-btn">
+                    My Instances
+                </div>
+                <div id="header-menu-servers" class="header-menu-btn">
+                    My Servers
+                </div>
+                <div id="header-menu-settings" class="header-menu-btn">
+                    Settings
+                </div>
+            </div>
+            <div id="header-actions-btn">
+                <img src="./resources/svg/close.svg" class="header-action-btn" id="close-btn">
+                <img src="./resources/svg/maximize.svg" class="header-action-btn" id="minimize-btn">
+                <img src="./resources/svg/reduce.svg" class="header-action-btn" id="reduce-btn">
+            </div>
         </div>
-    </div>
-    <div id="main">
-        <div id="sidebar">
-            <div id="home"><img width="25" src="./resources/svg/home.svg">
-                <p>Home</p>
-            </div>
-            <div id="explore"><img width="25" src="./resources/svg/explore.svg">
-                <p>Explore</p>
-            </div>
-            <div id="instance"><img width="25" src="./resources/svg/instance.svg">
-                <p>Instance</p>
-            </div>
-            <div id="account">
-                <img width="25" src="./resources/svg/account.svg">
-                <p>Username</p>
-                <img width="13" src="./resources/svg/expand-arrow.svg">
-            </div>
-        </div>
-        <div id="body">
-            <div id="instances">
-                
-            </div>
+        <div id="win-content">
+            <div id="my-instances">
+                <div id="instance-list-sidebar">
 
-            <div id="add">
-                New Instance
-            </div>
-        </div>
-    </div>
-    
-    <div id="clickavoider"></div>
-    <div id="addmenu" class="menu">
-        <img id="closeaddmenu" src="./resources/svg/close.svg">
-        <p id="addlabel">Create an instance</p>
-        <div id="addlabelbanner">
-            <div>
-                <p>Change banner</p>
-            </div>
-        </div>
-        <p id="instancenametitle">
-            Instance's Name
-        </p>
-        <input type="text" id="instancenameinput">
-        <p id="instanceversiontitle">
-            Minecraft Version
-        </p>
-        <div id="instanceversion">
-            <p id="instanceversionselectedversion"></p>
-            <img src="./resources/svg/arrow.svg">
-        </div>
-        <div id="addmenuactionbtn">
-            <div id="addmenucreatebtn">
-                Create
-            </div>
-            <div id="addmenucancelbtn">
-                Cancel
-            </div>
-        </div>
-    </div>
-    
-    <div id="choseversionmenu" class="menu">
-        <div id="bootloaderbtn">
-            <div id="vanillamenu"><p>Vanilla</p></div>
-            <div id="forgemenu"><p>Forge</p></div>
-            <div id="curseforgemenu"><p>CurseForge</p></div>
-            <div id="ftbmenu"><p>FTB</p></div>
-            <div id="zipmenu"><p>ZIP</p></div>
-        </div>
-        <div id="vanillaversionslist">
-            <div id="vanillaversionfilter">
-                <div id="vanillaversionfilterrelease" class="vanillafilters">
-                    <p>Release</p>
-                    <input type="checkbox" id="vanillareleasecheckbox" class="checkbox" checked>
                 </div>
-                <div id="vanillaversionfiltersnapshot" class="vanillafilters">
-                    <p>Snapshot</p>
-                    <input type="checkbox" id="vanillasnapshotcheckbox" class="checkbox" checked>
-                </div>
-                <div id="vanillaversionfilterbeta" class="vanillafilters">
-                    <p>Beta</p>
-                    <input type="checkbox" id="vanillabetacheckbox" class="checkbox">
-                </div>
-                <div id="vanillaversionfilteralpha" class="vanillafilters">
-                    <p>Alpha</p>
-                    <input type="checkbox" id="vanillaalphacheckbox" class="checkbox">
-                </div>
-            </div>
-            <p id="loadingbootloaderversions">Loading</p>
-            <p id="notfoundbootloaderversions" style="display: none;">No version found</p>
-            <div id="vanillabootloaderinfoslist">
-            </div>
-        </div>
-    </div>
+                <div id="instance-info">
 
-    <div id="accountmanager" class="menu">
-        <img id="closeaccountmenu" src="./resources/svg/close.svg">
-        <p id="accountLabel">Account manager</p>
-        <div id="accountslist">
-            <div id="account01" class="accountelement active">
-                <div>
-                    <p style="font-size: 12px;">b3dbe803-d4bd-4a44-a359-78a79487cac3</p>
-                    <p style="font-size: 25px;">Burstyx</p>
                 </div>
-            </div>
-            <div id="addaccount">
-                <img src="./resources/svg/account-add.svg" width="100">
             </div>
         </div>
     </div>
 </body>
-<script src="./CoreApp.js"></script>
 </html>

@@ -9,7 +9,7 @@ var DiscordRPCState;
 (function (DiscordRPCState) {
     DiscordRPCState[DiscordRPCState["InLauncher"] = 0] = "InLauncher";
     DiscordRPCState[DiscordRPCState["InGame"] = 1] = "InGame";
-})(DiscordRPCState || (exports.DiscordRPCState = DiscordRPCState = {}));
+})(DiscordRPCState = exports.DiscordRPCState || (exports.DiscordRPCState = {}));
 let client;
 const clientId = "1116091725061046353";
 function initDiscordRPC() {

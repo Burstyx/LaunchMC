@@ -10,12 +10,12 @@ const { startMinecraft } = require("../../App/StartMinecraft")
 console.log("Initialisation du module principal !");
 
 // Constants
-const clickavoider = document.getElementById("clickavoider")
+// const clickavoider = document.getElementById("clickavoider")
 
 // Titlebar Btns
-const closeBtn = document.getElementById("close")
-const maximizeBtn = document.getElementById("maximize")
-const reducebtn = document.getElementById("reduce")
+const closeBtn = document.getElementById("close-btn")
+const maximizeBtn = document.getElementById("minimize-btn")
+const reducebtn = document.getElementById("reduce-btn")
 
 // Globals
 let elementToCloseWhenClickingOnClickAvoider = null;
