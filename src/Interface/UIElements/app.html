@@ -6,40 +6,61 @@
 </head>
 <body>
     <div id="window">
-        <div id="header">
-            <div id="header-title">
-                <p>BLauncher - <span>v0.0.1</span></p>
-            </div>
-            <div id="header-menu">
-                <div id="header-menu-explore" class="header-menu-btn active">
-                    Explore
+        <div id="header-container">
+            <div id="header">
+                <div id="header-title">
+                    <p>BLauncher - <span>v0.0.1</span></p>
                 </div>
-                <div id="header-menu-instances" class="header-menu-btn">
-                    My Instances
+                <div id="header-menu">
+                    <div id="header-menu-explore" class="header-menu-btn btn">
+                        Explore
+                    </div>
+                    <div id="header-menu-instances" class="header-menu-btn active btn">
+                        My Instances
+                    </div>
+                    <div id="header-menu-servers" class="header-menu-btn btn">
+                        My Servers
+                    </div>
+                    <div id="header-menu-settings" class="header-menu-btn btn">
+                        Settings
+                    </div>
                 </div>
-                <div id="header-menu-servers" class="header-menu-btn">
-                    My Servers
+                <div id="header-actions-btn">
+                    <img src="./resources/svg/close.svg" class="header-action-btn btn" id="close-btn">
+                    <img src="./resources/svg/maximize.svg" class="header-action-btn btn" id="minimize-btn">
+                    <img src="./resources/svg/reduce.svg" class="header-action-btn btn" id="reduce-btn">
                 </div>
-                <div id="header-menu-settings" class="header-menu-btn">
-                    Settings
-                </div>
-            </div>
-            <div id="header-actions-btn">
-                <img src="./resources/svg/close.svg" class="header-action-btn" id="close-btn">
-                <img src="./resources/svg/maximize.svg" class="header-action-btn" id="minimize-btn">
-                <img src="./resources/svg/reduce.svg" class="header-action-btn" id="reduce-btn">
             </div>
         </div>
+        
         <div id="win-content">
             <div id="my-instances">
                 <div id="instance-list-sidebar">
-
+                    <div id="97af1fe6-e924-479e-a99f-7738ee5438d0" class="instance">
+                        <p>Starcitycraft</p>
+                    </div>
                 </div>
                 <div id="instance-info">
-
+                    <div id="background-img">
+                        <div id="overlapping-info">
+                            <div id="instance-title-group">
+                                <p id="instance-title">Starcitycraft</p>
+                                <p id="instance-author">By <span>Burstyx</span></p>
+                            </div>
+                            <div id="launch-btn-group">
+                                <div id="launch-btn">
+                                    <p>Launch</p>
+                                </div>
+                                <img src="./resources/svg/more-options.svg" id="launch-btn-options">
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
                 </div>
             </div>
         </div>
     </div>
+    <script src="./CoreApp.js"></script>
 </body>
 </html>
