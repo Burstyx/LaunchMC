@@ -20,10 +20,11 @@ function createAppWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            devTools: true
         }
     })
 
-    mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools({mode: "undocked"})
 
     initialize()
     enable(mainWindow.webContents)

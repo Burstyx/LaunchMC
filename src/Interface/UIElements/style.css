@@ -159,8 +159,8 @@ img.btn{
 }
 
 .instance{
-  width: calc(100% - 20px);
-  height: 46px;
+  width: calc(100% - 30px);
+  height: 40px;
 
   position: relative;
   top: 5px;
@@ -168,7 +168,9 @@ img.btn{
 
   border-radius: 5px;
 
-  padding: 5px;
+  padding: 10px;
+
+  font-size: 18px;
 
   background: linear-gradient(90deg, #000 15%, rgba(0, 0, 0, 0.50) 50%, rgba(0, 0, 0, 0.50) 100%),
     url(./wallpaper.jpg);
@@ -255,6 +257,7 @@ img.btn{
 
 #launch-btn-group{
   display: flex;
+  gap: 4px;
 }
 
 #launch-btn{
@@ -264,7 +267,7 @@ img.btn{
   border-radius: 5px;
   border: 2px solid #302;
   background: #2D001E;
-  box-shadow: 0px 0px 14px 1px #47002F;
+  box-shadow: 0px 0px 10px .5px #47002F;
 
   position: relative;
 
@@ -273,6 +276,24 @@ img.btn{
   align-items: center;
 
   cursor: pointer;
+
+  transition: transform .075s;
+}
+
+#launch-btn:hover {
+  transform: scale(1.01);
+}
+
+#launch-btn:active {
+  transform: scale(0.97);
+}
+
+#launch-btn-options:hover {
+  transform: scale(1.01);
+}
+
+#launch-btn-options:active {
+  transform: scale(0.97);
 }
 
 #launch-btn p{
@@ -288,7 +309,9 @@ img.btn{
   border-radius: 5px;
   border: 2px solid #302;
   background: #2D001E;
-  box-shadow: 0px 0px 14px 1px #47002F;
+  box-shadow: 0px 0px 10px .5px #47002F;
 
   cursor: pointer;
+
+  transition: transform .075s;
 }
