@@ -156,6 +156,10 @@ img.btn{
   background-color: #141414;
   border-radius: 5px;
   width: 400px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .instance{
@@ -314,4 +318,22 @@ img.btn{
   cursor: pointer;
 
   transition: transform .075s;
+}
+
+.group{
+  font-weight: 500;
+
+  position: relative;
+  top: 5px;
+  left: 5px;
+}
+
+#new-instance{
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+#new-instance:hover {
+  border: solid 2px white;
 }
