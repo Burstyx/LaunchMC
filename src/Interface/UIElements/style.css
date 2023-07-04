@@ -65,7 +65,7 @@ body {
   align-items: center;
 }
 
-#header *:not(#header-title){
+.btn {
   -webkit-app-region: no-drag;
 }
 
