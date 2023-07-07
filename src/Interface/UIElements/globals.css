@@ -1,3 +1,5 @@
+/* GLOBALS */
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-Regular.ttf);
@@ -32,6 +34,8 @@ body {
   margin: 0;
 }
 
+/* Separate header from app */
+
 #window{
   width: 100vw;
   height: 100vh;
@@ -40,57 +44,6 @@ body {
   flex-direction: column;
 
   background-color: black;
-}
-
-#header-container{
-  height: 80px;
-
-  display: flex;
-  justify-content: center;
-  align-items: end;
-}
-
-#header{
-  width: calc(100% - 10px);
-  height: 75px;
-
-  border-radius: 5px;
-
-  background-color: #141414;
-
-  -webkit-app-region: drag;
-
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.btn {
-  -webkit-app-region: no-drag;
-}
-
-#header-title{
-  position: relative;
-  left: 10px;
-}
-
-#header-title p span{
-  color: #8D8D8D
-}
-
-#header-menu{
-  display: flex;
-  gap: 5px;
-}
-
-#header-actions-btn{
-  display: flex;
-  flex-direction: row-reverse;
-
-  gap: 5px;
-
-  position: relative;
-  right: 10px;
 }
 
 .btn{
@@ -289,14 +242,6 @@ img.btn{
 }
 
 #launch-btn:active {
-  transform: scale(0.97);
-}
-
-#launch-btn-options:hover {
-  transform: scale(1.01);
-}
-
-#launch-btn-options:active {
   transform: scale(0.97);
 }
 
