@@ -34,8 +34,6 @@ body {
   margin: 0;
 }
 
-/* Separate header from app */
-
 #window{
   width: 100vw;
   height: 100vh;
@@ -44,48 +42,6 @@ body {
   flex-direction: column;
 
   background-color: black;
-}
-
-.btn{
-  background-color: black;
-  padding: 10px;
-
-  font-size: 18px;
-
-  border: #272727 solid 2px;
-
-  border-radius: 5px;
-
-  cursor: pointer;
-
-  transition: border .075s;
-}
-
-img.btn{
-  width: 21px;
-}
-
-.header-menu-btn:hover{
-  border: solid 2px #E6E6E6;
-}
-
-.header-menu-btn.active{
-  background-color: #272727;
-  border: solid 2px #E6E6E6;
-}
-
-#reduce-btn,
-#minimize-btn,
-#close-btn {
-  transition: background-color .075s, border .075s;
-}
-
-#close-btn:hover{
-  border: solid 2px #cc0000;
-}
-
-#reduce-btn:hover, #minimize-btn:hover {
-  border: solid 2px #E6E6E6;
 }
 
 #win-content{
@@ -97,6 +53,7 @@ img.btn{
   align-items: center;
 }
 
+/* My instance sub window */
 #my-instances{
   height: calc(100% - 10px);
   width: calc(100% - 10px);
@@ -104,6 +61,7 @@ img.btn{
   display: flex;
 }
 
+/* Left part of the sub window */
 #instance-list-sidebar{
   height: 100%;
   background-color: #141414;
@@ -115,6 +73,7 @@ img.btn{
   gap: 5px;
 }
 
+/* Default instance style */
 .instance{
   width: calc(100% - 30px);
   height: 40px;
@@ -142,6 +101,7 @@ img.btn{
   cursor: pointer;
 }
 
+/* Animation when overing instance */
 .instance:hover{
   transform: scale(1.01);
 }
@@ -150,6 +110,7 @@ img.btn{
   transform: scale(0.99);
 }
 
+/* Right part of the sub window */
 #instance-info{
   flex-grow: 1;
 
@@ -161,6 +122,7 @@ img.btn{
   border-radius: 5px;
 }
 
+/* Title, author and launch button on the image */
 #overlapping-info{
   position: relative;
   left: 5px;
@@ -174,6 +136,7 @@ img.btn{
   justify-content: end;
 }
 
+/* Title and author text */
 #instance-title-group{
   position: relative;
   display: flex;
@@ -183,6 +146,7 @@ img.btn{
   bottom: 10px;
 }
 
+/* Title */
 #instance-title{
   font-size: 50px;
   font-weight: 700;
@@ -190,15 +154,18 @@ img.btn{
   top: 9px;
 }
 
+/* Author */
 #instance-author{
   font-size: 18px;
 }
 
+/* Make author name purple */
 #instance-author span{
   color: #650043;
   font-weight:600;
 }
 
+/* Instance image in background */
 #background-img{
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000 100%),
     url(./wallpaper.jpg);
@@ -212,11 +179,13 @@ img.btn{
   background-size: cover;
 }
 
+/* Launch btn with the sub menu btn */
 #launch-btn-group{
   display: flex;
   gap: 4px;
 }
 
+/* Big launch btn */
 #launch-btn{
   width: 125px;
   height: 50px;
@@ -237,6 +206,7 @@ img.btn{
   transition: transform .075s;
 }
 
+/* Animation when hovering launch btn */
 #launch-btn:hover {
   transform: scale(1.01);
 }
@@ -245,10 +215,12 @@ img.btn{
   transform: scale(0.97);
 }
 
+/* Launch btn text */
 #launch-btn p{
   font-size: 24px;
 }
 
+/* Sub menu launch btn */
 #launch-btn-options{
   width: 15px;
   height: 50px;
@@ -265,6 +237,7 @@ img.btn{
   transition: transform .075s;
 }
 
+/* Group text in the left part of the sub window */
 .group{
   font-weight: 500;
 
@@ -273,12 +246,14 @@ img.btn{
   left: 5px;
 }
 
+/* New instance btn */
 #new-instance{
   position: absolute;
   bottom: 10px;
   left: 10px;
 }
 
+/* Animation when hovering add instance btn */
 #new-instance:hover {
   border: solid 2px white;
 }

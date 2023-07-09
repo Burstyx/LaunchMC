@@ -21,7 +21,7 @@
     align-items: center;
 }
 
-.btn {
+#header .btn {
     -webkit-app-region: no-drag;
 }
 
@@ -47,4 +47,15 @@
 
     position: relative;
     right: 10px;
+}
+
+/* Set active header menu btn style */
+.header-menu-btn.active {
+    background-color: #272727;
+    border: solid 2px #E6E6E6;
+}
+
+/* Close btn hover color is red */
+#close-btn:hover {
+    border: solid 2px #cc0000;
 }
