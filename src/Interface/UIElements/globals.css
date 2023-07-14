@@ -2,18 +2,44 @@
 
 @font-face {
   font-family: rubik;
+  src: url(./resources/fonts/Rubik-Light.ttf);
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: rubik;
   src: url(./resources/fonts/Rubik-Regular.ttf);
-  src: url(./resources/fonts/Rubik-Black.ttf),
-    url(./resources/fonts/Rubik-BlackItalic.ttf),
-    url(./resources/fonts/Rubik-Bold.ttf),
-    url(./resources/fonts/Rubik-BoldItalic.ttf),
-    url(./resources/fonts/Rubik-ExtraBold.ttf),
-    url(./resources/fonts/Rubik-ExtraBoldItalic.ttf),
-    url(./resources/fonts/Rubik-Italic.ttf),
-    url(./resources/fonts/Rubik-Light.ttf),
-    url(./resources/fonts/Rubik-LightItalic.ttf),
-    url(./resources/fonts/Rubik-Medium.ttf),
-    url(./resources/fonts/Rubik-MediumItalic.ttf),
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Medium.ttf);
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-SemiBold.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Bold.ttf),;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-ExtraBold.ttf);
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Black.ttf);
+  font-weight: 700;
 }
 
 *{
@@ -22,7 +48,7 @@
 
   color: white;
   font-family: "rubik";
-  font-weight: 1;
+  font-weight: 200;
 
   user-select: none;
   -webkit-user-drag: none;
@@ -93,21 +119,23 @@ body {
   background-position: 50%;
   background-size: cover;
 
+  box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.5);
+
   display: flex;
   align-items: center;
 
-  transition: transform .075s;
+  transition: transform .1s ease-in-out;
 
   cursor: pointer;
 }
 
 /* Animation when overing instance */
 .instance:hover{
-  transform: scale(1.01);
+  transform: scale(1.005);
 }
 
 .instance:active{
-  transform: scale(0.99);
+  transform: scale(0.995);
 }
 
 /* Right part of the sub window */
@@ -171,7 +199,7 @@ body {
     url(./wallpaper.jpg);
 
   width: 100%;
-  height: 60%;
+  height: 50%;
 
   max-height: 400px;
 
@@ -203,12 +231,12 @@ body {
 
   cursor: pointer;
 
-  transition: transform .075s;
+  transition: transform .25s;
 }
 
 /* Animation when hovering launch btn */
 #launch-btn:hover {
-  transform: scale(1.01);
+  transform: scale(1.03);
 }
 
 #launch-btn:active {
@@ -233,8 +261,6 @@ body {
   box-shadow: 0px 0px 10px .5px #47002F;
 
   cursor: pointer;
-
-  transition: transform .075s;
 }
 
 /* Group text in the left part of the sub window */
@@ -256,4 +282,52 @@ body {
 /* Animation when hovering add instance btn */
 #new-instance:hover {
   border: solid 2px white;
+}
+
+/* Instance info widgets */
+#info-widgets{
+  position: relative;
+  top: 35px;
+  left: 5px;
+
+  width: 600px;
+  height: 200px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 5px;
+}
+
+#info-widgets > div{
+  background-color: #191919;
+  border-radius: 5px;
+}
+
+#info-widgets > div > p {
+  font-weight: 100;
+  font-size: 14px;
+
+  position: relative;
+  left: 5px;
+  top: 3px;
+}
+
+#info-widgets>div>div {
+  position: relative;
+  top: -14px;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#info-widgets>div>div>p:first-child{
+  font-size: 20px;
+}
+
+#info-widgets>div>div>p:nth-child(2) {
+  font-size: 10px;
 }
