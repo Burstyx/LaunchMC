@@ -9,6 +9,16 @@ const { startMinecraft } = require("../../App/StartMinecraft")
 
 console.log("Initialisation du module principal !");
 
+document.addEventListener("mousedown", (e) => {
+    if (e.button == 1) {
+        e.preventDefault()
+    }
+}, { passive: false })
+
+document.addEventListener("touchmove", (e) => {
+    e.preventDefault()
+}, { passive: false })
+
 // Constants
 // const clickavoider = document.getElementById("clickavoider")
 
