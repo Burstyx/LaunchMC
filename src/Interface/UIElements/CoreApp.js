@@ -15,10 +15,6 @@ document.addEventListener("mousedown", (e) => {
     }
 }, { passive: false })
 
-document.addEventListener("touchmove", (e) => {
-    e.preventDefault()
-}, { passive: false })
-
 // Constants
 // const clickavoider = document.getElementById("clickavoider")
 
