@@ -7,7 +7,7 @@ let mainWindow: BrowserWindow;
 
 function createAppWindow() {
     mainWindow = new BrowserWindow({
-        backgroundColor: "#2C2C2C",
+        backgroundColor: "black",
         center: true,
         frame: false,
         fullscreenable: false,
@@ -28,7 +28,7 @@ function createAppWindow() {
 
     initialize()
     enable(mainWindow.webContents)
-    mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
+    mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app02.html"))
 }
 
 app.on("ready", () => {

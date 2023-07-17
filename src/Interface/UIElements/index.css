@@ -1,0 +1,118 @@
+/* GLOBALS */
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Light.ttf);
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Regular.ttf);
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Medium.ttf);
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-SemiBold.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Bold.ttf),;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-ExtraBold.ttf);
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: rubik;
+  src: url(./resources/fonts/Rubik-Black.ttf);
+  font-weight: 700;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+}
+
+body{
+  background-color: black;
+
+  /* Default applied font */
+  color: white;
+  font-family: rubik;
+  font-weight: 200;
+
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+:root {
+  --content-bg: #191919;
+}
+
+/* Titlebar */
+.titlebar{
+  background-color: var(--content-bg);
+  margin: 5px;
+  padding: 20px;
+
+  border-radius: 5px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.titlebar .menu-btns {
+  display: flex;
+  gap: 5px;
+
+  font-size: 18px;
+}
+
+.titlebar .win-btns {
+  display: flex;
+  gap: 5px;
+}
+
+/* Sub content -> My instance tab */
+.sub-content{
+  flex: 1;
+
+  margin: 0 5px 5px 5px;
+
+  display: flex;
+  gap: 5px;
+}
+
+.sub-content .instance-list {
+  height: 100%;
+  width: 300px;
+
+  border-radius: 5px;
+
+  background-color: var(--content-bg);
+}
+
+.sub-content .instance-info {
+  flex: 1;
+
+  border-radius: 5px;
+
+  background-color: var(--content-bg);
+}

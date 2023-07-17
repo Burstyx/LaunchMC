@@ -10,7 +10,7 @@ const DIscordRPC_1 = require("./App/DIscordRPC");
 let mainWindow;
 function createAppWindow() {
     mainWindow = new electron_1.BrowserWindow({
-        backgroundColor: "#2C2C2C",
+        backgroundColor: "black",
         center: true,
         frame: false,
         fullscreenable: false,
@@ -29,7 +29,7 @@ function createAppWindow() {
     mainWindow.webContents.openDevTools({ mode: "undocked" });
     (0, main_1.initialize)();
     (0, main_1.enable)(mainWindow.webContents);
-    mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app.html"));
+    mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app02.html"));
 }
 electron_1.app.on("ready", () => {
     createAppWindow();

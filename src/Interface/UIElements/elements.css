@@ -1,0 +1,32 @@
+/* Default btn */
+.default-btn{
+  background-color: black;
+  padding: 10px;
+  border-radius: 5px;
+
+  border: solid #272727;
+
+  display: flex;
+  
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  transition: border .1s;
+}
+
+.default-btn:hover {
+  border: solid white;
+}
+
+.default-btn.danger:hover {
+  border: solid rgb(210, 0, 0);
+}
+
+.default-btn.active {
+  border: solid white;
+  background-color: #272727;
+}
+
+/* Widget btn */ 
