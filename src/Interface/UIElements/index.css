@@ -146,8 +146,6 @@ body{
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  overflow-y: overlay;
 }
 
 
@@ -155,12 +153,17 @@ body{
   height: 100%;
   width: 100%;
 
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow-y: overlay;
 }
 
 .info-content .info-backimg {
   width: 100%;
   height: 50%;
+  min-height: 200px;
 
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(./wallpaper.jpg);
@@ -169,21 +172,18 @@ body{
   background-position: 50%;
 
   position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content: end;
 }
 
 .info-backimg .overlapping-info {
-  position: absolute;
-
-  left: 5px;
-  bottom: calc(75px / 2 + 10px);
-}
-
-.info-content .instance-title {
-  position: absolute;
+  transform: translateY(50%);
 }
 
 .info-content .action-btn {
-  width: 100%;
   height: 75px;
   background-color: rgba(25, 25, 25, 0.25);
 
@@ -191,10 +191,38 @@ body{
 
   backdrop-filter: blur(10px);
 
-  position: relative;
-  transform: translateY(-50%);
+  transform: translateY(50%);
 
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.info-content .instance-info-area {    
+  width: calc(100% - 10px);
+  max-width: 1200px;
+
+  position: relative;
+
+  top: 35px;
+}
+
+.instance-info-area .all-widgets {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 5px;
+}
+
+.all-widgets .post-widget {
+  grid-column: span 2;
+}
+
+.instance-info-area .info-widgets {
+  height: 100%;
+
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr 1fr;
 }
