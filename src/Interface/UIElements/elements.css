@@ -78,4 +78,23 @@
   }
 }
 
+/* Accent btn */
+.accent-btn {
+  width: fit-content;
+
+  font-size: 20px;
+
+  padding: 10px 30px;
+  border-radius: 5px;
+
+  transition: filter .25s, transform .25s;
+
+  cursor: pointer;
+}
+
+.accent-btn:hover {
+  filter: brightness(1.25);
+  transform: scale(1.03);
+}
+
 /* Widget btn */ 

@@ -101,7 +101,7 @@ body{
 
 /* Sub content -> My instance tab */
 .sub-content{
-  flex: 1;
+  height: calc(100% - 100px);
 
   margin: 0 5px 5px 5px;
 
@@ -110,20 +110,30 @@ body{
 }
 
 .sub-content .instance-sidebar {
-  height: 100%;
   width: 350px;
+  min-width: 350px;
+
+  height: 100%;
 
   border-radius: 5px;
 
   background-color: var(--content-bg);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.sub-content .instance-sidebar .instance-list {
+.instance-sidebar .instance-list {
   margin: 5px;
+  overflow-y: overlay;
 
   display: flex;
   flex-direction: column;
   gap: 5px;
+
+  flex: 1;
+  border-radius: 5px;
 }
 
 .sub-content .instance-info {
@@ -132,4 +142,59 @@ body{
   border-radius: 5px;
 
   background-color: var(--content-bg);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow-y: overlay;
+}
+
+
+.instance-info .info-content{
+  height: 100%;
+  width: 100%;
+
+  position: relative;
+}
+
+.info-content .info-backimg {
+  width: 100%;
+  height: 50%;
+
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
+    url(./wallpaper.jpg);
+
+  background-size: cover;
+  background-position: 50%;
+
+  position: relative;
+}
+
+.info-backimg .overlapping-info {
+  position: absolute;
+
+  left: 5px;
+  bottom: calc(75px / 2 + 10px);
+}
+
+.info-content .instance-title {
+  position: absolute;
+}
+
+.info-content .action-btn {
+  width: 100%;
+  height: 75px;
+  background-color: rgba(25, 25, 25, 0.25);
+
+  border-top: solid #191919;
+
+  backdrop-filter: blur(10px);
+
+  position: relative;
+  transform: translateY(-50%);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

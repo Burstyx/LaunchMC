@@ -3,4 +3,8 @@
     font-weight: 300;
 }
 
+.accent-text {
+    color: attr(color-accent)
+}
+
 /* Md formatting */

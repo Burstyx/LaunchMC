@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="elements.css">
     <link rel="stylesheet" href="text-formatting.css">
+    <link rel="stylesheet" href="scrollbar.css">
 </head>
 <body>
     <div class="titlebar">
@@ -24,24 +25,29 @@
     <div class="sub-content">
         <div class="instance-sidebar">
             <div class="instance-list">
-                <div class="img-btn" img-src="./wallpaper.jpg" instance-id="a">1.12.2</div>
-                <div class="img-btn" img-src="./wallpaper.jpg" instance-id="b">1.12</div>
+                <div class="img-btn" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="a">1.12.2</div>
+                <div class="img-btn" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="b">1.12</div>
+                <div class="img-btn" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="c">1.12</div>
+                <div class="img-btn" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="d">1.12</div>
+                <div class="img-btn" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="e">1.12</div>
+                <div class="img-btn" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="f">1.12</div>
             </div>
-            <!-- create instance btn here -->
+            <div class="default-btn" style="margin: 0 5px 5px 5px;"><img src="./resources/svg/add.svg"></div>
         </div>
-        <div class="instance-info"></div>
+        <div class="instance-info">
+            <div class="info-content">
+                <div class="info-backimg">
+                    <div class="overlapping-info">
+                        <p style="font-size: 45px; font-weight: 600;">Starcitycraft</p>
+                        <p style="font-size: 18px;">By <span style="color: #5e003e; font-weight: 400;">Volga Evolution</span></p>
+                    </div>
+                </div>
+                <div class="action-btn">
+                    <div class="accent-btn" style="position: relative; left: 5px; background-color: #2D001E; border: solid #330022; box-shadow: 0 0 10px 1px #2D001E;">Launch</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <script>
-        // Setup img btn background according to chosen url
-        const imgBtns = document.querySelectorAll(".img-btn")
-        imgBtns.forEach(btn => {
-            const imgUrl = btn.getAttribute("img-src")
-            if(imgUrl != null){
-                btn.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imgUrl})`
-            }
-        });
-    </script>
-
     <!-- All app scripts -->
     <script src="./CoreApp2.js"></script>
 </body>
