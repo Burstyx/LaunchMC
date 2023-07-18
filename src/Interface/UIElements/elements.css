@@ -29,4 +29,53 @@
   background-color: #272727;
 }
 
+/* Img btn */
+.img-btn {
+  background-position: 50%;
+  background-size: cover;
+
+  border-radius: 5px;
+
+  padding: 15px;
+
+  border: solid #272727;
+
+  cursor: pointer;
+
+  transition: border .1s;
+}
+
+.img-btn:hover {
+  border: solid white;
+}
+
+.img-btn.active {
+  border: solid white;
+}
+
+.img-btn.playing {
+  animation: infinite ease-in-out 2s playing-blinking alternate;
+}
+@keyframes playing-blinking {
+  from {
+    border: solid rgb(0, 210, 0) 2px;
+  }
+  to {
+    border: solid rgb(0, 120, 0) 2px;
+  }
+}
+
+.img-btn.preparing {
+  animation: infinite ease-in-out 2s preparing-blinking alternate;
+}
+@keyframes preparing-blinking {
+  from {
+    border: solid rgb(210, 210, 210) 2px;
+  }
+
+  to {
+    border: solid rgb(120, 120, 120) 2px;
+  }
+}
+
 /* Widget btn */ 

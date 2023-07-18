@@ -44,6 +44,9 @@
 *{
   margin: 0;
   padding: 0;
+
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 body{
@@ -76,6 +79,8 @@ body{
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  -webkit-app-region: drag;
 }
 
 .titlebar .menu-btns {
@@ -83,11 +88,15 @@ body{
   gap: 5px;
 
   font-size: 18px;
+
+  -webkit-app-region: no-drag;
 }
 
 .titlebar .win-btns {
   display: flex;
   gap: 5px;
+
+  -webkit-app-region: no-drag;
 }
 
 /* Sub content -> My instance tab */
@@ -100,13 +109,21 @@ body{
   gap: 5px;
 }
 
-.sub-content .instance-list {
+.sub-content .instance-sidebar {
   height: 100%;
-  width: 300px;
+  width: 350px;
 
   border-radius: 5px;
 
   background-color: var(--content-bg);
+}
+
+.sub-content .instance-sidebar .instance-list {
+  margin: 5px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .sub-content .instance-info {

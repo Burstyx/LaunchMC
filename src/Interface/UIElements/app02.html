@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="elements.css">
+    <link rel="stylesheet" href="text-formatting.css">
 </head>
 <body>
     <div class="titlebar">
-        <p>BLauncher - 0.0.1</p>
+        <p>BLauncher - <span class="highlight">0.0.1</span></p>
         <div class="menu-btns">
             <div class="default-btn">Explore</div>
             <div class="default-btn active">My Instances</div>
@@ -21,10 +22,27 @@
         </div>
     </div>
     <div class="sub-content">
-        <div class="instance-list"></div>
+        <div class="instance-sidebar">
+            <div class="instance-list">
+                <div class="img-btn" img-src="./wallpaper.jpg" instance-id="a">1.12.2</div>
+                <div class="img-btn" img-src="./wallpaper.jpg" instance-id="b">1.12</div>
+            </div>
+            <!-- create instance btn here -->
+        </div>
         <div class="instance-info"></div>
     </div>
+    <script>
+        // Setup img btn background according to chosen url
+        const imgBtns = document.querySelectorAll(".img-btn")
+        imgBtns.forEach(btn => {
+            const imgUrl = btn.getAttribute("img-src")
+            if(imgUrl != null){
+                btn.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imgUrl})`
+            }
+        });
+    </script>
 
+    <!-- All app scripts -->
     <script src="./CoreApp2.js"></script>
 </body>
 </html>
