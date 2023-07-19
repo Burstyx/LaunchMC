@@ -16,7 +16,7 @@
   transition: border .1s;
 }
 
-.default-btn:hover {
+.default-btn.interactable:hover {
   border: solid white;
 }
 
@@ -45,7 +45,7 @@
   transition: border .1s;
 }
 
-.img-btn:hover {
+.img-btn.interactable:hover {
   border: solid white;
 }
 
@@ -92,7 +92,7 @@
   cursor: pointer;
 }
 
-.accent-btn:hover {
+.accent-btn.interactable:hover {
   filter: brightness(1.25);
   transform: scale(1.03);
 }
@@ -124,7 +124,7 @@
   font-weight: 100;
 }
 
-.widget-btn:hover {
+.widget-btn.interactable:hover {
   background-color: #222222;
   transform: translateY(-2px);
 }
