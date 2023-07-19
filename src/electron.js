@@ -29,7 +29,7 @@ function createAppWindow() {
     mainWindow.webContents.openDevTools({ mode: "undocked" });
     (0, main_1.initialize)();
     (0, main_1.enable)(mainWindow.webContents);
-    mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app02.html"));
+    mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app.html"));
 }
 electron_1.app.on("ready", () => {
     createAppWindow();
