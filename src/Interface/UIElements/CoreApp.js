@@ -70,10 +70,10 @@ async function main() {
 
     widgetPlaytime.innerText = `${h}h${m}`
 
-    const widgetLastplayed = document.getElementById("widget-lastplayed")
+    const widgetLastplayed = document.getElementById("widget-lastplayed") // Don't work
     widgetLastplayed.innerText = data["lastplayed"]
 
-    const widgetDesc = document.getElementById("widget-description")
+    const widgetDesc = document.getElementById("widget-description") // Write md rules
     widgetDesc.innerText = data["description"]
 
     const launchBtn = document.getElementById("launchbtn")
@@ -81,9 +81,8 @@ async function main() {
 
     const color = Color(data["accentcolor"])
     const newColor = color.darken(-.25).hex()
-    const newNewColor = color.darken(-1).hex()
 
-    contentAuthor.style.color = newNewColor
+    contentAuthor.style.color = data["accentcolor"]
 
     launchBtn.style.border = `solid ${newColor}`
     launchBtn.style.boxShadow = `0 0 10px 1px ${data["accentcolor"]}`
