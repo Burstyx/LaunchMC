@@ -164,6 +164,8 @@ body{
   width: 100%;
   min-height: 300px;
 
+  border-radius: 5px;
+
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(./wallpaper.jpg);
 
@@ -179,11 +181,12 @@ body{
 }
 
 .info-backimg .overlapping-info {
-  transform: translateY(50%);
+  transform: translateY(calc(50% + 5px));
   width: fit-content;
   
   position: relative;
   left: 5px;
+  line-height: 30px;
 }
 
 .info-content .action-btn {
