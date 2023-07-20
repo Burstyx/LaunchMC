@@ -97,7 +97,7 @@ export async function createVanillaInstance(version: string, opts: InstanceInf){
     }
 
     // Création de l'instance
-    await createInstance(opts.name, opts.imagePath, instanceId, version, versionDataManifest, librariesArg)
+    await createInstance(opts.name, opts.imagePath, instanceId, version, versionDataManifest)
 }
 
 export async function patchInstanceWithForge(instanceId: string){

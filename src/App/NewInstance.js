@@ -80,7 +80,7 @@ function createVanillaInstance(version, opts) {
             numberOfAssetsDownloaded++;
         }
         // Création de l'instance
-        yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest, librariesArg);
+        yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest);
     });
 }
 exports.createVanillaInstance = createVanillaInstance;

@@ -4,59 +4,38 @@ import { instancesPath } from "../Utils/const"
 import { makeDir } from "./HFileManagement"
 import { existsSync } from "original-fs"
 
-export function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement, id: string){
+function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement, id: string){
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
 }
 
-export async function createInstance(name: string, imagePath: string, id: string, version: string, versionData: any, libraries: string){
-    await makeDir(path.join(instancesPath, id))
+export async function createInstance(name: string, imagePath: string, id: string, version: string, versionData: any){
+    await makeDir(path.join(instancesPath, name))
 
     // TODO Instance opt in folder
-    await fs.writeFile(path.join(instancesPath, id, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "libraries": libraries, "id": id}))
+    await fs.writeFile(path.join(instancesPath, name, "info.json"), JSON.stringify({"imagePath": imagePath, "version": version, "name": name, "assets_index_name": versionData["assetIndex"]["id"], "id": id}))
 
-    const instanceDiv = document.getElementById("instances")!
+    const instanceDiv = document.getElementById("instance-list")!
     addInstanceElement(imagePath, name, instanceDiv, id)
 }
 
 function generateInstanceBtn(imagePath: string, title: string, id: string) {
-    let element = document.createElement("div")
-    let titleElement = document.createElement("p")
+    let instanceElement = document.createElement("div")
 
-    if(title.length > 12){
-        title = title.substring(0, 15)
+    if(title.length > 20){
+        title = title.substring(0, 23)
         title += "..."
     }
 
-    element.setAttribute("instanceid", id)
-
-    titleElement.innerText = title
-
-    element.className = "instance"
-
-    const instances = document.getElementById("instances")
-
-    if(instances?.hasChildNodes()){
-        element.id = "element" + instances?.children.length
-        
-    }else{
-        element.id = "element0"
-    }
-
-    let style = createStyleString(imagePath)
-
-    element.setAttribute("style", style)
-    element.appendChild(titleElement)
+    instanceElement.innerText = title
+    instanceElement.classList.add("img-btn", "interactable")
+    instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`
+    instanceElement.id = id
     
-    return element
-}
-
-function createStyleString(imagePath: string){
-    let style = `background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("${imagePath}");`
-    return style
+    return instanceElement
 }
 
 export async function refreshInstanceList(){
-    const instancesDiv = document.getElementById("instances")!
+    const instancesDiv = document.getElementById("instance-list")!
     instancesDiv.innerHTML = ""
     
     if(existsSync(instancesPath)){
@@ -73,12 +52,12 @@ export async function refreshInstanceList(){
     }
 }
 
-export async function getInstanceData(instanceId: string){
+export async function getInstanceData(instanceName: string){
     if(existsSync(instancesPath)){             
-        const data = await fs.readFile(path.join(instancesPath, instanceId, "info.json"), "utf-8")
+        const data = await fs.readFile(path.join(instancesPath, instanceName, "info.json"), "utf-8")
         const dataJson = JSON.parse(data)
 
-        return {"data": dataJson, "gamePath": path.join(instancesPath, instanceId)}
+        return {"data": dataJson, "gamePath": path.join(instancesPath, instanceName)}
     }
 }
 

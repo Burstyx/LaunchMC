@@ -24,8 +24,8 @@
     </div>
     <div class="sub-content">
         <div class="instance-sidebar">
-            <div class="instance-list">
-                <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./wallpaper.jpg)" instance-id="a">Starcitycraft</div>
+            <div id="instance-list">
+                <!-- All instances will be here -->
             </div>
             <div class="default-btn interactable" style="margin: 0 5px 5px 5px;"><img src="./resources/svg/add.svg"></div>
         </div>
@@ -33,34 +33,31 @@
             <div class="info-content">
                 <div class="info-backimg">
                     <div class="overlapping-info">
-                        <p style="font-size: 45px; font-weight: 600;">Starcitycraft</p>
-                        <p style="font-size: 18px;">By <span style="color: #5e003e; font-weight: 400;">Volga Evolution</span></p>
+                        <p style="font-size: 45px; font-weight: 600;" id="instance-title"> <!-- Dynamic --> </p>
+                        <p style="font-size: 18px;">By <span style="color: #000000 /* Dynamic */; font-weight: 400;" id="instance-author"> <!-- Dynamic --> </span></p>
                     </div>
                     <div class="action-btn">
-                        <div class="accent-btn interactable" style="position: relative; left: 5px; background-color: #2D001E; border: solid #330022; box-shadow: 0 0 10px 1px #2D001E;">Launch</div>
+                        <div class="accent-btn interactable" style="position: relative; left: 5px; background-color: #000000 /* Dynamic */; border: solid #000000 /* Dynamic */; box-shadow: 0 0 10px 1px #000000 /* Dynamic */;" id="launchbtn">Launch</div>
                     </div>
                 </div>
                 
                 <div class="instance-info-area">
                     <div class="all-widgets">
                         <div class="info-widgets">
-                            <div class="widget-btn interactable" widget-name="Version">1.12.2</div>
-                            <div class="widget-btn interactable" widget-name="Modloader">Forge</div>
-                            <div class="widget-btn interactable" widget-name="Playtime">14h 25m</div>
-                            <div class="widget-btn interactable" widget-name="Last Played">Yesterday</div>
+                            <div class="widget-btn interactable" id="widget-version" widget-name="Version"> <!-- Dynamic --> </div>
+                            <div class="widget-btn interactable" id="widget-modloader" widget-name="Modloader"> <!-- Dynamic --> </div>
+                            <div class="widget-btn interactable" id="widget-playtime" widget-name="Playtime"> <!-- Dynamic --> </div>
+                            <div class="widget-btn interactable" id="widget-lastplayed" widget-name="Last Played"> <!-- Dynamic --> </div>
                         </div>
-                        <div class="widget-btn interactable screenshot-widget" widget-name="Last Screenshot" style="padding: 25px;">
-                            <div style="width: 100%; height: 100%; background: url(./resources/tempscreenshot.png); background-position: 50%; background-size: cover; border-radius: 5px;"></div>
+                        <div class="widget-btn interactable screenshot-widget" id="widget-screenshot" widget-name="Last Screenshot" style="padding: 25px;">
+                            <div style="width: 100%; height: 100%; background: url(); background-position: 50%; background-size: cover; border-radius: 5px;"></div> <!-- Dynamic -->
                         </div>
-                        <div class="widget-btn interactable" style="grid-column: span 2;" widget-name="Last Post"></div>
+                        <div class="widget-btn interactable" id="widget-post" style="grid-column: span 2;" widget-name="Last Post">
+                            <!-- Dynamic -->
+                        </div> 
                     </div>
-                    <div class="widget-btn interactable" widget-name="Description" style="text-align: left;">
-                        Starcitycraft<br><br>
-                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odio ipsam, aperiam facere porro at nulla hic velit esse rem impedit suscipit corporis ad ipsa quasi ullam. Repellat possimus atque accusamus.
-                        Expedita atque quas explicabo voluptatem quam. Nam ipsam eum accusamus dolore quidem vitae quam reprehenderit, soluta excepturi assumenda officia ratione modi, eaque molestias vero repellendus cum recusandae quibusdam fugit quasi!
-                        Mollitia excepturi placeat reiciendis dolor provident ipsam repellat necessitatibus sit molestias, facere expedita iste dolorem ipsa perspiciatis sunt sint nulla repudiandae error cupiditate hic? Aut obcaecati unde sint dignissimos? Libero.
-                        Modi ex praesentium laborum, exercitationem mollitia at quis, facilis quae dicta, repellendus recusandae corrupti ipsam fuga vel hic? Pariatur nulla voluptas, quae officiis modi necessitatibus odit nihil enim corporis maxime!
-                        Necessitatibus sunt earum magni, recusandae molestias dolorem tempore dignissimos modi, neque similique maiores, optio vel! Libero cum facere tenetur esse facilis quasi reprehenderit ut omnis, quod quibusdam ipsam nulla praesentium!
+                    <div class="widget-btn interactable" id="widget-description" widget-name="Description" style="text-align: left;">
+                        <!-- Dynamic -->
                     </div>
                 </div>
             </div>

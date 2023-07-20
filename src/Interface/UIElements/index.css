@@ -124,7 +124,7 @@ body{
   justify-content: space-between;
 }
 
-.instance-sidebar .instance-list {
+.instance-sidebar #instance-list {
   margin: 5px;
   overflow-y: overlay;
 
