@@ -18,7 +18,7 @@ export function initDiscordRPC(){
     client.login({clientId})
 }
 
-export function switchDiscordRPCState(newState: DiscordRPCState){
+function switchDiscordRPCState(newState: DiscordRPCState){
     switch(newState){
         case DiscordRPCState.InLauncher:
             client.setActivity({
@@ -27,7 +27,7 @@ export function switchDiscordRPCState(newState: DiscordRPCState){
             break
         case DiscordRPCState.InGame:
             client.setActivity({
-                details: "In Game",
+                details: "In Minecraft",
                 startTimestamp: Date.now()
             })
             break
