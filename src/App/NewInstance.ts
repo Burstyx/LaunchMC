@@ -97,7 +97,7 @@ export async function createVanillaInstance(version: string, opts: InstanceInf){
     }
 
     // Création de l'instance
-    await createInstance(opts.name, opts.imagePath, instanceId, version, versionDataManifest)
+    await createInstance(version, {accentColor: "FFF", author: "Volga Evolution", description: "Coucou", id: instanceId, imagePath: "", modloader: "vanilla", name: opts.name})
 }
 
 export async function patchInstanceWithForge(instanceId: string){

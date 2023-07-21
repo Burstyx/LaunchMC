@@ -166,7 +166,7 @@ body{
 
   border-radius: 5px;
 
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgb(0, 0, 0, .85) calc(100% + 1px)),
     url(./wallpaper.jpg);
 
   background-size: cover;

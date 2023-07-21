@@ -80,7 +80,7 @@ function createVanillaInstance(version, opts) {
             numberOfAssetsDownloaded++;
         }
         // Création de l'instance
-        yield (0, HInstance_1.createInstance)(opts.name, opts.imagePath, instanceId, version, versionDataManifest);
+        yield (0, HInstance_1.createInstance)(version, { accentColor: "FFF", author: "Volga Evolution", description: "Coucou", id: instanceId, imagePath: "", modloader: "vanilla", name: opts.name });
     });
 }
 exports.createVanillaInstance = createVanillaInstance;
