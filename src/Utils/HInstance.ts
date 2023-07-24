@@ -122,21 +122,8 @@ export async function refreshInstanceList(){
     if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
 
-        if(instances.length <= 0){
-            const content = document.getElementById("content")!
-            content.style.display = "none"
-
-            const noInstanceFound = document.getElementById("no-instancefound")!
-            noInstanceFound.style.display = "flex"
-
-            return
-        }
-
-        const content = document.getElementById("content")!        
+        const content = document.getElementById("content")!
         content.style.display = "flex"
-
-        const noInstanceFound = document.getElementById("no-instancefound")!
-        noInstanceFound.style.display = "none"
 
         for(const e in instances){            
             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){

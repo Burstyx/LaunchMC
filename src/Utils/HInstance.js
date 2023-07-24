@@ -100,17 +100,8 @@ function refreshInstanceList() {
         instancesDiv.innerHTML = "";
         if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
-            if (instances.length <= 0) {
-                const content = document.getElementById("content");
-                content.style.display = "none";
-                const noInstanceFound = document.getElementById("no-instancefound");
-                noInstanceFound.style.display = "flex";
-                return;
-            }
             const content = document.getElementById("content");
             content.style.display = "flex";
-            const noInstanceFound = document.getElementById("no-instancefound");
-            noInstanceFound.style.display = "none";
             for (const e in instances) {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf8");
