@@ -27,7 +27,7 @@
             <div id="instance-list">
                 <!-- All instances will be here -->
             </div>
-            <div class="default-btn interactable" style="margin: 0 5px 5px 5px;"><img src="./resources/svg/add.svg"></div>
+            <div class="default-btn interactable" id="create-instance" style="margin: 0 5px 5px 5px;"><img src="./resources/svg/add.svg"></div>
         </div>
         <div class="instance-info">
             <div class="info-content" id="content" style="display: none;">
@@ -44,8 +44,8 @@
                 <div class="instance-info-area">
                     <div class="all-widgets">
                         <div class="info-widgets">
-                            <div class="widget-btn interactable" id="widget-version" widget-name="Version"> <!-- Dynamic --> </div>
-                            <div class="widget-btn interactable" id="widget-modloader" widget-name="Modloader"> <!-- Dynamic --> </div>
+                            <div class="widget-btn interactable" id="widget-version" widget-name="Version" subname=""> <!-- Dynamic --> </div>
+                            <div class="widget-btn interactable" id="widget-modloader" widget-name="Modloader" subname=""> <!-- Dynamic --> </div>
                             <div class="widget-btn interactable" id="widget-playtime" widget-name="Playtime"> <!-- Dynamic --> </div>
                             <div class="widget-btn interactable" id="widget-lastplayed" widget-name="Last Played"> <!-- Dynamic --> </div>
                         </div>
@@ -62,9 +62,24 @@
                 </div>
             </div>
         </div>
-        <div class="sub-window">
+        <div class="sub-window" id="sub-windows">
             <div class="window" window-id="new-instance">
-                <div class="info-backimg"></div>
+                <div class="info-backimg" style="background: url(./resources/images/default.png); background-position: 50%; background-repeat: no-repeat;">
+                    <div class="change-image-container">
+                        <div class="default-btn interactable" style="font-size: 20px; display: flex;">Change Image</div>
+                    </div>
+                </div>
+                <input class="default-textinput" type="text"
+                    style="width: 250px; height: 25px; position: relative; top: -25px; left: 50%; transform: translateX(-50%);"
+                    placeholder="1.20.1" maxlength="30">
+                <div class="widgets-container">
+                    <div class="widget-btn interactable" widget-name="Version" subname="latest" style="width: 150px;">1.20.1</div>
+                    <div class="widget-btn interactable" widget-name="Modloader" subname="No modloader selected" style="width: 150px;">Vanilla</div>
+                </div>
+                <div class="actions-btn">
+                    <div class="default-btn danger" style="font-size: 18px; width: 200px;">Cancel</div>
+                    <div class="default-btn interactable" style="font-size: 18px; width: 200px;">Save Changes</div>
+                </div>
             </div>
         </div>
     </div>

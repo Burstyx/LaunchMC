@@ -105,6 +105,8 @@
   border-radius: 5px;
   padding: 40px;
 
+  font-size: 18px;
+
   text-align: center;
   
   position: relative;
@@ -112,6 +114,8 @@
   transition: background-color .1s, transform .1s;
 
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
 
 .widget-btn::before {
@@ -124,7 +128,32 @@
   font-weight: 100;
 }
 
+.widget-btn::after {
+  content: attr(subname);
+
+  font-size: 12px;
+  font-weight: 100;
+}
+
 .widget-btn.interactable:hover {
   background-color: #222222;
   transform: translateY(-2px);
+}
+
+/* Text input */
+.default-textinput {
+  all: unset;
+  
+  background-color: black;
+  border: solid #272727;
+
+  padding: 10px;
+
+  border-radius: 100px;
+
+  transition: border .1s;
+}
+
+.default-textinput:focus {
+  border: solid white;
 }

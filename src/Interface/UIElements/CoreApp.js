@@ -32,5 +32,24 @@ reducebtn.addEventListener("click", () => {
 })
 
 // Add btn logic
-
 refreshInstanceList()
+
+// Create instance
+const createInstance = document.getElementById("create-instance")
+const subWindow = document.getElementById("sub-windows")
+
+const windows = document.querySelectorAll(".window")
+
+createInstance.addEventListener("click", (e) => {
+    console.log("sdf");
+    subWindow.style.opacity = "1"
+    subWindow.style.pointerEvents = "all"
+
+    windows.forEach((window) => {
+        if (window.getAttribute("window-id") === "new-instance") {
+            console.log("yeah");
+            window.style.opacity = "1"
+            window.style.transform = "scale(1)"
+        }
+    })
+})
