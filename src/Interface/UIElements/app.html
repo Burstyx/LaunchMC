@@ -27,7 +27,7 @@
             <div id="instance-list">
                 <!-- All instances will be here -->
             </div>
-            <div class="default-btn interactable" id="create-instance" style="margin: 0 5px 5px 5px;"><img src="./resources/svg/add.svg"></div>
+            <div class="default-btn interactable" id="open-create-instance-window" style="margin: 0 5px 5px 5px;"><img src="./resources/svg/add.svg"></div>
         </div>
         <div class="instance-info">
             <div class="info-content" id="content" style="display: none;">
@@ -69,7 +69,7 @@
                         <div class="default-btn interactable" style="font-size: 20px; display: flex;">Change Image</div>
                     </div>
                 </div>
-                <input class="default-textinput" type="text"
+                <input class="default-textinput" id="new-instance-name" type="text"
                     style="width: 250px; height: 25px; position: relative; top: -25px; left: 50%; transform: translateX(-50%);"
                     placeholder="1.20.1" maxlength="30">
                 <div class="widgets-container">
@@ -78,7 +78,7 @@
                 </div>
                 <div class="actions-btn">
                     <div class="default-btn danger" style="font-size: 18px; width: 200px;">Cancel</div>
-                    <div class="default-btn interactable" style="font-size: 18px; width: 200px;">Save Changes</div>
+                    <div class="default-btn interactable" id="create-instance-btn" style="font-size: 18px; width: 200px;">Create</div>
                 </div>
             </div>
         </div>

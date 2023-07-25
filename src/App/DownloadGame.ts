@@ -1,5 +1,5 @@
 import {makeDir} from "../Utils/HFileManagement"
-import { v4 } from "uuid"
+
 import { createWriteStream } from "fs"
 import { exists, existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
@@ -7,17 +7,17 @@ import { downloadAsync } from "../Utils/HDownload"
 import { indexesPath, instancesPath, java17Version, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
 import path from "path"
 import fs from "fs/promises"
-import { createInstance } from "../Utils/HInstance"
 import os from "os"
 
 interface InstanceInf{
     name: string,
-    imagePath: string
+    imagePath: string,
+    instanceId: string
 }
 
-export async function createVanillaInstance(version: string, opts: InstanceInf){
+export async function downloadMinecraft(version: string, opts: InstanceInf){
     // Préparation
-    console.log("[INFO] Préparation à la création d'une nouvelle instance");
+    console.log("[INFO] Preparing to the download");
 
     // Variables de tracking du dl
     let numberOfLibrariesToDownload = 0
@@ -39,8 +39,6 @@ export async function createVanillaInstance(version: string, opts: InstanceInf){
     if(indexDataManifest == null){
         return
     }
-
-    const instanceId = v4()
 
     // Initialisation du traking du dl
     numberOfLibrariesToDownload = versionDataManifest.libraries.length
@@ -82,7 +80,7 @@ export async function createVanillaInstance(version: string, opts: InstanceInf){
 
         await makeDir(path.join(objectPath, subhash))
 
-        const fullPath = path.join(instancesPath, instanceId, "resources", e)
+        const fullPath = path.join(instancesPath, opts.instanceId, "resources", e)
         const fileName = fullPath.split("\\").pop()
         const dirPath  = fullPath.substring(0, fullPath.indexOf(fileName!))
 
@@ -95,9 +93,6 @@ export async function createVanillaInstance(version: string, opts: InstanceInf){
 
         numberOfAssetsDownloaded++
     }
-
-    // Création de l'instance
-    await createInstance(version, {accentColor: "FFF", author: "Volga Evolution", description: "Coucou", id: instanceId, imagePath: "", modloader: "vanilla", name: opts.name})
 }
 
 export async function patchInstanceWithForge(instanceId: string){

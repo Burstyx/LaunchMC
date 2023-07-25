@@ -19,7 +19,8 @@ const const_1 = require("../Utils/const");
 const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
-function addInstanceElement(imagePath, title, instanceDiv, id) {
+function addInstanceElement(imagePath, title, id) {
+    const instanceDiv = document.getElementById("instance-list");
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id));
 }
 function createInstance(version, instanceInfo) {
@@ -29,8 +30,7 @@ function createInstance(version, instanceInfo) {
         yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo["id"], "info.json"), JSON.stringify({ "instanceData": { "name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
                 "playtime": 0, "lastplayed": "-1", "description": instanceInfo["description"] }, "gameData": { "version": version,
                 "modloader": instanceInfo["modloader"] } }));
-        const instanceDiv = document.getElementById("instance-list");
-        addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceDiv, instanceInfo["id"]);
+        addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceInfo["id"]);
     });
 }
 exports.createInstance = createInstance;
@@ -81,7 +81,7 @@ function setContentTo(id) {
         const widgetDesc = document.getElementById("widget-description"); // Write md rules
         widgetDesc.innerText = instanceData["description"];
         const launchBtn = document.getElementById("launchbtn");
-        const accentColor = instanceData["accentcolor"];
+        const accentColor = instanceData["accentColor"];
         launchBtn.style.backgroundColor = accentColor;
         const color = (0, color_1.default)(accentColor);
         const borderColor = color.darken(-.25).hex();
@@ -106,7 +106,7 @@ function refreshInstanceList() {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf8");
                     const dataJson = JSON.parse(data);
-                    addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instancesDiv, instances[e]);
+                    addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e]);
                 }
             }
             setContentTo(instancesDiv.children[0].id);

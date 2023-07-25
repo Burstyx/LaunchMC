@@ -6,7 +6,9 @@ import { existsSync } from "original-fs"
 import Color from "color"
 
 
-function addInstanceElement(imagePath: string, title: string, instanceDiv: HTMLElement, id: string){
+function addInstanceElement(imagePath: string, title: string, id: string){
+    const instanceDiv = document.getElementById("instance-list")!
+
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
 }
 
@@ -31,8 +33,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
         "modloader": instanceInfo["modloader"]}}
     ))
 
-    const instanceDiv = document.getElementById("instance-list")!
-    addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceDiv, instanceInfo["id"])
+    addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceInfo["id"])
 }
 
 function generateInstanceBtn(imagePath: string, title: string, id: string) {
@@ -59,7 +60,7 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
 }
 
 export async function setContentTo(id: string) {
-    const data = await getInstanceData(id)
+    const data = await getInstanceData(id)    
 
     if(data == null) {
         return
@@ -99,7 +100,7 @@ export async function setContentTo(id: string) {
     widgetDesc.innerText = instanceData["description"]
 
     const launchBtn = document.getElementById("launchbtn")!
-    const accentColor = instanceData["accentcolor"]
+    const accentColor = instanceData["accentColor"]
     launchBtn.style.backgroundColor = accentColor
 
     const color = Color(accentColor)
@@ -130,7 +131,7 @@ export async function refreshInstanceList(){
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
 
                 const dataJson = JSON.parse(data)
-                addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instancesDiv, instances[e])
+                addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
             }
         }
 

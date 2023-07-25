@@ -19,7 +19,7 @@ const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
-const NewInstance_1 = require("./NewInstance");
+const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const HInstance_1 = require("../Utils/HInstance");
 function startMinecraft(version, instanceId, opt) {
@@ -102,10 +102,10 @@ function startMinecraft(version, instanceId, opt) {
         console.log(fullMcArgs);
         // Find correct java executable
         if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version))) {
-            yield (0, NewInstance_1.downloadJavaVersion)(NewInstance_1.JavaVersions.JDK8);
+            yield (0, DownloadGame_1.downloadJavaVersion)(DownloadGame_1.JavaVersions.JDK8);
         }
         if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version))) {
-            yield (0, NewInstance_1.downloadJavaVersion)(NewInstance_1.JavaVersions.JDK17);
+            yield (0, DownloadGame_1.downloadJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
         }
         const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, (yield promises_1.default.readdir(path_1.default.join(const_1.javaPath, const_1.java8Version))).at(0), "bin", "javaw");
         const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, (yield promises_1.default.readdir(path_1.default.join(const_1.javaPath, const_1.java17Version))).at(0), "bin", "javaw");

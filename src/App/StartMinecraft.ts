@@ -5,7 +5,7 @@ import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAs
 import os from "os"
 import fs from "fs/promises"
 import {existsSync} from "fs"
-import { downloadJavaVersion, JavaVersions } from "./NewInstance"
+import { downloadJavaVersion, JavaVersions } from "./DownloadGame"
 import { getAllFile, makeDir } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceState } from "../Utils/HInstance"
 

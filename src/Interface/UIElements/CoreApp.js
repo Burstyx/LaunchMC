@@ -1,46 +1,20 @@
-const { app, BrowserWindow, getCurrentWindow } = require("@electron/remote")
-const { generateInstanceBtn, getInstancesList, getInstanceData, makeInstanceLoading, refreshInstanceList } = require('../../Utils/HInstance')
-const { filteredMinecraftVersions } = require("../../Utils/HVersions")
-const NewInstance = require("../../App/NewInstance")
-// const { startMinecraft } = require("../../App/InstanceLauncher")
-const { msaLogin } = require("../../App/MicrosoftAuth")
-const { getActiveAccount } = require("../../Utils/HMicrosoft")
-const { startMinecraft } = require("../../App/StartMinecraft")
-
 console.log("Initialisation du module principal !");
+const { createInstance, refreshInstanceList } = require("../../Utils/HInstance")
+const { v4 } = require("uuid")
 
 // Titlebar behaviour
-const closeBtn = document.getElementById("close-btn")
-const maximizeBtn = document.getElementById("minimize-btn")
-const reducebtn = document.getElementById("reduce-btn")
-
-closeBtn.addEventListener("click", () => {
-    getCurrentWindow().close()
-})
-
-maximizeBtn.addEventListener("click", () => {
-    if (getCurrentWindow().isMaximized()) {
-        getCurrentWindow().restore()
-    }
-    else {
-        getCurrentWindow().maximize()
-    }
-})
-
-reducebtn.addEventListener("click", () => {
-    getCurrentWindow().minimize()
-})
+require("./scripts/titlebar")
 
 // Add btn logic
-refreshInstanceList()
+refreshInstanceList() // TODO Move that on loading screen
 
 // Create instance
-const createInstance = document.getElementById("create-instance")
+const openCreateInstanceWinBtn = document.getElementById("open-create-instance-window")
 const subWindow = document.getElementById("sub-windows")
 
 const windows = document.querySelectorAll(".window")
 
-createInstance.addEventListener("click", (e) => {
+openCreateInstanceWinBtn.addEventListener("click", (e) => {
     console.log("sdf");
     subWindow.style.opacity = "1"
     subWindow.style.pointerEvents = "all"
@@ -53,3 +27,30 @@ createInstance.addEventListener("click", (e) => {
         }
     })
 })
+
+// Confirm btn
+const createInstanceBtn = document.getElementById("create-instance-btn")
+const newInstanceName = document.getElementById("new-instance-name")
+
+
+
+createInstanceBtn.addEventListener("click", async (e) => {
+    const instanceName = newInstanceName.value
+    // Création de l'instance
+    const instanceId = v4()
+    await createInstance("1.12.2", { accentColor: "#2596be", author: "You", description: "No Description", id: instanceId, imagePath: "", modloader: "vanilla", name: instanceName })
+    // Close window
+    // TEMP START
+    subWindow.style.opacity = "0"
+    subWindow.style.pointerEvents = "none"
+
+    windows.forEach((window) => {
+        if (window.getAttribute("window-id") === "new-instance") {
+            window.style.opacity = "0"
+            window.style.transform = "scale(.5)"
+        }
+    })
+    // TEMP END (TO DELETE)
+})
+
+console.log("Initialisation effectué sans erreur !");
