@@ -4,51 +4,62 @@
   src: url(./resources/fonts/Rubik-Light.ttf);
   font-weight: 100;
 }
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-Regular.ttf);
   font-weight: 200;
 }
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-Medium.ttf);
   font-weight: 300;
 }
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-SemiBold.ttf);
   font-weight: 400;
 }
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-Bold.ttf);
   font-weight: 500;
 }
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-ExtraBold.ttf);
   font-weight: 600;
 }
+
 @font-face {
   font-family: rubik;
   src: url(./resources/fonts/Rubik-Black.ttf);
   font-weight: 700;
 }
+
 * {
   margin: 0;
   padding: 0;
+
   user-select: none;
   -webkit-user-drag: none;
 }
 
 body {
   background-color: black;
+
   /* Default applied font */
   color: white;
   font-family: rubik;
   font-weight: 200;
+
   width: 100vw;
   height: 100vh;
+
   display: flex;
   flex-direction: column;
 }
@@ -62,41 +73,54 @@ body {
   background-color: var(--content-bg);
   margin: 5px;
   padding: 20px;
+
   border-radius: 5px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   -webkit-app-region: drag;
 }
 
 .titlebar .menu-btns {
   display: flex;
   gap: 5px;
+
   font-size: 18px;
+
   -webkit-app-region: no-drag;
 }
 
 .titlebar .win-btns {
   display: flex;
   gap: 5px;
+
   -webkit-app-region: no-drag;
 }
 
 /* Sub content -> My instance tab */
 .sub-content {
   height: calc(100% - 100px);
+
   margin: 0 5px 5px 5px;
+
   display: flex;
   gap: 5px;
+
   position: relative;
 }
 
 .sub-content .instance-sidebar {
   width: 350px;
   min-width: 350px;
+
   height: 100%;
+
   border-radius: 5px;
+
   background-color: var(--content-bg);
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -105,17 +129,22 @@ body {
 .instance-sidebar #instance-list {
   margin: 5px;
   overflow-y: overlay;
+
   display: flex;
   flex-direction: column;
   gap: 5px;
+
   flex: 1;
   border-radius: 5px;
 }
 
 .sub-content .instance-info {
   flex: 1;
+
   border-radius: 5px;
+
   background-color: var(--content-bg);
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -124,28 +153,42 @@ body {
 .instance-info .info-content {
   height: 100%;
   width: 100%;
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
   overflow-y: overlay;
 }
 
 .info-content .info-backimg {
   width: 100%;
   min-height: 300px;
+
   border-radius: 5px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.85) calc(100% + 1px)), url(./wallpaper.jpg);
+
+  background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.15) 0%,
+      rgb(0, 0, 0, 0.85) calc(100% + 1px)
+    ),
+    url(./wallpaper.jpg);
+
   background-size: cover;
   background-position: 50%;
+
   position: relative;
+
   display: flex;
   flex-direction: column;
+
   justify-content: end;
 }
 
 .info-backimg .overlapping-info {
   transform: translateY(calc(50% + 5px));
   width: fit-content;
+
   position: relative;
   left: 5px;
   line-height: 30px;
@@ -154,9 +197,13 @@ body {
 .info-content .action-btn {
   height: 75px;
   background-color: rgba(25, 25, 25, 0.25);
+
   border-top: solid #191919;
+
   backdrop-filter: blur(10px);
+
   transform: translateY(50%);
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -165,9 +212,12 @@ body {
 .info-content .instance-info-area {
   width: calc(100% - 10px);
   max-width: 1200px;
+
   position: relative;
+
   top: 45px;
   padding-bottom: 5px;
+
   display: grid;
   gap: 5px;
 }
@@ -175,14 +225,19 @@ body {
 .instance-info-area .all-widgets {
   display: grid;
   grid-template-columns: 1fr 1fr;
+
   gap: 5px;
 }
 
 .instance-info-area .info-widgets {
   height: 100%;
+
   display: grid;
   gap: 5px;
   grid-template-columns: 1fr 1fr;
+}
+
+.screenshot-widget {
 }
 
 /* Sub window */
@@ -190,9 +245,12 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+
   width: 100%;
   height: 100%;
+
   background-color: rgba(0, 0, 0, 0.5);
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -201,25 +259,26 @@ body {
 .window {
   background-color: var(--content-bg);
   box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
+
   border-radius: 5px;
+
   width: calc(100% - 25px);
   height: calc(100% - 25px);
 }
 
-.window[window-id=new-instance] .info-backimg {
+.window[window-id="new-instance"] .info-backimg {
   background: url(./wallpaper.jpg);
   width: 100%;
   height: 300px;
+
   border-radius: 5px 5px 0px 0px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.window[window-id=new-instance] .info-backimg:hover::after {
+.window[window-id="new-instance"] .info-backimg:hover::after {
   content: "Change Image";
   padding: 50px;
   background-color: black;
 }
-
-/*# sourceMappingURL=index.css.map */
