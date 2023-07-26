@@ -28,7 +28,7 @@ function createInstance(version, instanceInfo) {
         yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo["id"]));
         // TODO Instance opt in folder
         yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo["id"], "info.json"), JSON.stringify({ "instanceData": { "name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
-                "playtime": 0, "lastplayed": "-1", "description": instanceInfo["description"] }, "gameData": { "version": version,
+                "playtime": 0, "lastplayed": "Never", "description": null }, "gameData": { "version": version,
                 "modloader": instanceInfo["modloader"] } }));
         addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceInfo["id"]);
     });
@@ -55,6 +55,8 @@ function generateInstanceBtn(imagePath, title, id) {
 function setContentTo(id) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = yield getInstanceData(id);
+        const content = document.getElementById("content");
+        content.style.display = "none";
         if (data == null) {
             return;
         }
@@ -91,6 +93,7 @@ function setContentTo(id) {
         const contentBackground = document.getElementById("content-background");
         contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(${instanceData["imagePath"]})`;
+        content.style.display = "flex";
     });
 }
 exports.setContentTo = setContentTo;
@@ -100,8 +103,6 @@ function refreshInstanceList() {
         instancesDiv.innerHTML = "";
         if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
-            const content = document.getElementById("content");
-            content.style.display = "flex";
             for (const e in instances) {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf8");
@@ -109,8 +110,6 @@ function refreshInstanceList() {
                     addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e]);
                 }
             }
-            setContentTo(instancesDiv.children[0].id);
-            instancesDiv.children[0].classList.add("active");
         }
     });
 }

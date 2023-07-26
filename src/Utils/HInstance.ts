@@ -18,7 +18,6 @@ interface InstanceInfo {
     id: string,
     author: string,
     accentColor: string,
-    description: string,
     modloader: string
 }
 
@@ -29,7 +28,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     await fs.writeFile(path.join(instancesPath, instanceInfo["id"], "info.json"), JSON.stringify(
         {"instanceData":
         {"name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
-        "playtime": 0, "lastplayed": "-1", "description": instanceInfo["description"]}, "gameData": {"version": version,
+        "playtime": 0, "lastplayed": "Never", "description": null}, "gameData": {"version": version,
         "modloader": instanceInfo["modloader"]}}
     ))
 
@@ -60,7 +59,10 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
 }
 
 export async function setContentTo(id: string) {
-    const data = await getInstanceData(id)    
+    const data = await getInstanceData(id)
+    
+    const content = document.getElementById("content")!
+    content.style.display = "none"
 
     if(data == null) {
         return
@@ -114,6 +116,8 @@ export async function setContentTo(id: string) {
     const contentBackground = document.getElementById("content-background")!
     contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(${instanceData["imagePath"]})`
+
+    content.style.display = "flex"
 }
 
 export async function refreshInstanceList(){
@@ -123,9 +127,6 @@ export async function refreshInstanceList(){
     if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
 
-        const content = document.getElementById("content")!
-        content.style.display = "flex"
-
         for(const e in instances){            
             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
@@ -134,9 +135,6 @@ export async function refreshInstanceList(){
                 addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
             }
         }
-
-        setContentTo(instancesDiv.children[0].id)
-        instancesDiv.children[0].classList.add("active")
     }
 }
 
