@@ -1,5 +1,5 @@
 console.log("Initialisation du module principal !");
-const { refreshInstanceList } = require("../../Utils/HInstance")
+const { refreshInstanceList, updateInstanceDlProgress } = require("../../Utils/HInstance")
 
 // Titlebar behaviour
 require("./scripts/titlebar")

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceState = exports.InstanceState = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.updateInstanceState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -42,10 +42,23 @@ function generateInstanceBtn(imagePath, title, id) {
         title = title.substring(0, 23);
         title += "...";
     }
+    // Instance Btn
     instanceElement.innerText = title;
     instanceElement.classList.add("img-btn", "interactable", "instance");
     instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`;
     instanceElement.id = id;
+    // Download track div
+    let dlTrackerElement = document.createElement("div");
+    dlTrackerElement.classList.add("dltracker");
+    dlTrackerElement.style.position = "absolute";
+    dlTrackerElement.style.top = "0";
+    dlTrackerElement.style.left = "0%";
+    dlTrackerElement.style.width = "100%";
+    dlTrackerElement.style.height = "100%";
+    dlTrackerElement.style.borderRadius = "5px";
+    dlTrackerElement.style.backdropFilter = "saturate(0%)";
+    dlTrackerElement.style.pointerEvents = "none";
+    instanceElement.append(dlTrackerElement);
     instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
         var _a;
         yield setContentTo(id);
@@ -59,6 +72,8 @@ function setContentTo(id) {
         const data = yield getInstanceData(id);
         const content = document.getElementById("content");
         content.style.display = "none";
+        const loading = document.getElementById("instance-info-loading");
+        loading.style.display = "auto";
         if (data == null) {
             return;
         }
@@ -95,6 +110,7 @@ function setContentTo(id) {
         const contentBackground = document.getElementById("content-background");
         contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(${instanceData["imagePath"]})`;
+        loading.style.display = "none";
         content.style.display = "flex";
     });
 }
@@ -113,6 +129,7 @@ function refreshInstanceList() {
                 }
             }
         }
+        updateInstanceDlProgress("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", 50);
     });
 }
 exports.refreshInstanceList = refreshInstanceList;
@@ -135,6 +152,16 @@ function getInstanceById(id) {
     }
 }
 exports.getInstanceById = getInstanceById;
+function updateInstanceDlProgress(instanceId, progress) {
+    const dlTracker = document.querySelector(`#${instanceId} .dltracker`);
+    console.log(dlTracker);
+    if (dlTracker == null) {
+        return;
+    }
+    //@ts-ignore
+    dlTracker.style.left = `${progress}%`;
+}
+exports.updateInstanceDlProgress = updateInstanceDlProgress;
 var InstanceState;
 (function (InstanceState) {
     InstanceState[InstanceState["Downloading"] = 0] = "Downloading";

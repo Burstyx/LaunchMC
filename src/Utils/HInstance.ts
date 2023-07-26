@@ -43,10 +43,25 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
         title += "..."
     }
 
+    // Instance Btn
     instanceElement.innerText = title
     instanceElement.classList.add("img-btn", "interactable", "instance")
     instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`
     instanceElement.id = id
+
+    // Download track div
+    let dlTrackerElement = document.createElement("div")
+    dlTrackerElement.classList.add("dltracker")
+    dlTrackerElement.style.position = "absolute"
+    dlTrackerElement.style.top = "0"
+    dlTrackerElement.style.left = "0%"
+    dlTrackerElement.style.width = "100%"
+    dlTrackerElement.style.height = "100%"
+    dlTrackerElement.style.borderRadius = "5px"
+    dlTrackerElement.style.backdropFilter = "saturate(0%)"
+    dlTrackerElement.style.pointerEvents = "none"
+
+    instanceElement.append(dlTrackerElement)
 
     instanceElement.addEventListener("click", async (e) => {
         await setContentTo(id)
@@ -63,6 +78,9 @@ export async function setContentTo(id: string) {
     
     const content = document.getElementById("content")!
     content.style.display = "none"
+
+    const loading = document.getElementById("instance-info-loading")!
+    loading.style.display = "auto"
 
     if(data == null) {
         return
@@ -117,6 +135,7 @@ export async function setContentTo(id: string) {
     contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(${instanceData["imagePath"]})`
 
+    loading.style.display = "none"
     content.style.display = "flex"
 }
 
@@ -156,6 +175,20 @@ export function getInstanceById(id: string) {
         }
     }
 } 
+
+export function updateInstanceDlProgress(instanceId: string, progress: number) {
+    const dlTracker = document.querySelector(`#${instanceId} .dltracker`)!
+
+    console.log(dlTracker);
+
+    if(dlTracker == null) {
+        return
+    }
+    
+
+    //@ts-ignore
+    dlTracker.style.left = `${progress}%`
+}
 
 export enum InstanceState {
     Downloading,
