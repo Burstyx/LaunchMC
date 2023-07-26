@@ -9,7 +9,9 @@ import Color from "color"
 async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
 
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
+    const instanceElement = await generateInstanceBtn(imagePath, title, id)
+
+    instanceDiv.appendChild(instanceElement)
 }
 
 interface InstanceInfo {
@@ -35,7 +37,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     await refreshInstanceList()
 }
 
-function generateInstanceBtn(imagePath: string, title: string, id: string) {
+async function generateInstanceBtn(imagePath: string, title: string, id: string) {
     let instanceElement = document.createElement("div")
 
     if(title.length > 20){
@@ -46,7 +48,6 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
     // Instance Btn
     instanceElement.innerText = title
     instanceElement.classList.add("img-btn", "interactable", "instance")
-    instanceElement.setAttribute("state", InstanceState[InstanceState.Loading])
     instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`
     instanceElement.id = id
 
@@ -55,7 +56,7 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
     dlTrackerElement.classList.add("dltracker")
     dlTrackerElement.style.position = "absolute"
     dlTrackerElement.style.top = "0"
-    dlTrackerElement.style.left = "0%"
+    dlTrackerElement.style.left = "100%"
     dlTrackerElement.style.width = "100%"
     dlTrackerElement.style.height = "100%"
     dlTrackerElement.style.borderRadius = "5px"
@@ -131,23 +132,23 @@ export async function setContentTo(id: string) {
 
     const accentColor = instanceData["accentColor"]
     contentAuthor.style.color = accentColor
+    
+    const color = Color(accentColor)
+    const borderColor = color.darken(-.25).hex()
+    
+    launchBtn.style.backgroundColor = accentColor
+    launchBtn.style.border = `solid ${borderColor}`
+    launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`
 
-    if(currentState === InstanceState[InstanceState.Playable]) {
-        
-        launchBtn.style.backgroundColor = accentColor
+    launchBtn.innerText = "Play"
 
-        const color = Color(accentColor)
+    if(currentState === InstanceState[InstanceState.Playing]){
+        launchBtn.style.backgroundColor = "red"
+
+        const color = Color("#ff0000")
         const borderColor = color.darken(-.25).hex()
 
         launchBtn.style.border = `solid ${borderColor}`
-        launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`
-
-        launchBtn.innerText = "Launch"
-    }
-    else if(currentState === InstanceState[InstanceState.Playing]){
-        launchBtn.style.backgroundColor = "red"
-
-        launchBtn.style.border = `solid red`
         launchBtn.style.boxShadow = `0 0 10px 1px red`
 
         launchBtn.innerText = "Stop"
@@ -155,15 +156,26 @@ export async function setContentTo(id: string) {
     else if(currentState === InstanceState[InstanceState.Update]){
         launchBtn.style.backgroundColor = "green"
 
-        launchBtn.style.border = `solid green`
+        const color = Color("#00ff00")
+        const borderColor = color.darken(-.25).hex()
+
+        launchBtn.style.border = `solid ${borderColor}`
         launchBtn.style.boxShadow = `0 0 10px 1px green`
 
         launchBtn.innerText = "Update"
     }
     else if(currentState === InstanceState[InstanceState.Downloading]){
+        launchBtn.style.backgroundColor = "#2b2b2b"
+        launchBtn.style.border = `solid #363636`
+        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
+
         launchBtn.innerText = "Downloading"
     }
     else if(currentState === InstanceState[InstanceState.Loading]){
+        launchBtn.style.backgroundColor = "#2b2b2b"
+        launchBtn.style.border = `solid #363636`
+        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
+
         launchBtn.innerText = "Loading"
     }
 
@@ -214,20 +226,19 @@ export function getInstanceById(id: string) {
 } 
 
 export function updateInstanceDlProgress(instanceId: string, progress: number) {
-    const dlTracker = document.querySelector(`#${instanceId} .dltracker`)!
+    const instance = document.getElementById(instanceId)
 
-    console.log(dlTracker);
+    const dlTracker = instance?.firstElementChild
 
     if(dlTracker == null) {
         return
     }
     
-
     //@ts-ignore
     dlTracker.style.left = `${progress}%`
 }
 
-enum InstanceState {
+export enum InstanceState {
     Loading,
     Downloading,
     Playable,
@@ -244,18 +255,19 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
         await setContentTo(instanceId)
 }
 
-document.addEventListener("dblclick", (e) => {
-    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
-    setTimeout(() => {
-        updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
-        setTimeout(() => {
-            updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
-            setTimeout(() => {
-                updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
-                 setTimeout(() => {
-                    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
-                }, 2000)
-            }, 2000)
-        }, 2000)
-    }, 2000)
-})
+// DEBUG ZONE
+// document.addEventListener("dblclick", (e) => {
+//     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
+//     setTimeout(() => {
+//         updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
+//         setTimeout(() => {
+//             updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
+//             setTimeout(() => {
+//                 updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
+//                  setTimeout(() => {
+//                     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
+//                 }, 2000)
+//             }, 2000)
+//         }, 2000)
+//     }, 2000)
+// })

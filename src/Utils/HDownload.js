@@ -52,11 +52,13 @@ function downloadAsync(url, dest, callback, opt) {
                 }
             }
         };
+        let lastLoaded = 0;
         xhr.onprogress = (evt) => {
             const loaded = evt.loaded;
             const total = evt.total;
             const percentage = Math.round((loaded / total) * 100);
-            callback(percentage);
+            callback(percentage, loaded - lastLoaded);
+            lastLoaded = loaded;
         };
         xhr.open("GET", url);
         xhr.responseType = "arraybuffer";

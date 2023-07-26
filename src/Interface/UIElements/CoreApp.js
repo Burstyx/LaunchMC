@@ -13,8 +13,4 @@ require("./scripts/newInstanceWin")
 // Add btn logic
 refreshInstanceList() // TODO Move that on loading screen
 
-document.addEventListener("click", (e) => {
-    
-})
-
 console.log("Initialisation effectué sans erreur !");

@@ -8,7 +8,7 @@ interface DownloadOpt {
     decompress: boolean,
 }
 
-type CallbackProgress = (progress: number) => void;
+type CallbackProgress = (progress: number, byteSent: number) => void;
 
 // Download url async
 export function downloadAsync(url: string, dest: string, callback: CallbackProgress, opt?: DownloadOpt) {
@@ -57,13 +57,17 @@ export function downloadAsync(url: string, dest: string, callback: CallbackProgr
             }
         }
 
+        let lastLoaded = 0
+
         xhr.onprogress = (evt) => {
             const loaded = evt.loaded
             const total = evt.total
 
             const percentage = Math.round((loaded / total) * 100)
 
-            callback(percentage)
+            callback(percentage, loaded - lastLoaded)
+            
+            lastLoaded = loaded
         }
 
         xhr.open("GET", url)

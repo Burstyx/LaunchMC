@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceDlState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -22,7 +22,8 @@ const color_1 = __importDefault(require("color"));
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");
-        instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id));
+        const instanceElement = yield generateInstanceBtn(imagePath, title, id);
+        instanceDiv.appendChild(instanceElement);
     });
 }
 function createInstance(version, instanceInfo) {
@@ -37,36 +38,37 @@ function createInstance(version, instanceInfo) {
 }
 exports.createInstance = createInstance;
 function generateInstanceBtn(imagePath, title, id) {
-    let instanceElement = document.createElement("div");
-    if (title.length > 20) {
-        title = title.substring(0, 23);
-        title += "...";
-    }
-    // Instance Btn
-    instanceElement.innerText = title;
-    instanceElement.classList.add("img-btn", "interactable", "instance");
-    instanceElement.setAttribute("state", InstanceState[InstanceState.Loading]);
-    instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`;
-    instanceElement.id = id;
-    // Download track div
-    let dlTrackerElement = document.createElement("div");
-    dlTrackerElement.classList.add("dltracker");
-    dlTrackerElement.style.position = "absolute";
-    dlTrackerElement.style.top = "0";
-    dlTrackerElement.style.left = "0%";
-    dlTrackerElement.style.width = "100%";
-    dlTrackerElement.style.height = "100%";
-    dlTrackerElement.style.borderRadius = "5px";
-    dlTrackerElement.style.backdropFilter = "saturate(0%)";
-    dlTrackerElement.style.pointerEvents = "none";
-    instanceElement.append(dlTrackerElement);
-    instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
-        var _a;
-        yield setContentTo(id);
-        (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
-        instanceElement.classList.add("active");
-    }));
-    return instanceElement;
+    return __awaiter(this, void 0, void 0, function* () {
+        let instanceElement = document.createElement("div");
+        if (title.length > 20) {
+            title = title.substring(0, 23);
+            title += "...";
+        }
+        // Instance Btn
+        instanceElement.innerText = title;
+        instanceElement.classList.add("img-btn", "interactable", "instance");
+        instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`;
+        instanceElement.id = id;
+        // Download track div
+        let dlTrackerElement = document.createElement("div");
+        dlTrackerElement.classList.add("dltracker");
+        dlTrackerElement.style.position = "absolute";
+        dlTrackerElement.style.top = "0";
+        dlTrackerElement.style.left = "100%";
+        dlTrackerElement.style.width = "100%";
+        dlTrackerElement.style.height = "100%";
+        dlTrackerElement.style.borderRadius = "5px";
+        dlTrackerElement.style.backdropFilter = "saturate(0%)";
+        dlTrackerElement.style.pointerEvents = "none";
+        instanceElement.append(dlTrackerElement);
+        instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            yield setContentTo(id);
+            (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
+            instanceElement.classList.add("active");
+        }));
+        return instanceElement;
+    });
 }
 let currentContentId = null;
 function setContentTo(id) {
@@ -100,37 +102,45 @@ function setContentTo(id) {
         m < 10 ? m = `0${m}` : m = `${m}`;
         h < 10 ? h = `0${h}` : h = `${h}`;
         widgetPlaytime.innerText = `${h}h${m}`;
-        const widgetLastplayed = document.getElementById("widget-lastplayed"); // Don't work
+        const widgetLastplayed = document.getElementById("widget-lastplayed"); // FIXME: Don't work
         widgetLastplayed.innerText = instanceData["lastplayed"];
-        const widgetDesc = document.getElementById("widget-description"); // Write md rules
+        const widgetDesc = document.getElementById("widget-description"); // TODO: Write md rules
         widgetDesc.innerText = instanceData["description"];
         const launchBtn = document.getElementById("launchbtn");
         const accentColor = instanceData["accentColor"];
         contentAuthor.style.color = accentColor;
-        if (currentState === InstanceState[InstanceState.Playable]) {
-            launchBtn.style.backgroundColor = accentColor;
-            const color = (0, color_1.default)(accentColor);
+        const color = (0, color_1.default)(accentColor);
+        const borderColor = color.darken(-.25).hex();
+        launchBtn.style.backgroundColor = accentColor;
+        launchBtn.style.border = `solid ${borderColor}`;
+        launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`;
+        launchBtn.innerText = "Play";
+        if (currentState === InstanceState[InstanceState.Playing]) {
+            launchBtn.style.backgroundColor = "red";
+            const color = (0, color_1.default)("#ff0000");
             const borderColor = color.darken(-.25).hex();
             launchBtn.style.border = `solid ${borderColor}`;
-            launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`;
-            launchBtn.innerText = "Launch";
-        }
-        else if (currentState === InstanceState[InstanceState.Playing]) {
-            launchBtn.style.backgroundColor = "red";
-            launchBtn.style.border = `solid red`;
             launchBtn.style.boxShadow = `0 0 10px 1px red`;
             launchBtn.innerText = "Stop";
         }
         else if (currentState === InstanceState[InstanceState.Update]) {
             launchBtn.style.backgroundColor = "green";
-            launchBtn.style.border = `solid green`;
+            const color = (0, color_1.default)("#00ff00");
+            const borderColor = color.darken(-.25).hex();
+            launchBtn.style.border = `solid ${borderColor}`;
             launchBtn.style.boxShadow = `0 0 10px 1px green`;
             launchBtn.innerText = "Update";
         }
         else if (currentState === InstanceState[InstanceState.Downloading]) {
+            launchBtn.style.backgroundColor = "#2b2b2b";
+            launchBtn.style.border = `solid #363636`;
+            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
             launchBtn.innerText = "Downloading";
         }
         else if (currentState === InstanceState[InstanceState.Loading]) {
+            launchBtn.style.backgroundColor = "#2b2b2b";
+            launchBtn.style.border = `solid #363636`;
+            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
             launchBtn.innerText = "Loading";
         }
         const contentBackground = document.getElementById("content-background");
@@ -178,8 +188,8 @@ function getInstanceById(id) {
 }
 exports.getInstanceById = getInstanceById;
 function updateInstanceDlProgress(instanceId, progress) {
-    const dlTracker = document.querySelector(`#${instanceId} .dltracker`);
-    console.log(dlTracker);
+    const instance = document.getElementById(instanceId);
+    const dlTracker = instance === null || instance === void 0 ? void 0 : instance.firstElementChild;
     if (dlTracker == null) {
         return;
     }
@@ -194,7 +204,7 @@ var InstanceState;
     InstanceState[InstanceState["Playable"] = 2] = "Playable";
     InstanceState[InstanceState["Update"] = 3] = "Update";
     InstanceState[InstanceState["Playing"] = 4] = "Playing";
-})(InstanceState || (InstanceState = {}));
+})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceDlState(instanceId, newState) {
     return __awaiter(this, void 0, void 0, function* () {
         const instance = document.getElementById(instanceId);
@@ -204,18 +214,19 @@ function updateInstanceDlState(instanceId, newState) {
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;
-document.addEventListener("dblclick", (e) => {
-    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading);
-    setTimeout(() => {
-        updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading);
-        setTimeout(() => {
-            updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable);
-            setTimeout(() => {
-                updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing);
-                setTimeout(() => {
-                    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update);
-                }, 2000);
-            }, 2000);
-        }, 2000);
-    }, 2000);
-});
+// DEBUG ZONE
+// document.addEventListener("dblclick", (e) => {
+//     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
+//     setTimeout(() => {
+//         updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
+//         setTimeout(() => {
+//             updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
+//             setTimeout(() => {
+//                 updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
+//                  setTimeout(() => {
+//                     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
+//                 }, 2000)
+//             }, 2000)
+//         }, 2000)
+//     }, 2000)
+// })

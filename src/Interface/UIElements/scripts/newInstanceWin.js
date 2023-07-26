@@ -19,7 +19,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
     closeWindow("new-instance")
 
     // Download Game
-    await downloadMinecraft("1.12.2", instanceId)
+    await downloadMinecraft("1.20.1", instanceId)
 })
 
 // Close new instance window

@@ -130,6 +130,8 @@ body {
 
 .instance-sidebar #instance-list {
   margin: 5px;
+
+  overflow-x: hidden;
   overflow-y: overlay;
 
   display: flex;
