@@ -129,7 +129,6 @@ function refreshInstanceList() {
                 }
             }
         }
-        updateInstanceDlProgress("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", 50);
     });
 }
 exports.refreshInstanceList = refreshInstanceList;

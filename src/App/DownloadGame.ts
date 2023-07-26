@@ -1,7 +1,6 @@
 import {makeDir} from "../Utils/HFileManagement"
 
-import { createWriteStream } from "fs"
-import { exists, existsSync } from "original-fs"
+import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import { downloadAsync } from "../Utils/HDownload"
 import { indexesPath, instancesPath, java17Version, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
@@ -9,13 +8,7 @@ import path from "path"
 import fs from "fs/promises"
 import os from "os"
 
-interface InstanceInf{
-    name: string,
-    imagePath: string,
-    instanceId: string
-}
-
-export async function downloadMinecraft(version: string, opts: InstanceInf){
+export async function downloadMinecraft(version: string, instanceId: string){ // TODO: Track Dl 
     // Préparation
     console.log("[INFO] Preparing to the download");
 
@@ -25,6 +18,8 @@ export async function downloadMinecraft(version: string, opts: InstanceInf){
 
     let numberOfAssetsToDownload = 0
     let numberOfAssetsDownloaded = 0
+
+    let totalSizeToDl = 0 // TODO: Compute this to track dl efficiently
 
     // Téléchargement/Récupération des manifests nécessaire
     const versionDataManifest = await minecraftManifestForVersion(version)
@@ -80,7 +75,7 @@ export async function downloadMinecraft(version: string, opts: InstanceInf){
 
         await makeDir(path.join(objectPath, subhash))
 
-        const fullPath = path.join(instancesPath, opts.instanceId, "resources", e)
+        const fullPath = path.join(instancesPath, instanceId, "resources", e)
         const fileName = fullPath.split("\\").pop()
         const dirPath  = fullPath.substring(0, fullPath.indexOf(fileName!))
 

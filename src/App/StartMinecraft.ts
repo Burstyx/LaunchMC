@@ -7,7 +7,6 @@ import fs from "fs/promises"
 import {existsSync} from "fs"
 import { downloadJavaVersion, JavaVersions } from "./DownloadGame"
 import { getAllFile, makeDir } from "../Utils/HFileManagement"
-import { InstanceState, updateInstanceState } from "../Utils/HInstance"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -25,7 +24,6 @@ interface MinecraftArgsOpt {
 export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt){
     // TODO If map_to_ressource == true -> object dans legacy
     const data = await minecraftManifestForVersion(version)
-    updateInstanceState(instanceId, InstanceState.Loading)
 
     // Get all Minecraft arguments
     var mcArgs = data["minecraftArguments"]
@@ -134,8 +132,6 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     const javaVersion = data["javaVersion"]["majorVersion"]
 
     const javaVersionToUse = javaVersion >= 16 ? java17 : java8
-
-    updateInstanceState(instanceId, InstanceState.Playing)
     
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
 
@@ -149,7 +145,6 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     proc.on("close", (code) => {
         console.error("closed with code " + code);
-        updateInstanceState(instanceId, InstanceState.Inactive)
     })
 }
 

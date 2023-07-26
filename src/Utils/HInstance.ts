@@ -190,32 +190,27 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
     dlTracker.style.left = `${progress}%`
 }
 
-export enum InstanceState {
-    Downloading,
-    Playing,
+enum InstanceState {
     Loading,
-    Inactive,
+    Downloading,
+    Playable,
+    Update,
+    Playing
 }
 
-export function updateInstanceState(instanceId: string, newState: InstanceState){
-    const instance = getInstanceById(instanceId)
+export function updateInstanceDlState(instanceId: string, newState: InstanceState) {
+    const instance = document.getElementById(instanceId)
     
-    if(instance == null){
-        return
-    }
+    instance?.setAttribute("state", InstanceState[newState])
 
-    switch(newState){
-        case InstanceState.Downloading:
-            instance.className = "instance downloading"
-            break
+    switch (newState) {
         case InstanceState.Loading:
-            instance.className = "instance loading"
-            break
-        case InstanceState.Playing:
-            instance.className = "instance playing"
-            break
-        case InstanceState.Inactive:
-            instance.className = "instance"
-            break
+            const launchBtn = document.getElementById("launchbtn")
+            launchBtn?.classList.add("disable")
+
+            break;
+    
+        default:
+            break;
     }
 }

@@ -21,7 +21,7 @@ const const_1 = require("../Utils/const");
 const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
 const os_1 = __importDefault(require("os"));
-function downloadMinecraft(version, opts) {
+function downloadMinecraft(version, instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Préparation
         console.log("[INFO] Preparing to the download");
@@ -67,7 +67,7 @@ function downloadMinecraft(version, opts) {
             const hash = indexDataManifest["objects"][e]["hash"];
             const subhash = hash.substring(0, 2);
             yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
-            const fullPath = path_1.default.join(const_1.instancesPath, opts.instanceId, "resources", e);
+            const fullPath = path_1.default.join(const_1.instancesPath, instanceId, "resources", e);
             const fileName = fullPath.split("\\").pop();
             const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
             yield (0, HFileManagement_1.makeDir)(dirPath);
