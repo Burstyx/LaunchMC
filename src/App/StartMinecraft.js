@@ -21,12 +21,10 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
-const HInstance_1 = require("../Utils/HInstance");
 function startMinecraft(version, instanceId, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO If map_to_ressource == true -> object dans legacy
         const data = yield (0, HManifests_1.minecraftManifestForVersion)(version);
-        (0, HInstance_1.updateInstanceState)(instanceId, HInstance_1.InstanceState.Loading);
         // Get all Minecraft arguments
         var mcArgs = data["minecraftArguments"];
         if (mcArgs == null) {
@@ -114,7 +112,6 @@ function startMinecraft(version, instanceId, opt) {
         console.log("natives extracted");
         const javaVersion = data["javaVersion"]["majorVersion"];
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
-        (0, HInstance_1.updateInstanceState)(instanceId, HInstance_1.InstanceState.Playing);
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
         proc.stdout.on("data", (data) => {
             console.log(data.toString("utf-8"));
@@ -124,7 +121,6 @@ function startMinecraft(version, instanceId, opt) {
         });
         proc.on("close", (code) => {
             console.error("closed with code " + code);
-            (0, HInstance_1.updateInstanceState)(instanceId, HInstance_1.InstanceState.Inactive);
         });
     });
 }

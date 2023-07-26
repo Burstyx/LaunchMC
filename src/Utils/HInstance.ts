@@ -46,6 +46,7 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
     // Instance Btn
     instanceElement.innerText = title
     instanceElement.classList.add("img-btn", "interactable", "instance")
+    instanceElement.setAttribute("state", InstanceState[InstanceState.Loading])
     instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`
     instanceElement.id = id
 
@@ -73,7 +74,14 @@ function generateInstanceBtn(imagePath: string, title: string, id: string) {
     return instanceElement
 }
 
+let currentContentId: string | null = null
+
 export async function setContentTo(id: string) {
+    currentContentId = id
+
+    const instance = document.getElementById(id)
+    const currentState = instance?.getAttribute("state")
+
     const data = await getInstanceData(id)
     
     const content = document.getElementById("content")!
@@ -113,23 +121,52 @@ export async function setContentTo(id: string) {
 
     widgetPlaytime.innerText = `${h}h${m}`
 
-    const widgetLastplayed = document.getElementById("widget-lastplayed")! // Don't work
+    const widgetLastplayed = document.getElementById("widget-lastplayed")! // FIXME: Don't work
     widgetLastplayed.innerText = instanceData["lastplayed"]
 
-    const widgetDesc = document.getElementById("widget-description")! // Write md rules
+    const widgetDesc = document.getElementById("widget-description")! // TODO: Write md rules
     widgetDesc.innerText = instanceData["description"]
 
     const launchBtn = document.getElementById("launchbtn")!
+
     const accentColor = instanceData["accentColor"]
-    launchBtn.style.backgroundColor = accentColor
-
-    const color = Color(accentColor)
-    const borderColor = color.darken(-.25).hex()
-
     contentAuthor.style.color = accentColor
 
-    launchBtn.style.border = `solid ${borderColor}`
-    launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`
+    if(currentState === InstanceState[InstanceState.Playable]) {
+        
+        launchBtn.style.backgroundColor = accentColor
+
+        const color = Color(accentColor)
+        const borderColor = color.darken(-.25).hex()
+
+        launchBtn.style.border = `solid ${borderColor}`
+        launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`
+
+        launchBtn.innerText = "Launch"
+    }
+    else if(currentState === InstanceState[InstanceState.Playing]){
+        launchBtn.style.backgroundColor = "red"
+
+        launchBtn.style.border = `solid red`
+        launchBtn.style.boxShadow = `0 0 10px 1px red`
+
+        launchBtn.innerText = "Stop"
+    }
+    else if(currentState === InstanceState[InstanceState.Update]){
+        launchBtn.style.backgroundColor = "green"
+
+        launchBtn.style.border = `solid green`
+        launchBtn.style.boxShadow = `0 0 10px 1px green`
+
+        launchBtn.innerText = "Update"
+    }
+    else if(currentState === InstanceState[InstanceState.Downloading]){
+        launchBtn.innerText = "Downloading"
+    }
+    else if(currentState === InstanceState[InstanceState.Loading]){
+        launchBtn.innerText = "Loading"
+    }
+
 
     const contentBackground = document.getElementById("content-background")!
     contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
@@ -198,19 +235,27 @@ enum InstanceState {
     Playing
 }
 
-export function updateInstanceDlState(instanceId: string, newState: InstanceState) {
+export async function updateInstanceDlState(instanceId: string, newState: InstanceState) {
     const instance = document.getElementById(instanceId)
     
     instance?.setAttribute("state", InstanceState[newState])
 
-    switch (newState) {
-        case InstanceState.Loading:
-            const launchBtn = document.getElementById("launchbtn")
-            launchBtn?.classList.add("disable")
-
-            break;
-    
-        default:
-            break;
-    }
+    if(currentContentId == instanceId)
+        await setContentTo(instanceId)
 }
+
+document.addEventListener("dblclick", (e) => {
+    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
+    setTimeout(() => {
+        updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
+        setTimeout(() => {
+            updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
+            setTimeout(() => {
+                updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
+                 setTimeout(() => {
+                    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
+                }, 2000)
+            }, 2000)
+        }, 2000)
+    }, 2000)
+})

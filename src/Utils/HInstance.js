@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.updateInstanceDlState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -45,6 +45,7 @@ function generateInstanceBtn(imagePath, title, id) {
     // Instance Btn
     instanceElement.innerText = title;
     instanceElement.classList.add("img-btn", "interactable", "instance");
+    instanceElement.setAttribute("state", InstanceState[InstanceState.Loading]);
     instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`;
     instanceElement.id = id;
     // Download track div
@@ -67,8 +68,12 @@ function generateInstanceBtn(imagePath, title, id) {
     }));
     return instanceElement;
 }
+let currentContentId = null;
 function setContentTo(id) {
     return __awaiter(this, void 0, void 0, function* () {
+        currentContentId = id;
+        const instance = document.getElementById(id);
+        const currentState = instance === null || instance === void 0 ? void 0 : instance.getAttribute("state");
         const data = yield getInstanceData(id);
         const content = document.getElementById("content");
         content.style.display = "none";
@@ -101,12 +106,33 @@ function setContentTo(id) {
         widgetDesc.innerText = instanceData["description"];
         const launchBtn = document.getElementById("launchbtn");
         const accentColor = instanceData["accentColor"];
-        launchBtn.style.backgroundColor = accentColor;
-        const color = (0, color_1.default)(accentColor);
-        const borderColor = color.darken(-.25).hex();
         contentAuthor.style.color = accentColor;
-        launchBtn.style.border = `solid ${borderColor}`;
-        launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`;
+        if (currentState === InstanceState[InstanceState.Playable]) {
+            launchBtn.style.backgroundColor = accentColor;
+            const color = (0, color_1.default)(accentColor);
+            const borderColor = color.darken(-.25).hex();
+            launchBtn.style.border = `solid ${borderColor}`;
+            launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`;
+            launchBtn.innerText = "Launch";
+        }
+        else if (currentState === InstanceState[InstanceState.Playing]) {
+            launchBtn.style.backgroundColor = "red";
+            launchBtn.style.border = `solid red`;
+            launchBtn.style.boxShadow = `0 0 10px 1px red`;
+            launchBtn.innerText = "Stop";
+        }
+        else if (currentState === InstanceState[InstanceState.Update]) {
+            launchBtn.style.backgroundColor = "green";
+            launchBtn.style.border = `solid green`;
+            launchBtn.style.boxShadow = `0 0 10px 1px green`;
+            launchBtn.innerText = "Update";
+        }
+        else if (currentState === InstanceState[InstanceState.Downloading]) {
+            launchBtn.innerText = "Downloading";
+        }
+        else if (currentState === InstanceState[InstanceState.Loading]) {
+            launchBtn.innerText = "Loading";
+        }
         const contentBackground = document.getElementById("content-background");
         contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
     url(${instanceData["imagePath"]})`;
@@ -163,29 +189,33 @@ function updateInstanceDlProgress(instanceId, progress) {
 exports.updateInstanceDlProgress = updateInstanceDlProgress;
 var InstanceState;
 (function (InstanceState) {
-    InstanceState[InstanceState["Downloading"] = 0] = "Downloading";
-    InstanceState[InstanceState["Playing"] = 1] = "Playing";
-    InstanceState[InstanceState["Loading"] = 2] = "Loading";
-    InstanceState[InstanceState["Inactive"] = 3] = "Inactive";
-})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
-function updateInstanceState(instanceId, newState) {
-    const instance = getInstanceById(instanceId);
-    if (instance == null) {
-        return;
-    }
-    switch (newState) {
-        case InstanceState.Downloading:
-            instance.className = "instance downloading";
-            break;
-        case InstanceState.Loading:
-            instance.className = "instance loading";
-            break;
-        case InstanceState.Playing:
-            instance.className = "instance playing";
-            break;
-        case InstanceState.Inactive:
-            instance.className = "instance";
-            break;
-    }
+    InstanceState[InstanceState["Loading"] = 0] = "Loading";
+    InstanceState[InstanceState["Downloading"] = 1] = "Downloading";
+    InstanceState[InstanceState["Playable"] = 2] = "Playable";
+    InstanceState[InstanceState["Update"] = 3] = "Update";
+    InstanceState[InstanceState["Playing"] = 4] = "Playing";
+})(InstanceState || (InstanceState = {}));
+function updateInstanceDlState(instanceId, newState) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const instance = document.getElementById(instanceId);
+        instance === null || instance === void 0 ? void 0 : instance.setAttribute("state", InstanceState[newState]);
+        if (currentContentId == instanceId)
+            yield setContentTo(instanceId);
+    });
 }
-exports.updateInstanceState = updateInstanceState;
+exports.updateInstanceDlState = updateInstanceDlState;
+document.addEventListener("dblclick", (e) => {
+    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading);
+    setTimeout(() => {
+        updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading);
+        setTimeout(() => {
+            updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable);
+            setTimeout(() => {
+                updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing);
+                setTimeout(() => {
+                    updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update);
+                }, 2000);
+            }, 2000);
+        }, 2000);
+    }, 2000);
+});

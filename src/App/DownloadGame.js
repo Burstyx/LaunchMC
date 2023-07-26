@@ -30,6 +30,7 @@ function downloadMinecraft(version, instanceId) {
         let numberOfLibrariesDownloaded = 0;
         let numberOfAssetsToDownload = 0;
         let numberOfAssetsDownloaded = 0;
+        let totalSizeToDl = 0; // TODO: Compute this to track dl efficiently
         // Téléchargement/Récupération des manifests nécessaire
         const versionDataManifest = yield (0, HManifests_1.minecraftManifestForVersion)(version);
         yield (0, HFileManagement_1.makeDir)(const_1.indexesPath);
