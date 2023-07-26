@@ -20,8 +20,10 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 function addInstanceElement(imagePath, title, id) {
-    const instanceDiv = document.getElementById("instance-list");
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id));
+    return __awaiter(this, void 0, void 0, function* () {
+        const instanceDiv = document.getElementById("instance-list");
+        instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id));
+    });
 }
 function createInstance(version, instanceInfo) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30,7 +32,7 @@ function createInstance(version, instanceInfo) {
         yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo["id"], "info.json"), JSON.stringify({ "instanceData": { "name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
                 "playtime": 0, "lastplayed": "Never", "description": null }, "gameData": { "version": version,
                 "modloader": instanceInfo["modloader"] } }));
-        addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceInfo["id"]);
+        yield refreshInstanceList();
     });
 }
 exports.createInstance = createInstance;
@@ -107,7 +109,7 @@ function refreshInstanceList() {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf8");
                     const dataJson = JSON.parse(data);
-                    addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e]);
+                    yield addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e]);
                 }
             }
         }

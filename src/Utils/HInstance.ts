@@ -6,7 +6,7 @@ import { existsSync } from "original-fs"
 import Color from "color"
 
 
-function addInstanceElement(imagePath: string, title: string, id: string){
+async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
 
     instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
@@ -32,7 +32,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
         "modloader": instanceInfo["modloader"]}}
     ))
 
-    addInstanceElement(instanceInfo["imagePath"], instanceInfo["name"], instanceInfo["id"])
+    await refreshInstanceList()
 }
 
 function generateInstanceBtn(imagePath: string, title: string, id: string) {
@@ -132,7 +132,7 @@ export async function refreshInstanceList(){
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
 
                 const dataJson = JSON.parse(data)
-                addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
+                await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
             }
         }
     }
