@@ -259,7 +259,7 @@ body {
   opacity: 0;
   pointer-events: none;
 
-  transition: opacity .3s;
+  transition: opacity .15s;
 }
 
 .window {
@@ -274,9 +274,9 @@ body {
   position: absolute;
 
   opacity: 0;
-  transform: scale(.5);
+  transform: scale(.75);
   pointer-events: none;
-  transition: opacity .3s, transform .3s ease-out;
+  transition: opacity .15s, transform .15s ease-out;
 }
 
 .window[window-id="new-instance"] .info-backimg {

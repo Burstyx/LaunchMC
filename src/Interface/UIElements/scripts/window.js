@@ -21,7 +21,7 @@ exports.openWindow = (windowId) => {
 exports.closeWindow = (windowId) => {
     windowsIdOpened.splice(windowsIdOpened.indexOf(windowId))
 
-    if(windowsIdOpened.length == 0) {
+    if (windowsIdOpened.length == 0) {
         subWindow.style.opacity = "0"
         subWindow.style.pointerEvents = "none"
     }
@@ -29,7 +29,7 @@ exports.closeWindow = (windowId) => {
     windows.forEach((window) => {
         if (window.getAttribute("window-id") === windowId) {
             window.style.opacity = "0"
-            window.style.transform = "scale(.5)"
+            window.style.transform = "scale(.85)"
             window.style.pointerEvents = "none"
         }
     })
