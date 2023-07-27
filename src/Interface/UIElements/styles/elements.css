@@ -165,37 +165,47 @@ input[type="text"]:focus {
 
 /* Checkbox */
 
-input[type="checkbox"] {
-  all: unset;
+.checkbox {
+  border-radius: 5px;
+
+  padding: 10px;
+
+  position: relative;
+  display: flex;
+
+  transition: background-color .25s, box-shadow .25s;
+
+  background-color: #191919;
+  box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.25);
+}
+
+.checkbox::after {
+  content: '';
   border: solid white;
   border-radius: 5px;
+  position: absolute;
+
   width: 15px;
   height: 15px;
-  position: relative;
+  right: 10px;
 
   transition: background-color .25s, box-shadow .25s;
 }
 
-input[type="checkbox"]:checked {
+.checkbox[checked="true"]::after {
   background-color: white;
   box-shadow: 0 0 0px calc(15px / 2) inset white;
 }
 
-input[type="checkbox"]::before {
+.checkbox[checked="true"]::before {
   content: '';
-
   background-image: url(../resources/svg/checked.svg);
-  background-size: contain;
   background-repeat: no-repeat;
-
+  background-size: contain;
+  z-index: 1;
   position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-input[type="checkbox"]::after {
-  content: attr(text);
-  position: absolute;
-  left: calc(100% + 10px);
-  width: max-content;
+  
+  width: 19px;
+  height: 19px;
+  right: 10px;
 }

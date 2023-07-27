@@ -7,22 +7,30 @@ exports.openWindow = (windowId) => {
     subWindow.style.opacity = "1"
     subWindow.style.pointerEvents = "all"
 
+    windowsIdOpened.push(windowId)
+
     windows.forEach((window) => {
         if (window.getAttribute("window-id") === windowId) {
             window.style.opacity = "1"
             window.style.transform = "scale(1)"
+            window.style.pointerEvents = "all"
         }
     })
 }
 
 exports.closeWindow = (windowId) => {
-    subWindow.style.opacity = "0"
-    subWindow.style.pointerEvents = "none"
+    windowsIdOpened.splice(windowsIdOpened.indexOf(windowId))
+
+    if(windowsIdOpened.length == 0) {
+        subWindow.style.opacity = "0"
+        subWindow.style.pointerEvents = "none"
+    }
 
     windows.forEach((window) => {
         if (window.getAttribute("window-id") === windowId) {
             window.style.opacity = "0"
             window.style.transform = "scale(.5)"
+            window.style.pointerEvents = "none"
         }
     })
 }

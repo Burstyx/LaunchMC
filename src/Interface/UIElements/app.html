@@ -83,30 +83,15 @@
                 </div>
             </div>
             <div class="window" window-id="choose-version">
-                <div class="version-list">
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.12.2</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn intractable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
-                    <div class="img-btn interactable" style="background-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)">1.20.1</div>
+                <div class="version-list" id="vanilla-versions-list">
                 </div>
                 <div class="version-filters">
-                    <input type="checkbox" text="Releases">
-                    <input type="checkbox" text="Snapshots">
-                    <input type="checkbox" text="Old Snapshots">
-                    <input type="checkbox" text="Betas">
-                    <input type="checkbox" text="Alphas">
+                    <input type="text" id="vanilla-version-filter-search" placeholder="Search">
+                    <div class="checkbox" id="vanilla-version-filter-release" text="Releases" checked="true">Releases</div>
+                    <div class="checkbox" id="vanilla-version-filter-snapshot" text="Snapshots" checked="true">Snapshots</div>
+                    <div class="checkbox" id="vanilla-version-filter-beta" text="Betas" checked="false">Betas</div>
+                    <div class="checkbox" id="vanilla-version-filter-alpha" text="Alphas" checked="false">Alphas</div>
+                    <div class="default-btn danger" id="close-choose-version-win" style="position: absolute; bottom: 5px; left: 5px; right: 5px;">Cancel</div>
                 </div>
             </div>
         </div>
