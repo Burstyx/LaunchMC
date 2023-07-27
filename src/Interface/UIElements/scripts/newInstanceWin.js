@@ -1,4 +1,4 @@
-const { closeWindow } = require("./window")
+const { closeWindow, openWindow } = require("./window")
 const { createInstance, setContentTo } = require("../../../Utils/HInstance")
 const { v4 } = require("uuid")
 const { downloadMinecraft } = require("../../../App/DownloadGame")
@@ -29,4 +29,11 @@ closeNewInstanceWin.addEventListener("click", (e) => {
     newInstanceName.value = ""
 
     closeWindow("new-instance")
+})
+
+// Open choose version window
+const openChooseVersionWin = document.getElementById("open-choose-version-win")
+
+openChooseVersionWin.addEventListener("click", (e) => {
+    openWindow("choose-version")
 })

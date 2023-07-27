@@ -77,7 +77,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 
 let currentContentId: string | null = null
 
-export async function setContentTo(id: string) {
+export async function setContentTo(id: string) { // TODO: Cleaning
     currentContentId = id
 
     const instance = document.getElementById(id)
@@ -235,7 +235,7 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
     }
     
     //@ts-ignore
-    dlTracker.style.left = `${progress}%`
+    dlTracker.style.left = `${progress >= 98 ? '100' : progress}%`
 }
 
 export enum InstanceState {
@@ -253,6 +253,10 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
 
     if(currentContentId == instanceId)
         await setContentTo(instanceId)
+}
+
+export async function checkInstanceIntegrity(instanceId: string) {
+    // TODO: Code
 }
 
 // DEBUG ZONE

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.checkInstanceIntegrity = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -194,7 +194,7 @@ function updateInstanceDlProgress(instanceId, progress) {
         return;
     }
     //@ts-ignore
-    dlTracker.style.left = `${progress}%`;
+    dlTracker.style.left = `${progress >= 98 ? '100' : progress}%`;
 }
 exports.updateInstanceDlProgress = updateInstanceDlProgress;
 var InstanceState;
@@ -214,6 +214,12 @@ function updateInstanceDlState(instanceId, newState) {
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;
+function checkInstanceIntegrity(instanceId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // TODO: Code
+    });
+}
+exports.checkInstanceIntegrity = checkInstanceIntegrity;
 // DEBUG ZONE
 // document.addEventListener("dblclick", (e) => {
 //     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
