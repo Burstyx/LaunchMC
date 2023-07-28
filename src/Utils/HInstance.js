@@ -157,12 +157,33 @@ function refreshInstanceList() {
         instancesDiv.innerHTML = "";
         if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
+            let instancesName = [];
+            // Get all instances
             for (const e in instances) {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf8");
                     const dataJson = JSON.parse(data);
-                    yield addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e]);
+                    instancesName[e] = dataJson["instanceData"]["name"];
+                    console.log(e, dataJson["instanceData"]["name"]);
+                    // await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
                 }
+            }
+            const instancesNameOrdered = Object.values(instancesName).sort();
+            const orderedInstancesName = [];
+            for (const e of instancesNameOrdered) { // name
+                for (const el in instancesName) { // index                
+                    if (e == instancesName[el]) {
+                        orderedInstancesName.push({ name: e, index: el });
+                    }
+                }
+            }
+            console.log(orderedInstancesName);
+            // Order instances by name        
+            for (const e in orderedInstancesName) {
+                console.log(orderedInstancesName[e]);
+                const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[orderedInstancesName[e]["index"]], "info.json"), "utf8");
+                const dataJson = JSON.parse(data);
+                yield addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[orderedInstancesName[e]["index"]]);
             }
         }
     });

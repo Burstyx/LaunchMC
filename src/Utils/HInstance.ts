@@ -188,21 +188,49 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList(){
+export async function refreshInstanceList(){ // FIXME: Instance are ordered by id and not by name
     const instancesDiv = document.getElementById("instance-list")!
     instancesDiv.innerHTML = ""
     
     if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
 
+        let instancesName: any[] = []
+        
+        // Get all instances
         for(const e in instances){            
             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
-
                 const dataJson = JSON.parse(data)
-                await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
+
+                instancesName[e] = dataJson["instanceData"]["name"]     
+                console.log(e, dataJson["instanceData"]["name"]);
+                
+
+                // await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
             }
         }
+
+        const instancesNameOrdered = Object.values(instancesName).sort()
+        
+        const orderedInstancesName: any[] = []
+
+        for(const e of instancesNameOrdered) { // name
+            for(const el in instancesName) { // index                
+                if(e == instancesName[el]){
+                    orderedInstancesName.push({name: e, index: el})
+                }
+            }
+        }
+                
+        // Order instances by name        
+        for(const e in orderedInstancesName) {            
+            const data = await fs.readFile(path.join(instancesPath, instances[orderedInstancesName[e]["index"]], "info.json"), "utf8")
+            const dataJson = JSON.parse(data)
+
+            await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[orderedInstancesName[e]["index"]])
+        }
+        
     }
 }
 
