@@ -165,7 +165,6 @@ function refreshInstanceList() {
                     const dataJson = JSON.parse(data);
                     instancesName[e] = dataJson["instanceData"]["name"];
                     console.log(e, dataJson["instanceData"]["name"]);
-                    // await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
                 }
             }
             const instancesNameOrdered = Object.values(instancesName).sort();
@@ -177,10 +176,8 @@ function refreshInstanceList() {
                     }
                 }
             }
-            console.log(orderedInstancesName);
             // Order instances by name        
             for (const e in orderedInstancesName) {
-                console.log(orderedInstancesName[e]);
                 const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[orderedInstancesName[e]["index"]], "info.json"), "utf8");
                 const dataJson = JSON.parse(data);
                 yield addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[orderedInstancesName[e]["index"]]);

@@ -13,13 +13,16 @@ createInstanceBtn.addEventListener("click", async (e) => {
 
     let instanceName = userInstanceName
 
-    if(instanceName == "") {
+    if (instanceName == "") {
         instanceName = version
     }
 
+    const background = document.getElementById("backimg-new-instance")
+    const imgPath = background.getAttribute("image-path")
+
     // Création de l'instance
     const instanceId = v4()
-    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceId, imagePath: "./resources/images/default.png", modloader: modloader, name: instanceName })
+    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceId, imagePath: imgPath, modloader: modloader, name: instanceName })
     await setContentTo(instanceId)
 
     // Close window
@@ -33,7 +36,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
 const closeNewInstanceWin = document.getElementById("close-new-instance-win")
 
 closeNewInstanceWin.addEventListener("click", (e) => {
-    newInstanceName.value = ""
+    document.getElementById("new-instance-name").value = ""
 
     closeWindow("new-instance")
 })

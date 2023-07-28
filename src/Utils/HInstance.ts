@@ -188,7 +188,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList(){ // FIXME: Instance are ordered by id and not by name
+export async function refreshInstanceList(){
     const instancesDiv = document.getElementById("instance-list")!
     instancesDiv.innerHTML = ""
     
@@ -205,9 +205,6 @@ export async function refreshInstanceList(){ // FIXME: Instance are ordered by i
 
                 instancesName[e] = dataJson["instanceData"]["name"]     
                 console.log(e, dataJson["instanceData"]["name"]);
-                
-
-                // await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[e])
             }
         }
 

@@ -1,3 +1,4 @@
+const { dialog, getCurrentWindow } = require("@electron/remote")
 const { minecraftManifest } = require("../../../Utils/HManifests")
 const { closeWindow } = require("./window")
 
@@ -64,4 +65,20 @@ refreshInstanceList()
 
 document.getElementById("close-choose-version-win").addEventListener("click", (e) => {
     closeWindow("choose-version")
+})
+
+const changeInstanceImage = document.getElementById("change-instance-image")
+
+changeInstanceImage.addEventListener("click", (e) => {
+    const newPath = dialog.showOpenDialogSync(getCurrentWindow(), { title: "Select the new instance background", filters: [{ name: "Image", extensions: ["png", "jpg"] }], properties: ["openFile"] })
+
+    if (newPath === undefined) {
+        console.log("Action canceled");
+        return
+    }
+
+
+    const background = document.getElementById("backimg-new-instance")
+    background.style.background = `url('${newPath}')`
+    background.setAttribute("image-path", newPath)
 })
