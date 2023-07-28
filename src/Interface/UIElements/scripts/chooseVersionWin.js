@@ -46,6 +46,15 @@ function refreshInstanceList() {
             versionsElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(./resources/images/default.png)`
             versionsElement.innerText = version.id
 
+            versionsElement.addEventListener("click", (e) => {
+                const modloaderWidget = document.getElementById("open-choose-version-win")
+                modloaderWidget.setAttribute("version-id", version.id)
+                modloaderWidget.setAttribute("subname", version.type)
+                modloaderWidget.innerText = version.id
+
+                closeWindow("choose-version")
+            })
+
             versionsList.appendChild(versionsElement)
         }
     })

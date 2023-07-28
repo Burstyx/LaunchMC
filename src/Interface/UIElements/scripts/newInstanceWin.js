@@ -5,21 +5,28 @@ const { downloadMinecraft } = require("../../../App/DownloadGame")
 
 // Create new instance and start downloading
 const createInstanceBtn = document.getElementById("create-instance-btn")
-const newInstanceName = document.getElementById("new-instance-name")
 
 createInstanceBtn.addEventListener("click", async (e) => {
-    const instanceName = newInstanceName.value
+    const userInstanceName = document.getElementById("new-instance-name").value
+    const version = document.getElementById("open-choose-version-win").getAttribute("version-id")
+    const modloader = document.getElementById("open-choose-modloader-win").getAttribute("modloader-id")
+
+    let instanceName = userInstanceName
+
+    if(instanceName == "") {
+        instanceName = version
+    }
 
     // Création de l'instance
     const instanceId = v4()
-    await createInstance("1.12.2", { accentColor: "#2596be", author: "You", id: instanceId, imagePath: "./resources/images/default.png", modloader: "vanilla", name: instanceName })
+    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceId, imagePath: "./resources/images/default.png", modloader: modloader, name: instanceName })
     await setContentTo(instanceId)
 
     // Close window
     closeWindow("new-instance")
 
     // Download Game
-    await downloadMinecraft("1.20.1", instanceId)
+    await downloadMinecraft(version, instanceId)
 })
 
 // Close new instance window
