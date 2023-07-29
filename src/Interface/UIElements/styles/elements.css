@@ -89,7 +89,7 @@
 
   font-size: 20px;
 
-  padding: 10px 30px;
+  padding: 12px 75px;
   border-radius: 5px;
 
   transition: filter .25s, transform .25s;
@@ -100,6 +100,11 @@
 .accent-btn.interactable:hover {
   filter: brightness(1.25);
   transform: scale(1.03);
+}
+
+.accent-btn.interactable:active {
+  filter: brightness(0.75);
+  transform: scale(0.97);
 }
 
 /* Widget btn */ 
