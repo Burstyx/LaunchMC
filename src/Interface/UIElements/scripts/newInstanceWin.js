@@ -1,3 +1,4 @@
+const { dialog, getCurrentWindow } = require("@electron/remote")
 const { closeWindow, openWindow } = require("./window")
 const { createInstance, setContentTo } = require("../../../Utils/HInstance")
 const { v4 } = require("uuid")
@@ -19,6 +20,8 @@ createInstanceBtn.addEventListener("click", async (e) => {
 
     const background = document.getElementById("backimg-new-instance")
     const imgPath = background.getAttribute("image-path")
+
+    console.log(imgPath);
 
     // Création de l'instance
     const instanceId = v4()
@@ -46,4 +49,23 @@ const openChooseVersionWin = document.getElementById("open-choose-version-win")
 
 openChooseVersionWin.addEventListener("click", (e) => {
     openWindow("choose-version")
+})
+
+// Change image
+const changeInstanceImage = document.getElementById("change-instance-image")
+
+changeInstanceImage.addEventListener("click", (e) => {
+    const selectedImages = dialog.showOpenDialogSync(getCurrentWindow(), { title: "Select the new instance background", filters: [{ name: "Image", extensions: ["png", "jpg"] }], properties: ["openFile"] })
+
+    if (selectedImages === undefined) {
+        console.log("Action canceled");
+        return
+    }
+
+    const imagePath = selectedImages[0].replace(/\\/g, '/')
+
+    const background = document.getElementById("backimg-new-instance")
+    background.style.setProperty("background", `url('${imagePath}') 50% center / cover`)
+    console.log(background.style.background);
+    background.setAttribute("image-path", imagePath)
 })

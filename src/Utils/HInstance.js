@@ -47,7 +47,7 @@ function generateInstanceBtn(imagePath, title, id) {
         // Instance Btn
         instanceElement.innerText = title;
         instanceElement.classList.add("img-btn", "interactable", "instance");
-        instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url(${imagePath})`;
+        instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url('${imagePath}')`;
         instanceElement.id = id;
         // Download track div
         let dlTrackerElement = document.createElement("div");
@@ -145,7 +145,7 @@ function setContentTo(id) {
         }
         const contentBackground = document.getElementById("content-background");
         contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
-    url(${instanceData["imagePath"]})`;
+    url('${instanceData["imagePath"]}')`;
         loading.style.display = "none";
         content.style.display = "flex";
     });

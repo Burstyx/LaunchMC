@@ -9,7 +9,7 @@ import fs from "fs/promises"
 import os from "os"
 import { InstanceState, updateInstanceDlProgress, updateInstanceDlState } from "../Utils/HInstance"
 
-export async function downloadMinecraft(version: string, instanceId: string){ // TODO: Track Dl 
+export async function downloadMinecraft(version: string, instanceId: string){ // TODO: Validate files
     // Préparation
     console.log("[INFO] Preparing to the download");
     
