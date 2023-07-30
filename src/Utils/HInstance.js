@@ -47,6 +47,7 @@ function generateInstanceBtn(imagePath, title, id) {
         // Instance Btn
         instanceElement.innerText = title;
         instanceElement.classList.add("img-btn", "interactable", "instance");
+        instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]);
         instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`;
         instanceElement.style.textShadow = "black 0px 0px 10px";
         instanceElement.id = id;

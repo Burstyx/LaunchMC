@@ -48,6 +48,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
     // Instance Btn
     instanceElement.innerText = title
     instanceElement.classList.add("img-btn", "interactable", "instance")
+    instanceElement.setAttribute("state", InstanceState[InstanceState.Playable])
     instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`
     instanceElement.style.textShadow = "black 0px 0px 10px"
     instanceElement.id = id
@@ -189,7 +190,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList(){
+export async function refreshInstanceList(){ // FIXME: Refresh instance state and that's not good at all
     const instancesDiv = document.getElementById("instance-list")!
     instancesDiv.innerHTML = ""
     

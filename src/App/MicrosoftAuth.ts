@@ -13,7 +13,7 @@ export function createOAuthLink(){
     return url
 }
 
-export async function msaLogin(){
+export async function msaLogin(){ // TODO: Return profile data
     const loginWindow = new BrowserWindow({
         backgroundColor: "white",
         center: true,

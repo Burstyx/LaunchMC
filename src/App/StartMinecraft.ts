@@ -21,7 +21,7 @@ interface MinecraftArgsOpt {
     }
 }
 
-export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt){
+export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt){ // TODO: Get game libraries
     // TODO If map_to_ressource == true -> object dans legacy
     const data = await minecraftManifestForVersion(version)
 
