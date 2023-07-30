@@ -47,7 +47,8 @@ function generateInstanceBtn(imagePath, title, id) {
         // Instance Btn
         instanceElement.innerText = title;
         instanceElement.classList.add("img-btn", "interactable", "instance");
-        instanceElement.style.backgroundImage = `linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0) 100%), url('${imagePath}')`;
+        instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`;
+        instanceElement.style.textShadow = "black 0px 0px 10px";
         instanceElement.id = id;
         // Download track div
         let dlTrackerElement = document.createElement("div");
@@ -144,7 +145,7 @@ function setContentTo(id) {
             launchBtn.innerText = "Loading";
         }
         const contentBackground = document.getElementById("content-background");
-        contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, black calc(100% + 1px)),
+        contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
     url('${instanceData["imagePath"]}')`;
         loading.style.display = "none";
         content.style.display = "flex";
@@ -211,8 +212,9 @@ function updateInstanceDlProgress(instanceId, progress) {
     if (dlTracker == null) {
         return;
     }
+    console.log(progress);
     //@ts-ignore
-    dlTracker.style.left = `${progress >= 98 ? '100' : progress}%`;
+    dlTracker.style.left = `${progress >= 95 ? '100' : progress}%`;
 }
 exports.updateInstanceDlProgress = updateInstanceDlProgress;
 var InstanceState;

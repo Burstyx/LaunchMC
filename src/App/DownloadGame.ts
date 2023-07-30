@@ -14,6 +14,7 @@ export async function downloadMinecraft(version: string, instanceId: string){ //
     console.log("[INFO] Preparing to the download");
     
     await updateInstanceDlState(instanceId, InstanceState.Loading)
+    updateInstanceDlProgress(instanceId, 0)
 
     // Variables de tracking du dl
     let numberOfLibrariesToDownload = 0

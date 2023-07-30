@@ -27,6 +27,7 @@ function downloadMinecraft(version, instanceId) {
         // Préparation
         console.log("[INFO] Preparing to the download");
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
+        (0, HInstance_1.updateInstanceDlProgress)(instanceId, 0);
         // Variables de tracking du dl
         let numberOfLibrariesToDownload = 0;
         let numberOfLibrariesDownloaded = 0;
