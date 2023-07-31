@@ -21,10 +21,12 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
+const HInstance_1 = require("../Utils/HInstance");
 function startMinecraft(version, instanceId, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO If map_to_ressource == true -> object dans legacy
         const data = yield (0, HManifests_1.minecraftManifestForVersion)(version);
+        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
         // Get all Minecraft arguments
         var mcArgs = data["minecraftArguments"];
         if (mcArgs == null) {
@@ -72,7 +74,7 @@ function startMinecraft(version, instanceId, opt) {
                     break;
                 case "${game_assets}":
                     // if(!existsSync(legacyAssetsPath))
-                    //     await fs.mkdir(legacyAssetsPath, {recursive: true})
+                    //     await fs.mkdir(legacyAssetsPath, {recursive: true}) // TODO: Assets don't work for pre-1.6 version
                     tempSplitedArgs[i] = path_1.default.join(const_1.instancesPath, instanceId, "resources");
                     break;
                 case "${auth_session}":
@@ -113,15 +115,17 @@ function startMinecraft(version, instanceId, opt) {
         const javaVersion = data["javaVersion"]["majorVersion"];
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
+        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
         proc.stdout.on("data", (data) => {
             console.log(data.toString("utf-8"));
         });
         proc.stderr.on("data", (data) => {
             console.error(data.toString("utf-8"));
         });
-        proc.on("close", (code) => {
+        proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
             console.error("closed with code " + code);
-        });
+            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+        }));
     });
 }
 exports.startMinecraft = startMinecraft;

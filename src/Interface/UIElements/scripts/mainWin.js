@@ -4,6 +4,7 @@ const { InstanceState } = require("../../../Utils/HInstance")
 const { msaLogin } = require("../../../App/MicrosoftAuth")
 const fs = require("fs/promises")
 const { gamePath } = require("../../../Utils/const")
+const { existsSync } = require("fs")
 
 // Open new instance window button
 const openCreateInstanceWinBtn = document.getElementById("open-create-instance-window")
@@ -27,7 +28,8 @@ launchBtn.addEventListener("click", async () => {
 
 
     // FIXME: MICROSOFT LOGIN SHOULD'NT BE HERE
-    await msaLogin()
+    if (!existsSync(gamePath + "/microsoft_account.json"))
+        await msaLogin()
 
     const data = JSON.parse(await fs.readFile(gamePath + "/microsoft_account.json"))
 

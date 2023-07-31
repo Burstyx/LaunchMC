@@ -73,6 +73,7 @@
 .img-btn.preparing {
   animation: infinite ease-in-out 2s preparing-blinking alternate;
 }
+
 @keyframes preparing-blinking {
   from {
     border: solid rgb(210, 210, 210) 2px;
