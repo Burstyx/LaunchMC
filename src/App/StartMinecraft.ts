@@ -1,7 +1,7 @@
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath } from "../Utils/const"
+import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath, indexesPath, gamePath } from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
 import { existsSync } from "fs"
@@ -36,7 +36,6 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         }
     }
 
-
     // Parse Minecraft arguments
     let tempSplitedArgs = mcArgs.split(" ")
     console.log(tempSplitedArgs);
@@ -56,7 +55,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 tempSplitedArgs[i] = assetsPath
                 break;
             case "${assets_index_name}":
-                tempSplitedArgs[i] = JSON.parse((await fs.readFile(path.join(instancesPath, instanceId, "info.json"), { encoding: "utf-8" })).toString())["assets_index_name"]
+                tempSplitedArgs[i] = data.assets
                 break;
             case "${auth_uuid}":
                 tempSplitedArgs[i] = opt.uuid
@@ -68,7 +67,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 tempSplitedArgs[i] = opt.username
                 break;
             case "${user_type}":
-                tempSplitedArgs[i] = "mojang"
+                tempSplitedArgs[i] = "msa"
                 break;
             case "${version_type}":
                 tempSplitedArgs[i] = opt.versiontype

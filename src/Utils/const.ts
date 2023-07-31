@@ -1,5 +1,4 @@
 const { app } = require("@electron/remote")
-import path from "path"
 
 // Path
 export const gamePath = app.getPath("userData")

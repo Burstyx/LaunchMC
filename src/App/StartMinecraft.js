@@ -53,7 +53,7 @@ function startMinecraft(version, instanceId, opt) {
                     tempSplitedArgs[i] = const_1.assetsPath;
                     break;
                 case "${assets_index_name}":
-                    tempSplitedArgs[i] = JSON.parse((yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" })).toString())["assets_index_name"];
+                    tempSplitedArgs[i] = data.assets;
                     break;
                 case "${auth_uuid}":
                     tempSplitedArgs[i] = opt.uuid;
@@ -65,7 +65,7 @@ function startMinecraft(version, instanceId, opt) {
                     tempSplitedArgs[i] = opt.username;
                     break;
                 case "${user_type}":
-                    tempSplitedArgs[i] = "mojang";
+                    tempSplitedArgs[i] = "msa";
                     break;
                 case "${version_type}":
                     tempSplitedArgs[i] = opt.versiontype;
