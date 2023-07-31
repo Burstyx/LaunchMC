@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadJavaVersion = exports.JavaVersions = exports.patchInstanceWithForge = exports.downloadMinecraft = void 0;
+exports.downloadJavaVersion = exports.JavaVersions = exports.minecraftLibraryList = exports.patchInstanceWithForge = exports.downloadMinecraft = void 0;
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const original_fs_1 = require("original-fs");
 const HManifests_1 = require("../Utils/HManifests");
@@ -37,9 +37,12 @@ function downloadMinecraft(version, instanceId) {
         let currentDownloadedSize = 0;
         // Téléchargement/Récupération des manifests nécessaire
         const versionDataManifest = yield (0, HManifests_1.minecraftManifestForVersion)(version);
+        console.log(versionDataManifest["assetIndex"]["url"]);
+        console.log(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
         yield (0, HFileManagement_1.makeDir)(const_1.indexesPath);
         yield (0, HDownload_1.downloadAsync)(versionDataManifest["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress) => {
             console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
+            console.log("ASSETS DOWNLOADED");
         });
         const indexDataManifest = JSON.parse((yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"));
         if (indexDataManifest == null) {
@@ -152,7 +155,7 @@ function minecraftLibraryTotalSize(data) {
     for (let i = 0; i < data.libraries.length; i++) {
         if (data["libraries"][i].hasOwnProperty("rules")) {
             if (!parseRule(data["libraries"][i]["rules"])) {
-                totalSize += 0;
+                continue;
             }
         }
         if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
@@ -174,6 +177,34 @@ function minecraftLibraryTotalSize(data) {
     }
     return totalSize;
 }
+function minecraftLibraryList(data) {
+    let libraryList = [];
+    for (let i = 0; i < data.libraries.length; i++) {
+        if (data["libraries"][i].hasOwnProperty("rules")) {
+            if (!parseRule(data["libraries"][i]["rules"])) {
+                continue;
+            }
+        }
+        if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
+            libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.artifact.path));
+        }
+        if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
+            for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
+                if (e.includes("win") && os_1.default.platform() == "win32") {
+                    libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.classifiers[e].path));
+                }
+                else if ((e.includes("mac") || e.includes("osx")) && os_1.default.platform() == "darwin") {
+                    libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.classifiers[e].path));
+                }
+                else if (e.includes("linux") && os_1.default.platform() == "linux") {
+                    libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.classifiers[e].path));
+                }
+            }
+        }
+    }
+    return libraryList;
+}
+exports.minecraftLibraryList = minecraftLibraryList;
 function parseRule(rules) {
     let condition = false;
     for (let i = 0; i < rules.length; i++) {

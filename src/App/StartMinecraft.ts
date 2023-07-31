@@ -1,11 +1,11 @@
-import {minecraftManifestForVersion} from "../Utils/HManifests"
+import { minecraftManifestForVersion } from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import {instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath} from "../Utils/const"
+import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath } from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
-import {existsSync} from "fs"
-import { downloadJavaVersion, JavaVersions } from "./DownloadGame"
+import { existsSync } from "fs"
+import { downloadJavaVersion, JavaVersions, minecraftLibraryList } from "./DownloadGame"
 import { getAllFile, makeDir } from "../Utils/HFileManagement"
 
 interface MinecraftArgsOpt {
@@ -21,26 +21,27 @@ interface MinecraftArgsOpt {
     }
 }
 
-export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt){ // TODO: Get game libraries
+export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt) { // TODO: Get game libraries
     // TODO If map_to_ressource == true -> object dans legacy
     const data = await minecraftManifestForVersion(version)
 
     // Get all Minecraft arguments
     var mcArgs = data["minecraftArguments"]
-    if(mcArgs == null){
+    if (mcArgs == null) {
         mcArgs = ""
-        for(let i = 0; i < data["arguments"]["game"].length; i++){
-            if(typeof data["arguments"]["game"][i] == "string"){
+        for (let i = 0; i < data["arguments"]["game"].length; i++) {
+            if (typeof data["arguments"]["game"][i] == "string") {
                 mcArgs += data["arguments"]["game"][i] + " "
             }
         }
-    }        
+    }
+
 
     // Parse Minecraft arguments
     let tempSplitedArgs = mcArgs.split(" ")
     console.log(tempSplitedArgs);
-    
-    for(let i = 0; i < tempSplitedArgs.length; i++){
+
+    for (let i = 0; i < tempSplitedArgs.length; i++) {
         switch (tempSplitedArgs[i]) {
             case "${auth_player_name}":
                 tempSplitedArgs[i] = opt.username
@@ -55,7 +56,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 tempSplitedArgs[i] = assetsPath
                 break;
             case "${assets_index_name}":
-                tempSplitedArgs[i] = JSON.parse((await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"})).toString())["assets_index_name"]
+                tempSplitedArgs[i] = JSON.parse((await fs.readFile(path.join(instancesPath, instanceId, "info.json"), { encoding: "utf-8" })).toString())["assets_index_name"]
                 break;
             case "${auth_uuid}":
                 tempSplitedArgs[i] = opt.uuid
@@ -86,7 +87,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     }
 
     mcArgs = tempSplitedArgs
-    
+
     console.log(mcArgs);
 
     // Set command arguments
@@ -100,23 +101,23 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     const libraries = await getAllFile(librariesPath)
     // console.log(libraries);
-    let librariesArg = JSON.parse(await fs.readFile(path.join(instancesPath, instanceId, "info.json"), {encoding: "utf-8"}))["libraries"]
+    let librariesArg = minecraftLibraryList(data).join(";")
 
     jvmArgs.push(`-cp`)
-    jvmArgs.push(`${librariesArg}${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
+    jvmArgs.push(`${librariesArg};${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
 
     jvmArgs.push(data["mainClass"])
-    
+
     const fullMcArgs = [...jvmArgs, ...mcArgs]
     console.log(fullMcArgs);
 
-    
+
 
     // Find correct java executable
-    if(!existsSync(path.join(javaPath, java8Version))){
+    if (!existsSync(path.join(javaPath, java8Version))) {
         await downloadJavaVersion(JavaVersions.JDK8)
     }
-    if(!existsSync(path.join(javaPath, java17Version))){
+    if (!existsSync(path.join(javaPath, java17Version))) {
         await downloadJavaVersion(JavaVersions.JDK17)
     }
 
@@ -124,7 +125,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     const java17 = path.join(javaPath, java17Version, (await fs.readdir(path.join(javaPath, java17Version))).at(0)!, "bin", "javaw")
 
     console.log("Extracting natives");
-    
+
     await extractAllNatives(librariesArg, path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Version, "bin", "jar"))
 
     console.log("natives extracted");
@@ -132,7 +133,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     const javaVersion = data["javaVersion"]["majorVersion"]
 
     const javaVersionToUse = javaVersion >= 16 ? java17 : java8
-    
+
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
 
     proc.stdout.on("data", (data) => {
@@ -151,13 +152,13 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 export async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string) {
     const allLibs = libraries.split(";")
 
-    for (const e of allLibs){
+    for (const e of allLibs) {
         console.log(e);
         cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
             const filesOfLibrary = stdout.split("\r\n")
-            for (const n of filesOfLibrary){                        
-                if(n.endsWith(".dll")){
-                    cp.exec(`${javaLocation} xf ${e} ${n}`, {cwd: nativeFolder});
+            for (const n of filesOfLibrary) {
+                if (n.endsWith(".dll")) {
+                    cp.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
                 }
             }
         })

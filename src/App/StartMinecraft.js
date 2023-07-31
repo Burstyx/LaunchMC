@@ -92,9 +92,9 @@ function startMinecraft(version, instanceId, opt) {
         jvmArgs.push("-Djava.library.path=" + (yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
         const libraries = yield (0, HFileManagement_1.getAllFile)(const_1.librariesPath);
         // console.log(libraries);
-        let librariesArg = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), { encoding: "utf-8" }))["libraries"];
+        let librariesArg = (0, DownloadGame_1.minecraftLibraryList)(data).join(";");
         jvmArgs.push(`-cp`);
-        jvmArgs.push(`${librariesArg}${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
+        jvmArgs.push(`${librariesArg};${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
         jvmArgs.push(data["mainClass"]);
         const fullMcArgs = [...jvmArgs, ...mcArgs];
         console.log(fullMcArgs);
