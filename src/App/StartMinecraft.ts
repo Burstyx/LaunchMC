@@ -74,7 +74,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 break;
             case "${game_assets}":
                 // if(!existsSync(legacyAssetsPath))
-                //     await fs.mkdir(legacyAssetsPath, {recursive: true})
+                //     await fs.mkdir(legacyAssetsPath, {recursive: true}) // TODO: Assets don't work for pre-1.6 version
                 tempSplitedArgs[i] = path.join(instancesPath, instanceId, "resources")
                 break;
             case "${auth_session}":
