@@ -16,6 +16,9 @@ require("./scripts/newInstanceWin")
 // Choose version window behaviour
 require("./scripts/chooseVersionWin")
 
+// Account manager window behaviour
+require("./scripts/accountManagerWin")
+
 // Add btn logic
 refreshInstanceList() // TODO Move that on loading screen
 

@@ -257,7 +257,7 @@ body {
   align-items: center;
 
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* FIXME: UNCOMMENT THIS IN PROD */
 
   transition: opacity .15s;
 }
@@ -274,7 +274,7 @@ body {
   position: absolute;
 
   opacity: 0;
-  transform: scale(.75);
+  transform: scale(.75); /* FIXME: UNCOMMENT THIS IN PROD */
   pointer-events: none;
   transition: opacity .15s, transform .15s ease-out;
 }
@@ -357,4 +357,20 @@ body {
   position: relative;
 
   padding: 5px;
+}
+
+.window[window-id="account-manager"] .account-list {
+  padding: 5px;
+
+}
+
+.window[window-id="account-manager"] .account-list .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.window[window-id="account-manager"] .account-list .checkbox img {
+  width: 50px;
+  border-radius: 50px;
 }
