@@ -256,8 +256,9 @@ body {
   justify-content: center;
   align-items: center;
 
+  /* FIXME: UNCOMMENT THIS IN PROD */
   opacity: 0;
-  pointer-events: none; /* FIXME: UNCOMMENT THIS IN PROD */
+  pointer-events: none;
 
   transition: opacity .15s;
 }
@@ -273,9 +274,12 @@ body {
 
   position: absolute;
 
+  /* FIXME: UNCOMMENT THIS IN PROD */
   opacity: 0;
-  transform: scale(.75); /* FIXME: UNCOMMENT THIS IN PROD */
+  transform: scale(.75); 
+
   pointer-events: none;
+
   transition: opacity .15s, transform .15s ease-out;
 }
 
@@ -359,9 +363,29 @@ body {
   padding: 5px;
 }
 
-.window[window-id="account-manager"] .account-list {
-  padding: 5px;
+.window[window-id="account-manager"] {
+  display: flex;
+  flex-direction: column;
+}
 
+.window[window-id="account-manager"] .account-list {
+  margin: 5px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  height: 100%;
+
+  border-radius: 5px;
+
+  overflow-y: overlay;
+}
+
+.window[window-id="account-manager"] .actions-btn {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px;
 }
 
 .window[window-id="account-manager"] .account-list .checkbox {
