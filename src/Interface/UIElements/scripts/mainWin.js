@@ -35,3 +35,7 @@ launchBtn.addEventListener("click", async () => {
 
     await startMinecraft(version, currentInstance.id, { accesstoken: data["accounts"][0]["access_token"], username: data["accounts"][0]["username"], usertype: data["accounts"][0]["usertype"], uuid: data["accounts"][0]["uuid"], versiontype: versionType })
 })
+
+// Open account manager window button
+const openAccountManagerWinBtn = document.getElementById("open-account-manager-window")
+openAccountManagerWinBtn.addEventListener("click", (e) => {openWindow("account-manager")})
