@@ -8,6 +8,7 @@ exports.openWindow = (windowId) => {
     subWindow.style.pointerEvents = "all"
 
     windowsIdOpened.push(windowId)
+    console.log(`Added ${windowId} to the list`);
 
     windows.forEach((window) => {
         if (window.getAttribute("window-id") === windowId) {
@@ -20,6 +21,8 @@ exports.openWindow = (windowId) => {
 
 exports.closeWindow = (windowId) => {
     windowsIdOpened.splice(windowsIdOpened.indexOf(windowId))
+
+    console.log(`Removed ${windowId} to the list`);
 
     if (windowsIdOpened.length == 0) {
         subWindow.style.opacity = "0"

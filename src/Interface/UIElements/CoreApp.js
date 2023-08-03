@@ -1,8 +1,6 @@
 console.log("Initialisation du module principal !");
 const { refreshInstanceList, updateInstanceDlProgress } = require("../../Utils/HInstance")
 
-// Init custom elements behaviour
-require("./scripts/elements")
 
 // Titlebar behaviour
 require("./scripts/titlebar")
@@ -16,12 +14,15 @@ require("./scripts/newInstanceWin")
 // Choose version window behaviour
 require("./scripts/chooseVersionWin")
 
+
+// Add btn logic
+refreshInstanceList().then(() => { // TODO: Loading screen
+    // LAST TO EXECUTE
+    // Init custom elements behaviour
+    require("./scripts/elements")
+})
+
 // Account manager window behaviour
 require("./scripts/accountManagerWin")
 
-// Add btn logic
-refreshInstanceList() // TODO Move that on loading screen
-
-// Custom checkbox click detection
-
-console.log("Initialisation effectué sans erreur !");
+console.log("Initialisation effectué sans erreur !")

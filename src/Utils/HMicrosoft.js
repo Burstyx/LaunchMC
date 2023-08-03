@@ -18,6 +18,12 @@ const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 function accountList() {
     return __awaiter(this, void 0, void 0, function* () {
+        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
+        let accounts = [];
+        for (const account of data["accounts"]) {
+            accounts.push(account);
+        }
+        return accounts;
     });
 }
 exports.accountList = accountList;

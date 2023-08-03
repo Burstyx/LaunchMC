@@ -25,12 +25,7 @@ launchBtn.addEventListener("click", async () => {
     const widgetVersion = document.getElementById("widget-version")
     const version = widgetVersion.innerText
     const versionType = widgetVersion.getAttribute("subname")
-
-
-    // FIXME: MICROSOFT LOGIN SHOULD'NT BE HERE
-    if (!existsSync(gamePath + "/microsoft_account.json"))
-        await msaLogin()
-
+        
     const data = JSON.parse(await fs.readFile(gamePath + "/microsoft_account.json"))
 
     await startMinecraft(version, currentInstance.id, { accesstoken: data["accounts"][0]["access_token"], username: data["accounts"][0]["username"], usertype: data["accounts"][0]["usertype"], uuid: data["accounts"][0]["uuid"], versiontype: versionType })

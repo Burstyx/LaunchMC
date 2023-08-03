@@ -10,7 +10,15 @@ interface AccountInfo {
 }
 
 export async function accountList(){
-    
+    const data = JSON.parse(await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8"))
+
+    let accounts = []
+
+    for(const account of data["accounts"]) {
+        accounts.push(account)
+    }
+
+    return accounts
 }
 
 export async function addAccount(opt: AccountInfo){
