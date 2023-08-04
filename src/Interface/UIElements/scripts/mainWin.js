@@ -25,7 +25,7 @@ launchBtn.addEventListener("click", async () => {
     const widgetVersion = document.getElementById("widget-version")
     const version = widgetVersion.innerText
     const versionType = widgetVersion.getAttribute("subname")
-        
+
     const data = JSON.parse(await fs.readFile(gamePath + "/microsoft_account.json"))
 
     await startMinecraft(version, currentInstance.id, { accesstoken: data["accounts"][0]["access_token"], username: data["accounts"][0]["username"], usertype: data["accounts"][0]["usertype"], uuid: data["accounts"][0]["uuid"], versiontype: versionType })
@@ -33,4 +33,13 @@ launchBtn.addEventListener("click", async () => {
 
 // Open account manager window button
 const openAccountManagerWinBtn = document.getElementById("open-account-manager-window")
-openAccountManagerWinBtn.addEventListener("click", (e) => {openWindow("account-manager")})
+openAccountManagerWinBtn.addEventListener("click", (e) => { openWindow("account-manager") })
+
+exports.refreshAccountBtnImg = (uuid) => {
+    if(uuid == undefined) {
+        return
+    }
+
+    const profileImg = document.getElementById("profile-img")
+    profileImg.src = `https://minotar.net/avatar/${uuid}`
+}

@@ -16,25 +16,25 @@ document.getElementById("vanilla-version-filter-search").addEventListener("input
 
 function refreshInstanceList() {
     minecraftManifest().then((val) => {
-        const filterReleaseCheck = document.getElementById("vanilla-version-filter-release").getAttribute("checked")
-        const filterSnapshotCheck = document.getElementById("vanilla-version-filter-snapshot").getAttribute("checked")
-        const filterBetaCheck = document.getElementById("vanilla-version-filter-beta").getAttribute("checked")
-        const filterAlphaCheck = document.getElementById("vanilla-version-filter-alpha").getAttribute("checked")
+        const filterReleaseCheck = document.getElementById("vanilla-version-filter-release").hasAttribute("checked")
+        const filterSnapshotCheck = document.getElementById("vanilla-version-filter-snapshot").hasAttribute("checked")
+        const filterBetaCheck = document.getElementById("vanilla-version-filter-beta").hasAttribute("checked")
+        const filterAlphaCheck = document.getElementById("vanilla-version-filter-alpha").hasAttribute("checked")
         const searchVal = document.getElementById("vanilla-version-filter-search").value
 
         versionsList.innerHTML = ""
 
         for (const version of val.versions) {
-            if (version.type == "release" && filterReleaseCheck == "false") {
+            if (version.type == "release" && filterReleaseCheck == false) {
                 continue
             }
-            if (version.type == "snapshot" && filterSnapshotCheck == "false") {
+            if (version.type == "snapshot" && filterSnapshotCheck == false) {
                 continue
             }
-            if (version.type == "old_beta" && filterBetaCheck == "false") {
+            if (version.type == "old_beta" && filterBetaCheck == false) {
                 continue
             }
-            if (version.type == "old_alpha" && filterAlphaCheck == "false") {
+            if (version.type == "old_alpha" && filterAlphaCheck == false) {
                 continue
             }
             if (!version.id.toString().includes(searchVal) && searchVal != "") {

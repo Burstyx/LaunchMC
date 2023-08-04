@@ -29,7 +29,30 @@ export async function addAccount(opt: AccountInfo){
 }
 
 export async function getAccount(uuid: string){
+    const data = JSON.parse(await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8"))
+
+    for(const e in data["accounts"]){
+        if(data["accounts"][e]["uuid"] == uuid){            
+            return data["accounts"][e]
+        }
+    }
+}
+
+export async function changeAccountProperty(uuid: string, property: string, newValue: any) {
+    const data = JSON.parse(await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8"))    
+
+    for(const e in data["accounts"]){
+        if(data["accounts"][e]["uuid"] == uuid){            
+            if(!data["accounts"][e].hasOwnProperty(property)) {
+                console.log("Property doesn't exist");
+                return
+            }
+
+            data["accounts"][e][property] = newValue
+        }
+    }
     
+    await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data))
 }
 
 export async function getActiveAccount(){

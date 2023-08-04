@@ -14,13 +14,11 @@ require("./scripts/newInstanceWin")
 // Choose version window behaviour
 require("./scripts/chooseVersionWin")
 
+// Init custom elements behaviour
+require("./scripts/elements")
 
 // Add btn logic
-refreshInstanceList().then(() => { // TODO: Loading screen
-    // LAST TO EXECUTE
-    // Init custom elements behaviour
-    require("./scripts/elements")
-})
+refreshInstanceList()
 
 // Account manager window behaviour
 require("./scripts/accountManagerWin")

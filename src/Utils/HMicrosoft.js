@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getActiveAccount = exports.getAccount = exports.addAccount = exports.accountList = void 0;
+exports.getActiveAccount = exports.changeAccountProperty = exports.getAccount = exports.addAccount = exports.accountList = void 0;
 const const_1 = require("./const");
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
@@ -37,9 +37,35 @@ function addAccount(opt) {
 exports.addAccount = addAccount;
 function getAccount(uuid) {
     return __awaiter(this, void 0, void 0, function* () {
+        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
+        for (const e in data["accounts"]) {
+            if (data["accounts"][e]["uuid"] == uuid) {
+                return data["accounts"][e];
+            }
+        }
     });
 }
 exports.getAccount = getAccount;
+function changeAccountProperty(uuid, property, newValue) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
+        console.log("current");
+        console.log(JSON.stringify(data));
+        for (const e in data["accounts"]) {
+            if (data["accounts"][e]["uuid"] == uuid) {
+                if (!data["accounts"][e].hasOwnProperty(property)) {
+                    console.log("Property doesn't exist");
+                    return;
+                }
+                data["accounts"][e][property] = newValue;
+            }
+        }
+        console.log("modified");
+        console.log(data);
+        yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data));
+    });
+}
+exports.changeAccountProperty = changeAccountProperty;
 function getActiveAccount() {
     return __awaiter(this, void 0, void 0, function* () {
         const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));

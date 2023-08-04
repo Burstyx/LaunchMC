@@ -1,5 +1,6 @@
 const { msaLogin } = require("../../../App/MicrosoftAuth")
-const { accountList } = require("../../../Utils/HMicrosoft")
+const { accountList, changeAccountProperty } = require("../../../Utils/HMicrosoft")
+const { refreshAccountBtnImg } = require("./mainWin")
 const { closeWindow } = require("./window")
 
 async function refreshAccountList() {
@@ -11,7 +12,11 @@ async function refreshAccountList() {
         // Main checkbox
         const checkbox = document.createElement("div")
         checkbox.classList.add("checkbox")
-        checkbox.setAttribute("checked", account["active"] ? "true" : "false")
+
+        if (account["active"]) {
+            checkbox.toggleAttribute("checked")
+        }
+
         checkbox.setAttribute("account-id", account["uuid"])
 
         // Account profile image
@@ -25,6 +30,22 @@ async function refreshAccountList() {
         checkbox.appendChild(accountUsername)
 
         accountsList.appendChild(checkbox)
+
+        checkbox.addEventListener("click", async (e) => {
+            const status = checkbox.hasAttribute("checked")
+
+            if (status == false) {
+                const activeAccount = accountsList.querySelector('.checkbox[checked]')
+
+                checkbox.toggleAttribute("checked")
+                activeAccount.toggleAttribute("checked")
+
+                await changeAccountProperty(checkbox.getAttribute("account-id"), "active", checkbox.hasAttribute("checked"))
+                await changeAccountProperty(activeAccount.getAttribute("account-id"), "active", activeAccount.hasAttribute("checked"))
+            }
+
+            refreshAccountBtnImg(checkbox.getAttribute("account-id"))
+        })
     }
 }
 

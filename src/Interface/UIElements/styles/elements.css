@@ -203,12 +203,12 @@ input[type="text"]:focus {
   transition: background-color .25s, box-shadow .25s;
 }
 
-.checkbox[checked="true"]::after {
+.checkbox[checked]::after {
   background-color: white;
   box-shadow: 0 0 0px calc(15px / 2) inset white;
 }
 
-.checkbox[checked="true"]::before {
+.checkbox[checked]::before {
   content: '';
   background-image: url(../resources/svg/checked.svg);
   background-repeat: no-repeat;
