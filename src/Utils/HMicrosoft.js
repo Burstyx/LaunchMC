@@ -15,10 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getActiveAccount = exports.changeAccountProperty = exports.getAccount = exports.addAccount = exports.accountList = void 0;
 const const_1 = require("./const");
 const promises_1 = __importDefault(require("fs/promises"));
+const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 function accountList() {
     return __awaiter(this, void 0, void 0, function* () {
-        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
+        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
+            console.log("Microsoft accounts data file not found");
+            return null;
+        }
+        const file = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8");
+        const data = JSON.parse(file);
         let accounts = [];
         for (const account of data["accounts"]) {
             accounts.push(account);
@@ -49,8 +55,6 @@ exports.getAccount = getAccount;
 function changeAccountProperty(uuid, property, newValue) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
-        console.log("current");
-        console.log(JSON.stringify(data));
         for (const e in data["accounts"]) {
             if (data["accounts"][e]["uuid"] == uuid) {
                 if (!data["accounts"][e].hasOwnProperty(property)) {
@@ -60,8 +64,6 @@ function changeAccountProperty(uuid, property, newValue) {
                 data["accounts"][e][property] = newValue;
             }
         }
-        console.log("modified");
-        console.log(data);
         yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data));
     });
 }

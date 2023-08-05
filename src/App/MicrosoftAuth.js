@@ -41,8 +41,14 @@ function msaLogin() {
                 const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
                 loginWindow.close();
                 yield connectWithCode(code);
+                clearTimeout(noActivityMSALogin);
+                return true;
             }
         }));
+        const noActivityMSALogin = setTimeout(() => {
+            console.log("nope");
+            return false;
+        }, 10000); // If nothing happen in 10s, return false
     });
 }
 exports.msaLogin = msaLogin;

@@ -6,6 +6,11 @@ const { closeWindow } = require("./window")
 async function refreshAccountList() {
     const accounts = await accountList()
 
+    if (accounts == null) {
+        console.log("Can't refresh account list, no account found");
+        return
+    }
+
     const accountsList = document.getElementById("account-list")
 
     for (const account of accounts) {
@@ -49,11 +54,23 @@ async function refreshAccountList() {
     }
 }
 
-
 refreshAccountList()
 
 const closeBtn = document.getElementById("close-account-manager-win")
 closeBtn.addEventListener("click", (e) => { closeWindow("account-manager") })
 
 const addAccount = document.getElementById("create-account-btn")
-addAccount.addEventListener("click", async (e) => { await msaLogin() })
+addAccount.addEventListener("click", async (e) => {
+    const status = await msaLogin().then((val) => {
+        console.log("ok");
+        console.log(val);
+    })
+
+    console.log(status);
+
+    if (status == true) {
+        await refreshAccountList()
+    } else {
+        console.log("Authentification to the microsoft account cannot be established");
+    }
+})

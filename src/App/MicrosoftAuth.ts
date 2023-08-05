@@ -38,8 +38,18 @@ export async function msaLogin(){ // TODO: Return profile data
             loginWindow.close()
 
             await connectWithCode(code!)
+
+            clearTimeout(noActivityMSALogin)
+
+            return true
         }
     })
+
+    const noActivityMSALogin = setTimeout(() => {
+        console.log("nope");
+        
+        return false
+    }, 10000) // If nothing happen in 10s, return false
 }
 
 async function connectWithCode(code: string){
@@ -59,8 +69,8 @@ async function connectWithCode(code: string){
 
     const minecraftProfileData = await getMinecraftProfile(minecraftAccessToken)
     const username = minecraftProfileData!["name"]
-    const uuid = minecraftProfileData!["id"]    
-    
+    const uuid = minecraftProfileData!["id"]   
+        
     await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid})
 }
 

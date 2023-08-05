@@ -1,5 +1,6 @@
 import {gamePath} from "./const"
 import fs from "fs/promises"
+import { existsSync } from "fs"
 import path from "path"
 
 interface AccountInfo {
@@ -10,7 +11,15 @@ interface AccountInfo {
 }
 
 export async function accountList(){
-    const data = JSON.parse(await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8"))
+    if(!existsSync(path.join(gamePath, "microsoft_account.json"))) {
+        console.log("Microsoft accounts data file not found");
+        
+        return null
+    }
+
+    const file = await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8")
+
+    const data = JSON.parse(file)
 
     let accounts = []
 
