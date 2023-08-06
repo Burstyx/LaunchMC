@@ -34,6 +34,9 @@ function msaLogin() {
         loginWindow.setMenu(null);
         yield loginWindow.webContents.session.clearStorageData();
         loginWindow.loadURL(createOAuthLink());
+        let acceptTry = false;
+        let tryLeft = 10;
+        let accountValidated = false;
         loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
             console.log(loginWindow.webContents.getURL());
             if (loginWindow.webContents.getURL().includes("code=")) {
@@ -41,14 +44,22 @@ function msaLogin() {
                 const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
                 loginWindow.close();
                 yield connectWithCode(code);
-                clearTimeout(noActivityMSALogin);
-                return true;
+                acceptTry = true;
             }
         }));
-        const noActivityMSALogin = setTimeout(() => {
-            console.log("nope");
-            return false;
-        }, 10000); // If nothing happen in 10s, return false
+        const tryInterval = setInterval(() => {
+            if (acceptTry == true) {
+                accountValidated = true;
+                clearInterval(tryInterval);
+            }
+            if (tryLeft <= 0) {
+                clearInterval(tryInterval);
+            }
+            tryLeft--;
+        }, 10000);
+        if (accountValidated = true)
+            return true;
+        return false;
     });
 }
 exports.msaLogin = msaLogin;

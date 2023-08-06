@@ -1,6 +1,7 @@
 import { BrowserWindow } from "@electron/remote"
 import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Utils/const.js"
 import { addAccount } from "../Utils/HMicrosoft.js"
+import { wait } from "../Utils/Task.js"
 
 export function createOAuthLink(){
     let url = msAuth
@@ -27,6 +28,11 @@ export async function msaLogin(){ // TODO: Return profile data
     
     loginWindow.loadURL(createOAuthLink())
 
+    let acceptTry = false
+    let tryLeft = 10
+
+    let accountValidated = false
+
     loginWindow.webContents.on("update-target-url", async (evt) => {
         console.log(loginWindow.webContents.getURL());
         
@@ -37,19 +43,29 @@ export async function msaLogin(){ // TODO: Return profile data
 
             loginWindow.close()
 
-            await connectWithCode(code!)
+            await connectWithCode(code!)            
 
-            clearTimeout(noActivityMSALogin)
-
-            return true
+            acceptTry = true
         }
     })
 
-    const noActivityMSALogin = setTimeout(() => {
-        console.log("nope");
-        
-        return false
-    }, 10000) // If nothing happen in 10s, return false
+    const tryInterval = setInterval(() => {
+        if(acceptTry == true) {
+            accountValidated = true
+            clearInterval(tryInterval)
+        }
+
+        if(tryLeft <= 0) {
+            clearInterval(tryInterval)
+        }
+
+        tryLeft--
+    }, 10000)
+
+    if(accountValidated = true)
+        return true
+
+    return false
 }
 
 async function connectWithCode(code: string){
