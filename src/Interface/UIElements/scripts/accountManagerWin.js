@@ -61,16 +61,13 @@ closeBtn.addEventListener("click", (e) => { closeWindow("account-manager") })
 
 const addAccount = document.getElementById("create-account-btn")
 addAccount.addEventListener("click", async (e) => {
-    const status = await msaLogin().then((val) => {
-        console.log("ok");
-        console.log(val);
-    })
+    const status = await msaLogin()
 
     console.log(status);
 
     if (status == true) {
         await refreshAccountList()
     } else {
-        console.log("Authentification to the microsoft account cannot be established");
+        console.log("Authentification to the microsoft account cannot be established. An error occured!");
     }
 })

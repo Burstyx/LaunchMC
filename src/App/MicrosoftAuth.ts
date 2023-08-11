@@ -1,7 +1,6 @@
 import { BrowserWindow } from "@electron/remote"
 import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Utils/const.js"
 import { addAccount } from "../Utils/HMicrosoft.js"
-import { wait } from "../Utils/Task.js"
 
 export function createOAuthLink(){
     let url = msAuth
@@ -28,44 +27,31 @@ export async function msaLogin(){ // TODO: Return profile data
     
     loginWindow.loadURL(createOAuthLink())
 
-    let acceptTry = false
-    let tryLeft = 10
+    await new Promise((resolve, reject) => {
+        loginWindow.webContents.on("update-target-url", async (evt) => {
+            console.log(loginWindow.webContents.getURL());
+            
+            if(loginWindow.webContents.getURL().includes("code=")){
+                console.log("Code retrieved");
 
-    let accountValidated = false
+                try {
+                    const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code")
 
-    loginWindow.webContents.on("update-target-url", async (evt) => {
-        console.log(loginWindow.webContents.getURL());
-        
-        if(loginWindow.webContents.getURL().includes("code=")){
-            console.log("Code retrieved");
+                    loginWindow.close()
 
-            const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code")
+                    await connectWithCode(code!)  
+                } catch(err) {
+                    console.error(err);
+                    
+                    reject(null)
+                }
 
-            loginWindow.close()
+                resolve(null)
+            }
+        })
+    }).catch(() => {return false})
 
-            await connectWithCode(code!)            
-
-            acceptTry = true
-        }
-    })
-
-    const tryInterval = setInterval(() => {
-        if(acceptTry == true) {
-            accountValidated = true
-            clearInterval(tryInterval)
-        }
-
-        if(tryLeft <= 0) {
-            clearInterval(tryInterval)
-        }
-
-        tryLeft--
-    }, 10000)
-
-    if(accountValidated = true)
-        return true
-
-    return false
+    return true
 }
 
 async function connectWithCode(code: string){

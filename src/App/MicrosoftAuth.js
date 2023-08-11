@@ -34,32 +34,25 @@ function msaLogin() {
         loginWindow.setMenu(null);
         yield loginWindow.webContents.session.clearStorageData();
         loginWindow.loadURL(createOAuthLink());
-        let acceptTry = false;
-        let tryLeft = 10;
-        let accountValidated = false;
-        loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
-            console.log(loginWindow.webContents.getURL());
-            if (loginWindow.webContents.getURL().includes("code=")) {
-                console.log("Code retrieved");
-                const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
-                loginWindow.close();
-                yield connectWithCode(code);
-                acceptTry = true;
-            }
-        }));
-        const tryInterval = setInterval(() => {
-            if (acceptTry == true) {
-                accountValidated = true;
-                clearInterval(tryInterval);
-            }
-            if (tryLeft <= 0) {
-                clearInterval(tryInterval);
-            }
-            tryLeft--;
-        }, 10000);
-        if (accountValidated = true)
-            return true;
-        return false;
+        yield new Promise((resolve, reject) => {
+            loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
+                console.log(loginWindow.webContents.getURL());
+                if (loginWindow.webContents.getURL().includes("code=")) {
+                    console.log("Code retrieved");
+                    try {
+                        const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
+                        loginWindow.close();
+                        yield connectWithCode(code);
+                    }
+                    catch (err) {
+                        console.error(err);
+                        reject(null);
+                    }
+                    resolve(null);
+                }
+            }));
+        }).catch(() => { return false; });
+        return true;
     });
 }
 exports.msaLogin = msaLogin;

@@ -32,7 +32,10 @@ export async function accountList(){
 
 export async function addAccount(opt: AccountInfo){
     let data: any = {"accounts": []}
-    data["accounts"].push({"access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": true})
+
+    const shouldBeActive = await getActiveAccount() == null ? true : false
+
+    data["accounts"].push({"access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive})
 
     await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data))
 }
@@ -65,6 +68,10 @@ export async function changeAccountProperty(uuid: string, property: string, newV
 }
 
 export async function getActiveAccount(){
+    if(!existsSync(path.join(gamePath, "microsoft_account.json"))) {
+        return null
+    }
+
     const data = JSON.parse(await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8"))
 
     for(const e in data["accounts"]){
@@ -74,4 +81,6 @@ export async function getActiveAccount(){
             return data["accounts"][e]
         }
     }
+
+    return null
 }
