@@ -18,8 +18,8 @@ function createOAuthLink() {
     url += "?client_id=" + const_js_1.clientId;
     url += "&response_type=" + "code";
     url += "&redirect_uri=" + const_js_1.redirectUrl;
-    url += "&scope=XboxLive.signin%20offline_access";
-    url += "&state=NOT_NEEDED";
+    url += "&scope=xboxlive.signin%20offline_access";
+    url += "&cobrandid=8058f65d-ce06-4c30-9559-473c9275a65d";
     return url;
 }
 exports.createOAuthLink = createOAuthLink;

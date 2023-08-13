@@ -104,6 +104,13 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     // console.log(libraries);
     let librariesArg = minecraftLibraryList(data).join(";")
 
+    console.log(libraries);
+    console.log('---');
+    console.log(librariesArg);
+    
+    
+    
+
     jvmArgs.push(`-cp`)
     jvmArgs.push(`${librariesArg};${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
 

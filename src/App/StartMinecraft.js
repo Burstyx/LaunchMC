@@ -95,6 +95,9 @@ function startMinecraft(version, instanceId, opt) {
         const libraries = yield (0, HFileManagement_1.getAllFile)(const_1.librariesPath);
         // console.log(libraries);
         let librariesArg = (0, DownloadGame_1.minecraftLibraryList)(data).join(";");
+        console.log(libraries);
+        console.log('---');
+        console.log(librariesArg);
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${librariesArg};${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
         jvmArgs.push(data["mainClass"]);
