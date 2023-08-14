@@ -86,7 +86,7 @@ body {
 }
 
 .titlebar .menu-btns {
-  display: flex;
+  display: none; /* FIXME: Show when not loading and hide while loading launcher */
   gap: 5px;
 
   font-size: 18px;
@@ -385,7 +385,7 @@ body {
 .window[window-id="account-manager"] .actions-btn {
   display: flex;
   justify-content: space-between;
-  margin: 5px;
+  margin: 5px
 }
 
 .window[window-id="account-manager"] .account-list .checkbox {
@@ -397,4 +397,25 @@ body {
 .window[window-id="account-manager"] .account-list .checkbox img {
   width: 50px;
   border-radius: 50px;
+}
+
+.loading-page {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: #191919;
+  border-radius: 5px;
+  z-index: 40;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  flex-direction: column;
+  gap: 10px;
+  font-size: 20px;
+}
+
+.loading-page .loading {
+  transform: scale(3);
 }

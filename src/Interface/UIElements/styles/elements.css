@@ -220,3 +220,35 @@ input[type="text"]:focus {
   height: 19px;
   right: 10px;
 }
+
+/* Loading */
+.loading {
+  position: relative;
+}
+
+.loading::before {
+  content: url("../resources/svg/icon/white-inner.svg");
+  position: absolute;
+  top: calc(-22.5px);
+  left: calc(-30.5px);
+
+  animation: spinning 5s infinite linear;
+}
+
+.loading::after {
+  content: url("../resources/svg/icon/white-outer.svg");
+  position: absolute;
+  top: -25.5px;
+  left: -35.5px;
+
+  animation: spinning 8s infinite linear;
+}
+
+@keyframes spinning {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
