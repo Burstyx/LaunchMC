@@ -1,6 +1,6 @@
 {
   "name": "burstylauncher",
-  "version": "1.0.0",
+  "version": "0.0.1-A",
   "description": "Bursty Launcher permettra de créer différentes instances pour chaque versions de Minecraft. Cela permet de rester organiser sans toucher au dossier du jeu pour modifier quelque chose. Il est compatible avec Curseforge et les différents API de modding (Fabric, Forge) ce qui vous permet de créer une instance Forge en quelque clic. Un système intuitif de création de modpack vous permettra de créer des modpacks optimisé facilement grâce à Curseforge et d'exporter vos profils pour qu'ils puisse être réutiliser.\r ### Pourquoi utiliser BurstyLauncher 🎮 ?\r Bursty Launcher est similaire au célèbre launcher MultiMC. En revanche, l'interface de BurstyLauncher est faites pour être plus intuitif et moderne. De plus, BurstyLauncher veut mettre en avant la création de modpack avec un système de création de modpack qu'on ne retrouve pas dans d'autres launcher.\r ### Les fonctionnalités 🚀\r - [ ] Création d'instance personnalisé\r - [ ] Gestion du téléchargement automatique (Java, Minecraft, Forge, Fabric)\r - [ ] Système de création de modpack\r - [ ] Connexion avec Curseforge pour les mods\r - [ ] Gestion multi-compte\r - [ ] Mise à jour automatique\r - D'autres fonctionnalités 👀...",
   "main": "src/electron.js",
   "scripts": {

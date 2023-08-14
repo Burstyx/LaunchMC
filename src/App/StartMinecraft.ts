@@ -1,7 +1,7 @@
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath, indexesPath, gamePath } from "../Utils/const"
+import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath, indexesPath, gamePath, java8Name, java17Name } from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
 import { existsSync } from "fs"
@@ -66,7 +66,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 tempSplitedArgs[i] = opt.accesstoken
                 break;
             case "${user_properties}":
-                tempSplitedArgs[i] = opt.username
+                tempSplitedArgs[i] = "{}"
                 break;
             case "${user_type}":
                 tempSplitedArgs[i] = "msa"
@@ -129,18 +129,18 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         await downloadJavaVersion(JavaVersions.JDK17)
     }
 
-    const java8 = path.join(javaPath, java8Version, (await fs.readdir(path.join(javaPath, java8Version))).at(0)!, "bin", "javaw")
-    const java17 = path.join(javaPath, java17Version, (await fs.readdir(path.join(javaPath, java17Version))).at(0)!, "bin", "javaw")
-
-    console.log("Extracting natives");
-
-    await extractAllNatives(librariesArg, path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Version, "bin", "jar"))
-
-    console.log("natives extracted");
+    const java8 = path.join(javaPath, java8Version, java8Name, "bin", "javaw")
+    const java17 = path.join(javaPath, java17Version, java17Name, "bin", "javaw")
 
     const javaVersion = data["javaVersion"]["majorVersion"]
 
     const javaVersionToUse = javaVersion >= 16 ? java17 : java8
+
+    console.log("Extracting natives");
+
+    await extractAllNatives(librariesArg, path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
+
+    console.log("natives extracted");
 
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
     await updateInstanceDlState(instanceId, InstanceState.Playing)
@@ -167,6 +167,9 @@ export async function extractAllNatives(libraries: string, nativeFolder: string,
         cp.exec(javaLocation + " --list --file " + e, async (err, stdout, sdterr) => {
             const filesOfLibrary = stdout.split("\r\n")
             for (const n of filesOfLibrary) {
+                if(err != null) {
+                    console.log(err);
+                }
                 if (n.endsWith(".dll")) {
                     cp.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
                 }

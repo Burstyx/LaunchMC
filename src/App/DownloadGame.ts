@@ -3,7 +3,7 @@ import { makeDir } from "../Utils/HFileManagement"
 import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import { downloadAsync } from "../Utils/HDownload"
-import { indexesPath, instancesPath, java17Version, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
+import { indexesPath, instancesPath, java17Url, java17Version, java8Url, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
 import path from "path"
 import fs from "fs/promises"
 import os from "os"
@@ -307,7 +307,7 @@ export async function downloadJavaVersion(version: JavaVersions) {
     }
 
     if (version == JavaVersions.JDK8) {
-        await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/8u362-b09/openlogic-openjdk-jre-8u362-b09-windows-x64.zip", path.join(javaPath, `${java8Version}.zip`), (progress: number) => {
+        await downloadAsync(java8Url, path.join(javaPath, `${java8Version}.zip`), (progress: number) => {
             console.log(`Progression: ${progress}% du téléchargement`);
         }, { decompress: true })
 
@@ -315,7 +315,7 @@ export async function downloadJavaVersion(version: JavaVersions) {
     }
 
     if (version == JavaVersions.JDK17) {
-        await downloadAsync("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/17.0.6+10/openlogic-openjdk-jre-17.0.6+10-windows-x64.zip", path.join(javaPath, `${java17Version}.zip`), (progress: number) => {
+        await downloadAsync(java17Url, path.join(javaPath, `${java17Version}.zip`), (progress: number) => {
             console.log(`Progression: ${progress}% du téléchargement`);
         }, { decompress: true })
         return

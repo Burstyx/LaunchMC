@@ -271,13 +271,13 @@ function downloadJavaVersion(version) {
             yield promises_1.default.mkdir(const_1.javaPath);
         }
         if (version == JavaVersions.JDK8) {
-            yield (0, HDownload_1.downloadAsync)("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/8u362-b09/openlogic-openjdk-jre-8u362-b09-windows-x64.zip", path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(const_1.java8Url, path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             }, { decompress: true });
             return;
         }
         if (version == JavaVersions.JDK17) {
-            yield (0, HDownload_1.downloadAsync)("https://builds.openlogic.com/downloadJDK/openlogic-openjdk-jre/17.0.6+10/openlogic-openjdk-jre-17.0.6+10-windows-x64.zip", path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(const_1.java17Url, path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             }, { decompress: true });
             return;

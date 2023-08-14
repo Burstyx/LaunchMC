@@ -17,7 +17,6 @@ const HManifests_1 = require("../Utils/HManifests");
 const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
-const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
@@ -64,7 +63,7 @@ function startMinecraft(version, instanceId, opt) {
                     tempSplitedArgs[i] = opt.accesstoken;
                     break;
                 case "${user_properties}":
-                    tempSplitedArgs[i] = opt.username;
+                    tempSplitedArgs[i] = "{}";
                     break;
                 case "${user_type}":
                     tempSplitedArgs[i] = "msa";
@@ -110,13 +109,13 @@ function startMinecraft(version, instanceId, opt) {
         if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version))) {
             yield (0, DownloadGame_1.downloadJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
         }
-        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, (yield promises_1.default.readdir(path_1.default.join(const_1.javaPath, const_1.java8Version))).at(0), "bin", "javaw");
-        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, (yield promises_1.default.readdir(path_1.default.join(const_1.javaPath, const_1.java17Version))).at(0), "bin", "javaw");
-        console.log("Extracting natives");
-        yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Version, "bin", "jar"));
-        console.log("natives extracted");
+        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin", "javaw");
+        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "javaw");
         const javaVersion = data["javaVersion"]["majorVersion"];
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
+        console.log("Extracting natives");
+        yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));
+        console.log("natives extracted");
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
         proc.stdout.on("data", (data) => {
@@ -140,6 +139,9 @@ function extractAllNatives(libraries, nativeFolder, javaLocation) {
             child_process_1.default.exec(javaLocation + " --list --file " + e, (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
                 const filesOfLibrary = stdout.split("\r\n");
                 for (const n of filesOfLibrary) {
+                    if (err != null) {
+                        console.log(err);
+                    }
                     if (n.endsWith(".dll")) {
                         child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
                     }

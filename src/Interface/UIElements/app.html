@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="titlebar">
-        <p>Mineos - <span class="highlight">0.0.1</span></p>
+        <p>Ruby Client - <span class="highlight" id="client-version">N/A</span></p>
         <div class="menu-btns">
             <div class="default-btn interactable">Explore</div>
             <div class="default-btn active interactable">My Instances</div>
@@ -117,6 +117,9 @@
                 e.preventDefault()
             }
         }, { passive: false })
+
+        // Automatically change rendered version
+        document.getElementById("client-version").innerText = require("../../../package.json").version
     </script>
 
     <!-- App script -->
