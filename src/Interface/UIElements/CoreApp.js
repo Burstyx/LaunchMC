@@ -1,5 +1,6 @@
 console.log("Initialisation du module principal !");
-const { refreshInstanceList, updateInstanceDlProgress } = require("../../Utils/HInstance")
+const { initDiscordRPC } = require("../../App/DIscordRPC");
+const { refreshInstanceList } = require("../../Utils/HInstance")
 
 
 // Titlebar behaviour
@@ -22,5 +23,8 @@ refreshInstanceList()
 
 // Account manager window behaviour
 require("./scripts/accountManagerWin")
+
+// Enable Discord RPC
+initDiscordRPC()
 
 console.log("Initialisation effectué sans erreur !")

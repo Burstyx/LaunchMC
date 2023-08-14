@@ -8,29 +8,34 @@ export enum DiscordRPCState{
 let client: RPC.Client
 const clientId = "1116091725061046353"
 
-export function initDiscordRPC(){
+export async function initDiscordRPC(){
     client = new RPC.Client({transport: "ipc"})
 
-    client.on("ready", () => {
-        switchDiscordRPCState(DiscordRPCState.InLauncher)
+    client.on("ready", async () => {
+        await switchDiscordRPCState(DiscordRPCState.InLauncher)
     })
 
-    client.login({clientId})
+    await client.login({clientId})
 }
 
-function switchDiscordRPCState(newState: DiscordRPCState){
+export async function switchDiscordRPCState(newState: DiscordRPCState){
+    
     switch(newState){
         case DiscordRPCState.InLauncher:
-            client.setActivity({
+            await client.setActivity({
                 details: "In Launcher",
                 largeImageKey: "icon"
             })
-            break
+            return
         case DiscordRPCState.InGame:
-            client.setActivity({
+            await client.setActivity({
                 details: "In Minecraft",
+                largeImageKey: "icon",
                 startTimestamp: Date.now()
             })
-            break
+            return
+        default:
+            console.log("State doesn't exist");
+            return
     }
 }

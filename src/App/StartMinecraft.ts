@@ -8,6 +8,7 @@ import { existsSync } from "fs"
 import { downloadJavaVersion, JavaVersions, minecraftLibraryList } from "./DownloadGame"
 import { getAllFile, makeDir } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
+import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -21,6 +22,8 @@ interface MinecraftArgsOpt {
         height: number
     }
 }
+
+let mcProcs: any = {}
 
 export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt) { // TODO: Get game libraries
     // TODO If map_to_ressource == true -> object dans legacy
@@ -144,6 +147,9 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
     await updateInstanceDlState(instanceId, InstanceState.Playing)
+    await switchDiscordRPCState(DiscordRPCState.InGame)
+
+    mcProcs[instanceId] = proc
 
     proc.stdout.on("data", (data) => {
         console.log(data.toString("utf-8"));
@@ -154,9 +160,31 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     })
 
     proc.on("close", async (code) => {
-        console.error("closed with code " + code);
+        switch (code) {
+            case 0:
+                console.log("Game stopped");
+                break;
+            case 1:
+                console.error("Game stopped with error");
+                break;
+            case null:
+                console.log("Game killed!");
+                break; 
+            default:
+                break;
+        }
+
         await updateInstanceDlState(instanceId, InstanceState.Playable)
+        await switchDiscordRPCState(DiscordRPCState.InLauncher)
+
+        delete mcProcs[instanceId]
     })
+}
+
+export function killGame(associatedInstanceId: string) {    
+    if(mcProcs.hasOwnProperty(associatedInstanceId)) {
+        mcProcs[associatedInstanceId].kill()
+    }
 }
 
 export async function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string) {

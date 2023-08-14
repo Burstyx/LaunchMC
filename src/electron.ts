@@ -32,12 +32,10 @@ function createAppWindow() {
     mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
 }
 
-app.on("ready", () => {
+app.on("ready", async () => {
     createAppWindow()
 
     mainWindow!.webContents.on("did-finish-load", () => {
         mainWindow.show();
     })
-
-    initDiscordRPC()
 })

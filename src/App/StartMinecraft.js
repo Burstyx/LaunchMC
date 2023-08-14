@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractAllNatives = exports.startMinecraft = void 0;
+exports.extractAllNatives = exports.killGame = exports.startMinecraft = void 0;
 const HManifests_1 = require("../Utils/HManifests");
 const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
@@ -21,6 +21,8 @@ const fs_1 = require("fs");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const HInstance_1 = require("../Utils/HInstance");
+const DIscordRPC_1 = require("./DIscordRPC");
+let mcProcs = {};
 function startMinecraft(version, instanceId, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO If map_to_ressource == true -> object dans legacy
@@ -118,6 +120,8 @@ function startMinecraft(version, instanceId, opt) {
         console.log("natives extracted");
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
+        yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InGame);
+        mcProcs[instanceId] = proc;
         proc.stdout.on("data", (data) => {
             console.log(data.toString("utf-8"));
         });
@@ -125,12 +129,32 @@ function startMinecraft(version, instanceId, opt) {
             console.error(data.toString("utf-8"));
         });
         proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
-            console.error("closed with code " + code);
+            switch (code) {
+                case 0:
+                    console.log("Game stopped");
+                    break;
+                case 1:
+                    console.error("Game stopped with error");
+                    break;
+                case null:
+                    console.log("Game killed!");
+                    break;
+                default:
+                    break;
+            }
             yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InLauncher);
+            delete mcProcs[instanceId];
         }));
     });
 }
 exports.startMinecraft = startMinecraft;
+function killGame(associatedInstanceId) {
+    if (mcProcs.hasOwnProperty(associatedInstanceId)) {
+        mcProcs[associatedInstanceId].kill();
+    }
+}
+exports.killGame = killGame;
 function extractAllNatives(libraries, nativeFolder, javaLocation) {
     return __awaiter(this, void 0, void 0, function* () {
         const allLibs = libraries.split(";");

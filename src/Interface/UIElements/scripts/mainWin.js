@@ -1,5 +1,5 @@
 const { openWindow } = require("./window")
-const { startMinecraft } = require("../../../App/StartMinecraft")
+const { startMinecraft, killGame } = require("../../../App/StartMinecraft")
 const { InstanceState } = require("../../../Utils/HInstance")
 const { msaLogin } = require("../../../App/MicrosoftAuth")
 const fs = require("fs/promises")
@@ -16,10 +16,14 @@ launchBtn.addEventListener("click", async () => {
     const instanceList = document.getElementById("instance-list")
     const currentInstance = instanceList.querySelector(".active")
     const instanceState = currentInstance.getAttribute("state")
+    const instanceId = currentInstance.id
 
-    if (instanceState != InstanceState[InstanceState.Playable]) {
-        console.log(("Instance is not in playable state"));
-        return
+    switch (instanceState) {
+        case InstanceState[InstanceState.Playing]:
+            killGame(instanceId)
+            return;
+        default:
+            console.log("Can't do anything");
     }
 
     const widgetVersion = document.getElementById("widget-version")
@@ -36,7 +40,7 @@ const openAccountManagerWinBtn = document.getElementById("open-account-manager-w
 openAccountManagerWinBtn.addEventListener("click", (e) => { openWindow("account-manager") })
 
 exports.refreshAccountBtnImg = (uuid) => {
-    if(uuid == undefined) {
+    if (uuid == undefined) {
         return
     }
 
