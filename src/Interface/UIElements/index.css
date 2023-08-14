@@ -407,7 +407,7 @@ body {
   border-radius: 5px;
   z-index: 40;
 
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
 

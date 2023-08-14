@@ -1,30 +1,37 @@
-console.log("Initialisation du module principal !");
 const { initDiscordRPC } = require("../../App/DIscordRPC");
 const { refreshInstanceList } = require("../../Utils/HInstance")
 
+const loadingStartup = document.getElementById("loading-startup-launcher")
+loadingStartup.style.display = "flex"
 
-// Titlebar behaviour
+console.log("Initialize Modules");
+
+console.log("[Initialize Modules] Titlebar module");
 require("./scripts/titlebar")
 
-// Main window behaviour
+console.log("[Initialize Modules] MainWin module");
 require("./scripts/mainWin")
 
-// New instance window behaviour
+console.log("[Initialize Modules] New Instance Win module");
 require("./scripts/newInstanceWin")
 
-// Choose version window behaviour
+console.log("[Initialize Modules] ChooseVersionWin module");
 require("./scripts/chooseVersionWin")
 
-// Init custom elements behaviour
+console.log("[Initialize Modules] Elements module");
 require("./scripts/elements")
 
-// Add btn logic
-refreshInstanceList()
-
-// Account manager window behaviour
+console.log("[Initialize Modules] AccountManagerWin module");
 require("./scripts/accountManagerWin")
 
-// Enable Discord RPC
+console.log("Update Instance List");
+refreshInstanceList()
+
+console.log("Initialize Discord RPC");
 initDiscordRPC()
 
+console.log("Refreshing Microsoft Account");
+// Put logic here
+
+loadingStartup.style.display = "none"
 console.log("Initialisation effectué sans erreur !")
