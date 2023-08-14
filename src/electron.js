@@ -20,6 +20,7 @@ function createAppWindow() {
         minHeight: 620,
         minWidth: 1080,
         title: "Burstyx Launcher",
+        icon: path_1.default.join(__dirname, "icon.ico"),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,

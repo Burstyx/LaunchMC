@@ -22,7 +22,8 @@ function switchDiscordRPCState(newState: DiscordRPCState){
     switch(newState){
         case DiscordRPCState.InLauncher:
             client.setActivity({
-                details: "In Launcher"
+                details: "In Launcher",
+                largeImageKey: "icon"
             })
             break
         case DiscordRPCState.InGame:
