@@ -2,7 +2,10 @@ const { initDiscordRPC } = require("../../App/DIscordRPC");
 const { refreshInstanceList } = require("../../Utils/HInstance")
 
 const loadingStartup = document.getElementById("loading-startup-launcher")
+const menuBtn = document.getElementById("titlebar-menu-btns")
+
 loadingStartup.style.display = "flex"
+menuBtn.style.display = "none"
 
 console.log("Initialize Modules");
 
@@ -34,4 +37,6 @@ console.log("Refreshing Microsoft Account");
 // Put logic here
 
 loadingStartup.style.display = "none"
+menuBtn.style.display = "flex"
+
 console.log("Initialisation effectué sans erreur !")

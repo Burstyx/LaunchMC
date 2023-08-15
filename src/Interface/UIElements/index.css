@@ -86,7 +86,7 @@ body {
 }
 
 .titlebar .menu-btns {
-  display: none; /* FIXME: Show when not loading and hide while loading launcher */
+  display: flex; /* FIXME: Show when not loading and hide while loading launcher */
   gap: 5px;
 
   font-size: 18px;
