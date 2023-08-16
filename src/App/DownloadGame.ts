@@ -3,7 +3,7 @@ import { makeDir } from "../Utils/HFileManagement"
 import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import { downloadAsync } from "../Utils/HDownload"
-import { indexesPath, instancesPath, java17Url, java17Version, java8Url, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
+import { gamePath, indexesPath, instancesPath, java17Url, java17Version, java8Url, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage } from "../Utils/const"
 import path from "path"
 import fs from "fs/promises"
 import os from "os"
@@ -121,11 +121,19 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         numberOfAssetsDownloaded++
     }
 
+    await patchInstanceWithForge(instanceId)
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
 export async function patchInstanceWithForge(instanceId: string) {
     // Télécharger l'installer forge
+    const forgeVersionsUrl = await downloadAsync("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path.join(gamePath, "maven-metadata.json"), (progress, byte) => {console.log(progress + "% of forge manifest");
+    })
+
+    const forgeVersions = JSON.parse(await fs.readFile(path.join(gamePath, "maven-metadata.json"), "utf-8"))
+
+    console.log(forgeVersions);
+    
 
     // Décompresser installer
 

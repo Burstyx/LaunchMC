@@ -97,6 +97,7 @@ function downloadMinecraft(version, instanceId) {
             });
             numberOfAssetsDownloaded++;
         }
+        yield patchInstanceWithForge(instanceId);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
     });
 }
@@ -104,6 +105,11 @@ exports.downloadMinecraft = downloadMinecraft;
 function patchInstanceWithForge(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Télécharger l'installer forge
+        const forgeVersionsUrl = yield (0, HDownload_1.downloadAsync)("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path_1.default.join(const_1.gamePath, "maven-metadata.json"), (progress, byte) => {
+            console.log(progress + "% of forge manifest");
+        });
+        const forgeVersions = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "maven-metadata.json"), "utf-8"));
+        console.log(forgeVersions);
         // Décompresser installer
         // Télécharger les librairies
         // Changer type de l'instance pour utiliser les bons arguments
