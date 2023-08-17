@@ -6,7 +6,7 @@ import os from "os"
 import fs from "fs/promises"
 import { existsSync } from "fs"
 import { downloadJavaVersion, JavaVersions, minecraftLibraryList } from "./DownloadGame"
-import { getAllFile, makeDir } from "../Utils/HFileManagement"
+import { getAllFile, makeDir, mavenToArray } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
 
@@ -27,7 +27,7 @@ let mcProcs: any = {}
 
 export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt) { // TODO: Get game libraries
     // TODO If map_to_ressource == true -> object dans legacy
-    const data = await minecraftManifestForVersion(version)
+    const data = await minecraftManifestForVersion("1.12.2") // FIXME: TEMP
     await updateInstanceDlState(instanceId, InstanceState.Loading)
 
     // Get all Minecraft arguments
@@ -90,7 +90,10 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         }
     }
 
+    tempSplitedArgs.push("--tweakClass")
+    tempSplitedArgs.push("net.minecraftforge.fml.common.launcher.FMLTweaker")
     mcArgs = tempSplitedArgs
+    // mcArgs += " --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker" // FIXME: TEMP
 
     console.log(mcArgs);
 
@@ -104,25 +107,53 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     jvmArgs.push("-Djava.library.path=" + await makeDir(path.join(instancesPath, instanceId, "natives")))
 
     const libraries = await getAllFile(librariesPath)
-    // console.log(libraries);
+    
+    // FIXME: START TEMP
+    const installProfileFile = await fs.readFile(path.join(gamePath, "install_profile.json"), "utf-8")
+    const installProfileJson = JSON.parse(installProfileFile)
+
+    let forgeArgs: string[] = []
+    forgeArgs.push(path.join(librariesPath, (await mavenToArray(installProfileJson.install.path)).join("/")))
+    
+    const forgeLibraries = installProfileJson.versionInfo.libraries
+
+    for(const library of forgeLibraries) {
+        if(library.name.includes("minecraftforge") || library.name.includes("forge")) {
+            console.log("Skip " + library.name);
+            
+            continue
+        }
+
+        forgeArgs.push(path.join(librariesPath, (await mavenToArray(library.name)).join("/")))
+    }
+
+    const forgeLibraryPathes = forgeArgs.join(";")
+    // FIXME: END TEMP
     let librariesArg = minecraftLibraryList(data).join(";")
+    const finalLibrariesArg = `${forgeLibraryPathes};${librariesArg}`
 
     console.log(libraries);
     console.log('---');
     console.log(librariesArg);
+    console.log('----');
+    console.log(finalLibrariesArg);
     
     
+    
+    
+    jvmArgs.push("-Dminecraft.client.jar")
+    jvmArgs.push(path.join(minecraftVersionPath, "1.12.2", "1.12.2.jar"))
+
     
 
     jvmArgs.push(`-cp`)
-    jvmArgs.push(`${librariesArg};${path.join(minecraftVersionPath, version, `${version}.jar`)}`)
+    jvmArgs.push(`${path.join(librariesPath, "net", "minecraft", "launchwrapper", "1.12", "launchwrapper-1.12.jar")};${finalLibrariesArg};${path.join(minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`)
 
-    jvmArgs.push(data["mainClass"])
+    // jvmArgs.push(data["mainClass"])
+    jvmArgs.push("net.minecraft.launchwrapper.Launch")
 
     const fullMcArgs = [...jvmArgs, ...mcArgs]
     console.log(fullMcArgs);
-
-
 
     // Find correct java executable
     if (!existsSync(path.join(javaPath, java8Version))) {
@@ -141,10 +172,15 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     console.log("Extracting natives");
 
+    // TEMP
     await extractAllNatives(librariesArg, path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
 
     console.log("natives extracted");
 
+    console.log("here full args");
+    console.log(fullMcArgs.join(" "));
+    
+    
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
     await updateInstanceDlState(instanceId, InstanceState.Playing)
     await switchDiscordRPCState(DiscordRPCState.InGame)
@@ -196,7 +232,7 @@ export async function extractAllNatives(libraries: string, nativeFolder: string,
             const filesOfLibrary = stdout.split("\r\n")
             for (const n of filesOfLibrary) {
                 if(err != null) {
-                    console.log(err);
+                    console.error(err);
                 }
                 if (n.endsWith(".dll")) {
                     cp.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });

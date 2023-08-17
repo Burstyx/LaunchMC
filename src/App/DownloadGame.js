@@ -22,11 +22,10 @@ const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
 const os_1 = __importDefault(require("os"));
 const HInstance_1 = require("../Utils/HInstance");
-const child_process_1 = __importDefault(require("child_process"));
+const StartMinecraft_1 = require("./StartMinecraft");
+const HMicrosoft_1 = require("../Utils/HMicrosoft");
 function downloadMinecraft(version, instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield patchInstanceWithForge(instanceId);
-        return;
         // Préparation
         console.log("[INFO] Preparing to the download");
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
@@ -100,6 +99,7 @@ function downloadMinecraft(version, instanceId) {
             });
             numberOfAssetsDownloaded++;
         }
+        yield patchInstanceWithForge(instanceId);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
     });
 }
@@ -108,25 +108,38 @@ function patchInstanceWithForge(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Télécharger l'installer forge
         const forgeVersionsUrl = yield (0, HDownload_1.downloadAsync)("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path_1.default.join(const_1.gamePath, "maven-metadata.json"), (progress, byte) => { console.log(progress + "% of forge manifest"); });
+        yield downloadJavaVersion(JavaVersions.JDK17);
         const file = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "maven-metadata.json"), "utf-8");
         const forgeVersions = JSON.parse(file);
         const version = forgeVersions["1.12.2"][0];
         console.log(version);
         const forgeInstallerUrl = `https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-installer.jar`;
         yield (0, HDownload_1.downloadAsync)(forgeInstallerUrl, path_1.default.join(const_1.gamePath, version + ".jar"), (prog, byte) => { console.log(prog); });
-        child_process_1.default.exec(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar") + " --list --file " + path_1.default.join(const_1.gamePath, version + ".jar"), (err, stdout, sdterr) => __awaiter(this, void 0, void 0, function* () {
-            const filesOfLibrary = stdout.split("\r\n");
-            for (const n of filesOfLibrary) {
-                if (err != null) {
-                    console.log(err);
-                }
-                if (n == "install_profile.json") {
-                    child_process_1.default.exec(`${path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar")} xf ${path_1.default.join(const_1.gamePath, version + ".jar")} ${n}`, { cwd: const_1.gamePath });
-                }
-            }
-        }));
-        // Décompresser installer
+        yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.gamePath, version + ".jar"), "install_profile.json");
+        const installProfileFile = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "install_profile.json"), "utf-8");
+        const installProfileJson = JSON.parse(installProfileFile);
+        console.log(installProfileJson);
         // Télécharger les librairies
+        const installInfo = installProfileJson.install;
+        const versionInfo = installProfileJson.versionInfo;
+        const libraries = versionInfo.libraries;
+        for (const library of libraries) {
+            if (library.name.includes("minecraftforge") || library.name.includes("forge")) {
+                console.log("Skip " + library.name);
+                continue;
+            }
+            console.log(library);
+            const libraryPath = (yield (0, HFileManagement_1.mavenToArray)(library.name)).join("/");
+            if (!library.url) {
+                yield (0, HDownload_1.downloadAsync)(`https://libraries.minecraft.net/${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+                continue;
+            }
+            const forgeBaseUrl = "https://maven.minecraftforge.net/";
+            console.log(`${forgeBaseUrl}${libraryPath}`);
+            console.log(path_1.default.join(const_1.librariesPath, libraryPath));
+            yield (0, HDownload_1.downloadAsync)(`${forgeBaseUrl}${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+        }
+        yield (0, StartMinecraft_1.startMinecraft)("1.12.2-forge1.12.2-14.23.0.2486", instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge" });
         // Changer type de l'instance pour utiliser les bons arguments
     });
 }

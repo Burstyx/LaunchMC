@@ -1,4 +1,4 @@
-import { makeDir } from "../Utils/HFileManagement"
+import { extractSpecificFile, makeDir, mavenToArray } from "../Utils/HFileManagement"
 
 import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
@@ -9,11 +9,10 @@ import fs from "fs/promises"
 import os from "os"
 import { InstanceState, updateInstanceDlProgress, updateInstanceDlState } from "../Utils/HInstance"
 import cp from "child_process"
+import { startMinecraft } from "./StartMinecraft"
+import { getActiveAccount } from "../Utils/HMicrosoft"
 
 export async function downloadMinecraft(version: string, instanceId: string) { // TODO: Validate files
-    await patchInstanceWithForge(instanceId)
-    return
-
     // Préparation
     console.log("[INFO] Preparing to the download");
 
@@ -125,12 +124,15 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         numberOfAssetsDownloaded++
     }
 
+    await patchInstanceWithForge(instanceId)
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
 export async function patchInstanceWithForge(instanceId: string) {
     // Télécharger l'installer forge
     const forgeVersionsUrl = await downloadAsync("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path.join(gamePath, "maven-metadata.json"), (progress, byte) => { console.log(progress + "% of forge manifest"); })
+
+    await downloadJavaVersion(JavaVersions.JDK17)
 
     const file = await fs.readFile(path.join(gamePath, "maven-metadata.json"), "utf-8")
     const forgeVersions = JSON.parse(file)
@@ -142,21 +144,46 @@ export async function patchInstanceWithForge(instanceId: string) {
     const forgeInstallerUrl = `https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-installer.jar`
     await downloadAsync(forgeInstallerUrl, path.join(gamePath, version + ".jar"), (prog, byte) => { console.log(prog); })
 
-    cp.exec(path.join(javaPath, java17Version, java17Name, "bin", "jar") + " --list --file " + path.join(gamePath, version + ".jar"), async (err, stdout, sdterr) => {
-        const filesOfLibrary = stdout.split("\r\n")
-        for (const n of filesOfLibrary) {
-            if(err != null) {
-                console.log(err);
-            }
-            if (n == "install_profile.json") {
-                cp.exec(`${path.join(javaPath, java17Version, java17Name, "bin", "jar")} xf ${path.join(gamePath, version + ".jar")} ${n}`, { cwd: gamePath });
-            }
-        }
-    })
+    await extractSpecificFile(path.join(gamePath, version + ".jar"), "install_profile.json")
 
-    // Décompresser installer
+    const installProfileFile = await fs.readFile(path.join(gamePath, "install_profile.json"), "utf-8")
+    const installProfileJson = JSON.parse(installProfileFile)
 
+    console.log(installProfileJson);
+    
     // Télécharger les librairies
+    const installInfo = installProfileJson.install
+    const versionInfo = installProfileJson.versionInfo
+
+    const libraries = versionInfo.libraries
+
+    for(const library of libraries) {
+        if(library.name.includes("minecraftforge") || library.name.includes("forge")) {
+            console.log("Skip " + library.name);
+            
+            continue
+        }
+
+        console.log(library);
+        const libraryPath = (await mavenToArray(library.name)).join("/");
+
+        if(!library.url) {
+            await downloadAsync(`https://libraries.minecraft.net/${libraryPath}`, path.join(librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+            
+            continue
+        }
+        
+        const forgeBaseUrl = "https://maven.minecraftforge.net/"
+
+        console.log(`${forgeBaseUrl}${libraryPath}`);
+        console.log(path.join(librariesPath, libraryPath));
+
+        await downloadAsync(`${forgeBaseUrl}${libraryPath}`, path.join(librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+    }
+
+    await startMinecraft("1.12.2-forge1.12.2-14.23.0.2486", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge"})
+
+
 
     // Changer type de l'instance pour utiliser les bons arguments
 }

@@ -17,6 +17,7 @@ const HManifests_1 = require("../Utils/HManifests");
 const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
+const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
@@ -26,7 +27,7 @@ let mcProcs = {};
 function startMinecraft(version, instanceId, opt) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO If map_to_ressource == true -> object dans legacy
-        const data = yield (0, HManifests_1.minecraftManifestForVersion)(version);
+        const data = yield (0, HManifests_1.minecraftManifestForVersion)("1.12.2"); // FIXME: TEMP
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
         // Get all Minecraft arguments
         var mcArgs = data["minecraftArguments"];
@@ -85,7 +86,10 @@ function startMinecraft(version, instanceId, opt) {
                     break;
             }
         }
+        tempSplitedArgs.push("--tweakClass");
+        tempSplitedArgs.push("net.minecraftforge.fml.common.launcher.FMLTweaker");
         mcArgs = tempSplitedArgs;
+        // mcArgs += " --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker" // FIXME: TEMP
         console.log(mcArgs);
         // Set command arguments
         var jvmArgs = [];
@@ -94,14 +98,34 @@ function startMinecraft(version, instanceId, opt) {
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
         jvmArgs.push("-Djava.library.path=" + (yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
         const libraries = yield (0, HFileManagement_1.getAllFile)(const_1.librariesPath);
-        // console.log(libraries);
+        // FIXME: START TEMP
+        const installProfileFile = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "install_profile.json"), "utf-8");
+        const installProfileJson = JSON.parse(installProfileFile);
+        let forgeArgs = [];
+        forgeArgs.push(path_1.default.join(const_1.librariesPath, (yield (0, HFileManagement_1.mavenToArray)(installProfileJson.install.path)).join("/")));
+        const forgeLibraries = installProfileJson.versionInfo.libraries;
+        for (const library of forgeLibraries) {
+            if (library.name.includes("minecraftforge") || library.name.includes("forge")) {
+                console.log("Skip " + library.name);
+                continue;
+            }
+            forgeArgs.push(path_1.default.join(const_1.librariesPath, (yield (0, HFileManagement_1.mavenToArray)(library.name)).join("/")));
+        }
+        const forgeLibraryPathes = forgeArgs.join(";");
+        // FIXME: END TEMP
         let librariesArg = (0, DownloadGame_1.minecraftLibraryList)(data).join(";");
+        const finalLibrariesArg = `${forgeLibraryPathes};${librariesArg}`;
         console.log(libraries);
         console.log('---');
         console.log(librariesArg);
+        console.log('----');
+        console.log(finalLibrariesArg);
+        jvmArgs.push("-Dminecraft.client.jar");
+        jvmArgs.push(path_1.default.join(const_1.minecraftVersionPath, "1.12.2", "1.12.2.jar"));
         jvmArgs.push(`-cp`);
-        jvmArgs.push(`${librariesArg};${path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`)}`);
-        jvmArgs.push(data["mainClass"]);
+        jvmArgs.push(`${path_1.default.join(const_1.librariesPath, "net", "minecraft", "launchwrapper", "1.12", "launchwrapper-1.12.jar")};${finalLibrariesArg};${path_1.default.join(const_1.minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`);
+        // jvmArgs.push(data["mainClass"])
+        jvmArgs.push("net.minecraft.launchwrapper.Launch");
         const fullMcArgs = [...jvmArgs, ...mcArgs];
         console.log(fullMcArgs);
         // Find correct java executable
@@ -116,8 +140,11 @@ function startMinecraft(version, instanceId, opt) {
         const javaVersion = data["javaVersion"]["majorVersion"];
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
         console.log("Extracting natives");
+        // TEMP
         yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));
         console.log("natives extracted");
+        console.log("here full args");
+        console.log(fullMcArgs.join(" "));
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
         yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InGame);
@@ -164,7 +191,7 @@ function extractAllNatives(libraries, nativeFolder, javaLocation) {
                 const filesOfLibrary = stdout.split("\r\n");
                 for (const n of filesOfLibrary) {
                     if (err != null) {
-                        console.log(err);
+                        console.error(err);
                     }
                     if (n.endsWith(".dll")) {
                         child_process_1.default.exec(`${javaLocation} xf ${e} ${n}`, { cwd: nativeFolder });
