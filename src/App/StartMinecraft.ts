@@ -147,7 +147,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     
 
     jvmArgs.push(`-cp`)
-    jvmArgs.push(`${path.join(librariesPath, "net", "minecraft", "launchwrapper", "1.12", "launchwrapper-1.12.jar")};${finalLibrariesArg};${path.join(minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`)
+    jvmArgs.push(`${finalLibrariesArg};${path.join(minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`)
 
     // jvmArgs.push(data["mainClass"])
     jvmArgs.push("net.minecraft.launchwrapper.Launch")
@@ -169,6 +169,9 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     const javaVersion = data["javaVersion"]["majorVersion"]
 
     const javaVersionToUse = javaVersion >= 16 ? java17 : java8
+
+    console.log(javaVersionToUse);
+    
 
     console.log("Extracting natives");
 
@@ -194,6 +197,8 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     proc.stderr.on("data", (data) => {
         console.error(data.toString("utf-8"));
     })
+
+    proc.stdout.on("error", (err) => console.error(err))
 
     proc.on("close", async (code) => {
         switch (code) {

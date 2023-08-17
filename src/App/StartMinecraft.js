@@ -123,7 +123,7 @@ function startMinecraft(version, instanceId, opt) {
         jvmArgs.push("-Dminecraft.client.jar");
         jvmArgs.push(path_1.default.join(const_1.minecraftVersionPath, "1.12.2", "1.12.2.jar"));
         jvmArgs.push(`-cp`);
-        jvmArgs.push(`${path_1.default.join(const_1.librariesPath, "net", "minecraft", "launchwrapper", "1.12", "launchwrapper-1.12.jar")};${finalLibrariesArg};${path_1.default.join(const_1.minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`);
+        jvmArgs.push(`${finalLibrariesArg};${path_1.default.join(const_1.minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`);
         // jvmArgs.push(data["mainClass"])
         jvmArgs.push("net.minecraft.launchwrapper.Launch");
         const fullMcArgs = [...jvmArgs, ...mcArgs];
@@ -139,6 +139,7 @@ function startMinecraft(version, instanceId, opt) {
         const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "javaw");
         const javaVersion = data["javaVersion"]["majorVersion"];
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
+        console.log(javaVersionToUse);
         console.log("Extracting natives");
         // TEMP
         yield extractAllNatives(librariesArg, path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));
@@ -155,6 +156,7 @@ function startMinecraft(version, instanceId, opt) {
         proc.stderr.on("data", (data) => {
             console.error(data.toString("utf-8"));
         });
+        proc.stdout.on("error", (err) => console.error(err));
         proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
             switch (code) {
                 case 0:
