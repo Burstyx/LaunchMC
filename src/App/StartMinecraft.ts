@@ -51,7 +51,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 tempSplitedArgs[i] = opt.username
                 break;
             case "${version_name}":
-                tempSplitedArgs[i] = version
+                tempSplitedArgs[i] = "1.12.2"
                 break;
             case "${game_directory}":
                 tempSplitedArgs[i] = path.join(instancesPath, instanceId)
@@ -136,15 +136,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log('---');
     console.log(librariesArg);
     console.log('----');
-    console.log(finalLibrariesArg);
-    
-    
-    
-    
-    jvmArgs.push("-Dminecraft.client.jar")
-    jvmArgs.push(path.join(minecraftVersionPath, "1.12.2", "1.12.2.jar"))
-
-    
+    console.log(finalLibrariesArg); 
 
     jvmArgs.push(`-cp`)
     jvmArgs.push(`${finalLibrariesArg};${path.join(minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`)

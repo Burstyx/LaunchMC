@@ -48,7 +48,7 @@ function startMinecraft(version, instanceId, opt) {
                     tempSplitedArgs[i] = opt.username;
                     break;
                 case "${version_name}":
-                    tempSplitedArgs[i] = version;
+                    tempSplitedArgs[i] = "1.12.2";
                     break;
                 case "${game_directory}":
                     tempSplitedArgs[i] = path_1.default.join(const_1.instancesPath, instanceId);
@@ -120,8 +120,6 @@ function startMinecraft(version, instanceId, opt) {
         console.log(librariesArg);
         console.log('----');
         console.log(finalLibrariesArg);
-        jvmArgs.push("-Dminecraft.client.jar");
-        jvmArgs.push(path_1.default.join(const_1.minecraftVersionPath, "1.12.2", "1.12.2.jar"));
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${finalLibrariesArg};${path_1.default.join(const_1.minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`);
         // jvmArgs.push(data["mainClass"])
