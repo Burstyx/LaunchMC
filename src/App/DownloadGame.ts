@@ -124,11 +124,11 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         numberOfAssetsDownloaded++
     }
 
-    await patchInstanceWithForge(instanceId)
+    await patchInstanceWithForge(instanceId, version)
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
-export async function patchInstanceWithForge(instanceId: string) {
+export async function patchInstanceWithForge(instanceId: string, mcVersion: string) {
     // Télécharger l'installer forge
     const forgeVersionsUrl = await downloadAsync("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path.join(gamePath, "maven-metadata.json"), (progress, byte) => { console.log(progress + "% of forge manifest"); })
 
@@ -182,7 +182,9 @@ export async function patchInstanceWithForge(instanceId: string) {
     }
 
     await extractSpecificFile(path.join(gamePath, version + ".jar"), `forge-${version}-universal.jar`)
-    await fs.copyFile(path.join(gamePath, `forge-${version}-universal.jar`), path.join(librariesPath, "net", "minecraftforge", "forge", version, version + ".jar"))
+
+    await makeDir(path.join(librariesPath, "net", "minecraftforge", "forge", version))
+    await fs.copyFile(path.join(gamePath, `forge-${version}-universal.jar`), path.join(librariesPath, "net", "minecraftforge", "forge", version, "forge-" + version + ".jar"))
 
     await startMinecraft("1.12.2-forge1.12.2-14.23.0.2486", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge"})
 

@@ -140,7 +140,8 @@ function patchInstanceWithForge(instanceId) {
             yield (0, HDownload_1.downloadAsync)(`${forgeBaseUrl}${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
         }
         yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.gamePath, version + ".jar"), `forge-${version}-universal.jar`);
-        yield promises_1.default.copyFile(path_1.default.join(const_1.gamePath, `forge-${version}-universal.jar`), path_1.default.join(const_1.librariesPath, "net", "minecraftforge", "forge", version, version + ".jar"));
+        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.librariesPath, "net", "minecraftforge", "forge", version));
+        yield promises_1.default.copyFile(path_1.default.join(const_1.gamePath, `forge-${version}-universal.jar`), path_1.default.join(const_1.librariesPath, "net", "minecraftforge", "forge", version, "forge-" + version + ".jar"));
         yield (0, StartMinecraft_1.startMinecraft)("1.12.2-forge1.12.2-14.23.0.2486", instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge" });
         // Changer type de l'instance pour utiliser les bons arguments
     });
