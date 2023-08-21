@@ -276,7 +276,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
                 const mainClass = await readJarMetaInf(jarPath, "Main-Class")
 
                 await new Promise<void>((res) => {
-                    const proc = cp.spawn(java17Path, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path.delimiter), mainClass, ...args])
+                    const proc = cp.spawn(path.join(java17Path, "javaw"), ['-classpath', [`"${jarPath}"`, ...classPaths].join(path.delimiter), mainClass, ...args])
                     proc.stdout.on("data", data => console.log(data))
                     proc.stderr.on("data", data => console.error(data))
                     proc.on("close", code => {console.log("Exited with code " + code); res()})

@@ -221,7 +221,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
                     const classPaths = p.classpath.map((cp) => __awaiter(this, void 0, void 0, function* () { return `"${path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(cp)))}"`; }));
                     const mainClass = yield (0, HFileManagement_1.readJarMetaInf)(jarPath, "Main-Class");
                     yield new Promise((res) => {
-                        const proc = child_process_1.default.spawn(java17Path, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args]);
+                        const proc = child_process_1.default.spawn(path_1.default.join(java17Path, "javaw"), ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args]);
                         proc.stdout.on("data", data => console.log(data));
                         proc.stderr.on("data", data => console.error(data));
                         proc.on("close", code => { console.log("Exited with code " + code); res(); });

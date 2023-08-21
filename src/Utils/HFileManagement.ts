@@ -79,7 +79,8 @@ export async function extractAll(compressedDirPath: string, dest?: string) {
 export async function mavenToArray(maven: string, native?: string, ext?: string) {
     let mavenArray: string[] = []
 
-    const mavenExt = maven.split("@")[0]
+    const mavenExt = maven.split("@")[1]
+    
     maven = maven.split("@").pop()!.toString()
 
     const mavenParts = maven.split(":")

@@ -92,7 +92,7 @@ exports.extractAll = extractAll;
 function mavenToArray(maven, native, ext) {
     return __awaiter(this, void 0, void 0, function* () {
         let mavenArray = [];
-        const mavenExt = maven.split("@")[0];
+        const mavenExt = maven.split("@")[1];
         maven = maven.split("@").pop().toString();
         const mavenParts = maven.split(":");
         const linkParts = mavenParts[0].split(".");
