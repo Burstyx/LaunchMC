@@ -116,6 +116,7 @@ function startMinecraft(version, instanceId, opt) {
             }
             forgeArgs.push(path_1.default.join(const_1.librariesPath, ((0, HFileManagement_1.mavenToArray)(library.name)).join("/")));
         }
+        forgeArgs.push(path_1.default.join(const_1.librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-client.jar`));
         forgeArgs.push(path_1.default.join(const_1.librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-universal.jar`));
         const forgeLibraryPathes = forgeArgs.join(";");
         // FIXME: END TEMP

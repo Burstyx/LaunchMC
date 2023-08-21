@@ -138,6 +138,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         forgeArgs.push(path.join(librariesPath, (mavenToArray(library.name)).join("/")))
     }
 
+    forgeArgs.push(path.join(librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-client.jar`))
     forgeArgs.push(path.join(librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-universal.jar`))
 
     const forgeLibraryPathes = forgeArgs.join(";")
