@@ -1,7 +1,7 @@
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath, indexesPath, gamePath, java8Name, java17Name } from "../Utils/const"
+import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath, indexesPath, gamePath, java8Name, java17Name, tempPath } from "../Utils/const"
 import os from "os"
 import fs from "fs/promises"
 import { existsSync } from "fs"
@@ -27,7 +27,7 @@ let mcProcs: any = {}
 
 export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt) { // TODO: Get game libraries
     // TODO If map_to_ressource == true -> object dans legacy
-    const data = await minecraftManifestForVersion("1.12.2") // FIXME: TEMP
+    const data = await minecraftManifestForVersion("1.18.2") // FIXME: TEMP
     await updateInstanceDlState(instanceId, InstanceState.Loading)
 
     // Get all Minecraft arguments
@@ -51,7 +51,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 tempSplitedArgs[i] = opt.username
                 break;
             case "${version_name}":
-                tempSplitedArgs[i] = "1.12.2"
+                tempSplitedArgs[i] = "1.18.2"
                 break;
             case "${game_directory}":
                 tempSplitedArgs[i] = path.join(instancesPath, instanceId)
@@ -90,8 +90,21 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         }
     }
 
-    tempSplitedArgs.push("--tweakClass")
-    tempSplitedArgs.push("net.minecraftforge.fml.common.launcher.FMLTweaker")
+    tempSplitedArgs.push("--launchTarget")
+    tempSplitedArgs.push("forgeclient")
+
+    tempSplitedArgs.push("--fml.forgeVersion")
+    tempSplitedArgs.push("40.2.10")
+
+    tempSplitedArgs.push("--fml.mcVersion")
+    tempSplitedArgs.push("1.18.2")
+
+    tempSplitedArgs.push("--fml.forgeGroup")
+    tempSplitedArgs.push("net.minecraftforge")
+
+    tempSplitedArgs.push("--fml.mcpVersion")
+    tempSplitedArgs.push("20220404.173914")
+
     mcArgs = tempSplitedArgs
     // mcArgs += " --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker" // FIXME: TEMP
 
@@ -108,14 +121,12 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     const libraries = await getAllFile(librariesPath)
     
-    // FIXME: START TEMP
-    const installProfileFile = await fs.readFile(path.join(gamePath, "install_profile.json"), "utf-8")
+    const installProfileFile = await fs.readFile(path.join(minecraftVersionPath, version, version + ".json"), "utf-8")
     const installProfileJson = JSON.parse(installProfileFile)
 
     let forgeArgs: string[] = []
-    forgeArgs.push(path.join(librariesPath, (await mavenToArray(installProfileJson.install.path)).join("/")))
     
-    const forgeLibraries = installProfileJson.versionInfo.libraries
+    const forgeLibraries = installProfileJson.libraries
 
     for(const library of forgeLibraries) {
         if(library.name.includes("minecraftforge") || library.name.includes("forge")) {
@@ -124,8 +135,10 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
             continue
         }
 
-        forgeArgs.push(path.join(librariesPath, (await mavenToArray(library.name)).join("/")))
+        forgeArgs.push(path.join(librariesPath, (mavenToArray(library.name)).join("/")))
     }
+
+    forgeArgs.push(path.join(librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-universal.jar`))
 
     const forgeLibraryPathes = forgeArgs.join(";")
     // FIXME: END TEMP
@@ -139,11 +152,31 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log(finalLibrariesArg); 
 
     jvmArgs.push(`-cp`)
-    jvmArgs.push(`${finalLibrariesArg};${path.join(minecraftVersionPath, "1.12.2", `${"1.12.2"}.jar`)}`)
+    jvmArgs.push(`${finalLibrariesArg}`)
+
+    const library_directory = librariesPath
+    const classpath_separator = path.delimiter
 
     // jvmArgs.push(data["mainClass"])
-    jvmArgs.push("net.minecraft.launchwrapper.Launch")
+    jvmArgs.push("-Djava.net.preferIPv6Addresses=system")
+    jvmArgs.push("-DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,JarJarFileSystems,client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,forge-,1.18.2.jar")
+    jvmArgs.push("-DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar,java-objc-bridge-1.0.0.jar")
+    jvmArgs.push("-DlibraryDirectory=" + librariesPath)
+    jvmArgs.push("-p")
+    jvmArgs.push(`${library_directory}/cpw/mods/bootstraplauncher/1.0.0/bootstraplauncher-1.0.0.jar${classpath_separator}${library_directory}/cpw/mods/securejarhandler/1.0.8/securejarhandler-1.0.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-commons/9.5/asm-commons-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-util/9.5/asm-util-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-analysis/9.5/asm-analysis-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-tree/9.5/asm-tree-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm/9.5/asm-9.5.jar${classpath_separator}${library_directory}/net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar`)
+    jvmArgs.push("--add-modules")
+    jvmArgs.push("ALL-MODULE-PATH")
+    jvmArgs.push("--add-opens")
+    jvmArgs.push("java.base/java.util.jar=cpw.mods.securejarhandler")
+    jvmArgs.push("--add-opens")
+    jvmArgs.push("java.base/java.lang.invoke=cpw.mods.securejarhandler")
+    jvmArgs.push("--add-exports")
+    jvmArgs.push("java.base/sun.security.util=cpw.mods.securejarhandler")
+    jvmArgs.push("--add-exports")
+    jvmArgs.push("jdk.naming.dns/com.sun.jndi.dns=java.naming")
 
+    jvmArgs.push("cpw.mods.bootstraplauncher.BootstrapLauncher")
+    
     const fullMcArgs = [...jvmArgs, ...mcArgs]
     console.log(fullMcArgs);
 
@@ -171,8 +204,11 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log("here full args");
     console.log(fullMcArgs.join(" "));
     
-    
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
+    console.log("test");
+    
+    console.log(proc.spawnargs);
+    
     await updateInstanceDlState(instanceId, InstanceState.Playing)
     await switchDiscordRPCState(DiscordRPCState.InGame)
 

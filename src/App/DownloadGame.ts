@@ -147,7 +147,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     const installProfileJson = JSON.parse(installProfileFile)
 
     // Remove info file after fetch
-    await fs.unlink(path.join(tempPath, "install_profile.json"))
+    // await fs.unlink(path.join(tempPath, "install_profile.json"))
 
     console.log(installProfileJson);
 
@@ -183,7 +183,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
             continue
         }
 
-        const libraryPath = (await mavenToArray(library.name)).join("/");
+        const libraryPath = (mavenToArray(library.name)).join("/");
 
         if(library.downloads && library.downloads.artifact) {
             const dlLink = library.downloads.artifact.url
@@ -212,7 +212,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     if(!skipForgeExtract) {
         const jarFilePath = installProfileJson.path || installProfileJson.install.filePath
 
-        const forgeJarPath = await mavenToArray(jarFilePath)
+        const forgeJarPath = mavenToArray(jarFilePath)
         const forgeJarPathWithoutFile = forgeJarPath.slice(0, forgeJarPath.length - 1).join("/")
 
         await makeDir(forgeJarPathWithoutFile)
@@ -234,29 +234,27 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         
 
         // Getting client.lzma from installer
-        await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), "data/client.lzma", path.join(librariesPath, installProfileJson.path ? (await mavenToArray(installProfileJson.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
+        await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), "data/client.lzma", path.join(librariesPath, installProfileJson.path ? (mavenToArray(installProfileJson.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
         
         const { processors } = installProfileJson
 
         for(const key in processors) {
             const p = processors[key]
+
+            console.log("Patching with " + p.jar);
+
             if(!p.sides || p.sides.includes("client")) {
-                const replaceDataArg = async (arg: string) => {
+                const replaceDataArg = (arg: string) => {
                     const finalArg = arg.replace("{", "").replace("}", "")
-                    if(installProfileJson.data[arg]) {
+                    if(installProfileJson.data[finalArg]) {
                         if(finalArg == "BINPATCH") {
-                            return path.join(librariesPath, ...(await mavenToArray(installProfileJson.path || universalJarPath)))
+                            return path.join(librariesPath, universalJarPath || mavenToArray(installProfileJson.path).join("/")).slice(0, -4) + "-clientdata.lzma"
                         }
 
-                        let res: string = installProfileJson.data[finalArg].client
+                        let res: string = installProfileJson.data[finalArg].client                        
 
-                        if(res.startsWith("[")) {
-                            res = res.replace("[", "").replace("]", "")
-                            res = (await mavenToArray(res)).join("/")
-
-                            return `"${path.join(librariesPath, res)}"`
-                        }
-
+                        console.log(arg + " transformed to " + res);
+                        
                         return res
                     }
 
@@ -269,23 +267,41 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
                         .replace("{LIBRARY_DIR}", `"${librariesPath}"`)
                 }
 
-                const jarPath = path.join(librariesPath, ...(await mavenToArray(p.jar)))
+                const formatPath = (pathToFormat: string) => {
+                    if(pathToFormat.startsWith("[")) {
+                        pathToFormat = pathToFormat.replace("[", "").replace("]", "")
+                        pathToFormat = (mavenToArray(pathToFormat)).join("/")
+
+                        return `"${path.join(librariesPath, pathToFormat)}"`
+                    }
+
+                    return pathToFormat
+                } 
+
+                const jarPath = path.join(librariesPath, ...(mavenToArray(p.jar)))
                 const args = p.args.map((arg: string) => replaceDataArg(arg))
-                const classPaths = p.classpath.map(async (cp: string) => `"${path.join(librariesPath, ...(await mavenToArray(cp)))}"`)
+                    .map((arg: string) => formatPath(arg))
+                const classPaths = p.classpath.map((cp: string) => `"${path.join(librariesPath, ...(mavenToArray(cp)))}"`)
                 
+                console.log(classPaths);
+
                 const mainClass = await readJarMetaInf(jarPath, "Main-Class")
+                console.log("Main class: " + mainClass);
+                
 
                 await new Promise<void>((res) => {
-                    const proc = cp.spawn(path.join(java17Path, "javaw"), ['-classpath', [`"${jarPath}"`, ...classPaths].join(path.delimiter), mainClass, ...args])
-                    proc.stdout.on("data", data => console.log(data))
-                    proc.stderr.on("data", data => console.error(data))
+                    const proc = cp.spawn(`"${path.join(java17Path, "javaw")}"`, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path.delimiter), mainClass, ...args], {shell: true})
+                    console.log(proc.spawnargs);
+                    
+                    proc.stdout.on("data", data => console.log(data.toString()))
+                    proc.stderr.on("data", err => console.error(err.toString()))
                     proc.on("close", code => {console.log("Exited with code " + code); res()})
                 })
             }
         }
     }
 
-    await startMinecraft("1.12.2-forge1.12.2-14.23.0.2486", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge"})
+    await startMinecraft("1.18.2-40.2.10", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"})
 
     // Changer type de l'instance pour utiliser les bons arguments
 }

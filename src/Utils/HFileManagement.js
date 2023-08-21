@@ -90,16 +90,34 @@ function extractAll(compressedDirPath, dest) {
 }
 exports.extractAll = extractAll;
 function mavenToArray(maven, native, ext) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let mavenArray = [];
-        const mavenExt = maven.split("@")[1];
-        maven = maven.split("@").pop().toString();
-        const mavenParts = maven.split(":");
-        const linkParts = mavenParts[0].split(".");
-        mavenArray = linkParts.concat(mavenParts.slice(1));
-        mavenArray.push(`${mavenParts[mavenParts.length - 2]}-${mavenParts[mavenParts.length - 1]}${native ? `-${native}` : ""}.${ext != undefined ? ext : mavenExt != undefined ? mavenExt : "jar"}`);
-        return mavenArray;
-    });
+    // let mavenArray: string[] = []
+    // console.log("Here maven to array way");
+    // const mavenExt = maven.split("@")[1]
+    // console.log("mavenExt: " + mavenExt);
+    // maven = maven.split("@")[0]
+    // console.log("maven: " + maven);
+    // const mavenParts = maven.split(":")
+    // console.log("mavenParts: " + mavenParts);
+    // const linkParts = mavenParts[0].split(".")
+    // console.log("linkParts: " + linkParts);
+    // mavenArray = linkParts.concat(mavenParts.slice(1))
+    // console.log("mavenArray: " + mavenArray);
+    // mavenArray.push(`${mavenParts[mavenParts.length - 2]}-${mavenParts[mavenParts.length - 1]}${native ? `-${native}` : ""}.${ext != undefined ? ext : mavenExt != undefined ? mavenExt : "jar"}`)
+    // console.log("mavenArray: " + mavenArray);
+    // return mavenArray
+    const pathSplit = maven.split(':');
+    const fileName = pathSplit[3]
+        ? `${pathSplit[2]}-${pathSplit[3]}`
+        : pathSplit[2];
+    const finalFileName = fileName.includes('@')
+        ? fileName.replace('@', '.')
+        : `${fileName}${native || ''}${ext || '.jar'}`;
+    const initPath = pathSplit[0]
+        .split('.')
+        .concat(pathSplit[1])
+        .concat(pathSplit[2].split('@')[0])
+        .concat(`${pathSplit[1]}-${finalFileName}`);
+    return initPath;
 }
 exports.mavenToArray = mavenToArray;
 function readJarMetaInf(jar, attribute) {

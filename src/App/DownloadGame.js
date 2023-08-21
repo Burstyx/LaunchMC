@@ -123,7 +123,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
         const installProfileFile = yield promises_1.default.readFile(path_1.default.join(const_1.tempPath, "install_profile.json"), "utf-8");
         const installProfileJson = JSON.parse(installProfileFile);
         // Remove info file after fetch
-        yield promises_1.default.unlink(path_1.default.join(const_1.tempPath, "install_profile.json"));
+        // await fs.unlink(path.join(tempPath, "install_profile.json"))
         console.log(installProfileJson);
         // Get all libraries to download
         let libraries;
@@ -149,7 +149,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
                 console.log("Skip " + library.name);
                 continue;
             }
-            const libraryPath = (yield (0, HFileManagement_1.mavenToArray)(library.name)).join("/");
+            const libraryPath = ((0, HFileManagement_1.mavenToArray)(library.name)).join("/");
             if (library.downloads && library.downloads.artifact) {
                 const dlLink = library.downloads.artifact.url;
                 const dlDest = library.downloads.artifact.path;
@@ -172,7 +172,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
         }
         if (!skipForgeExtract) {
             const jarFilePath = installProfileJson.path || installProfileJson.install.filePath;
-            const forgeJarPath = yield (0, HFileManagement_1.mavenToArray)(jarFilePath);
+            const forgeJarPath = (0, HFileManagement_1.mavenToArray)(jarFilePath);
             const forgeJarPathWithoutFile = forgeJarPath.slice(0, forgeJarPath.length - 1).join("/");
             yield (0, HFileManagement_1.makeDir)(forgeJarPathWithoutFile);
             // Fetch the jar in the installer
@@ -189,23 +189,20 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
             const universalJarPath = installProfileJson.libraries.find((lib) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path;
             console.log(universalJarPath);
             // Getting client.lzma from installer
-            yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), "data/client.lzma", path_1.default.join(const_1.librariesPath, installProfileJson.path ? (yield (0, HFileManagement_1.mavenToArray)(installProfileJson.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
+            yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), "data/client.lzma", path_1.default.join(const_1.librariesPath, installProfileJson.path ? ((0, HFileManagement_1.mavenToArray)(installProfileJson.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
             const { processors } = installProfileJson;
             for (const key in processors) {
                 const p = processors[key];
+                console.log("Patching with " + p.jar);
                 if (!p.sides || p.sides.includes("client")) {
-                    const replaceDataArg = (arg) => __awaiter(this, void 0, void 0, function* () {
+                    const replaceDataArg = (arg) => {
                         const finalArg = arg.replace("{", "").replace("}", "");
-                        if (installProfileJson.data[arg]) {
+                        if (installProfileJson.data[finalArg]) {
                             if (finalArg == "BINPATCH") {
-                                return path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(installProfileJson.path || universalJarPath)));
+                                return path_1.default.join(const_1.librariesPath, universalJarPath || (0, HFileManagement_1.mavenToArray)(installProfileJson.path).join("/")).slice(0, -4) + "-clientdata.lzma";
                             }
                             let res = installProfileJson.data[finalArg].client;
-                            if (res.startsWith("[")) {
-                                res = res.replace("[", "").replace("]", "");
-                                res = (yield (0, HFileManagement_1.mavenToArray)(res)).join("/");
-                                return `"${path_1.default.join(const_1.librariesPath, res)}"`;
-                            }
+                            console.log(arg + " transformed to " + res);
                             return res;
                         }
                         return arg
@@ -215,21 +212,33 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
                             .replace("{MINECRAFT_VERSION}", `"${path_1.default.join(const_1.minecraftVersionPath, installProfileJson.minecraft, installProfileJson.minecraft + ".json")}"`)
                             .replace("{INSTALLER}", `"${path_1.default.join(const_1.tempPath, installProfileJson.version + ".jar")}"`)
                             .replace("{LIBRARY_DIR}", `"${const_1.librariesPath}"`);
-                    });
-                    const jarPath = path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(p.jar)));
-                    const args = p.args.map((arg) => replaceDataArg(arg));
-                    const classPaths = p.classpath.map((cp) => __awaiter(this, void 0, void 0, function* () { return `"${path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(cp)))}"`; }));
+                    };
+                    const formatPath = (pathToFormat) => {
+                        if (pathToFormat.startsWith("[")) {
+                            pathToFormat = pathToFormat.replace("[", "").replace("]", "");
+                            pathToFormat = ((0, HFileManagement_1.mavenToArray)(pathToFormat)).join("/");
+                            return `"${path_1.default.join(const_1.librariesPath, pathToFormat)}"`;
+                        }
+                        return pathToFormat;
+                    };
+                    const jarPath = path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(p.jar)));
+                    const args = p.args.map((arg) => replaceDataArg(arg))
+                        .map((arg) => formatPath(arg));
+                    const classPaths = p.classpath.map((cp) => `"${path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(cp)))}"`);
+                    console.log(classPaths);
                     const mainClass = yield (0, HFileManagement_1.readJarMetaInf)(jarPath, "Main-Class");
+                    console.log("Main class: " + mainClass);
                     yield new Promise((res) => {
-                        const proc = child_process_1.default.spawn(path_1.default.join(java17Path, "javaw"), ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args]);
-                        proc.stdout.on("data", data => console.log(data));
-                        proc.stderr.on("data", data => console.error(data));
+                        const proc = child_process_1.default.spawn(`"${path_1.default.join(java17Path, "javaw")}"`, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args], { shell: true });
+                        console.log(proc.spawnargs);
+                        proc.stdout.on("data", data => console.log(data.toString()));
+                        proc.stderr.on("data", err => console.error(err.toString()));
                         proc.on("close", code => { console.log("Exited with code " + code); res(); });
                     });
                 }
             }
         }
-        yield (0, StartMinecraft_1.startMinecraft)("1.12.2-forge1.12.2-14.23.0.2486", instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge" });
+        yield (0, StartMinecraft_1.startMinecraft)("1.18.2-40.2.10", instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release" });
     });
 }
 exports.patchInstanceWithForge = patchInstanceWithForge;

@@ -76,21 +76,49 @@ export async function extractAll(compressedDirPath: string, dest?: string) {
     
 }
 
-export async function mavenToArray(maven: string, native?: string, ext?: string) {
-    let mavenArray: string[] = []
+export function mavenToArray(maven: string, native?: string, ext?: string) {
+    // let mavenArray: string[] = []
 
-    const mavenExt = maven.split("@")[1]
+    // console.log("Here maven to array way");
     
-    maven = maven.split("@").pop()!.toString()
 
-    const mavenParts = maven.split(":")
-    const linkParts = mavenParts[0].split(".")
+    // const mavenExt = maven.split("@")[1]
 
-    mavenArray = linkParts.concat(mavenParts.slice(1))
+    // console.log("mavenExt: " + mavenExt);
+    
+    // maven = maven.split("@")[0]
 
-    mavenArray.push(`${mavenParts[mavenParts.length - 2]}-${mavenParts[mavenParts.length - 1]}${native ? `-${native}` : ""}.${ext != undefined ? ext : mavenExt != undefined ? mavenExt : "jar"}`)
+    // console.log("maven: " + maven);
 
-    return mavenArray
+    // const mavenParts = maven.split(":")
+    // console.log("mavenParts: " + mavenParts);
+    // const linkParts = mavenParts[0].split(".")
+    // console.log("linkParts: " + linkParts);
+
+    // mavenArray = linkParts.concat(mavenParts.slice(1))
+
+    // console.log("mavenArray: " + mavenArray);
+
+    // mavenArray.push(`${mavenParts[mavenParts.length - 2]}-${mavenParts[mavenParts.length - 1]}${native ? `-${native}` : ""}.${ext != undefined ? ext : mavenExt != undefined ? mavenExt : "jar"}`)
+
+    // console.log("mavenArray: " + mavenArray);
+    
+
+    // return mavenArray
+
+    const pathSplit = maven.split(':');
+  const fileName = pathSplit[3]
+    ? `${pathSplit[2]}-${pathSplit[3]}`
+    : pathSplit[2];
+  const finalFileName = fileName.includes('@')
+    ? fileName.replace('@', '.')
+    : `${fileName}${native || ''}${ext || '.jar'}`;
+  const initPath = pathSplit[0]
+    .split('.')
+    .concat(pathSplit[1])
+    .concat(pathSplit[2].split('@')[0])
+    .concat(`${pathSplit[1]}-${finalFileName}`);
+  return initPath;
 }
 
 export async function readJarMetaInf(jar: string, attribute: string) {
