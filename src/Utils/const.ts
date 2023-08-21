@@ -12,6 +12,7 @@ export const librariesPath = dataPath + "/libraries"
 export const loggingConfPath = assetsPath + "/log_configs"
 export const legacyAssetsPath = assetsPath + "/virtual/legacy"
 export const javaPath = gamePath + "/javas"
+export const tempPath = dataPath + "/.temp"
 
 // Url
 export const versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"

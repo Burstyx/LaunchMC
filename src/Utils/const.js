@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.java17Name = exports.java8Name = exports.java17Version = exports.java8Version = exports.java17Url = exports.java8Url = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.forgeMaven = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.versionsManifest = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
+exports.java17Name = exports.java8Name = exports.java17Version = exports.java8Version = exports.java17Url = exports.java8Url = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.forgeMaven = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.versionsManifest = exports.tempPath = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
 const { app } = require("@electron/remote");
 // Path
 exports.gamePath = app.getPath("userData");
@@ -14,6 +14,7 @@ exports.librariesPath = exports.dataPath + "/libraries";
 exports.loggingConfPath = exports.assetsPath + "/log_configs";
 exports.legacyAssetsPath = exports.assetsPath + "/virtual/legacy";
 exports.javaPath = exports.gamePath + "/javas";
+exports.tempPath = exports.dataPath + "/.temp";
 // Url
 exports.versionsManifest = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 exports.resourcePackage = "https://resources.download.minecraft.net";

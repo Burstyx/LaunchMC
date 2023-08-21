@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadJavaVersion = exports.JavaVersions = exports.minecraftLibraryList = exports.patchInstanceWithForge = exports.downloadMinecraft = void 0;
+exports.downloadAndGetJavaVersion = exports.JavaVersions = exports.minecraftLibraryList = exports.patchInstanceWithForge = exports.downloadMinecraft = void 0;
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const original_fs_1 = require("original-fs");
 const HManifests_1 = require("../Utils/HManifests");
@@ -22,6 +22,7 @@ const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
 const os_1 = __importDefault(require("os"));
 const HInstance_1 = require("../Utils/HInstance");
+const child_process_1 = __importDefault(require("child_process"));
 const StartMinecraft_1 = require("./StartMinecraft");
 const HMicrosoft_1 = require("../Utils/HMicrosoft");
 function downloadMinecraft(version, instanceId) {
@@ -99,51 +100,136 @@ function downloadMinecraft(version, instanceId) {
             });
             numberOfAssetsDownloaded++;
         }
-        yield patchInstanceWithForge(instanceId);
+        yield patchInstanceWithForge(instanceId, version, "1.18.2-40.2.10");
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
     });
 }
 exports.downloadMinecraft = downloadMinecraft;
-function patchInstanceWithForge(instanceId) {
+function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        // Télécharger l'installer forge
-        const forgeVersionsUrl = yield (0, HDownload_1.downloadAsync)("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path_1.default.join(const_1.gamePath, "maven-metadata.json"), (progress, byte) => { console.log(progress + "% of forge manifest"); });
-        yield downloadJavaVersion(JavaVersions.JDK17);
-        const file = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "maven-metadata.json"), "utf-8");
-        const forgeVersions = JSON.parse(file);
-        const version = forgeVersions["1.12.2"][0];
-        console.log(version);
-        const forgeInstallerUrl = `https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-installer.jar`;
-        yield (0, HDownload_1.downloadAsync)(forgeInstallerUrl, path_1.default.join(const_1.gamePath, version + ".jar"), (prog, byte) => { console.log(prog); });
-        yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.gamePath, version + ".jar"), "install_profile.json");
-        const installProfileFile = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "install_profile.json"), "utf-8");
+        // Download java if it doesn't exist
+        const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
+        // DOWNLOAD VERSION FORGE MANIFEST TO GET ALL FORGE VERSION, SHOULDN'T BE HERE
+        // await downloadAsync("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path.join(dataPath, "maven-metadata.json"))
+        // const forgeVersionListFile = await fs.readFile(path.join(dataPath, "maven-metadata.json"), "utf-8")
+        // const forgeVersionList = JSON.parse(forgeVersionListFile)
+        // Download forge installer, work only for all versions after 1.5.2
+        const forgeInstallerUrl = `https://maven.minecraftforge.net/net/minecraftforge/forge/${forgeVersion}/forge-${forgeVersion}-installer.jar`; // FIXME: Can't work for version below 1.5.2 (installer version don't work)
+        yield (0, HFileManagement_1.makeDir)(const_1.tempPath);
+        yield (0, HDownload_1.downloadAsync)(forgeInstallerUrl, path_1.default.join(const_1.tempPath, forgeVersion + ".jar"));
+        // Fetch install profile info to download libraries and others stuff
+        yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), "install_profile.json");
+        const installProfileFile = yield promises_1.default.readFile(path_1.default.join(const_1.tempPath, "install_profile.json"), "utf-8");
         const installProfileJson = JSON.parse(installProfileFile);
+        // Remove info file after fetch
+        yield promises_1.default.unlink(path_1.default.join(const_1.tempPath, "install_profile.json"));
         console.log(installProfileJson);
-        // Télécharger les librairies
-        const installInfo = installProfileJson.install;
-        const versionInfo = installProfileJson.versionInfo;
-        const libraries = versionInfo.libraries;
+        // Get all libraries to download
+        let libraries;
+        if (!installProfileJson.versionInfo)
+            libraries = installProfileJson.libraries;
+        else
+            libraries = installProfileJson.versionInfo.libraries;
+        if (installProfileJson.json) {
+            yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.minecraftVersionPath, forgeVersion));
+            yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), installProfileJson.json.startsWith("/") ? installProfileJson.json.substring(1) : installProfileJson.json, path_1.default.join(const_1.minecraftVersionPath, forgeVersion, forgeVersion + ".json"));
+            const versionFile = yield promises_1.default.readFile(path_1.default.join(const_1.minecraftVersionPath, forgeVersion, forgeVersion + ".json"), "utf-8");
+            libraries = libraries.concat(JSON.parse(versionFile).libraries);
+        }
+        // Skip forge extract and download it instead
+        let skipForgeExtract = false;
+        if (!installProfileJson.path || !installProfileJson.install.filePath) {
+            skipForgeExtract = true;
+        }
+        console.log(libraries);
         for (const library of libraries) {
-            if (library.name.includes("minecraftforge") || library.name.includes("forge")) {
+            console.log(library);
+            if ((library.name.includes("minecraftforge") || library.name.includes("forge")) && !skipForgeExtract) {
                 console.log("Skip " + library.name);
                 continue;
             }
-            console.log(library);
             const libraryPath = (yield (0, HFileManagement_1.mavenToArray)(library.name)).join("/");
+            if (library.downloads && library.downloads.artifact) {
+                const dlLink = library.downloads.artifact.url;
+                const dlDest = library.downloads.artifact.path;
+                if (dlLink == "") {
+                    // Special case here
+                    continue;
+                }
+                yield (0, HDownload_1.downloadAsync)(dlLink, path_1.default.join(const_1.librariesPath, dlDest));
+                continue;
+            }
             if (!library.url) {
+                const forgeBaseUrl = "https://maven.minecraftforge.net/";
+                yield (0, HDownload_1.downloadAsync)(`${forgeBaseUrl}${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+                continue;
+            }
+            else {
                 yield (0, HDownload_1.downloadAsync)(`https://libraries.minecraft.net/${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
                 continue;
             }
-            const forgeBaseUrl = "https://maven.minecraftforge.net/";
-            console.log(`${forgeBaseUrl}${libraryPath}`);
-            console.log(path_1.default.join(const_1.librariesPath, libraryPath));
-            yield (0, HDownload_1.downloadAsync)(`${forgeBaseUrl}${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
         }
-        yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.gamePath, version + ".jar"), `forge-${version}-universal.jar`);
-        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.librariesPath, "net", "minecraftforge", "forge", version));
-        yield promises_1.default.copyFile(path_1.default.join(const_1.gamePath, `forge-${version}-universal.jar`), path_1.default.join(const_1.librariesPath, "net", "minecraftforge", "forge", version, "forge-" + version + ".jar"));
+        if (!skipForgeExtract) {
+            const jarFilePath = installProfileJson.path || installProfileJson.install.filePath;
+            const forgeJarPath = yield (0, HFileManagement_1.mavenToArray)(jarFilePath);
+            const forgeJarPathWithoutFile = forgeJarPath.slice(0, forgeJarPath.length - 1).join("/");
+            yield (0, HFileManagement_1.makeDir)(forgeJarPathWithoutFile);
+            // Fetch the jar in the installer
+            if (installProfileJson.install.filePath) {
+                yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), jarFilePath, path_1.default.join(const_1.librariesPath, forgeJarPath.join("/")));
+            }
+            // Search for the jar in maven folder in the installer
+            else if (installProfileJson.path) {
+                yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), path_1.default.join("maven", jarFilePath), path_1.default.join(const_1.librariesPath, forgeJarPath.join("/")));
+            }
+        }
+        if ((_a = installProfileJson.processors) === null || _a === void 0 ? void 0 : _a.length) {
+            console.log("Patching Forge");
+            const universalJarPath = installProfileJson.libraries.find((lib) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path;
+            console.log(universalJarPath);
+            // Getting client.lzma from installer
+            yield (0, HFileManagement_1.extractSpecificFile)(path_1.default.join(const_1.tempPath, forgeVersion + ".jar"), "data/client.lzma", path_1.default.join(const_1.librariesPath, installProfileJson.path ? (yield (0, HFileManagement_1.mavenToArray)(installProfileJson.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
+            const { processors } = installProfileJson;
+            for (const key in processors) {
+                const p = processors[key];
+                if (!p.sides || p.sides.includes("client")) {
+                    const replaceDataArg = (arg) => __awaiter(this, void 0, void 0, function* () {
+                        const finalArg = arg.replace("{", "").replace("}", "");
+                        if (installProfileJson.data[arg]) {
+                            if (finalArg == "BINPATCH") {
+                                return path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(installProfileJson.path || universalJarPath)));
+                            }
+                            let res = installProfileJson.data[finalArg].client;
+                            if (res.startsWith("[")) {
+                                res = res.replace("[", "").replace("]", "");
+                                res = (yield (0, HFileManagement_1.mavenToArray)(res)).join("/");
+                                return `"${path_1.default.join(const_1.librariesPath, res)}"`;
+                            }
+                            return res;
+                        }
+                        return arg
+                            .replace("{SIDE}", "client")
+                            .replace("{ROOT}", `"${const_1.tempPath}"`)
+                            .replace("{MINECRAFT_JAR}", `"${path_1.default.join(const_1.minecraftVersionPath, installProfileJson.minecraft, installProfileJson.minecraft + ".jar")}"`)
+                            .replace("{MINECRAFT_VERSION}", `"${path_1.default.join(const_1.minecraftVersionPath, installProfileJson.minecraft, installProfileJson.minecraft + ".json")}"`)
+                            .replace("{INSTALLER}", `"${path_1.default.join(const_1.tempPath, installProfileJson.version + ".jar")}"`)
+                            .replace("{LIBRARY_DIR}", `"${const_1.librariesPath}"`);
+                    });
+                    const jarPath = path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(p.jar)));
+                    const args = p.args.map((arg) => replaceDataArg(arg));
+                    const classPaths = p.classpath.map((cp) => __awaiter(this, void 0, void 0, function* () { return `"${path_1.default.join(const_1.librariesPath, ...(yield (0, HFileManagement_1.mavenToArray)(cp)))}"`; }));
+                    const mainClass = yield (0, HFileManagement_1.readJarMetaInf)(jarPath, "Main-Class");
+                    yield new Promise((res) => {
+                        const proc = child_process_1.default.spawn(java17Path, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args]);
+                        proc.stdout.on("data", data => console.log(data));
+                        proc.stderr.on("data", data => console.error(data));
+                        proc.on("close", code => { console.log("Exited with code " + code); res(); });
+                    });
+                }
+            }
+        }
         yield (0, StartMinecraft_1.startMinecraft)("1.12.2-forge1.12.2-14.23.0.2486", instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "Forge" });
-        // Changer type de l'instance pour utiliser les bons arguments
     });
 }
 exports.patchInstanceWithForge = patchInstanceWithForge;
@@ -302,23 +388,28 @@ var JavaVersions;
     JavaVersions[JavaVersions["JDK8"] = 0] = "JDK8";
     JavaVersions[JavaVersions["JDK17"] = 1] = "JDK17";
 })(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
-function downloadJavaVersion(version) {
+function downloadAndGetJavaVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!(0, original_fs_1.existsSync)(const_1.javaPath)) {
-            yield promises_1.default.mkdir(const_1.javaPath);
-        }
+        yield (0, HFileManagement_1.makeDir)(const_1.javaPath);
         if (version == JavaVersions.JDK8) {
+            if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"))) {
+                return path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin");
+            }
             yield (0, HDownload_1.downloadAsync)(const_1.java8Url, path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             }, { decompress: true });
-            return;
+            return path_1.default.join(const_1.javaPath, const_1.java8Version, "bin");
         }
         if (version == JavaVersions.JDK17) {
+            if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"))) {
+                return path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin");
+            }
             yield (0, HDownload_1.downloadAsync)(const_1.java17Url, path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement`);
             }, { decompress: true });
-            return;
+            return path_1.default.join(const_1.javaPath, const_1.java17Version, "bin");
         }
+        return "";
     });
 }
-exports.downloadJavaVersion = downloadJavaVersion;
+exports.downloadAndGetJavaVersion = downloadAndGetJavaVersion;

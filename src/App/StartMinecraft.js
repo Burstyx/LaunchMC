@@ -18,7 +18,6 @@ const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const promises_1 = __importDefault(require("fs/promises"));
-const fs_1 = require("fs");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const HInstance_1 = require("../Utils/HInstance");
@@ -127,14 +126,10 @@ function startMinecraft(version, instanceId, opt) {
         const fullMcArgs = [...jvmArgs, ...mcArgs];
         console.log(fullMcArgs);
         // Find correct java executable
-        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version))) {
-            yield (0, DownloadGame_1.downloadJavaVersion)(DownloadGame_1.JavaVersions.JDK8);
-        }
-        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version))) {
-            yield (0, DownloadGame_1.downloadJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
-        }
-        const java8 = path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin", "javaw");
-        const java17 = path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "javaw");
+        const java8Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK8);
+        const java17Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
+        const java8 = path_1.default.join(java8Path, "javaw");
+        const java17 = path_1.default.join(java17Path, "javaw");
         const javaVersion = data["javaVersion"]["majorVersion"];
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
         console.log(javaVersionToUse);

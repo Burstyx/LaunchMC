@@ -5,7 +5,7 @@ import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyA
 import os from "os"
 import fs from "fs/promises"
 import { existsSync } from "fs"
-import { downloadJavaVersion, JavaVersions, minecraftLibraryList } from "./DownloadGame"
+import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList } from "./DownloadGame"
 import { getAllFile, makeDir, mavenToArray } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
@@ -148,15 +148,11 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log(fullMcArgs);
 
     // Find correct java executable
-    if (!existsSync(path.join(javaPath, java8Version))) {
-        await downloadJavaVersion(JavaVersions.JDK8)
-    }
-    if (!existsSync(path.join(javaPath, java17Version))) {
-        await downloadJavaVersion(JavaVersions.JDK17)
-    }
+    const java8Path = await downloadAndGetJavaVersion(JavaVersions.JDK8)
+    const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
 
-    const java8 = path.join(javaPath, java8Version, java8Name, "bin", "javaw")
-    const java17 = path.join(javaPath, java17Version, java17Name, "bin", "javaw")
+    const java8 = path.join(java8Path, "javaw")
+    const java17 = path.join(java17Path, "javaw")
 
     const javaVersion = data["javaVersion"]["majorVersion"]
 
