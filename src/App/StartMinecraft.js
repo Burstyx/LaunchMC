@@ -110,17 +110,22 @@ function startMinecraft(version, instanceId, opt) {
         let forgeArgs = [];
         const forgeLibraries = installProfileJson.libraries;
         for (const library of forgeLibraries) {
-            if (library.name.includes("minecraftforge") || library.name.includes("forge")) {
-                console.log("Skip " + library.name);
-                continue;
-            }
             forgeArgs.push(path_1.default.join(const_1.librariesPath, ((0, HFileManagement_1.mavenToArray)(library.name)).join("/")));
         }
-        forgeArgs.push(path_1.default.join(const_1.librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-universal.jar`));
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/forge/${version}/forge-${version}-universal.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/accesstransformers/8.0.4/accesstransformers-8.0.4.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/forgespi/4.0.15-4.x/forgespi-4.0.15-4.x.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/eventbus/5.0.3/eventbus-5.0.3.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/coremods/5.0.1/coremods-5.0.1.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/unsafe/0.2.0/unsafe-0.2.0.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/JarJarSelector/0.3.19/JarJarSelector-0.3.19.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/JarJarMetadata/0.3.19/JarJarMetadata-0.3.19.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar`))
+        // forgeArgs.push(path.join(librariesPath, `net/minecraftforge/fmlloader/1.18.2-40.2.10/fmlloader-1.18.2-40.2.10.jar`))
         const forgeLibraryPathes = forgeArgs.join(";");
         // FIXME: END TEMP
         let librariesArg = (0, DownloadGame_1.minecraftLibraryList)(data).join(";");
-        const finalLibrariesArg = `${forgeLibraryPathes};${librariesArg}`;
+        const finalLibrariesArg = `${forgeLibraryPathes};${librariesArg};${path_1.default.join(const_1.minecraftVersionPath, "1.18.2", "1.18.2.jar")}`;
         console.log(libraries);
         console.log('---');
         console.log(librariesArg);
