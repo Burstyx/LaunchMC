@@ -43,3 +43,14 @@ export async function minecraftManifestForVersion(version: string) {
     return JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8"))
 }
 
+export async function forgeManifestForVersion(version: string) {
+    // Create directory if doesn't exist
+    const versionPath = await makeDir(path.join(minecraftVersionPath, version))
+
+    if(!existsSync(path.join(versionPath, `${version}.json`))){
+        // Get manifest containing all versions informations
+        
+    }
+
+    return JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8"))
+}

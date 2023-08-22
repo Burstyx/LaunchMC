@@ -55,14 +55,12 @@ function extractSpecificFile(compressedDirPath, filePath, dest) {
             child_process_1.default.exec(jar + ` --list --file ${compressedDirPath}`, (err, stdout) => __awaiter(this, void 0, void 0, function* () {
                 var _a;
                 const files = stdout.split("\r\n");
-                console.log(files);
                 for (const n of files) {
                     if (err != null) {
                         console.error(err);
                         rej();
                     }
                     if (n == filePath) {
-                        console.log("Found!");
                         const proc = child_process_1.default.exec(`"${jar}" xf ${compressedDirPath} ${n}`, { cwd: path_1.default.dirname(compressedDirPath) });
                         proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
                             console.log("Exited with code " + code);

@@ -38,7 +38,6 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
 
         cp.exec(jar + ` --list --file ${compressedDirPath}`, async (err, stdout) => {
             const files = stdout.split("\r\n")
-            console.log(files);
             
             for (const n of files) {                            
                 if(err != null) {
@@ -46,9 +45,7 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
                     rej()
                 }
 
-                if (n == filePath) {
-                    console.log("Found!");
-                    
+                if (n == filePath) {                    
                     const proc = cp.exec(`"${jar}" xf ${compressedDirPath} ${n}`, {cwd: path.dirname(compressedDirPath)})
 
                     proc.on("close", async (code) => {

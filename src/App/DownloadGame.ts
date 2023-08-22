@@ -11,6 +11,7 @@ import { InstanceState, updateInstanceDlProgress, updateInstanceDlState } from "
 import cp from "child_process"
 import { startMinecraft } from "./StartMinecraft"
 import { getActiveAccount } from "../Utils/HMicrosoft"
+import { getForgeInstallProfileIfExist, getForgeInstallerForVersion, getForgeVersionIfExist } from "../Utils/HForge"
 
 export async function downloadMinecraft(version: string, instanceId: string) { // TODO: Validate files
     // Préparation
@@ -123,7 +124,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         numberOfAssetsDownloaded++
     }
 
-    await patchInstanceWithForge(instanceId, version, "1.18.2-40.2.10")
+    await patchInstanceWithForge(instanceId, version, "40.2.10")
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
@@ -137,40 +138,28 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     // const forgeVersionList = JSON.parse(forgeVersionListFile)
 
     // Download forge installer, work only for all versions after 1.5.2
-    const forgeInstallerUrl = `https://maven.minecraftforge.net/net/minecraftforge/forge/${forgeVersion}/forge-${forgeVersion}-installer.jar` // FIXME: Can't work for version below 1.5.2 (installer version don't work)
-    await makeDir(tempPath)
-    await downloadAsync(forgeInstallerUrl, path.join(tempPath, forgeVersion + ".jar"))
-
-    // Fetch install profile info to download libraries and others stuff
-    await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), "install_profile.json")
-    const installProfileFile = await fs.readFile(path.join(tempPath, "install_profile.json"), "utf-8")
-    const installProfileJson = JSON.parse(installProfileFile)
+    const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
+    const forgeInstallProfileData = await getForgeInstallProfileIfExist(mcVersion, forgeVersion)
 
     // Remove info file after fetch
     // await fs.unlink(path.join(tempPath, "install_profile.json"))
 
-    console.log(installProfileJson);
-
     // Get all libraries to download
     let libraries
-    if(!installProfileJson.versionInfo)
-        libraries = installProfileJson.libraries
+    if(!forgeInstallProfileData.versionInfo)
+        libraries = forgeInstallProfileData.libraries
     else
-        libraries = installProfileJson.versionInfo.libraries
+        libraries = forgeInstallProfileData.versionInfo.libraries
 
-    if(installProfileJson.json) {
-        await makeDir(path.join(minecraftVersionPath, forgeVersion))
-        await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), installProfileJson.json.startsWith("/") ? installProfileJson.json.substring(1) : installProfileJson.json, path.join(minecraftVersionPath, forgeVersion, forgeVersion + ".json"))
-
-        const versionFile = await fs.readFile(path.join(minecraftVersionPath, forgeVersion, forgeVersion + ".json"), "utf-8")
-
-        libraries = libraries.concat(JSON.parse(versionFile).libraries)
+    if(forgeInstallProfileData.json) {
+        const forgeVersionData = await getForgeVersionIfExist(mcVersion, forgeVersion)
+        libraries = libraries.concat(forgeVersionData.libraries)
     }
 
     // Skip forge extract and download it instead
     let skipForgeExtract = false
     
-    if(!installProfileJson.path || !installProfileJson.install.filePath) {
+    if(!forgeInstallProfileData.path || !forgeInstallProfileData.install.filePath) {
         skipForgeExtract = true
     }
 
@@ -210,33 +199,33 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     }
     
     if(!skipForgeExtract) {
-        const jarFilePath = installProfileJson.path || installProfileJson.install.filePath
+        const jarFilePath = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath
 
         const forgeJarPath = mavenToArray(jarFilePath)
         const forgeJarPathWithoutFile = forgeJarPath.slice(0, forgeJarPath.length - 1).join("/")
 
         await makeDir(forgeJarPathWithoutFile)
         // Fetch the jar in the installer
-        if(installProfileJson.install.filePath) {
-            await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), jarFilePath, path.join(librariesPath, forgeJarPath.join("/")))
+        if(forgeInstallProfileData.install.filePath) {
+            await extractSpecificFile(forgeInstallerPath, jarFilePath, path.join(librariesPath, forgeJarPath.join("/")))
         }
         // Search for the jar in maven folder in the installer
-        else if(installProfileJson.path) {
-            await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), path.join("maven", jarFilePath), path.join(librariesPath, forgeJarPath.join("/")))
+        else if(forgeInstallProfileData.path) {
+            await extractSpecificFile(forgeInstallerPath, path.join("maven", jarFilePath), path.join(librariesPath, forgeJarPath.join("/")))
         }
     }
 
-    if(installProfileJson.processors?.length) {
+    if(forgeInstallProfileData.processors?.length) {
         console.log("Patching Forge");
 
-        const universalJarPath = installProfileJson.libraries.find((lib: {name: string}) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path
+        const universalJarPath = forgeInstallProfileData.libraries.find((lib: {name: string}) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path
         console.log(universalJarPath);
         
 
         // Getting client.lzma from installer
-        await extractSpecificFile(path.join(tempPath, forgeVersion + ".jar"), "data/client.lzma", path.join(librariesPath, installProfileJson.path ? (mavenToArray(installProfileJson.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
+        await extractSpecificFile(forgeInstallerPath, "data/client.lzma", path.join(librariesPath, forgeInstallProfileData.path ? (mavenToArray(forgeInstallProfileData.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
         
-        const { processors } = installProfileJson
+        const { processors } = forgeInstallProfileData
 
         for(const key in processors) {
             const p = processors[key]
@@ -246,12 +235,12 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
             if(!p.sides || p.sides.includes("client")) {
                 const replaceDataArg = (arg: string) => {
                     const finalArg = arg.replace("{", "").replace("}", "")
-                    if(installProfileJson.data[finalArg]) {
+                    if(forgeInstallProfileData.data[finalArg]) {
                         if(finalArg == "BINPATCH") {
-                            return path.join(librariesPath, universalJarPath || mavenToArray(installProfileJson.path).join("/")).slice(0, -4) + "-clientdata.lzma"
+                            return path.join(librariesPath, universalJarPath || mavenToArray(forgeInstallProfileData.path).join("/")).slice(0, -4) + "-clientdata.lzma"
                         }
 
-                        let res: string = installProfileJson.data[finalArg].client                        
+                        let res: string = forgeInstallProfileData.data[finalArg].client                        
 
                         console.log(arg + " transformed to " + res);
                         
@@ -261,9 +250,9 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
                     return arg
                         .replace("{SIDE}", "client")
                         .replace("{ROOT}", `"${tempPath}"`)
-                        .replace("{MINECRAFT_JAR}", `"${path.join(minecraftVersionPath, installProfileJson.minecraft, installProfileJson.minecraft + ".jar")}"`)
-                        .replace("{MINECRAFT_VERSION}", `"${path.join(minecraftVersionPath, installProfileJson.minecraft, installProfileJson.minecraft + ".json")}"`)
-                        .replace("{INSTALLER}", `"${path.join(tempPath, installProfileJson.version + ".jar")}"`)
+                        .replace("{MINECRAFT_JAR}", `"${path.join(minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".jar")}"`)
+                        .replace("{MINECRAFT_VERSION}", `"${path.join(minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".json")}"`)
+                        .replace("{INSTALLER}", `"${path.join(tempPath, forgeInstallProfileData.version + ".jar")}"`)
                         .replace("{LIBRARY_DIR}", `"${librariesPath}"`)
                 }
 
@@ -301,7 +290,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         }
     }
 
-    await startMinecraft("1.18.2-40.2.10", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"})
+    await startMinecraft("1.18.2", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"}, {version: "40.2.10"})
 
     // Changer type de l'instance pour utiliser les bons arguments
 }

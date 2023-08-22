@@ -25,7 +25,7 @@ exports.xstsAuth = "https://xsts.auth.xboxlive.com/xsts/authorize";
 exports.minecraftBearerToken = "https://api.minecraftservices.com/authentication/login_with_xbox";
 exports.minecraftHeadProfilePicture = "https://minotar.net/avatar/";
 exports.playerMojangProfile = "https://api.minecraftservices.com/minecraft/profile";
-exports.forgeMaven = "https://maven.minecraftforge.net/net/minecraftforge/forge/${version}/forge-${version}-${type}.${ext}";
+exports.forgeMaven = "https://maven.minecraftforge.net";
 // Azure data
 exports.redirectUrl = "https://login.microsoftonline.com/common/oauth2/nativeclient";
 exports.clientId = "67ebd24f-af85-4d3e-bcb4-a330eb0ba7e1";

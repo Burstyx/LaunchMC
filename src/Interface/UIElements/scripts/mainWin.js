@@ -32,7 +32,7 @@ launchBtn.addEventListener("click", async () => {
 
     const data = JSON.parse(await fs.readFile(gamePath + "/microsoft_account.json"))
 
-    await startMinecraft(version, currentInstance.id, { accesstoken: data["accounts"][0]["access_token"], username: data["accounts"][0]["username"], usertype: data["accounts"][0]["usertype"], uuid: data["accounts"][0]["uuid"], versiontype: versionType })
+    await startMinecraft("1.18.2", currentInstance.id, { accesstoken: data["accounts"][0]["access_token"], username: data["accounts"][0]["username"], usertype: data["accounts"][0]["usertype"], uuid: data["accounts"][0]["uuid"], versiontype: "release" }, { version: "40.2.10" })
 })
 
 // Open account manager window button
