@@ -156,10 +156,10 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         // jvmArgs.push("java.base/sun.security.util=cpw.mods.securejarhandler")
         // jvmArgs.push("--add-exports")
         // jvmArgs.push("jdk.naming.dns/com.sun.jndi.dns=java.naming")
-        isForgeVersion ? jvmArgs.push(...forgeJvmArgs) : null;
-        isForgeVersion ? mcArgs.push(...forgeGameArgs) : null;
+        jvmArgs = isForgeVersion ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs;
+        mcArgs = isForgeVersion ? mcArgs.concat(...forgeGameArgs) : mcArgs;
         jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass);
-        const fullMcArgs = [...jvmArgs, ...mcArgs];
+        const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "");
         console.log(fullMcArgs);
         // Find correct java executable
         const java8Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK8);

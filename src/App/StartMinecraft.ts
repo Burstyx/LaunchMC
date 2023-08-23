@@ -190,12 +190,13 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     // jvmArgs.push("--add-exports")
     // jvmArgs.push("jdk.naming.dns/com.sun.jndi.dns=java.naming")
 
-    isForgeVersion ? jvmArgs.push(...forgeJvmArgs) : null
-    isForgeVersion ? mcArgs.push(...forgeGameArgs) : null
+    jvmArgs = isForgeVersion ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
+    mcArgs = isForgeVersion ? mcArgs.concat(...forgeGameArgs) : mcArgs
 
     jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass)
     
-    const fullMcArgs = [...jvmArgs, ...mcArgs]
+    const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "")
+
     console.log(fullMcArgs);
 
     // Find correct java executable
