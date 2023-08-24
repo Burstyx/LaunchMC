@@ -353,22 +353,19 @@ body {
   flex-direction: column;
 
   box-shadow: -1px 0 5px 1px rgba(0, 0, 0, 0.5);
-  
-  height: 100%;
 
-  gap: 50px;
+  width: 500px;
 }
 
 .window[window-id="choose-version"] .filters .version-filter {
   display: flex;
   flex-direction: column;
 
+  background-color: #121212;
+    border-radius: 5px;
+    margin: 5px;
+
   gap: 5px;
-
-  width: 500px;
-
-  height: 100%;
-
 
   position: relative;
 
@@ -379,11 +376,11 @@ body {
   display: flex;
   flex-direction: column;
 
+  background-color: #121212;
+  border-radius: 5px;
+  margin: 5px;
+
   gap: 5px;
-
-  width: 500px;
-  height: 100%;
-
 
   position: relative;
 

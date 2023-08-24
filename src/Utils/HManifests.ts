@@ -1,6 +1,6 @@
 import fs from "fs/promises"
 import {existsSync} from "fs"
-import { minecraftVersionPath, versionsManifest, dataPath } from "./const"
+import { minecraftVersionPath, versionsManifest, dataPath, forgeVersionsManifest } from "./const"
 import path from "path"
 import {makeDir} from "./HFileManagement"
 import { downloadAsync } from "./HDownload"
@@ -43,14 +43,17 @@ export async function minecraftManifestForVersion(version: string) {
     return JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8"))
 }
 
-export async function forgeManifestForVersion(version: string) {
+// Download manifest containing all versions informations
+export async function forgeManifest() {
     // Create directory if doesn't exist
-    const versionPath = await makeDir(path.join(minecraftVersionPath, version))
+    const manifestPath = await makeDir(dataPath)
 
-    if(!existsSync(path.join(versionPath, `${version}.json`))){
-        // Get manifest containing all versions informations
-        
+    if(!existsSync(path.join(manifestPath, "forge_manifest.json"))){
+        // Download manifest and return data
+        await downloadAsync(forgeVersionsManifest, path.join(manifestPath, "forge_manifest.json"), (progress: number) => {
+            console.log(`Progression: ${progress}% du téléchargement du manifest`);
+        })
     }
 
-    return JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8"))
+    return JSON.parse(await fs.readFile(path.join(manifestPath, "forge_manifest.json"), "utf-8"))
 }

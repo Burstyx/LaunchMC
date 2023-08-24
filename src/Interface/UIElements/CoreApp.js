@@ -9,8 +9,12 @@ const initializeModules = async () => {
     loadingStartup.style.display = "flex"
     menuBtn.style.display = "none"
 
+    
     console.log("[Initialize Modules] Titlebar module");
     const titlebar = require("./scripts/titlebar")
+    
+    console.log("[Initialize Modules] Interactable elements module");
+    const elements = require("./scripts/elements")
 
     console.log("[Initialize Modules] Main window module");
     const mainWindow = require("./scripts/mainWin")
@@ -21,9 +25,6 @@ const initializeModules = async () => {
     console.log("[Initialize Modules] Choose version window module");
     const chooseVersionWindow = require("./scripts/chooseVersionWin")
     chooseVersionWindow.refreshVersionList()
-
-    console.log("[Initialize Modules] Interactable elements module");
-    const elements = require("./scripts/elements")
 
     console.log("[Initialize Modules] Account manager window module");
     const accountManagerWindow = require("./scripts/accountManagerWin")
