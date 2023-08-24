@@ -36,17 +36,18 @@ export async function getForgeInstallProfileIfExist(mcVersion: string, forgeVers
 export async function getForgeVersionIfExist(mcVersion: string, forgeVersion: string) {
     const forgeId = `${mcVersion}-${forgeVersion}`
 
-    const versionPath = path.join(minecraftVersionPath, forgeId, `${forgeId}.json`)
+    const versionPath = path.join(minecraftVersionPath, forgeId)
+    await makeDir(versionPath)
 
-    if(!fs.existsSync(versionPath)) {
+    if(!fs.existsSync(path.join(versionPath, `${forgeId}.json`))) {
         const installProfile = await getForgeInstallProfileIfExist(mcVersion, forgeVersion)
         const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
         
         if(installProfile.json) {
-            const versionJsonPath = installProfile.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json
-            await extractSpecificFile(forgeInstallerPath, versionJsonPath)
+            const versionJsonPath = installProfile.json.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json
+            await extractSpecificFile(forgeInstallerPath, versionJsonPath, path.join(versionPath, `${forgeId}.json`))
         }
     }
     
-    return JSON.parse(await fsp.readFile(versionPath, "utf-8"))
+    return JSON.parse(await fsp.readFile(path.join(versionPath, `${forgeId}.json`), "utf-8"))
 }

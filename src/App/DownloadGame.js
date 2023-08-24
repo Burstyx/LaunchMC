@@ -101,7 +101,7 @@ function downloadMinecraft(version, instanceId) {
             });
             numberOfAssetsDownloaded++;
         }
-        yield patchInstanceWithForge(instanceId, version, "40.2.10");
+        yield patchInstanceWithForge(instanceId, version, "40.0.10");
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
     });
 }
@@ -118,6 +118,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
         // Download forge installer, work only for all versions after 1.5.2
         const forgeInstallerPath = yield (0, HForge_1.getForgeInstallerForVersion)(mcVersion, forgeVersion);
         const forgeInstallProfileData = yield (0, HForge_1.getForgeInstallProfileIfExist)(mcVersion, forgeVersion);
+        console.log("?");
         // Remove info file after fetch
         // await fs.unlink(path.join(tempPath, "install_profile.json"))
         // Get all libraries to download
@@ -231,7 +232,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
                 }
             }
         }
-        yield (0, StartMinecraft_1.startMinecraft)("1.18.2", instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release" }, { version: "40.2.10" });
+        yield (0, StartMinecraft_1.startMinecraft)(mcVersion, instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release" }, { version: forgeVersion });
     });
 }
 exports.patchInstanceWithForge = patchInstanceWithForge;

@@ -62,7 +62,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
                     parsedMcArgs[i] = opt.username;
                     break;
                 case "${version_name}":
-                    parsedMcArgs[i] = "1.18.2";
+                    parsedMcArgs[i] = version;
                     break;
                 case "${game_directory}":
                     parsedMcArgs[i] = path_1.default.join(const_1.instancesPath, instanceId);
@@ -107,11 +107,9 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         if (forgeJvmArgs != undefined && forgeGameArgs != undefined) {
             // Parse forge game args
             parsedForgeGameArgsArray = forgeGameArgs;
-            console.log("called01");
             // Parse forge jvm args
             parsedForgeJvmArgsArray = forgeJvmArgs;
             for (let i = 0; i < parsedForgeJvmArgsArray.length; i++) {
-                console.log("called02");
                 parsedForgeJvmArgsArray[i] = (0, Utils_1.replaceAll)(parsedForgeJvmArgsArray[i], "${library_directory}", const_1.librariesPath);
                 parsedForgeJvmArgsArray[i] = (0, Utils_1.replaceAll)(parsedForgeJvmArgsArray[i], "${classpath_separator}", path_1.default.delimiter);
                 parsedForgeJvmArgsArray[i] = (0, Utils_1.replaceAll)(parsedForgeJvmArgsArray[i], "${version_name}", version);
@@ -131,31 +129,12 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         // Set classpaths
         let classPathes = [];
         let mcLibrariesArray = (0, DownloadGame_1.minecraftLibraryList)(mcData);
-        mcLibrariesArray.push(path_1.default.join(const_1.minecraftVersionPath, "1.18.2", "1.18.2.jar"));
-        let forgeLibrariesArray = isForgeVersion ? forgeData.libraries.concat(forgeInstallProfileData.libraries).map((lib) => path_1.default.join(const_1.librariesPath, lib.downloads.artifact.path)) : undefined;
-        classPathes = isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray;
+        mcLibrariesArray.push(path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`));
+        let forgeLibrariesArray = isForgeVersion ? forgeData.libraries.map((lib) => path_1.default.join(const_1.librariesPath, lib.downloads.artifact.path)) : undefined;
+        classPathes = (0, Utils_1.removeDuplicates)(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray);
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${classPathes.join(path_1.default.delimiter)}`);
         console.log(classPathes);
-        // const library_directory = librariesPath
-        // const classpath_separator = path.delimiter
-        // // jvmArgs.push(data["mainClass"])
-        // jvmArgs.push("-Djava.net.preferIPv6Addresses=system")
-        // jvmArgs.push("-DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,JarJarFileSystems,client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,forge-,1.18.2.jar")
-        // jvmArgs.push("-DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar,java-objc-bridge-1.0.0.jar")
-        // jvmArgs.push("-DlibraryDirectory=" + librariesPath)
-        // jvmArgs.push("-p")
-        // jvmArgs.push(`${library_directory}/cpw/mods/bootstraplauncher/1.0.0/bootstraplauncher-1.0.0.jar${classpath_separator}${library_directory}/cpw/mods/securejarhandler/1.0.8/securejarhandler-1.0.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-commons/9.5/asm-commons-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-util/9.5/asm-util-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-analysis/9.5/asm-analysis-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-tree/9.5/asm-tree-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm/9.5/asm-9.5.jar${classpath_separator}${library_directory}/net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar`)
-        // jvmArgs.push("--add-modules")
-        // jvmArgs.push("ALL-MODULE-PATH")
-        // jvmArgs.push("--add-opens")
-        // jvmArgs.push("java.base/java.util.jar=cpw.mods.securejarhandler")
-        // jvmArgs.push("--add-opens")
-        // jvmArgs.push("java.base/java.lang.invoke=cpw.mods.securejarhandler")
-        // jvmArgs.push("--add-exports")
-        // jvmArgs.push("java.base/sun.security.util=cpw.mods.securejarhandler")
-        // jvmArgs.push("--add-exports")
-        // jvmArgs.push("jdk.naming.dns/com.sun.jndi.dns=java.naming")
         jvmArgs = isForgeVersion ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs;
         mcArgs = isForgeVersion ? mcArgs.concat(...forgeGameArgs) : mcArgs;
         jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass);

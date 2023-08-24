@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.replaceAll = void 0;
+exports.removeDuplicates = exports.replaceAll = void 0;
 function replaceAll(text, toReplace, replacer) {
     let replacedText = text;
     while (replacedText.includes(toReplace)) {
@@ -16,3 +16,7 @@ function replaceAll(text, toReplace, replacer) {
     return replacedText;
 }
 exports.replaceAll = replaceAll;
+function removeDuplicates(arr) {
+    return arr.filter((item, index) => arr.indexOf(item) === index);
+}
+exports.removeDuplicates = removeDuplicates;

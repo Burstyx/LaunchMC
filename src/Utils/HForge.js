@@ -47,16 +47,17 @@ exports.getForgeInstallProfileIfExist = getForgeInstallProfileIfExist;
 function getForgeVersionIfExist(mcVersion, forgeVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         const forgeId = `${mcVersion}-${forgeVersion}`;
-        const versionPath = path_1.default.join(const_1.minecraftVersionPath, forgeId, `${forgeId}.json`);
-        if (!fs_1.default.existsSync(versionPath)) {
+        const versionPath = path_1.default.join(const_1.minecraftVersionPath, forgeId);
+        yield (0, HFileManagement_1.makeDir)(versionPath);
+        if (!fs_1.default.existsSync(path_1.default.join(versionPath, `${forgeId}.json`))) {
             const installProfile = yield getForgeInstallProfileIfExist(mcVersion, forgeVersion);
             const forgeInstallerPath = yield getForgeInstallerForVersion(mcVersion, forgeVersion);
             if (installProfile.json) {
-                const versionJsonPath = installProfile.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json;
-                yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, versionJsonPath);
+                const versionJsonPath = installProfile.json.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json;
+                yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, versionJsonPath, path_1.default.join(versionPath, `${forgeId}.json`));
             }
         }
-        return JSON.parse(yield promises_1.default.readFile(versionPath, "utf-8"));
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${forgeId}.json`), "utf-8"));
     });
 }
 exports.getForgeVersionIfExist = getForgeVersionIfExist;

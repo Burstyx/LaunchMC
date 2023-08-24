@@ -124,7 +124,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         numberOfAssetsDownloaded++
     }
 
-    await patchInstanceWithForge(instanceId, version, "40.2.10")
+    await patchInstanceWithForge(instanceId, version, "40.0.10")
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
@@ -140,6 +140,9 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     // Download forge installer, work only for all versions after 1.5.2
     const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
     const forgeInstallProfileData = await getForgeInstallProfileIfExist(mcVersion, forgeVersion)
+
+    console.log("?");
+    
 
     // Remove info file after fetch
     // await fs.unlink(path.join(tempPath, "install_profile.json"))
@@ -290,7 +293,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         }
     }
 
-    await startMinecraft("1.18.2", instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"}, {version: "40.2.10"})
+    await startMinecraft(mcVersion, instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"}, {version: forgeVersion})
 
     // Changer type de l'instance pour utiliser les bons arguments
 }

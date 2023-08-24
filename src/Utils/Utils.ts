@@ -19,3 +19,7 @@ export function replaceAll(text: string, toReplace: string, replacer: string) {
 
     return replacedText
 }
+
+export function removeDuplicates(arr: string[]){
+    return arr.filter((item, index) => arr.indexOf(item) === index);
+}

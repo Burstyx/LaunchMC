@@ -10,7 +10,7 @@ import { getAllFile, makeDir, mavenToArray } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
 import { getForgeInstallProfileIfExist, getForgeVersionIfExist } from "../Utils/HForge"
-import { replaceAll } from "../Utils/Utils"
+import { removeDuplicates, replaceAll } from "../Utils/Utils"
 
 interface MinecraftArgsOpt {
     username: string,
@@ -75,7 +75,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 parsedMcArgs[i] = opt.username
                 break;
             case "${version_name}":
-                parsedMcArgs[i] = "1.18.2"
+                parsedMcArgs[i] = version
                 break;
             case "${game_directory}":
                 parsedMcArgs[i] = path.join(instancesPath, instanceId)
@@ -121,17 +121,12 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     let parsedForgeJvmArgsArray
     if(forgeJvmArgs != undefined && forgeGameArgs != undefined) {
         // Parse forge game args
-        parsedForgeGameArgsArray = forgeGameArgs
-
-        console.log("called01");
-        
+        parsedForgeGameArgsArray = forgeGameArgs        
 
         // Parse forge jvm args
         parsedForgeJvmArgsArray = forgeJvmArgs
         
-        for (let i = 0; i < parsedForgeJvmArgsArray.length; i++) {
-            console.log("called02");
-            
+        for (let i = 0; i < parsedForgeJvmArgsArray.length; i++) {            
             parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${library_directory}", librariesPath)
             parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${classpath_separator}", path.delimiter)
             parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${version_name}", version)
@@ -158,37 +153,16 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     let classPathes: string[] = []
 
     let mcLibrariesArray = minecraftLibraryList(mcData)
-    mcLibrariesArray.push(path.join(minecraftVersionPath, "1.18.2", "1.18.2.jar"))
+    mcLibrariesArray.push(path.join(minecraftVersionPath, version, `${version}.jar`))
 
-    let forgeLibrariesArray = isForgeVersion ? forgeData.libraries.concat(forgeInstallProfileData.libraries).map((lib: {downloads: {artifact: {path: string}}}) => path.join(librariesPath, lib.downloads.artifact.path)) : undefined
+    let forgeLibrariesArray = isForgeVersion ? forgeData.libraries.map((lib: {downloads: {artifact: {path: string}}}) => path.join(librariesPath, lib.downloads.artifact.path)) : undefined
     
-    classPathes = isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray
+    classPathes = removeDuplicates(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray)
 
     jvmArgs.push(`-cp`)
     jvmArgs.push(`${classPathes.join(path.delimiter)}`)
 
     console.log(classPathes);
-
-    // const library_directory = librariesPath
-    // const classpath_separator = path.delimiter
-
-    // // jvmArgs.push(data["mainClass"])
-    // jvmArgs.push("-Djava.net.preferIPv6Addresses=system")
-    // jvmArgs.push("-DignoreList=bootstraplauncher,securejarhandler,asm-commons,asm-util,asm-analysis,asm-tree,asm,JarJarFileSystems,client-extra,fmlcore,javafmllanguage,lowcodelanguage,mclanguage,forge-,1.18.2.jar")
-    // jvmArgs.push("-DmergeModules=jna-5.10.0.jar,jna-platform-5.10.0.jar,java-objc-bridge-1.0.0.jar")
-    // jvmArgs.push("-DlibraryDirectory=" + librariesPath)
-    // jvmArgs.push("-p")
-    // jvmArgs.push(`${library_directory}/cpw/mods/bootstraplauncher/1.0.0/bootstraplauncher-1.0.0.jar${classpath_separator}${library_directory}/cpw/mods/securejarhandler/1.0.8/securejarhandler-1.0.8.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-commons/9.5/asm-commons-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-util/9.5/asm-util-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-analysis/9.5/asm-analysis-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm-tree/9.5/asm-tree-9.5.jar${classpath_separator}${library_directory}/org/ow2/asm/asm/9.5/asm-9.5.jar${classpath_separator}${library_directory}/net/minecraftforge/JarJarFileSystems/0.3.19/JarJarFileSystems-0.3.19.jar`)
-    // jvmArgs.push("--add-modules")
-    // jvmArgs.push("ALL-MODULE-PATH")
-    // jvmArgs.push("--add-opens")
-    // jvmArgs.push("java.base/java.util.jar=cpw.mods.securejarhandler")
-    // jvmArgs.push("--add-opens")
-    // jvmArgs.push("java.base/java.lang.invoke=cpw.mods.securejarhandler")
-    // jvmArgs.push("--add-exports")
-    // jvmArgs.push("java.base/sun.security.util=cpw.mods.securejarhandler")
-    // jvmArgs.push("--add-exports")
-    // jvmArgs.push("jdk.naming.dns/com.sun.jndi.dns=java.naming")
 
     jvmArgs = isForgeVersion ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
     mcArgs = isForgeVersion ? mcArgs.concat(...forgeGameArgs) : mcArgs
