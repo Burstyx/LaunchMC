@@ -2,7 +2,7 @@ const { dialog, getCurrentWindow } = require("@electron/remote")
 const { closeWindow, openWindow } = require("./window")
 const { createInstance, setContentTo } = require("../../../Utils/HInstance")
 const { v4 } = require("uuid")
-const { downloadMinecraft } = require("../../../App/DownloadGame")
+const { downloadMinecraft, patchInstanceWithForge } = require("../../../App/DownloadGame")
 
 // Create new instance and start downloading
 const createInstanceBtn = document.getElementById("create-instance-btn")
@@ -31,8 +31,17 @@ createInstanceBtn.addEventListener("click", async (e) => {
     // Close window
     closeWindow("new-instance")
 
+    
+
     // Download Game
-    await downloadMinecraft(version, instanceName)
+    
+    if (modloader == "forge") {
+        const forgeVer = version.split("-")
+        await downloadMinecraft(forgeVer[0], instanceName)
+        await patchInstanceWithForge(instanceName, forgeVer[0], forgeVer[1])
+    }else {
+        await downloadMinecraft(version, instanceName)
+    }
 })
 
 // Close new instance window

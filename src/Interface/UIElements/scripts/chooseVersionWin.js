@@ -104,6 +104,7 @@ exports.refreshVersionList = () => {
                         versionsElement.addEventListener("click", (e) => {
                             const modloaderWidget = document.getElementById("open-choose-version-win")
                             modloaderWidget.setAttribute("version-id", val[version][forgeVersion])
+                            modloaderWidget.setAttribute("modloader-id", "vanilla")
                             modloaderWidget.setAttribute("subname", "forge")
                             modloaderWidget.innerText = val[version][forgeVersion]
 
@@ -128,6 +129,7 @@ exports.refreshVersionList = () => {
                     versionsElement.addEventListener("click", (e) => {
                         const modloaderWidget = document.getElementById("open-choose-version-win")
                         modloaderWidget.setAttribute("version-id", val[version][val[version].length - 1])
+                        modloaderWidget.setAttribute("modloader-id", "forge")
                         modloaderWidget.setAttribute("subname", "forge")
                         modloaderWidget.innerText = val[version][val[version].length - 1]
 
