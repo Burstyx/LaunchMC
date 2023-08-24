@@ -196,40 +196,16 @@ export async function refreshInstanceList(){ // FIXME: Refresh instance state an
     
     if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
-
-        let instancesName: any[] = []
         
         // Get all instances
         for(const e in instances){            
             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
                 const dataJson = JSON.parse(data)
-
-                instancesName[e] = dataJson["instanceData"]["name"]     
-                console.log(e, dataJson["instanceData"]["name"]);
-            }
-        }
-
-        const instancesNameOrdered = Object.values(instancesName).sort()
-        
-        const orderedInstancesName: any[] = []
-
-        for(const e of instancesNameOrdered) { // name
-            for(const el in instancesName) { // index                
-                if(e == instancesName[el]){
-                    orderedInstancesName.push({name: e, index: el})
-                }
-            }
-        }
                 
-        // Order instances by name        
-        for(const e in orderedInstancesName) {            
-            const data = await fs.readFile(path.join(instancesPath, instances[orderedInstancesName[e]["index"]], "info.json"), "utf8")
-            const dataJson = JSON.parse(data)
-
-            await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], instances[orderedInstancesName[e]["index"]])
+                await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], dataJson["instanceData"]["name"])
+            }
         }
-        
     }
 }
 

@@ -24,15 +24,14 @@ createInstanceBtn.addEventListener("click", async (e) => {
     console.log(imgPath);
 
     // Création de l'instance
-    const instanceId = v4()
-    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceId, imagePath: imgPath, modloader: modloader, name: instanceName })
-    await setContentTo(instanceId)
+    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceName, imagePath: imgPath, modloader: modloader, name: instanceName })
+    await setContentTo(instanceName)
 
     // Close window
     closeWindow("new-instance")
 
     // Download Game
-    await downloadMinecraft(version, instanceId)
+    await downloadMinecraft(version, instanceName)
 })
 
 // Close new instance window

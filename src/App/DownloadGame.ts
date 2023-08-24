@@ -35,9 +35,6 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
 
     console.log(versionDataManifest["assetIndex"]["url"]);
     console.log(path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
-    
-    
-
 
     await makeDir(indexesPath)
     await downloadAsync(versionDataManifest["assetIndex"]["url"], path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress: number) => {
@@ -124,7 +121,6 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         numberOfAssetsDownloaded++
     }
 
-    await patchInstanceWithForge(instanceId, version, "40.0.10")
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
@@ -132,20 +128,9 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     // Download java if it doesn't exist
     const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
 
-    // DOWNLOAD VERSION FORGE MANIFEST TO GET ALL FORGE VERSION, SHOULDN'T BE HERE
-    // await downloadAsync("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path.join(dataPath, "maven-metadata.json"))
-    // const forgeVersionListFile = await fs.readFile(path.join(dataPath, "maven-metadata.json"), "utf-8")
-    // const forgeVersionList = JSON.parse(forgeVersionListFile)
-
     // Download forge installer, work only for all versions after 1.5.2
     const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
     const forgeInstallProfileData = await getForgeInstallProfileIfExist(mcVersion, forgeVersion)
-
-    console.log("?");
-    
-
-    // Remove info file after fetch
-    // await fs.unlink(path.join(tempPath, "install_profile.json"))
 
     // Get all libraries to download
     let libraries

@@ -101,7 +101,6 @@ function downloadMinecraft(version, instanceId) {
             });
             numberOfAssetsDownloaded++;
         }
-        yield patchInstanceWithForge(instanceId, version, "40.0.10");
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
     });
 }
@@ -111,16 +110,9 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
     return __awaiter(this, void 0, void 0, function* () {
         // Download java if it doesn't exist
         const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
-        // DOWNLOAD VERSION FORGE MANIFEST TO GET ALL FORGE VERSION, SHOULDN'T BE HERE
-        // await downloadAsync("https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json", path.join(dataPath, "maven-metadata.json"))
-        // const forgeVersionListFile = await fs.readFile(path.join(dataPath, "maven-metadata.json"), "utf-8")
-        // const forgeVersionList = JSON.parse(forgeVersionListFile)
         // Download forge installer, work only for all versions after 1.5.2
         const forgeInstallerPath = yield (0, HForge_1.getForgeInstallerForVersion)(mcVersion, forgeVersion);
         const forgeInstallProfileData = yield (0, HForge_1.getForgeInstallProfileIfExist)(mcVersion, forgeVersion);
-        console.log("?");
-        // Remove info file after fetch
-        // await fs.unlink(path.join(tempPath, "install_profile.json"))
         // Get all libraries to download
         let libraries;
         if (!forgeInstallProfileData.versionInfo)
