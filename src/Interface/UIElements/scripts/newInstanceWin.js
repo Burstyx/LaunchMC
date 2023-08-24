@@ -10,7 +10,8 @@ const createInstanceBtn = document.getElementById("create-instance-btn")
 createInstanceBtn.addEventListener("click", async (e) => {
     const userInstanceName = document.getElementById("new-instance-name").value
     const version = document.getElementById("open-choose-version-win").getAttribute("version-id")
-    const modloader = document.getElementById("open-choose-modloader-win").getAttribute("modloader-id")
+    const modloader = document.getElementById("open-choose-version-win").getAttribute("modloader-id")
+    const versionType = document.getElementById("open-choose-version-win").getAttribute("subname")
 
     let instanceName = userInstanceName
 
@@ -24,7 +25,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
     console.log(imgPath);
 
     // Création de l'instance
-    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceName, imagePath: imgPath, modloader: modloader, name: instanceName })
+    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceName, imagePath: imgPath, modloader: modloader, name: instanceName, versionType: versionType })
     await setContentTo(instanceName)
 
     // Close window

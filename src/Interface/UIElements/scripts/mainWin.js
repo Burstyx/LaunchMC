@@ -1,14 +1,15 @@
 const { openWindow } = require("./window")
 const { startMinecraft, killGame } = require("../../../App/StartMinecraft")
 const { InstanceState } = require("../../../Utils/HInstance")
-const { msaLogin } = require("../../../App/MicrosoftAuth")
 const fs = require("fs/promises")
 const { gamePath } = require("../../../Utils/const")
-const { existsSync } = require("fs")
+const { getActiveAccount } = require("../../../Utils/HMicrosoft")
 
-// Open new instance window button
+// Open new instance window
 const openCreateInstanceWinBtn = document.getElementById("open-create-instance-window")
-openCreateInstanceWinBtn.addEventListener("click", (e) => { openWindow("new-instance") })
+openCreateInstanceWinBtn.addEventListener("click", (e) => {
+    openWindow("new-instance")
+})
 
 // Launch instance button
 const launchBtn = document.getElementById("launchbtn")
@@ -26,13 +27,27 @@ launchBtn.addEventListener("click", async () => {
             console.log("Can't do anything");
     }
 
+    // Fetch instance game version and type
     const widgetVersion = document.getElementById("widget-version")
-    const version = widgetVersion.innerText
-    const versionType = widgetVersion.getAttribute("subname")
+    const mcVersion = widgetVersion.innerText
+    const versionType = widgetVersion.getAttribute("subname").toLowerCase()
+
+    // Fetch instance used loader
+    const widgetLoader = document.getElementById("widget-modloader")
+    const loaderName = widgetLoader.innerText.toLowerCase()
+    const loaderVersion = widgetLoader.getAttribute("subname")?.toLowerCase()
+
+    console.log("Loaderver: " + loaderVersion);
+
+    const isForge = loaderName === "forge"
+    const isFabric = loaderName === "fabric"
+    const isQuilt = loaderName === "quilt"
 
     const data = JSON.parse(await fs.readFile(gamePath + "/microsoft_account.json"))
 
-    await startMinecraft("1.18.2", currentInstance.id, { accesstoken: data["accounts"][0]["access_token"], username: data["accounts"][0]["username"], usertype: data["accounts"][0]["usertype"], uuid: data["accounts"][0]["uuid"], versiontype: "release" }, { version: "40.2.10" })
+    const activeAccount = await getActiveAccount()
+
+    await startMinecraft(mcVersion, currentInstance.id, { accesstoken: activeAccount.access_token, username: activeAccount.username, usertype: activeAccount.usertype, uuid: activeAccount.uuid, versiontype: versionType }, isForge ? { version: loaderVersion } : undefined)
 })
 
 // Open account manager window button

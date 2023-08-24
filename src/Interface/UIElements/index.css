@@ -313,7 +313,7 @@ body {
 .window[window-id="new-instance"] .widgets-container {
   display: flex;
   gap: 10px;
-  width: fit-content;
+  max-width: 500px;
 
   position: relative;
   left: 50%;
@@ -348,7 +348,18 @@ body {
   margin: 5px;
 }
 
-.window[window-id="choose-version"] .version-filters {
+.window[window-id="choose-version"] .filters {
+  display: flex;
+  flex-direction: column;
+
+  box-shadow: -1px 0 5px 1px rgba(0, 0, 0, 0.5);
+  
+  height: 100%;
+
+  gap: 50px;
+}
+
+.window[window-id="choose-version"] .filters .version-filter {
   display: flex;
   flex-direction: column;
 
@@ -356,7 +367,23 @@ body {
 
   width: 500px;
 
-  border-left: solid black 3px;
+  height: 100%;
+
+
+  position: relative;
+
+  padding: 5px;
+}
+
+.window[window-id="choose-version"] .filters .loader-selector {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  width: 500px;
+  height: 100%;
+
 
   position: relative;
 
@@ -388,13 +415,13 @@ body {
   margin: 5px
 }
 
-.window[window-id="account-manager"] .account-list .checkbox {
+.window[window-id="account-manager"] .account-list .selector {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.window[window-id="account-manager"] .account-list .checkbox img {
+.window[window-id="account-manager"] .account-list .selector img {
   width: 50px;
   border-radius: 50px;
 }

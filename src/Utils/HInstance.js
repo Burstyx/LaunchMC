@@ -31,7 +31,7 @@ function createInstance(version, instanceInfo) {
         yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo["id"]));
         // TODO Instance opt in folder
         yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo["id"], "info.json"), JSON.stringify({ "instanceData": { "name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
-                "playtime": 0, "lastplayed": "Never", "description": null }, "gameData": { "version": version,
+                "playtime": 0, "lastplayed": "Never", "description": null }, "gameData": { "version": version, "versiontype": instanceInfo.versionType,
                 "modloader": instanceInfo["modloader"] } }));
         yield refreshInstanceList();
     });
@@ -93,6 +93,7 @@ function setContentTo(id) {
         contentTitle.innerText = instanceData["name"];
         contentAuthor.innerText = instanceData["author"];
         const widgetVersion = document.getElementById("widget-version");
+        widgetVersion.setAttribute("subname", gameData["versiontype"]);
         widgetVersion.innerText = gameData["version"];
         const widgetModloader = document.getElementById("widget-modloader");
         widgetModloader.innerText = gameData["modloader"];

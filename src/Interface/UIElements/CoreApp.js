@@ -4,39 +4,44 @@ const { refreshInstanceList } = require("../../Utils/HInstance")
 const loadingStartup = document.getElementById("loading-startup-launcher")
 const menuBtn = document.getElementById("titlebar-menu-btns")
 
-loadingStartup.style.display = "flex"
-menuBtn.style.display = "none"
+const initializeModules = async () => {
+    console.log("Initialize Modules");
+    loadingStartup.style.display = "flex"
+    menuBtn.style.display = "none"
 
-console.log("Initialize Modules");
+    console.log("[Initialize Modules] Titlebar module");
+    const titlebar = require("./scripts/titlebar")
 
-console.log("[Initialize Modules] Titlebar module");
-require("./scripts/titlebar")
+    console.log("[Initialize Modules] Main window module");
+    const mainWindow = require("./scripts/mainWin")
 
-console.log("[Initialize Modules] MainWin module");
-require("./scripts/mainWin")
+    console.log("[Initialize Modules] New instance window module");
+    const newInstanceWindow = require("./scripts/newInstanceWin")
 
-console.log("[Initialize Modules] New Instance Win module");
-require("./scripts/newInstanceWin")
+    console.log("[Initialize Modules] Choose version window module");
+    const chooseVersionWindow = require("./scripts/chooseVersionWin")
+    chooseVersionWindow.refreshVersionList()
 
-console.log("[Initialize Modules] ChooseVersionWin module");
-require("./scripts/chooseVersionWin")
+    console.log("[Initialize Modules] Interactable elements module");
+    const elements = require("./scripts/elements")
 
-console.log("[Initialize Modules] Elements module");
-require("./scripts/elements")
+    console.log("[Initialize Modules] Account manager window module");
+    const accountManagerWindow = require("./scripts/accountManagerWin")
+    await accountManagerWindow.refreshAccountList()
 
-console.log("[Initialize Modules] AccountManagerWin module");
-require("./scripts/accountManagerWin")
+    console.log("Update Instance List");
+    await refreshInstanceList()
 
-console.log("Update Instance List");
-refreshInstanceList()
+    console.log("Initialize Discord RPC");
+    await initDiscordRPC()
 
-console.log("Initialize Discord RPC");
-initDiscordRPC()
+    console.log("Refreshing Microsoft Account");
+    // Put logic here
 
-console.log("Refreshing Microsoft Account");
-// Put logic here
+    loadingStartup.style.display = "none"
+    menuBtn.style.display = "flex"
 
-loadingStartup.style.display = "none"
-menuBtn.style.display = "flex"
+    console.log("Initialisation effectué sans erreur !")
+}
 
-console.log("Initialisation effectué sans erreur !")
+initializeModules()

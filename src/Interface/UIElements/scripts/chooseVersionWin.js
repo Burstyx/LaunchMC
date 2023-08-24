@@ -1,26 +1,22 @@
 const { minecraftManifest } = require("../../../Utils/HManifests")
 const { closeWindow } = require("./window")
 
-// Get versions list div
+// Inputs
+const filterRelease = document.getElementById("vanilla-version-filter-release")
+const filterSnapshot = document.getElementById("vanilla-version-filter-snapshot")
+const filterBeta = document.getElementById("vanilla-version-filter-beta")
+const filterAlpha = document.getElementById("vanilla-version-filter-alpha")
+const search = document.getElementById("vanilla-version-filter-search")
+
+// Fetch Minecraft versions depending on applied filters
 const versionsList = document.getElementById("vanilla-versions-list")
-
-document.querySelectorAll(".version-filters .checkbox").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-        refreshInstanceList()
-    })
-})
-
-document.getElementById("vanilla-version-filter-search").addEventListener("input", (e) => {
-    refreshInstanceList()
-})
-
-function refreshInstanceList() {
+exports.refreshVersionList = () => {
     minecraftManifest().then((val) => {
-        const filterReleaseCheck = document.getElementById("vanilla-version-filter-release").hasAttribute("checked")
-        const filterSnapshotCheck = document.getElementById("vanilla-version-filter-snapshot").hasAttribute("checked")
-        const filterBetaCheck = document.getElementById("vanilla-version-filter-beta").hasAttribute("checked")
-        const filterAlphaCheck = document.getElementById("vanilla-version-filter-alpha").hasAttribute("checked")
-        const searchVal = document.getElementById("vanilla-version-filter-search").value
+        const filterReleaseCheck = filterRelease.hasAttribute("checked")
+        const filterSnapshotCheck = filterSnapshot.hasAttribute("checked")
+        const filterBetaCheck = filterBeta.hasAttribute("checked")
+        const filterAlphaCheck = filterAlpha.hasAttribute("checked")
+        const searchVal = search.value
 
         versionsList.innerHTML = ""
 
@@ -60,8 +56,25 @@ function refreshInstanceList() {
     })
 }
 
-refreshInstanceList()
+// Refresh version list when updating filters
+document.querySelectorAll(".version-filters .checkbox").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+        this.refreshVersionList()
+    })
+})
 
+// Refresh version list when searching
+document.getElementById("vanilla-version-filter-search").addEventListener("input", (e) => {
+    this.refreshVersionList()
+})
+
+// Close window and reset inputs
 document.getElementById("close-choose-version-win").addEventListener("click", (e) => {
     closeWindow("choose-version")
+
+    filterRelease.toggleAttribute("checked", true)
+    filterSnapshot.toggleAttribute("checked", false)
+    filterBeta.toggleAttribute("checked", false)
+    filterAlpha.toggleAttribute("checked", false)
+    search.value = ""
 })

@@ -1,9 +1,11 @@
 const { msaLogin } = require("../../../App/MicrosoftAuth")
-const { accountList, changeAccountProperty } = require("../../../Utils/HMicrosoft")
+const { accountList, changeAccountProperty, getActiveAccount } = require("../../../Utils/HMicrosoft")
+const { registerSelectorGroup } = require("./elements")
 const { refreshAccountBtnImg } = require("./mainWin")
 const { closeWindow } = require("./window")
 
-async function refreshAccountList() {
+// Fetch all saved account
+exports.refreshAccountList = async () => {
     const accounts = await accountList()
 
     if (accounts == null) {
@@ -12,53 +14,52 @@ async function refreshAccountList() {
     }
 
     const accountsList = document.getElementById("account-list")
+    accountsList.innerHTML = ""
 
     for (const account of accounts) {
         // Main checkbox
-        const checkbox = document.createElement("div")
-        checkbox.classList.add("checkbox")
+        const selector = document.createElement("div")
+        selector.classList.add("selector")
 
         if (account["active"]) {
-            checkbox.toggleAttribute("checked")
+            selector.toggleAttribute("active", true)
         }
 
-        checkbox.setAttribute("account-id", account["uuid"])
+        selector.setAttribute("account-id", account["uuid"])
 
         // Account profile image
         const profileImg = document.createElement("img")
         profileImg.src = `https://minotar.net/avatar/${account["uuid"]}`
 
-        checkbox.appendChild(profileImg)
+        selector.appendChild(profileImg)
 
         const accountUsername = document.createElement("p")
         accountUsername.innerText = account["username"]
-        checkbox.appendChild(accountUsername)
+        selector.appendChild(accountUsername)
 
-        accountsList.appendChild(checkbox)
+        accountsList.appendChild(selector)
 
-        checkbox.addEventListener("click", async (e) => {
-            const status = checkbox.hasAttribute("checked")
+        const selectorParent = selector.parentElement
+        registerSelectorGroup(selectorParent)
 
-            if (status == false) {
-                const activeAccount = accountsList.querySelector('.checkbox[checked]')
+        selector.addEventListener("click", async () => {
+            console.log(selector);
 
-                checkbox.toggleAttribute("checked")
-                activeAccount.toggleAttribute("checked")
-
-                await changeAccountProperty(checkbox.getAttribute("account-id"), "active", checkbox.hasAttribute("checked"))
-                await changeAccountProperty(activeAccount.getAttribute("account-id"), "active", activeAccount.hasAttribute("checked"))
-            }
-
-            refreshAccountBtnImg(checkbox.getAttribute("account-id"))
+            await changeAccountProperty((await getActiveAccount()).uuid, "active", !selector.hasAttribute("active"))
+            await changeAccountProperty(selector.getAttribute("account-id"), "active", selector.hasAttribute("active"))
         })
+
+        refreshAccountBtnImg(selector.getAttribute("account-id"))
     }
 }
 
-refreshAccountList()
-
+// Close window
 const closeBtn = document.getElementById("close-account-manager-win")
-closeBtn.addEventListener("click", (e) => { closeWindow("account-manager") })
+closeBtn.addEventListener("click", (e) => {
+    closeWindow("account-manager")
+})
 
+// Add account btn
 const addAccount = document.getElementById("create-account-btn")
 addAccount.addEventListener("click", async (e) => {
     const status = await msaLogin()
@@ -66,8 +67,8 @@ addAccount.addEventListener("click", async (e) => {
     console.log(status);
 
     if (status == true) {
-        await refreshAccountList()
+        await this.refreshAccountList()
     } else {
-        console.log("Authentification to the microsoft account cannot be established. An error occured!");
+        console.error("Authentification to the microsoft account cannot be established. An error occured!");
     }
 })

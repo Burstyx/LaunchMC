@@ -33,6 +33,10 @@ export async function accountList(){
 export async function addAccount(opt: AccountInfo){
     let data: any = {"accounts": []}
 
+    if(existsSync(path.join(gamePath, "microsoft_account.json"))) {
+        data = JSON.parse(await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8"))
+    }
+
     const shouldBeActive = await getActiveAccount() == null ? true : false
 
     data["accounts"].push({"access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive})

@@ -20,7 +20,8 @@ interface InstanceInfo {
     id: string,
     author: string,
     accentColor: string,
-    modloader: string
+    modloader: string,
+    versionType: string
 }
 
 export async function createInstance(version: string, instanceInfo: InstanceInfo){
@@ -30,7 +31,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     await fs.writeFile(path.join(instancesPath, instanceInfo["id"], "info.json"), JSON.stringify(
         {"instanceData":
         {"name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
-        "playtime": 0, "lastplayed": "Never", "description": null}, "gameData": {"version": version,
+        "playtime": 0, "lastplayed": "Never", "description": null}, "gameData": {"version": version, "versiontype": instanceInfo.versionType,
         "modloader": instanceInfo["modloader"]}}
     ))
 
@@ -106,6 +107,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     contentAuthor.innerText = instanceData["author"]
 
     const widgetVersion = document.getElementById("widget-version")!
+    widgetVersion.setAttribute("subname", gameData["versiontype"])
     widgetVersion.innerText = gameData["version"]
 
     const widgetModloader = document.getElementById("widget-modloader")!

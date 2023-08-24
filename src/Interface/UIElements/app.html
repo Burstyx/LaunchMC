@@ -82,8 +82,7 @@
                     style="width: 250px; height: 25px; position: relative; top: -25px; left: 50%; transform: translateX(-50%);"
                     placeholder="1.20.1" maxlength="30">
                 <div class="widgets-container">
-                    <div class="widget-btn interactable" id="open-choose-version-win" widget-name="Version" version-id="1.20.1" subname="latest" style="width: 150px;">1.20.1</div>
-                    <div class="widget-btn interactable" id="open-choose-modloader-win" widget-name="Modloader" modloader-id="vanilla" subname="No modloader selected" style="width: 150px;">Vanilla</div>
+                    <div class="widget-btn interactable" id="open-choose-version-win" widget-name="Version" version-id="1.20.1" modloader-id="vanilla" subname="latest" style="width: 100%;">1.20.1</div>
                 </div>
                 <div class="actions-btn">
                     <div class="default-btn danger" id="close-new-instance-win" style="font-size: 18px; width: 200px;">Cancel</div>
@@ -91,21 +90,31 @@
                 </div>
             </div>
             <div class="window" window-id="choose-version">
-                <div class="version-list" id="vanilla-versions-list">
-                </div>
-                <div class="version-filters">
-                    <input type="text" id="vanilla-version-filter-search" placeholder="Search">
-                    <div class="checkbox" id="vanilla-version-filter-release" text="Releases" checked>Releases</div>
-                    <div class="checkbox" id="vanilla-version-filter-snapshot" text="Snapshots" checked>Snapshots</div>
-                    <div class="checkbox" id="vanilla-version-filter-beta" text="Betas">Betas</div>
-                    <div class="checkbox" id="vanilla-version-filter-alpha" text="Alphas">Alphas</div>
-                    <div class="default-btn danger" id="close-choose-version-win" style="position: absolute; bottom: 5px; left: 5px; right: 5px;">Cancel</div>
+                <div class="version-list" id="vanilla-versions-list"></div>
+                <div class="filters">
+                    <div class="version-filter">
+                        <input type="text" id="vanilla-version-filter-search" placeholder="Search">
+                        <div class="checkbox" id="vanilla-version-filter-release" text="Releases" checked>Releases</div>
+                        <div class="checkbox" id="vanilla-version-filter-snapshot" text="Snapshots">Snapshots</div>
+                        <div class="checkbox" id="vanilla-version-filter-beta" text="Betas">Betas</div>
+                        <div class="checkbox" id="vanilla-version-filter-alpha" text="Alphas">Alphas</div>
+                        <div class="default-btn danger" id="close-choose-version-win"
+                            style="position: absolute; bottom: 5px; left: 5px; right: 5px;">Cancel</div>
+                    </div>
+                    <div class="loader-selector">
+                        <selectorgroup>
+                            <div class="selector" id="vanilla-loader" text="Releases" active>Vanilla</div>
+                            <div class="selector" id="forge-loader" text="Snapshots">Forge</div>
+                            <div class="selector" id="fabric-loader" text="Betas">Fabric</div>
+                            <div class="selector" id="quilt-loader" text="Alphas">Quilt</div>
+                        </selectorgroup>
+                    </div>
                 </div>
             </div>
             <div class="window" window-id="account-manager">
-                <div class="account-list" id="account-list">
+                <selectorgroup class="account-list" id="account-list">
                     <!-- All associated account will be there -->
-                </div>
+                </selectorgroup>
                 <div class="actions-btn">
                     <div class="default-btn danger" id="close-account-manager-win" style="font-size: 18px; width: 200px;">Cancel</div>
                     <div class="default-btn interactable" id="create-account-btn" style="font-size: 18px; width: 200px;">Add Account</div>
