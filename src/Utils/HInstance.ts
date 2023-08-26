@@ -108,7 +108,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
     const widgetVersion = document.getElementById("widget-version")!
     widgetVersion.setAttribute("subname", gameData["versiontype"])
-    widgetVersion.innerText = gameData["version"]
+    widgetVersion.innerText = gameData["version"].includes("-") ? gameData["version"].split("-")[0] : gameData["version"]
 
     const widgetModloader = document.getElementById("widget-modloader")!
     widgetModloader.innerText = gameData["modloader"]
