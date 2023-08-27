@@ -28,7 +28,7 @@ export async function getForgeInstallProfileIfExist(mcVersion: string, forgeVers
     const installProfilePath = path.join(path.dirname(forgeInstallerPath), "install_profile.json")
 
     const installProfileJson = await fsp.readFile(installProfilePath, "utf8")
-    await fsp.unlink(installProfilePath)
+    // await fsp.unlink(installProfilePath)
 
     return JSON.parse(installProfileJson)
 }

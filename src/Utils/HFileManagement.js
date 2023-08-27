@@ -109,7 +109,7 @@ function mavenToArray(maven, native, ext) {
         : pathSplit[2];
     const finalFileName = fileName.includes('@')
         ? fileName.replace('@', '.')
-        : `${fileName}${native || ''}${ext || '.jar'}`;
+        : `${fileName}${native || ''}.${ext || 'jar'}`;
     const initPath = pathSplit[0]
         .split('.')
         .concat(pathSplit[1])

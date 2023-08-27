@@ -147,7 +147,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     // Skip forge extract and download it instead
     let skipForgeExtract = false
     
-    if(!forgeInstallProfileData.path || !forgeInstallProfileData.install.filePath) {
+    if(!forgeInstallProfileData.path || !forgeInstallProfileData.installInfo?.filePath) {
         skipForgeExtract = true
     }
 
@@ -211,7 +211,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         
 
         // Getting client.lzma from installer
-        await extractSpecificFile(forgeInstallerPath, "data/client.lzma", path.join(librariesPath, forgeInstallProfileData.path ? (mavenToArray(forgeInstallProfileData.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
+        await extractSpecificFile(forgeInstallerPath, "data/client.lzma", path.join(librariesPath, forgeInstallProfileData.path ? (mavenToArray(forgeInstallProfileData.path, "-universal-clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
         
         const { processors } = forgeInstallProfileData
 

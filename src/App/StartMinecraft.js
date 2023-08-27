@@ -104,9 +104,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         // Parse forge args
         let parsedForgeGameArgsArray;
         let parsedForgeJvmArgsArray;
-        if (forgeJvmArgs != undefined && forgeGameArgs != undefined) {
-            // Parse forge game args
-            parsedForgeGameArgsArray = forgeGameArgs;
+        if (forgeJvmArgs != undefined) {
             // Parse forge jvm args
             parsedForgeJvmArgsArray = forgeJvmArgs;
             for (let i = 0; i < parsedForgeJvmArgsArray.length; i++) {
@@ -114,8 +112,12 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
                 parsedForgeJvmArgsArray[i] = (0, Utils_1.replaceAll)(parsedForgeJvmArgsArray[i], "${classpath_separator}", path_1.default.delimiter);
                 parsedForgeJvmArgsArray[i] = (0, Utils_1.replaceAll)(parsedForgeJvmArgsArray[i], "${version_name}", version);
             }
-            forgeGameArgs = parsedForgeGameArgsArray;
             forgeJvmArgs = parsedForgeJvmArgsArray;
+        }
+        if (forgeGameArgs != undefined) {
+            // Parse forge game args
+            parsedForgeGameArgsArray = forgeGameArgs;
+            forgeGameArgs = parsedForgeGameArgsArray;
         }
         // Building jvm args
         var jvmArgs = [];
@@ -135,8 +137,8 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${classPathes.join(path_1.default.delimiter)}`);
         console.log(classPathes);
-        jvmArgs = isForgeVersion ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs;
-        mcArgs = isForgeVersion ? mcArgs.concat(...forgeGameArgs) : mcArgs;
+        jvmArgs = isForgeVersion && forgeJvmArgs != undefined ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs;
+        mcArgs = isForgeVersion && forgeGameArgs != undefined ? mcArgs.concat(...forgeGameArgs) : mcArgs;
         jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass);
         const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "");
         console.log(fullMcArgs);

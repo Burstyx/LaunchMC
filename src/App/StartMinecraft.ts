@@ -119,10 +119,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     // Parse forge args
     let parsedForgeGameArgsArray
     let parsedForgeJvmArgsArray
-    if(forgeJvmArgs != undefined && forgeGameArgs != undefined) {
-        // Parse forge game args
-        parsedForgeGameArgsArray = forgeGameArgs        
-
+    if(forgeJvmArgs != undefined) {
         // Parse forge jvm args
         parsedForgeJvmArgsArray = forgeJvmArgs
         
@@ -132,8 +129,13 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
             parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${version_name}", version)
         }
 
-        forgeGameArgs = parsedForgeGameArgsArray
         forgeJvmArgs = parsedForgeJvmArgsArray
+    }
+
+    if(forgeGameArgs != undefined) {
+        // Parse forge game args
+        parsedForgeGameArgsArray = forgeGameArgs  
+        forgeGameArgs = parsedForgeGameArgsArray
     }
 
     // Building jvm args
@@ -164,8 +166,8 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     console.log(classPathes);
 
-    jvmArgs = isForgeVersion ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
-    mcArgs = isForgeVersion ? mcArgs.concat(...forgeGameArgs) : mcArgs
+    jvmArgs = isForgeVersion && forgeJvmArgs != undefined ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
+    mcArgs = isForgeVersion && forgeGameArgs != undefined ? mcArgs.concat(...forgeGameArgs) : mcArgs
 
     jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass)
     

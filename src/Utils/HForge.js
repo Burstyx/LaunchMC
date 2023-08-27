@@ -39,7 +39,7 @@ function getForgeInstallProfileIfExist(mcVersion, forgeVersion) {
         yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "install_profile.json");
         const installProfilePath = path_1.default.join(path_1.default.dirname(forgeInstallerPath), "install_profile.json");
         const installProfileJson = yield promises_1.default.readFile(installProfilePath, "utf8");
-        yield promises_1.default.unlink(installProfilePath);
+        // await fsp.unlink(installProfilePath)
         return JSON.parse(installProfileJson);
     });
 }

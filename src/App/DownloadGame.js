@@ -106,7 +106,7 @@ function downloadMinecraft(version, instanceId) {
 }
 exports.downloadMinecraft = downloadMinecraft;
 function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
-    var _a;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         // Download java if it doesn't exist
         const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
@@ -125,7 +125,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
         }
         // Skip forge extract and download it instead
         let skipForgeExtract = false;
-        if (!forgeInstallProfileData.path || !forgeInstallProfileData.install.filePath) {
+        if (!forgeInstallProfileData.path || !((_a = forgeInstallProfileData.installInfo) === null || _a === void 0 ? void 0 : _a.filePath)) {
             skipForgeExtract = true;
         }
         console.log(libraries);
@@ -170,12 +170,12 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeVersion) {
                 yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, path_1.default.join("maven", jarFilePath), path_1.default.join(const_1.librariesPath, forgeJarPath.join("/")));
             }
         }
-        if ((_a = forgeInstallProfileData.processors) === null || _a === void 0 ? void 0 : _a.length) {
+        if ((_b = forgeInstallProfileData.processors) === null || _b === void 0 ? void 0 : _b.length) {
             console.log("Patching Forge");
             const universalJarPath = forgeInstallProfileData.libraries.find((lib) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path;
             console.log(universalJarPath);
             // Getting client.lzma from installer
-            yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "data/client.lzma", path_1.default.join(const_1.librariesPath, forgeInstallProfileData.path ? ((0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path, "clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
+            yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "data/client.lzma", path_1.default.join(const_1.librariesPath, forgeInstallProfileData.path ? ((0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path, "-universal-clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
             const { processors } = forgeInstallProfileData;
             for (const key in processors) {
                 const p = processors[key];
