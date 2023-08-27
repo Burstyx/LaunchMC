@@ -124,13 +124,13 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
-export async function patchInstanceWithForge(instanceId: string, mcVersion: string, forgeVersion: string) {
+export async function patchInstanceWithForge(instanceId: string, mcVersion: string, forgeId: string) {
     // Download java if it doesn't exist
     const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
 
     // Download forge installer, work only for all versions after 1.5.2
-    const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
-    const forgeInstallProfileData = await getForgeInstallProfileIfExist(mcVersion, forgeVersion)
+    const forgeInstallerPath = await getForgeInstallerForVersion(forgeId)
+    const forgeInstallProfileData = await getForgeInstallProfileIfExist(forgeId)
 
     // Get all libraries to download
     let libraries
@@ -140,66 +140,67 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         libraries = forgeInstallProfileData.versionInfo.libraries
 
     if(forgeInstallProfileData.json) {
-        const forgeVersionData = await getForgeVersionIfExist(mcVersion, forgeVersion)
+        const forgeVersionData = await getForgeVersionIfExist(forgeId)
         libraries = libraries.concat(forgeVersionData.libraries)
     }
 
     // Skip forge extract and download it instead
     let skipForgeExtract = false
     
-    if(!forgeInstallProfileData.path || !forgeInstallProfileData.installInfo?.filePath) {
+    if(!forgeInstallProfileData.path && !forgeInstallProfileData.install?.filePath) {
         skipForgeExtract = true
     }
 
     console.log(libraries);
 
     for(const library of libraries) {
-        console.log(library);
-        if((library.name.includes("minecraftforge") || library.name.includes("forge")) && !skipForgeExtract) {
-            console.log("Skip " + library.name);
-            continue
-        }
+        console.log("Downloading: " + library.name);
 
         const libraryPath = (mavenToArray(library.name)).join("/");
 
-        if(library.downloads && library.downloads.artifact) {
+        if(library.downloads?.artifact) {
             const dlLink = library.downloads.artifact.url
             const dlDest = library.downloads.artifact.path
 
+            // If not url as been assigned
             if(dlLink == "") {
-                // Special case here
-                continue
+                const fileToFetch = "maven/" + library.downloads.artifact.path
+                const destFile = `${librariesPath}/` + library.downloads.artifact.path
+
+                await extractSpecificFile(forgeInstallerPath, fileToFetch, destFile)
             }
-
+            
             await downloadAsync(dlLink, path.join(librariesPath, dlDest))
-
-            continue
         }
-
-        if(!library.url) {
+        else if (library?.name.includes("net.minecraftforge:forge:") || library?.name.includes("net.minecraftforge:minecraftforge:")) {
+            console.log("Skip " + library.name);
+        }
+        else if(library.url) {
             const forgeBaseUrl = "https://maven.minecraftforge.net/"
             await downloadAsync(`${forgeBaseUrl}${libraryPath}`, path.join(librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
-            continue
-        } else {
+        }
+        else if(!library.url) {
             await downloadAsync(`https://libraries.minecraft.net/${libraryPath}`, path.join(librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
-            continue
+        }
+        else {
+            console.log("Case not handled or just it won't work");
         }
     }
     
-    if(!skipForgeExtract) {
-        const jarFilePath = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath
+    if(!skipForgeExtract) {        
+        const jarFilePathInInstaller = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath  
+        const jarFileDestPath = mavenToArray(forgeInstallProfileData.path || forgeInstallProfileData.install.path)      
 
-        const forgeJarPath = mavenToArray(jarFilePath)
-        const forgeJarPathWithoutFile = forgeJarPath.slice(0, forgeJarPath.length - 1).join("/")
+        const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/")
 
-        await makeDir(forgeJarPathWithoutFile)
+        await makeDir(path.join(librariesPath, forgeJarPathWithoutFile))
         // Fetch the jar in the installer
-        if(forgeInstallProfileData.install.filePath) {
-            await extractSpecificFile(forgeInstallerPath, jarFilePath, path.join(librariesPath, forgeJarPath.join("/")))
+        if(forgeInstallProfileData.install?.filePath) {
+            await extractSpecificFile(forgeInstallerPath, jarFilePathInInstaller, path.join(librariesPath, jarFileDestPath.join("/")))
         }
         // Search for the jar in maven folder in the installer
         else if(forgeInstallProfileData.path) {
-            await extractSpecificFile(forgeInstallerPath, path.join("maven", jarFilePath), path.join(librariesPath, forgeJarPath.join("/")))
+            await extractSpecificFile(forgeInstallerPath, path.join("maven", jarFileDestPath.join("/")), path.join(librariesPath, jarFileDestPath.join("/")))
         }
     }
 
@@ -278,7 +279,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         }
     }
 
-    await startMinecraft(mcVersion, instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"}, {version: forgeVersion})
+    await startMinecraft(mcVersion, instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"}, {id: forgeId})
 
     // Changer type de l'instance pour utiliser les bons arguments
 }
@@ -462,7 +463,7 @@ export async function downloadAndGetJavaVersion(version: JavaVersions) {
             console.log(`Progression: ${progress}% du téléchargement`);
         }, { decompress: true })
 
-        return path.join(javaPath, java8Version, "bin")
+        return path.join(javaPath, java8Version, java8Name,  "bin")
     }
 
     if (version == JavaVersions.JDK17) {
@@ -474,7 +475,7 @@ export async function downloadAndGetJavaVersion(version: JavaVersions) {
             console.log(`Progression: ${progress}% du téléchargement`);
         }, { decompress: true })
 
-        return path.join(javaPath, java17Version, "bin")
+        return path.join(javaPath, java17Version, java17Name, "bin")
     }
 
     return ""

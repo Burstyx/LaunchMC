@@ -20,6 +20,7 @@ const child_process_1 = __importDefault(require("child_process"));
 const fs_1 = require("fs");
 const const_1 = require("./const");
 const DownloadGame_1 = require("../App/DownloadGame");
+const Utils_1 = require("./Utils");
 function makeDir(path) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!(0, fs_1.existsSync)(path))
@@ -50,6 +51,7 @@ exports.getAllFile = getAllFile;
 function extractSpecificFile(compressedDirPath, filePath, dest) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((res, rej) => __awaiter(this, void 0, void 0, function* () {
+            filePath = (0, Utils_1.replaceAll)(filePath, "\\", "/");
             const jar = path_1.default.join(yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17), "jar");
             console.log(`Extracting ${filePath} from ${compressedDirPath}...`);
             child_process_1.default.exec(jar + ` --list --file ${compressedDirPath}`, (err, stdout) => __awaiter(this, void 0, void 0, function* () {
@@ -103,6 +105,8 @@ function mavenToArray(maven, native, ext) {
     // mavenArray.push(`${mavenParts[mavenParts.length - 2]}-${mavenParts[mavenParts.length - 1]}${native ? `-${native}` : ""}.${ext != undefined ? ext : mavenExt != undefined ? mavenExt : "jar"}`)
     // console.log("mavenArray: " + mavenArray);
     // return mavenArray
+    if (!maven.includes(":"))
+        return [maven];
     const pathSplit = maven.split(':');
     const fileName = pathSplit[3]
         ? `${pathSplit[2]}-${pathSplit[3]}`

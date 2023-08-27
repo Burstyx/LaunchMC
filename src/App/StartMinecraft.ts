@@ -26,7 +26,7 @@ interface MinecraftArgsOpt {
 }
 
 interface ForgeArgsOpt {
-    version: string
+    id: string
 }
 
 let mcProcs: any = {}
@@ -41,8 +41,8 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     
     // Get Forge version manifest
     const isForgeVersion = forgeOpt != undefined
-    const forgeData = isForgeVersion ? await getForgeVersionIfExist(version, forgeOpt.version) : undefined
-    const forgeInstallProfileData = isForgeVersion ? await getForgeInstallProfileIfExist(version, forgeOpt.version) : undefined
+    const forgeData = isForgeVersion ? await getForgeVersionIfExist(forgeOpt.id) : undefined
+    const forgeInstallProfileData = isForgeVersion ? await getForgeInstallProfileIfExist(forgeOpt.id) : undefined
 
     // Get all Minecraft arguments
     var mcArgs = mcData["minecraftArguments"]
@@ -55,6 +55,8 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         }
     }
 
+    let forgeReplaceMcArgs = false
+
     // Get all Forge arguments
     var forgeGameArgs
     var forgeJvmArgs
@@ -62,13 +64,14 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         if(forgeData.arguments) {
             forgeGameArgs = forgeData.arguments.game
             forgeJvmArgs = forgeData.arguments.jvm
+        } else if(forgeData.versionInfo.minecraftArguments) {
+            forgeReplaceMcArgs = true
+            forgeGameArgs = forgeData.versionInfo.minecraftArguments.split(" ")
         }
-
-        console.error("No forge arguments found.");
     }
 
     // Parse Minecraft arguments
-    let parsedMcArgs = mcArgs.split(" ")
+    let parsedMcArgs = forgeReplaceMcArgs ? forgeGameArgs : mcArgs.split(" ")
     for (let i = 0; i < parsedMcArgs.length; i++) {
         switch (parsedMcArgs[i]) {
             case "${auth_player_name}":
@@ -132,7 +135,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
         forgeJvmArgs = parsedForgeJvmArgsArray
     }
 
-    if(forgeGameArgs != undefined) {
+    if(forgeGameArgs != undefined && !forgeReplaceMcArgs) {
         // Parse forge game args
         parsedForgeGameArgsArray = forgeGameArgs  
         forgeGameArgs = parsedForgeGameArgsArray
@@ -157,7 +160,8 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     let mcLibrariesArray = minecraftLibraryList(mcData)
     mcLibrariesArray.push(path.join(minecraftVersionPath, version, `${version}.jar`))
 
-    let forgeLibrariesArray = isForgeVersion ? forgeData.libraries.map((lib: {downloads: {artifact: {path: string}}}) => path.join(librariesPath, lib.downloads.artifact.path)) : undefined
+    const librariesPathInJson = isForgeVersion && forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries
+    const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.map((lib: any) => path.join(librariesPath, lib.downloads ? lib.downloads.artifact.path : mavenToArray(lib.name).join("/"))) : undefined
     
     classPathes = removeDuplicates(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray)
 
@@ -167,9 +171,9 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log(classPathes);
 
     jvmArgs = isForgeVersion && forgeJvmArgs != undefined ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
-    mcArgs = isForgeVersion && forgeGameArgs != undefined ? mcArgs.concat(...forgeGameArgs) : mcArgs
+    mcArgs = isForgeVersion && forgeGameArgs != undefined && !forgeReplaceMcArgs ? mcArgs.concat(...forgeGameArgs) : mcArgs
 
-    jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass)
+    jvmArgs.push(isForgeVersion ? forgeData.mainClass ? forgeData.mainClass : forgeData.versionInfo.mainClass : mcData.mainClass)
     
     const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "")
 
@@ -191,7 +195,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
 
     console.log("Extracting natives");
 
-    await extractAllNatives(classPathes.join(path.delimiter), path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
+    await extractAllNatives(mcLibrariesArray.join(path.delimiter), path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
 
     console.log("natives extracted");
 
@@ -199,7 +203,6 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log(fullMcArgs.join(" "));
     
     const proc = cp.spawn(javaVersionToUse, fullMcArgs)
-    console.log("test");
     
     console.log(proc.spawnargs);
     

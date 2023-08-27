@@ -19,13 +19,11 @@ const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const promises_1 = __importDefault(require("fs/promises"));
 const HDownload_1 = require("./HDownload");
-function getForgeInstallerForVersion(mcVersion, forgeVersion) {
+function getForgeInstallerForVersion(forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Get forge installers folder
         const installerPath = path_1.default.join(const_1.tempPath, "forgeinstallers");
         yield (0, HFileManagement_1.makeDir)(installerPath);
-        // Check if installer doesn't already exist
-        const forgeId = `${mcVersion}-${forgeVersion}`;
         if (!fs_1.default.existsSync(path_1.default.join(installerPath, `forge-${forgeId}-installer.jar`))) {
             yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.forgeMaven, "net", "minecraftforge", "forge", forgeId, `forge-${forgeId}-installer.jar`), path_1.default.join(installerPath, `forge-${forgeId}-installer.jar`));
         }
@@ -33,9 +31,9 @@ function getForgeInstallerForVersion(mcVersion, forgeVersion) {
     });
 }
 exports.getForgeInstallerForVersion = getForgeInstallerForVersion;
-function getForgeInstallProfileIfExist(mcVersion, forgeVersion) {
+function getForgeInstallProfileIfExist(forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const forgeInstallerPath = yield getForgeInstallerForVersion(mcVersion, forgeVersion);
+        const forgeInstallerPath = yield getForgeInstallerForVersion(forgeId);
         yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "install_profile.json");
         const installProfilePath = path_1.default.join(path_1.default.dirname(forgeInstallerPath), "install_profile.json");
         const installProfileJson = yield promises_1.default.readFile(installProfilePath, "utf8");
@@ -44,17 +42,19 @@ function getForgeInstallProfileIfExist(mcVersion, forgeVersion) {
     });
 }
 exports.getForgeInstallProfileIfExist = getForgeInstallProfileIfExist;
-function getForgeVersionIfExist(mcVersion, forgeVersion) {
+function getForgeVersionIfExist(forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const forgeId = `${mcVersion}-${forgeVersion}`;
         const versionPath = path_1.default.join(const_1.minecraftVersionPath, forgeId);
         yield (0, HFileManagement_1.makeDir)(versionPath);
         if (!fs_1.default.existsSync(path_1.default.join(versionPath, `${forgeId}.json`))) {
-            const installProfile = yield getForgeInstallProfileIfExist(mcVersion, forgeVersion);
-            const forgeInstallerPath = yield getForgeInstallerForVersion(mcVersion, forgeVersion);
+            const forgeInstallerPath = yield getForgeInstallerForVersion(forgeId);
+            const installProfile = yield getForgeInstallProfileIfExist(forgeId);
             if (installProfile.json) {
                 const versionJsonPath = installProfile.json.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json;
                 yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, versionJsonPath, path_1.default.join(versionPath, `${forgeId}.json`));
+            }
+            else {
+                yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "install_profile.json", path_1.default.join(versionPath, `${forgeId}.json`));
             }
         }
         return JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${forgeId}.json`), "utf-8"));

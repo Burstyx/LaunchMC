@@ -36,9 +36,9 @@ createInstanceBtn.addEventListener("click", async (e) => {
     // Download Game
     
     if (modloader == "forge") {
-        const forgeVer = version.split("-")
-        await downloadMinecraft(forgeVer[0], instanceName)
-        await patchInstanceWithForge(instanceName, forgeVer[0], forgeVer[1])
+        const mcVersion = version.split("-")[0]
+        await downloadMinecraft(mcVersion, instanceName)
+        await patchInstanceWithForge(instanceName, mcVersion, version)
     }else {
         await downloadMinecraft(version, instanceName)
     }

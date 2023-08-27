@@ -5,6 +5,7 @@ import cp from "child_process"
 import { existsSync } from "fs"
 import { gamePath, java17Name, java17Version, javaPath, tempPath } from "./const"
 import { JavaVersions, downloadAndGetJavaVersion } from "../App/DownloadGame"
+import { replaceAll } from "./Utils"
 
 export async function makeDir(path: string){
     if(!existsSync(path)) await fs.mkdir(path, {recursive: true})
@@ -32,6 +33,7 @@ export async function getAllFile(pathDir: string) {
 
 export async function extractSpecificFile(compressedDirPath: string, filePath: string, dest?: string) {
     return new Promise<void>(async (res, rej) => {
+        filePath = replaceAll(filePath, "\\", "/")
         const jar = path.join(await downloadAndGetJavaVersion(JavaVersions.JDK17), "jar")
 
         console.log(`Extracting ${filePath} from ${compressedDirPath}...`);
@@ -43,7 +45,7 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
                 if(err != null) {
                     console.error(err);
                     rej()
-                }
+                }                
 
                 if (n == filePath) {                    
                     const proc = cp.exec(`"${jar}" xf ${compressedDirPath} ${n}`, {cwd: path.dirname(compressedDirPath)})
@@ -102,6 +104,8 @@ export function mavenToArray(maven: string, native?: string, ext?: string) {
     
 
     // return mavenArray
+
+    if(!maven.includes(":")) return [maven]
 
     const pathSplit = maven.split(':');
   const fileName = pathSplit[3]

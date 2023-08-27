@@ -32,8 +32,8 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
         // Get Forge version manifest
         const isForgeVersion = forgeOpt != undefined;
-        const forgeData = isForgeVersion ? yield (0, HForge_1.getForgeVersionIfExist)(version, forgeOpt.version) : undefined;
-        const forgeInstallProfileData = isForgeVersion ? yield (0, HForge_1.getForgeInstallProfileIfExist)(version, forgeOpt.version) : undefined;
+        const forgeData = isForgeVersion ? yield (0, HForge_1.getForgeVersionIfExist)(forgeOpt.id) : undefined;
+        const forgeInstallProfileData = isForgeVersion ? yield (0, HForge_1.getForgeInstallProfileIfExist)(forgeOpt.id) : undefined;
         // Get all Minecraft arguments
         var mcArgs = mcData["minecraftArguments"];
         if (mcArgs == null) {
@@ -44,6 +44,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
                 }
             }
         }
+        let forgeReplaceMcArgs = false;
         // Get all Forge arguments
         var forgeGameArgs;
         var forgeJvmArgs;
@@ -52,10 +53,13 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
                 forgeGameArgs = forgeData.arguments.game;
                 forgeJvmArgs = forgeData.arguments.jvm;
             }
-            console.error("No forge arguments found.");
+            else if (forgeData.versionInfo.minecraftArguments) {
+                forgeReplaceMcArgs = true;
+                forgeGameArgs = forgeData.versionInfo.minecraftArguments.split(" ");
+            }
         }
         // Parse Minecraft arguments
-        let parsedMcArgs = mcArgs.split(" ");
+        let parsedMcArgs = forgeReplaceMcArgs ? forgeGameArgs : mcArgs.split(" ");
         for (let i = 0; i < parsedMcArgs.length; i++) {
             switch (parsedMcArgs[i]) {
                 case "${auth_player_name}":
@@ -114,7 +118,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
             }
             forgeJvmArgs = parsedForgeJvmArgsArray;
         }
-        if (forgeGameArgs != undefined) {
+        if (forgeGameArgs != undefined && !forgeReplaceMcArgs) {
             // Parse forge game args
             parsedForgeGameArgsArray = forgeGameArgs;
             forgeGameArgs = parsedForgeGameArgsArray;
@@ -132,14 +136,15 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         let classPathes = [];
         let mcLibrariesArray = (0, DownloadGame_1.minecraftLibraryList)(mcData);
         mcLibrariesArray.push(path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`));
-        let forgeLibrariesArray = isForgeVersion ? forgeData.libraries.map((lib) => path_1.default.join(const_1.librariesPath, lib.downloads.artifact.path)) : undefined;
+        const librariesPathInJson = isForgeVersion && forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries;
+        const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.map((lib) => path_1.default.join(const_1.librariesPath, lib.downloads ? lib.downloads.artifact.path : (0, HFileManagement_1.mavenToArray)(lib.name).join("/"))) : undefined;
         classPathes = (0, Utils_1.removeDuplicates)(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray);
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${classPathes.join(path_1.default.delimiter)}`);
         console.log(classPathes);
         jvmArgs = isForgeVersion && forgeJvmArgs != undefined ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs;
-        mcArgs = isForgeVersion && forgeGameArgs != undefined ? mcArgs.concat(...forgeGameArgs) : mcArgs;
-        jvmArgs.push(isForgeVersion ? forgeData.mainClass : mcData.mainClass);
+        mcArgs = isForgeVersion && forgeGameArgs != undefined && !forgeReplaceMcArgs ? mcArgs.concat(...forgeGameArgs) : mcArgs;
+        jvmArgs.push(isForgeVersion ? forgeData.mainClass ? forgeData.mainClass : forgeData.versionInfo.mainClass : mcData.mainClass);
         const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "");
         console.log(fullMcArgs);
         // Find correct java executable
@@ -151,12 +156,11 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
         console.log(javaVersionToUse);
         console.log("Extracting natives");
-        yield extractAllNatives(classPathes.join(path_1.default.delimiter), path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));
+        yield extractAllNatives(mcLibrariesArray.join(path_1.default.delimiter), path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));
         console.log("natives extracted");
         console.log("here full args");
         console.log(fullMcArgs.join(" "));
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
-        console.log("test");
         console.log(proc.spawnargs);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
         yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InGame);

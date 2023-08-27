@@ -4,14 +4,12 @@ import path from "path"
 import fs from "fs"
 import fsp from "fs/promises"
 import { downloadAsync } from "./HDownload";
+import semver from "semver"
 
-export async function getForgeInstallerForVersion(mcVersion: string, forgeVersion: string) {
+export async function getForgeInstallerForVersion(forgeId: string) {
     // Get forge installers folder
     const installerPath = path.join(tempPath, "forgeinstallers")
     await makeDir(installerPath)
-
-    // Check if installer doesn't already exist
-    const forgeId = `${mcVersion}-${forgeVersion}`
 
     if(!fs.existsSync(path.join(installerPath, `forge-${forgeId}-installer.jar`))) {
         await downloadAsync(path.join(forgeMaven, "net", "minecraftforge", "forge", forgeId, `forge-${forgeId}-installer.jar`), path.join(installerPath, `forge-${forgeId}-installer.jar`))
@@ -20,8 +18,8 @@ export async function getForgeInstallerForVersion(mcVersion: string, forgeVersio
     return path.join(installerPath, `forge-${forgeId}-installer.jar`)
 }
 
-export async function getForgeInstallProfileIfExist(mcVersion: string, forgeVersion: string) {
-    const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
+export async function getForgeInstallProfileIfExist(forgeId: string) {
+    const forgeInstallerPath = await getForgeInstallerForVersion(forgeId)
 
     await extractSpecificFile(forgeInstallerPath, "install_profile.json")
 
@@ -33,19 +31,19 @@ export async function getForgeInstallProfileIfExist(mcVersion: string, forgeVers
     return JSON.parse(installProfileJson)
 }
 
-export async function getForgeVersionIfExist(mcVersion: string, forgeVersion: string) {
-    const forgeId = `${mcVersion}-${forgeVersion}`
-
+export async function getForgeVersionIfExist(forgeId: string) {
     const versionPath = path.join(minecraftVersionPath, forgeId)
     await makeDir(versionPath)
 
     if(!fs.existsSync(path.join(versionPath, `${forgeId}.json`))) {
-        const installProfile = await getForgeInstallProfileIfExist(mcVersion, forgeVersion)
-        const forgeInstallerPath = await getForgeInstallerForVersion(mcVersion, forgeVersion)
+        const forgeInstallerPath = await getForgeInstallerForVersion(forgeId)
+        const installProfile = await getForgeInstallProfileIfExist(forgeId)
         
         if(installProfile.json) {
             const versionJsonPath = installProfile.json.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json
             await extractSpecificFile(forgeInstallerPath, versionJsonPath, path.join(versionPath, `${forgeId}.json`))
+        } else {
+            await extractSpecificFile(forgeInstallerPath, "install_profile.json", path.join(versionPath, `${forgeId}.json`))
         }
     }
     
