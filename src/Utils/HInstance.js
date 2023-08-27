@@ -19,6 +19,7 @@ const const_1 = require("../Utils/const");
 const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
+const Utils_1 = require("./Utils");
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");
@@ -26,13 +27,38 @@ function addInstanceElement(imagePath, title, id) {
         instanceDiv.appendChild(instanceElement);
     });
 }
-function createInstance(version, instanceInfo) {
+function createInstance(version, instanceInfo, loaderInfo) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo["id"]));
-        // TODO Instance opt in folder
-        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo["id"], "info.json"), JSON.stringify({ "instanceData": { "name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
-                "playtime": 0, "lastplayed": "Never", "description": null }, "gameData": { "version": version, "versiontype": instanceInfo.versionType,
-                "modloader": instanceInfo["modloader"] } }));
+        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo.id));
+        // Default json configuration
+        let defaultJson = {
+            "instanceData": {
+                "name": instanceInfo.name,
+                "imagePath": instanceInfo.imagePath,
+                "author": instanceInfo.author,
+                "accentColor": instanceInfo.accentColor,
+                "playtime": 0,
+                "lastplayed": null,
+                "description": null
+            },
+            "gameData": {
+                "version": version,
+                "versiontype": instanceInfo.versionType,
+            }
+        };
+        let defaultLoaderJson = {
+            "loader": {
+                "name": loaderInfo === null || loaderInfo === void 0 ? void 0 : loaderInfo.name,
+                "id": loaderInfo === null || loaderInfo === void 0 ? void 0 : loaderInfo.id
+            }
+        };
+        // If Forge instance then append forge conf to default conf
+        if (loaderInfo) {
+            defaultJson = (0, Utils_1.concatJson)(defaultJson, defaultLoaderJson);
+        }
+        // Write instance conf on disk
+        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo.id, "info.json"), JSON.stringify(defaultJson));
+        // Update instance list
         yield refreshInstanceList();
     });
 }
@@ -76,35 +102,51 @@ let currentContentId = null;
 function setContentTo(id) {
     return __awaiter(this, void 0, void 0, function* () {
         currentContentId = id;
+        // Get instance state
         const instance = document.getElementById(id);
         const currentState = instance === null || instance === void 0 ? void 0 : instance.getAttribute("state");
-        const data = yield getInstanceData(id);
+        // Fetch instance json
+        const instanceJson = yield getInstanceData(id);
+        // Hide current content
         const content = document.getElementById("content");
         content.style.display = "none";
+        // Show loading animation
         const loading = document.getElementById("instance-info-loading");
         loading.style.display = "auto";
-        if (data == null) {
+        // No data found, cancel process
+        if (!instanceJson) {
+            console.error("No instance data found");
             return;
         }
-        const instanceData = data["data"]["instanceData"];
-        const gameData = data["data"]["gameData"];
+        // Separate instance datas
+        const instanceData = instanceJson.data.instanceData;
+        const gameData = instanceJson.data.gameData;
+        const loaderData = instanceJson.data.loader;
+        // Set title
         const contentTitle = document.getElementById("instance-title");
+        contentTitle.innerText = instanceData.name;
+        // Set author
         const contentAuthor = document.getElementById("instance-author");
-        contentTitle.innerText = instanceData["name"];
-        contentAuthor.innerText = instanceData["author"];
+        contentAuthor.innerText = instanceData.author;
+        // Set version
         const widgetVersion = document.getElementById("widget-version");
-        widgetVersion.setAttribute("subname", gameData["versiontype"]);
-        widgetVersion.innerText = gameData["version"].includes("-") ? gameData["version"].split("-")[0] : gameData["version"];
+        widgetVersion.setAttribute("subname", gameData.versiontype);
+        widgetVersion.innerText = gameData.version;
+        // Set modloader
+        let currentModloader = loaderData === null || loaderData === void 0 ? void 0 : loaderData.name;
         const widgetModloader = document.getElementById("widget-modloader");
-        widgetModloader.innerText = gameData["modloader"];
+        widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla";
+        widgetModloader.setAttribute("subname", currentModloader ? currentModloader.id : gameData.version);
+        // Set playtime
         const widgetPlaytime = document.getElementById("widget-playtime");
         let h, m;
-        const timeInMiliseconds = instanceData["playtime"];
+        const timeInMiliseconds = instanceData.playtime;
         h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
         m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
         m < 10 ? m = `0${m}` : m = `${m}`;
         h < 10 ? h = `0${h}` : h = `${h}`;
         widgetPlaytime.innerText = `${h}h${m}`;
+        // Set last played
         const widgetLastplayed = document.getElementById("widget-lastplayed"); // FIXME: Don't work
         widgetLastplayed.innerText = instanceData["lastplayed"];
         const widgetDesc = document.getElementById("widget-description"); // TODO: Write md rules

@@ -23,3 +23,11 @@ export function replaceAll(text: string, toReplace: string, replacer: string) {
 export function removeDuplicates(arr: string[]){
     return arr.filter((item, index) => arr.indexOf(item) === index);
 }
+
+export function concatJson(j1: any, j2: any) {
+    for (let key in j2) {
+        j1[key] = j2[key];
+    }
+
+    return j1;
+}

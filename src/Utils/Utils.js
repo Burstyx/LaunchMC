@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeDuplicates = exports.replaceAll = void 0;
+exports.concatJson = exports.removeDuplicates = exports.replaceAll = void 0;
 function replaceAll(text, toReplace, replacer) {
     let replacedText = text;
     while (replacedText.includes(toReplace)) {
@@ -20,3 +20,10 @@ function removeDuplicates(arr) {
     return arr.filter((item, index) => arr.indexOf(item) === index);
 }
 exports.removeDuplicates = removeDuplicates;
+function concatJson(j1, j2) {
+    for (let key in j2) {
+        j1[key] = j2[key];
+    }
+    return j1;
+}
+exports.concatJson = concatJson;

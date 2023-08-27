@@ -4,6 +4,7 @@ import { instancesPath } from "../Utils/const"
 import { makeDir } from "./HFileManagement"
 import { existsSync } from "original-fs"
 import Color from "color"
+import { concatJson } from "./Utils"
 
 
 async function addInstanceElement(imagePath: string, title: string, id: string){
@@ -20,21 +21,54 @@ interface InstanceInfo {
     id: string,
     author: string,
     accentColor: string,
-    modloader: string,
     versionType: string
 }
 
-export async function createInstance(version: string, instanceInfo: InstanceInfo){
-    await makeDir(path.join(instancesPath, instanceInfo["id"]))
+interface LoaderInfo {
+    name: string,
+    id: string
+}
 
-    // TODO Instance opt in folder
-    await fs.writeFile(path.join(instancesPath, instanceInfo["id"], "info.json"), JSON.stringify(
-        {"instanceData":
-        {"name": instanceInfo["name"], "imagePath": instanceInfo["imagePath"], "author": instanceInfo["author"], "accentColor": instanceInfo["accentColor"],
-        "playtime": 0, "lastplayed": "Never", "description": null}, "gameData": {"version": version, "versiontype": instanceInfo.versionType,
-        "modloader": instanceInfo["modloader"]}}
+export async function createInstance(version: string, instanceInfo: InstanceInfo, loaderInfo?: LoaderInfo){
+    await makeDir(path.join(instancesPath, instanceInfo.id))
+
+    // Default json configuration
+    let defaultJson =
+    {
+        "instanceData": {
+            "name": instanceInfo.name,
+            "imagePath": instanceInfo.imagePath,
+            "author": instanceInfo.author,
+            "accentColor": instanceInfo.accentColor,
+            "playtime": 0,
+            "lastplayed": null,
+            "description": null
+        },
+        "gameData": {
+            "version": version,
+            "versiontype": instanceInfo.versionType,
+        }
+    }
+
+    let defaultLoaderJson = {
+        "loader": {
+            "name": loaderInfo?.name,
+            "id": loaderInfo?.id
+        }
+    }
+
+
+    // If Forge instance then append forge conf to default conf
+    if(loaderInfo) {
+        defaultJson = concatJson(defaultJson, defaultLoaderJson)
+    }
+
+    // Write instance conf on disk
+    await fs.writeFile(path.join(instancesPath, instanceInfo.id, "info.json"), JSON.stringify(
+        defaultJson
     ))
 
+    // Update instance list
     await refreshInstanceList()
 }
 
@@ -79,44 +113,61 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 }
 
 let currentContentId: string | null = null
-
 export async function setContentTo(id: string) { // TODO: Cleaning
     currentContentId = id
 
+    // Get instance state
     const instance = document.getElementById(id)
     const currentState = instance?.getAttribute("state")
 
-    const data = await getInstanceData(id)
+    // Fetch instance json
+    const instanceJson = await getInstanceData(id)
     
+    // Hide current content
     const content = document.getElementById("content")!
     content.style.display = "none"
 
+    // Show loading animation
     const loading = document.getElementById("instance-info-loading")!
     loading.style.display = "auto"
 
-    if(data == null) {
+    // No data found, cancel process
+    if(!instanceJson) {
+        console.error("No instance data found");
         return
     }
 
-    const instanceData = data["data"]["instanceData"]
-    const gameData = data["data"]["gameData"]
+    // Separate instance datas
+    const instanceData = instanceJson.data.instanceData
+    const gameData = instanceJson.data.gameData
+    const loaderData = instanceJson.data.loader
 
+    // Set title
     const contentTitle = document.getElementById("instance-title")!
-    const contentAuthor = document.getElementById("instance-author")!
-    contentTitle.innerText = instanceData["name"]
-    contentAuthor.innerText = instanceData["author"]
+    contentTitle.innerText = instanceData.name
 
+    // Set author
+    const contentAuthor = document.getElementById("instance-author")!
+    contentAuthor.innerText = instanceData.author
+
+    // Set version
     const widgetVersion = document.getElementById("widget-version")!
-    widgetVersion.setAttribute("subname", gameData["versiontype"])
-    widgetVersion.innerText = gameData["version"].includes("-") ? gameData["version"].split("-")[0] : gameData["version"]
+    widgetVersion.setAttribute("subname", gameData.versiontype)
+    widgetVersion.innerText = gameData.version
+
+    // Set modloader
+    let currentModloader = loaderData?.name
 
     const widgetModloader = document.getElementById("widget-modloader")!
-    widgetModloader.innerText = gameData["modloader"]
+    widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla"
 
+    widgetModloader.setAttribute("subname", currentModloader ? currentModloader.id : gameData.version)
+
+    // Set playtime
     const widgetPlaytime = document.getElementById("widget-playtime")!
 
     let h, m;
-    const timeInMiliseconds = instanceData["playtime"]
+    const timeInMiliseconds = instanceData.playtime
 
     h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
     m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
@@ -126,6 +177,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
     widgetPlaytime.innerText = `${h}h${m}`
 
+    // Set last played
     const widgetLastplayed = document.getElementById("widget-lastplayed")! // FIXME: Don't work
     widgetLastplayed.innerText = instanceData["lastplayed"]
 

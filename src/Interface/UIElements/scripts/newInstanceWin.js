@@ -3,43 +3,39 @@ const { closeWindow, openWindow } = require("./window")
 const { createInstance, setContentTo } = require("../../../Utils/HInstance")
 const { v4 } = require("uuid")
 const { downloadMinecraft, patchInstanceWithForge } = require("../../../App/DownloadGame")
+const { getActiveAccount } = require("../../../Utils/HMicrosoft")
 
 // Create new instance and start downloading
 const createInstanceBtn = document.getElementById("create-instance-btn")
 
 createInstanceBtn.addEventListener("click", async (e) => {
+    // Fetch instance infos
     const userInstanceName = document.getElementById("new-instance-name").value
+    const defaultInstanceName = document.getElementById("new-instance-name").getAttribute("placeholder")
     const version = document.getElementById("open-choose-version-win").getAttribute("version-id")
     const modloader = document.getElementById("open-choose-version-win").getAttribute("modloader-id")
     const versionType = document.getElementById("open-choose-version-win").getAttribute("subname")
-
-    let instanceName = userInstanceName
-
-    if (instanceName == "") {
-        instanceName = version
-    }
-
-    const background = document.getElementById("backimg-new-instance")
-    const imgPath = background.getAttribute("image-path")
-
-    console.log(imgPath);
-
-    // Création de l'instance
-    await createInstance(version, { accentColor: "#2596be", author: "You", id: instanceName, imagePath: imgPath, modloader: modloader, name: instanceName, versionType: versionType })
-    await setContentTo(instanceName)
+    const imgPath = document.getElementById("backimg-new-instance").getAttribute("image-path")
 
     // Close window
     closeWindow("new-instance")
 
-    
+    // Set instance name to the default one if nothing has been entered by user
+    let instanceName = userInstanceName
+    if (instanceName == "") {
+        instanceName = defaultInstanceName
+    }
 
-    // Download Game
-    
+    // Create instance
+    await createInstance(version, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader == "forge" ? { id: version } : undefined)
+    await setContentTo(instanceName)
+
+    // Download Game and patch game with correct modloader
     if (modloader == "forge") {
         const mcVersion = version.split("-")[0]
         await downloadMinecraft(mcVersion, instanceName)
         await patchInstanceWithForge(instanceName, mcVersion, version)
-    }else {
+    } else {
         await downloadMinecraft(version, instanceName)
     }
 })
