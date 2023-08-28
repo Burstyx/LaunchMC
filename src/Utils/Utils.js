@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.concatJson = exports.removeDuplicates = exports.replaceAll = void 0;
+exports.osToMCFormat = exports.concatJson = exports.removeDuplicates = exports.replaceAll = void 0;
 function replaceAll(text, toReplace, replacer) {
     let replacedText = text;
     while (replacedText.includes(toReplace)) {
@@ -27,3 +27,16 @@ function concatJson(j1, j2) {
     return j1;
 }
 exports.concatJson = concatJson;
+function osToMCFormat(os) {
+    switch (os) {
+        case "win32":
+            return "windows";
+        case "darwin":
+            return "osx";
+        case "linux":
+            return "linux";
+        default:
+            return "";
+    }
+}
+exports.osToMCFormat = osToMCFormat;

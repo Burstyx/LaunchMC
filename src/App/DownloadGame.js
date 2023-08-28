@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadAndGetJavaVersion = exports.JavaVersions = exports.minecraftLibraryList = exports.patchInstanceWithForge = exports.downloadMinecraft = void 0;
+exports.downloadAndGetJavaVersion = exports.JavaVersions = exports.parseRule = exports.minecraftLibraryList = exports.patchInstanceWithForge = exports.downloadMinecraft = void 0;
 const HFileManagement_1 = require("../Utils/HFileManagement");
 const original_fs_1 = require("original-fs");
 const HManifests_1 = require("../Utils/HManifests");
@@ -26,6 +26,7 @@ const child_process_1 = __importDefault(require("child_process"));
 const StartMinecraft_1 = require("./StartMinecraft");
 const HMicrosoft_1 = require("../Utils/HMicrosoft");
 const HForge_1 = require("../Utils/HForge");
+const Utils_1 = require("../Utils/Utils");
 function downloadMinecraft(version, instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         // Préparation
@@ -131,7 +132,17 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
         console.log(libraries);
         for (const library of libraries) {
             console.log("Downloading: " + library.name);
-            const libraryPath = ((0, HFileManagement_1.mavenToArray)(library.name)).join("/");
+            let natives = "";
+            if (library.rules) {
+                if (!parseRule(library.rules)) {
+                    console.log("Rule don't allow the download of this library, skipping.");
+                    continue;
+                }
+            }
+            if (library.natives) {
+                natives = library.natives[(0, Utils_1.osToMCFormat)(process.platform)];
+            }
+            const libraryPath = ((0, HFileManagement_1.mavenToArray)(library.name, natives != "" ? `-${natives}` : undefined)).join("/");
             if ((_b = library.downloads) === null || _b === void 0 ? void 0 : _b.artifact) {
                 const dlLink = library.downloads.artifact.url;
                 const dlDest = library.downloads.artifact.path;
@@ -364,6 +375,7 @@ function parseRule(rules) {
     }
     return condition;
 }
+exports.parseRule = parseRule;
 function downloadLoggingXmlConfFile(data) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         console.log(data);

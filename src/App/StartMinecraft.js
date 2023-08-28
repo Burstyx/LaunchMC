@@ -23,6 +23,7 @@ const HInstance_1 = require("../Utils/HInstance");
 const DIscordRPC_1 = require("./DIscordRPC");
 const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
+const semver_1 = __importDefault(require("semver"));
 let mcProcs = {};
 function startMinecraft(version, instanceId, opt, forgeOpt) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -33,7 +34,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         // Get Forge version manifest
         const isForgeVersion = forgeOpt != undefined;
         const forgeData = isForgeVersion ? yield (0, HForge_1.getForgeVersionIfExist)(forgeOpt.id) : undefined;
-        const forgeInstallProfileData = isForgeVersion ? yield (0, HForge_1.getForgeInstallProfileIfExist)(forgeOpt.id) : undefined;
+        console.log(forgeData);
         // Get all Minecraft arguments
         var mcArgs = mcData["minecraftArguments"];
         if (mcArgs == null) {
@@ -52,6 +53,10 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
             if (forgeData.arguments) {
                 forgeGameArgs = forgeData.arguments.game;
                 forgeJvmArgs = forgeData.arguments.jvm;
+            }
+            else if (forgeData.minecraftArguments) {
+                forgeReplaceMcArgs = true;
+                forgeGameArgs = forgeData.minecraftArguments.split(" ");
             }
             else if (forgeData.versionInfo.minecraftArguments) {
                 forgeReplaceMcArgs = true;
@@ -130,6 +135,10 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         jvmArgs.push("-Xmx4096M");
         // Intel optimization
         jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+        // Ignore Invalid Certificates Verification
+        jvmArgs.push("-Dfml.ignoreInvalidMinecraftCertificates=true");
+        // Ignore FML check for jar injection
+        jvmArgs.push("-Dfml.ignorePatchDiscrepancies=true");
         // Set natives path
         jvmArgs.push("-Djava.library.path=" + (yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
         // Set classpaths
@@ -137,7 +146,19 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         let mcLibrariesArray = (0, DownloadGame_1.minecraftLibraryList)(mcData);
         mcLibrariesArray.push(path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`));
         const librariesPathInJson = isForgeVersion && forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries;
-        const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.map((lib) => path_1.default.join(const_1.librariesPath, lib.downloads ? lib.downloads.artifact.path : (0, HFileManagement_1.mavenToArray)(lib.name).join("/"))) : undefined;
+        const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.filter((lib) => {
+            if (lib.rules) {
+                return (0, DownloadGame_1.parseRule)(lib.rules);
+            }
+            return true;
+        }).map((lib) => {
+            if (lib.downloads) {
+                return path_1.default.join(const_1.librariesPath, lib.downloads.artifact.path);
+            }
+            else {
+                return path_1.default.join(const_1.librariesPath, (0, HFileManagement_1.mavenToArray)(lib.name).join("/"));
+            }
+        }) : undefined;
         classPathes = (0, Utils_1.removeDuplicates)(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray);
         jvmArgs.push(`-cp`);
         jvmArgs.push(`${classPathes.join(path_1.default.delimiter)}`);
@@ -152,8 +173,9 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         const java17Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
         const java8 = path_1.default.join(java8Path, "javaw");
         const java17 = path_1.default.join(java17Path, "javaw");
-        const javaVersion = mcData["javaVersion"]["majorVersion"];
-        const javaVersionToUse = javaVersion >= 16 ? java17 : java8;
+        const below117 = semver_1.default.lt(version, "1.17.0");
+        console.log("below117: " + below117);
+        const javaVersionToUse = below117 ? java8 : java17;
         console.log(javaVersionToUse);
         console.log("Extracting natives");
         yield extractAllNatives(mcLibrariesArray.join(path_1.default.delimiter), path_1.default.join(const_1.instancesPath, instanceId, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));

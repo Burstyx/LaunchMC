@@ -12,6 +12,7 @@ import cp from "child_process"
 import { startMinecraft } from "./StartMinecraft"
 import { getActiveAccount } from "../Utils/HMicrosoft"
 import { getForgeInstallProfileIfExist, getForgeInstallerForVersion, getForgeVersionIfExist } from "../Utils/HForge"
+import { osToMCFormat } from "../Utils/Utils"
 
 export async function downloadMinecraft(version: string, instanceId: string) { // TODO: Validate files
     // Préparation
@@ -156,7 +157,20 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
     for(const library of libraries) {
         console.log("Downloading: " + library.name);
 
-        const libraryPath = (mavenToArray(library.name)).join("/");
+        let natives = ""
+
+        if(library.rules) {
+            if(!parseRule(library.rules)) {
+                console.log("Rule don't allow the download of this library, skipping.");
+                continue
+            }
+        }
+
+        if(library.natives) {
+            natives = library.natives[osToMCFormat(process.platform)]
+        }
+
+        const libraryPath = (mavenToArray(library.name, natives != "" ? `-${natives}` : undefined)).join("/");
 
         if(library.downloads?.artifact) {
             const dlLink = library.downloads.artifact.url
@@ -391,7 +405,7 @@ export function minecraftLibraryList(data: any) {
     return libraryList
 }
 
-function parseRule(rules: any) {
+export function parseRule(rules: any) {
     let condition = false
     for (let i = 0; i < rules.length; i++) {
         if (rules[i].hasOwnProperty("os")) {

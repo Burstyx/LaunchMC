@@ -1,3 +1,5 @@
+import os from "os"
+
 export function replaceAll(text: string, toReplace: string, replacer: string) {
     let replacedText = text
 
@@ -30,4 +32,17 @@ export function concatJson(j1: any, j2: any) {
     }
 
     return j1;
+}
+
+export function osToMCFormat(os: string) {
+    switch(os) {
+        case "win32":
+            return "windows"
+        case "darwin":
+            return "osx"
+        case "linux":
+            return "linux"
+        default:
+            return ""
+    }
 }
