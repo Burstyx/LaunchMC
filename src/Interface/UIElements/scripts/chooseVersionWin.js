@@ -87,14 +87,20 @@ exports.refreshVersionList = () => {
             const filterShowAllChecked = document.getElementById("forge-version-filter-showall").hasAttribute("checked")
             const searchValue = document.getElementById("forge-version-filter-search").value
 
-            console.log(val);
+            const forgeVersions = []
 
             for (const version in val) {
                 if (filterShowAllChecked) {
                     for (const forgeVersion in version) {
+                        console.log(val[version][forgeVersion]);
                         if (searchValue != "" && !val[version][forgeVersion].toString().includes(searchValue)) {
+                            console.log(val[version][forgeVersion] + " skipped");
                             continue
                         }
+
+                        forgeVersions.push(val[version][forgeVersion])
+
+                        // DELETE BELOW
 
                         const versionsElement = document.createElement("div")
                         versionsElement.classList.add("img-btn", "interactable")
@@ -120,6 +126,10 @@ exports.refreshVersionList = () => {
                     if (searchValue != "" && !val[version][val[version].length - 1].toString().includes(searchValue)) {
                         continue
                     }
+
+                    forgeVersions.push(val[version][val[version].length - 1])
+
+                    // DELETE BELOW
 
                     const versionsElement = document.createElement("div")
                     versionsElement.classList.add("img-btn", "interactable")
