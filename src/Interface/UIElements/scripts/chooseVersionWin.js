@@ -89,12 +89,12 @@ exports.refreshVersionList = () => {
 
             const forgeVersions = []
 
+            console.log(val);
+
             for (const version in val) {
                 if (filterShowAllChecked) {
-                    for (const forgeVersion in version) {
-                        console.log(val[version][forgeVersion]);
+                    for (const forgeVersion in val[version]) {
                         if (searchValue != "" && !val[version][forgeVersion].toString().includes(searchValue)) {
-                            console.log(val[version][forgeVersion] + " skipped");
                             continue
                         }
 
