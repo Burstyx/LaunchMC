@@ -24,9 +24,6 @@ exports.refreshVersionList = async () => {
     const loaderFabricSelected = loaderFabric.hasAttribute("active")
     const loaderQuiltSelected = loaderQuilt.hasAttribute("active")
 
-    console.log(loaderVanillaSelected);
-    console.log(loaderForgeSelected);
-
     versionsList.innerHTML = ""
 
     // Fetch vanilla versions
@@ -87,7 +84,7 @@ exports.refreshVersionList = async () => {
         const versionsForgeManifest = await forgeManifest()
 
         const filterShowAllChecked = document.getElementById("forge-version-filter-showall").hasAttribute("checked")
-        const searchforgeManifestue = document.getElementById("forge-version-filter-search").forgeManifestue
+        const searchValue = document.getElementById("forge-version-filter-search").value
 
         const forgeVersions = []
 
@@ -125,11 +122,30 @@ exports.refreshVersionList = async () => {
                     versionsList.insertBefore(versionsElement, versionsList.firstChild)
                 }
             } else {
-                const recommendedVersion = versionsPromosforgeManifests.promos[`${version}-recommended`]
-                const latestVersion = versionsPromosforgeManifests.promos[`${version}-latest`]
+                for (const forgeVersion in versionsPromosforgeManifests.promos) {
+                    const versionClassifier = forgeVersion.split("-")[1]
+                    const mcVersion = forgeVersion.split("-")[0]
 
-                console.log("recommendedVersion: " + recommendedVersion);
-                console.log("latestVersion: " + latestVersion);
+                    const versionsElement = document.createElement("div")
+                    versionsElement.classList.add("img-btn", "interactable")
+                    versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
+                    versionsElement.innerText = `${mcVersion} (${versionClassifier} version)`
+
+                    versionsElement.addEventListener("click", (e) => {
+                        const modloaderWidget = document.getElementById("open-choose-version-win")
+                        modloaderWidget.setAttribute("version-id", versionsPromosforgeManifests.promos[forgeVersion])
+                        modloaderWidget.setAttribute("modloader-id", "forge")
+                        modloaderWidget.setAttribute("subname", "forge")
+                        modloaderWidget.innerText = versionsPromosforgeManifests.promos[forgeVersion]
+
+                        const placeholderTextInput = document.getElementById("new-instance-name")
+                        placeholderTextInput.setAttribute("placeholder", versionsPromosforgeManifests.promos[forgeVersion])
+
+                        closeWindow("choose-version")
+                    })
+
+                    versionsList.insertBefore(versionsElement, versionsList.firstChild)
+                }
 
                 if (searchforgeManifestue != "") {
                     // if (recommendedVersion && !recommendedVersion.includes(searchVal)) {
@@ -137,29 +153,11 @@ exports.refreshVersionList = async () => {
                     // }
                 }
 
-                forgeVersions.push(forgeManifest[version][forgeManifest[version].length - 1])
+                // forgeVersions.push(forgeManifest[version][forgeManifest[version].length - 1])
 
                 // DELETE BELOW
 
-                const versionsElement = document.createElement("div")
-                versionsElement.classList.add("img-btn", "interactable")
-                versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
-                versionsElement.innerText = forgeManifest[version][forgeManifest[version].length - 1] + " (latest)"
-
-                versionsElement.addEventListener("click", (e) => {
-                    const modloaderWidget = document.getElementById("open-choose-version-win")
-                    modloaderWidget.setAttribute("version-id", forgeManifest[version][forgeManifest[version].length - 1])
-                    modloaderWidget.setAttribute("modloader-id", "forge")
-                    modloaderWidget.setAttribute("subname", "forge")
-                    modloaderWidget.innerText = forgeManifest[version][forgeManifest[version].length - 1]
-
-                    const placeholderTextInput = document.getElementById("new-instance-name")
-                    placeholderTextInput.setAttribute("placeholder", forgeManifest[version][forgeManifest[version].length - 1])
-
-                    closeWindow("choose-version")
-                })
-
-                versionsList.insertBefore(versionsElement, versionsList.firstChild)
+                
             }
         }
     }
