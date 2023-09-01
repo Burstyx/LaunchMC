@@ -173,7 +173,8 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         const java17Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
         const java8 = path_1.default.join(java8Path, "javaw");
         const java17 = path_1.default.join(java17Path, "javaw");
-        const below117 = semver_1.default.lt(version, "1.17.0");
+        const semverVersionCompatibility = version.split(".").length == 2 ? version + ".0" : version;
+        const below117 = semver_1.default.lt(semverVersionCompatibility, "1.17.0");
         console.log("below117: " + below117);
         const javaVersionToUse = below117 ? java8 : java17;
         console.log(javaVersionToUse);
@@ -182,7 +183,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         console.log("natives extracted");
         console.log("here full args");
         console.log(fullMcArgs.join(" "));
-        const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs);
+        const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs, { cwd: path_1.default.join(const_1.instancesPath, instanceId) });
         console.log(proc.spawnargs);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
         yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InGame);

@@ -106,7 +106,7 @@ exports.refreshVersionList = async () => {
                     versionsElement.addEventListener("click", (e) => {
                         const modloaderWidget = document.getElementById("open-choose-version-win")
                         modloaderWidget.setAttribute("version-id", versionsForgeManifest[version][forgeVersion])
-                        modloaderWidget.setAttribute("modloader-id", "vanilla")
+                        modloaderWidget.setAttribute("modloader-id", "forge")
                         modloaderWidget.setAttribute("subname", "forge")
                         modloaderWidget.innerText = versionsForgeManifest[version][forgeVersion]
 
@@ -129,6 +129,8 @@ exports.refreshVersionList = async () => {
                 const mcVersion = forgeVersion.split("-")[0]
                 const versionClassifier = forgeVersion.split("-")[1]
 
+                const completeForgeVersion = `${mcVersion}-${versionsPromosforgeManifests.promos[forgeVersion]}`
+
                 const versionsElement = document.createElement("div")
                 versionsElement.classList.add("img-btn", "interactable")
                 versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default-forge.jpg)`
@@ -136,13 +138,13 @@ exports.refreshVersionList = async () => {
 
                 versionsElement.addEventListener("click", (e) => {
                     const modloaderWidget = document.getElementById("open-choose-version-win")
-                    modloaderWidget.setAttribute("version-id", versionsPromosforgeManifests.promos[forgeVersion])
+                    modloaderWidget.setAttribute("version-id", completeForgeVersion)
                     modloaderWidget.setAttribute("modloader-id", "forge")
                     modloaderWidget.setAttribute("subname", "forge")
-                    modloaderWidget.innerText = versionsPromosforgeManifests.promos[forgeVersion]
+                    modloaderWidget.innerText = completeForgeVersion
 
                     const placeholderTextInput = document.getElementById("new-instance-name")
-                    placeholderTextInput.setAttribute("placeholder", versionsPromosforgeManifests.promos[forgeVersion])
+                    placeholderTextInput.setAttribute("placeholder", completeForgeVersion)
 
                     closeWindow("choose-version")
                 })

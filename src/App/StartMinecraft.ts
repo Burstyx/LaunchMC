@@ -211,7 +211,9 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     const java8 = path.join(java8Path, "javaw")
     const java17 = path.join(java17Path, "javaw")
 
-    const below117 = semver.lt(version, "1.17.0")
+    const semverVersionCompatibility = version.split(".").length == 2 ? version + ".0" : version
+
+    const below117 = semver.lt(semverVersionCompatibility, "1.17.0")
     console.log("below117: " + below117);
     
     const javaVersionToUse = below117 ? java8 : java17
@@ -227,7 +229,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     console.log("here full args");
     console.log(fullMcArgs.join(" "));
     
-    const proc = cp.spawn(javaVersionToUse, fullMcArgs)
+    const proc = cp.spawn(javaVersionToUse, fullMcArgs, {cwd: path.join(instancesPath, instanceId)})
     
     console.log(proc.spawnargs);
     

@@ -157,11 +157,14 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
     // Set modloader
     let currentModloader = loaderData?.name
-
+    let modloaderId = loaderData?.id
+    
+    console.log(currentModloader);
+    
     const widgetModloader = document.getElementById("widget-modloader")!
     widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla"
 
-    widgetModloader.setAttribute("subname", currentModloader ? currentModloader.id : gameData.version)
+    widgetModloader.setAttribute("subname", currentModloader ? modloaderId : gameData.version)
 
     // Set playtime
     const widgetPlaytime = document.getElementById("widget-playtime")!

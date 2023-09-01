@@ -134,9 +134,11 @@ function setContentTo(id) {
         widgetVersion.innerText = gameData.version;
         // Set modloader
         let currentModloader = loaderData === null || loaderData === void 0 ? void 0 : loaderData.name;
+        let modloaderId = loaderData === null || loaderData === void 0 ? void 0 : loaderData.id;
+        console.log(currentModloader);
         const widgetModloader = document.getElementById("widget-modloader");
         widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla";
-        widgetModloader.setAttribute("subname", currentModloader ? currentModloader.id : gameData.version);
+        widgetModloader.setAttribute("subname", currentModloader ? modloaderId : gameData.version);
         // Set playtime
         const widgetPlaytime = document.getElementById("widget-playtime");
         let h, m;

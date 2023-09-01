@@ -29,7 +29,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
     const mcVersion = version.split("-")[0]
 
     // Create instance
-    await createInstance(mcVersion, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader == "forge" ? { id: version } : undefined)
+    await createInstance(mcVersion, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader == "forge" ? { name: "forge", id: version } : undefined)
     await setContentTo(instanceName)
 
     // Download Game and patch game with correct modloader
@@ -37,7 +37,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
         await downloadMinecraft(mcVersion, instanceName)
         await patchInstanceWithForge(instanceName, mcVersion, version)
     } else {
-        await downloadMinecraft(version, instanceName)
+        await downloadMinecraft(mcVersion, instanceName)
     }
 })
 
