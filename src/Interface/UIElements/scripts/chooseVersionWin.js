@@ -100,7 +100,7 @@ exports.refreshVersionList = async () => {
 
                     const versionsElement = document.createElement("div")
                     versionsElement.classList.add("img-btn", "interactable")
-                    versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default.png)`
+                    versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default-forge.jpg)`
                     versionsElement.innerText = `${mcVersion} (${forgeVer})`
 
                     versionsElement.addEventListener("click", (e) => {
@@ -131,7 +131,7 @@ exports.refreshVersionList = async () => {
 
                 const versionsElement = document.createElement("div")
                 versionsElement.classList.add("img-btn", "interactable")
-                versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default.png)`
+                versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default-forge.jpg)`
                 versionsElement.innerText = `${mcVersion} (${versionClassifier} version)`
 
                 versionsElement.addEventListener("click", (e) => {
