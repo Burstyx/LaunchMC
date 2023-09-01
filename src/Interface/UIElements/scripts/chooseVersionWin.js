@@ -86,20 +86,14 @@ exports.refreshVersionList = async () => {
         const filterShowAllChecked = document.getElementById("forge-version-filter-showall").hasAttribute("checked")
         const searchValue = document.getElementById("forge-version-filter-search").value
 
-        const forgeVersions = []
-
         console.log(versionsForgeManifest);
 
-        for (const version in versionsForgeManifest) {
-            if (filterShowAllChecked) {
+        if (filterShowAllChecked) {
+            for (const version in versionsForgeManifest) {
                 for (const forgeVersion in versionsForgeManifest[version]) {
-                    if (searchforgeManifestue != "" && !versionsForgeManifest[version][forgeVersion].toString().includes(searchforgeManifestue)) {
+                    if (searchValue != "" && !versionsForgeManifest[version][forgeVersion].toString().includes(searchValue)) {
                         continue
                     }
-
-                    // forgeVersions.push(versionsForgeManifest[version][forgeVersion])
-
-                    // DELETE BELOW
 
                     const versionsElement = document.createElement("div")
                     versionsElement.classList.add("img-btn", "interactable")
@@ -121,43 +115,36 @@ exports.refreshVersionList = async () => {
 
                     versionsList.insertBefore(versionsElement, versionsList.firstChild)
                 }
-            } else {
-                for (const forgeVersion in versionsPromosforgeManifests.promos) {
-                    const versionClassifier = forgeVersion.split("-")[1]
-                    const mcVersion = forgeVersion.split("-")[0]
-
-                    const versionsElement = document.createElement("div")
-                    versionsElement.classList.add("img-btn", "interactable")
-                    versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
-                    versionsElement.innerText = `${mcVersion} (${versionClassifier} version)`
-
-                    versionsElement.addEventListener("click", (e) => {
-                        const modloaderWidget = document.getElementById("open-choose-version-win")
-                        modloaderWidget.setAttribute("version-id", versionsPromosforgeManifests.promos[forgeVersion])
-                        modloaderWidget.setAttribute("modloader-id", "forge")
-                        modloaderWidget.setAttribute("subname", "forge")
-                        modloaderWidget.innerText = versionsPromosforgeManifests.promos[forgeVersion]
-
-                        const placeholderTextInput = document.getElementById("new-instance-name")
-                        placeholderTextInput.setAttribute("placeholder", versionsPromosforgeManifests.promos[forgeVersion])
-
-                        closeWindow("choose-version")
-                    })
-
-                    versionsList.insertBefore(versionsElement, versionsList.firstChild)
+            }
+        }
+        else {
+            for (const forgeVersion in versionsPromosforgeManifests.promos) {
+                if (searchValue != "" && !forgeVersion.includes(searchValue)) {
+                    continue
                 }
 
-                if (searchforgeManifestue != "") {
-                    // if (recommendedVersion && !recommendedVersion.includes(searchVal)) {
+                const versionClassifier = forgeVersion.split("-")[1]
+                const mcVersion = forgeVersion.split("-")[0]
 
-                    // }
-                }
+                const versionsElement = document.createElement("div")
+                versionsElement.classList.add("img-btn", "interactable")
+                versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
+                versionsElement.innerText = `${mcVersion} (${versionClassifier} version)`
 
-                // forgeVersions.push(forgeManifest[version][forgeManifest[version].length - 1])
+                versionsElement.addEventListener("click", (e) => {
+                    const modloaderWidget = document.getElementById("open-choose-version-win")
+                    modloaderWidget.setAttribute("version-id", versionsPromosforgeManifests.promos[forgeVersion])
+                    modloaderWidget.setAttribute("modloader-id", "forge")
+                    modloaderWidget.setAttribute("subname", "forge")
+                    modloaderWidget.innerText = versionsPromosforgeManifests.promos[forgeVersion]
 
-                // DELETE BELOW
+                    const placeholderTextInput = document.getElementById("new-instance-name")
+                    placeholderTextInput.setAttribute("placeholder", versionsPromosforgeManifests.promos[forgeVersion])
 
-                
+                    closeWindow("choose-version")
+                })
+
+                versionsList.insertBefore(versionsElement, versionsList.firstChild)
             }
         }
     }
