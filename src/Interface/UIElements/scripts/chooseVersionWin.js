@@ -58,7 +58,7 @@ exports.refreshVersionList = async () => {
 
             const versionsElement = document.createElement("div")
             versionsElement.classList.add("img-btn", "interactable")
-            versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
+            versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default.png)`
             versionsElement.innerText = version.id
 
             versionsElement.addEventListener("click", (e) => {
@@ -95,10 +95,13 @@ exports.refreshVersionList = async () => {
                         continue
                     }
 
+                    const mcVersion = versionsForgeManifest[version][forgeVersion].split("-")[0]
+                    const forgeVer = versionsForgeManifest[version][forgeVersion].split("-")[1]
+
                     const versionsElement = document.createElement("div")
                     versionsElement.classList.add("img-btn", "interactable")
-                    versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
-                    versionsElement.innerText = versionsForgeManifest[version][forgeVersion]
+                    versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default.png)`
+                    versionsElement.innerText = `${mcVersion} (${forgeVer})`
 
                     versionsElement.addEventListener("click", (e) => {
                         const modloaderWidget = document.getElementById("open-choose-version-win")
@@ -123,12 +126,12 @@ exports.refreshVersionList = async () => {
                     continue
                 }
 
-                const versionClassifier = forgeVersion.split("-")[1]
                 const mcVersion = forgeVersion.split("-")[0]
+                const versionClassifier = forgeVersion.split("-")[1]
 
                 const versionsElement = document.createElement("div")
                 versionsElement.classList.add("img-btn", "interactable")
-                versionsElement.style.backgroundImage = `url(./resources/images/default.png)`
+                versionsElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(./resources/images/default.png)`
                 versionsElement.innerText = `${mcVersion} (${versionClassifier} version)`
 
                 versionsElement.addEventListener("click", (e) => {
