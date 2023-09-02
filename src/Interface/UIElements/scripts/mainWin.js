@@ -55,9 +55,11 @@ const openAccountManagerWinBtn = document.getElementById("open-account-manager-w
 openAccountManagerWinBtn.addEventListener("click", (e) => { openWindow("account-manager") })
 
 exports.refreshAccountBtnImg = (uuid) => {
+    console.log(uuid);
     if (uuid == undefined) {
         return
     }
+
 
     const profileImg = document.getElementById("profile-img")
     profileImg.src = `https://minotar.net/avatar/${uuid}`

@@ -1,5 +1,6 @@
 const { initDiscordRPC } = require("../../App/DIscordRPC");
 const { refreshInstanceList } = require("../../Utils/HInstance")
+const { getActiveAccount } = require("../../Utils/HMicrosoft")
 
 const loadingStartup = document.getElementById("loading-startup-launcher")
 const menuBtn = document.getElementById("titlebar-menu-btns")
@@ -9,10 +10,9 @@ const initializeModules = async () => {
     loadingStartup.style.display = "flex"
     menuBtn.style.display = "none"
 
-    
     console.log("[Initialize Modules] Titlebar module");
     const titlebar = require("./scripts/titlebar")
-    
+
     console.log("[Initialize Modules] Interactable elements module");
     const elements = require("./scripts/elements")
 

@@ -47,10 +47,14 @@ exports.refreshAccountList = async () => {
 
             await changeAccountProperty((await getActiveAccount()).uuid, "active", !selector.hasAttribute("active"))
             await changeAccountProperty(selector.getAttribute("account-id"), "active", selector.hasAttribute("active"))
-        })
 
-        refreshAccountBtnImg(selector.getAttribute("account-id"))
+            refreshAccountBtnImg(selector.getAttribute("account-id"))
+        })
     }
+
+    const activeAccount = await getActiveAccount()
+
+    refreshAccountBtnImg(activeAccount.uuid)
 }
 
 // Close window
