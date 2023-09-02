@@ -39,3 +39,7 @@ app.on("ready", async () => {
         mainWindow.show();
     })
 })
+
+app.on("window-all-closed", () => {
+    app.quit() // TODO: Quit if no mc instance are opened, otherwise, if the window is still hidden, wait for mc instances to be closed before closing launcher
+})

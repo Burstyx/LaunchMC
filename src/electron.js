@@ -46,3 +46,6 @@ electron_1.app.on("ready", () => __awaiter(void 0, void 0, void 0, function* () 
         mainWindow.show();
     });
 }));
+electron_1.app.on("window-all-closed", () => {
+    console.log("closed");
+});

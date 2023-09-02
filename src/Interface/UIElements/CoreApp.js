@@ -6,6 +6,9 @@ const loadingStartup = document.getElementById("loading-startup-launcher")
 const menuBtn = document.getElementById("titlebar-menu-btns")
 
 const initializeModules = async () => {
+    // Retrieve all data from json files (get all of them one and use the ones stored in ram)
+    // When using/updating those data stored in ram, write it on disk to save data
+
     console.log("Initialize Modules");
     loadingStartup.style.display = "flex"
     menuBtn.style.display = "none"
