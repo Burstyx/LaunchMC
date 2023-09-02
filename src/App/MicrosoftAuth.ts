@@ -73,7 +73,7 @@ async function connectWithCode(code: string){
     const username = minecraftProfileData!["name"]
     const uuid = minecraftProfileData!["id"]   
         
-    await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid})
+    await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid})
 }
 
 async function getMinecraftProfile(accessToken: string){
