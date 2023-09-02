@@ -44,6 +44,8 @@ function getForgeInstallProfileIfExist(forgeId) {
 exports.getForgeInstallProfileIfExist = getForgeInstallProfileIfExist;
 function getForgeVersionIfExist(forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (!forgeId)
+            return;
         const versionPath = path_1.default.join(const_1.minecraftVersionPath, forgeId);
         yield (0, HFileManagement_1.makeDir)(versionPath);
         if (!fs_1.default.existsSync(path_1.default.join(versionPath, `${forgeId}.json`))) {

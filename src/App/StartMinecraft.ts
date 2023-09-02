@@ -42,8 +42,13 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     
     // Get Forge version manifest
     const isForgeVersion = forgeOpt != undefined
-    const forgeData = isForgeVersion ? await getForgeVersionIfExist(forgeOpt.id) : undefined
+    console.log(isForgeVersion);
+    
+
+    const forgeData = isForgeVersion ? await getForgeVersionIfExist(forgeOpt?.id) : undefined
     console.log(forgeData);
+    console.log(forgeOpt);
+    
     
 
     // Get all Minecraft arguments
@@ -173,7 +178,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     let mcLibrariesArray = minecraftLibraryList(mcData)
     mcLibrariesArray.push(path.join(minecraftVersionPath, version, `${version}.jar`))
 
-    const librariesPathInJson = isForgeVersion && forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries
+    const librariesPathInJson = isForgeVersion ? forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries : undefined
     const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.filter((lib: any) => {
         if(lib.rules) {
             return parseRule(lib.rules)

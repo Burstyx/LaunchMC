@@ -33,8 +33,10 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
         // Get Forge version manifest
         const isForgeVersion = forgeOpt != undefined;
-        const forgeData = isForgeVersion ? yield (0, HForge_1.getForgeVersionIfExist)(forgeOpt.id) : undefined;
+        console.log(isForgeVersion);
+        const forgeData = isForgeVersion ? yield (0, HForge_1.getForgeVersionIfExist)(forgeOpt === null || forgeOpt === void 0 ? void 0 : forgeOpt.id) : undefined;
         console.log(forgeData);
+        console.log(forgeOpt);
         // Get all Minecraft arguments
         var mcArgs = mcData["minecraftArguments"];
         if (mcArgs == null) {
@@ -145,7 +147,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         let classPathes = [];
         let mcLibrariesArray = (0, DownloadGame_1.minecraftLibraryList)(mcData);
         mcLibrariesArray.push(path_1.default.join(const_1.minecraftVersionPath, version, `${version}.jar`));
-        const librariesPathInJson = isForgeVersion && forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries;
+        const librariesPathInJson = isForgeVersion ? forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries : undefined;
         const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.filter((lib) => {
             if (lib.rules) {
                 return (0, DownloadGame_1.parseRule)(lib.rules);

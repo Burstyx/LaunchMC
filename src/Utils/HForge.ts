@@ -31,7 +31,10 @@ export async function getForgeInstallProfileIfExist(forgeId: string) {
     return JSON.parse(installProfileJson)
 }
 
-export async function getForgeVersionIfExist(forgeId: string) {
+export async function getForgeVersionIfExist(forgeId: string | undefined) {
+    if(!forgeId) 
+        return
+
     const versionPath = path.join(minecraftVersionPath, forgeId)
     await makeDir(versionPath)
 

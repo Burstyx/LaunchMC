@@ -47,7 +47,7 @@ launchBtn.addEventListener("click", async () => {
 
     const activeAccount = await getActiveAccount()
 
-    await startMinecraft(mcVersion, currentInstance.id, { accesstoken: activeAccount.access_token, username: activeAccount.username, usertype: activeAccount.usertype, uuid: activeAccount.uuid, versiontype: versionType }, isForge ? { version: loaderVersion } : undefined)
+    await startMinecraft(mcVersion, currentInstance.id, { accesstoken: activeAccount.access_token, username: activeAccount.username, usertype: activeAccount.usertype, uuid: activeAccount.uuid, versiontype: versionType }, isForge ? { id: loaderVersion } : undefined)
 })
 
 // Open account manager window button
