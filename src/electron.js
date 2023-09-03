@@ -47,5 +47,5 @@ electron_1.app.on("ready", () => __awaiter(void 0, void 0, void 0, function* () 
     });
 }));
 electron_1.app.on("window-all-closed", () => {
-    console.log("closed");
+    electron_1.app.quit(); // TODO: Quit if no mc instance are opened, otherwise, if the window is still hidden, wait for mc instances to be closed before closing launcher
 });

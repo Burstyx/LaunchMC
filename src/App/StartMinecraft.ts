@@ -1,15 +1,12 @@
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, legacyAssetsPath, javaPath, java8Version, java17Version, loggingConfPath, indexesPath, gamePath, java8Name, java17Name, tempPath } from "../Utils/const"
-import os from "os"
-import fs from "fs/promises"
-import { existsSync } from "fs"
+import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, javaPath, java17Version, java17Name } from "../Utils/const"
 import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList, parseRule } from "./DownloadGame"
-import { getAllFile, makeDir, mavenToArray } from "../Utils/HFileManagement"
+import { makeDir, mavenToArray } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
-import { getForgeInstallProfileIfExist, getForgeVersionIfExist } from "../Utils/HForge"
+import { getForgeVersionIfExist } from "../Utils/HForge"
 import { removeDuplicates, replaceAll } from "../Utils/Utils"
 import semver from "semver"
 
@@ -33,8 +30,6 @@ interface ForgeArgsOpt {
 let mcProcs: any = {}
 
 export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt, forgeOpt?: ForgeArgsOpt) { // TODO: Get game libraries
-    // TODO If map_to_ressource == true -> object dans legacy
-
     // Get Minecraft version manifest
     const mcData = await minecraftManifestForVersion(version)
     await updateInstanceDlState(instanceId, InstanceState.Loading)
