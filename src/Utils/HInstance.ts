@@ -6,6 +6,7 @@ import { existsSync } from "original-fs"
 import Color from "color"
 import { concatJson } from "./Utils"
 
+var instances = {}
 
 async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
@@ -247,7 +248,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList(){ // FIXME: Refresh instance state and that's not good at all
+export async function refreshInstanceList() { // FIXME: Refresh instance state and that's not good at all
     const instancesDiv = document.getElementById("instance-list")!
     instancesDiv.innerHTML = ""
     
