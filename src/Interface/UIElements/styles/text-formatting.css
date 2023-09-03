@@ -1,0 +1,10 @@
+.highlight {
+    color: #8D8D8D;
+    font-weight: 300;
+}
+
+.accent-text {
+    color: attr(color-accent)
+}
+
+/* Md formatting */

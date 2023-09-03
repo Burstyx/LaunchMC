@@ -7,13 +7,13 @@ export function createOAuthLink(){
     url += "?client_id=" + clientId
     url += "&response_type=" + "code"
     url += "&redirect_uri=" + redirectUrl
-    url += "&scope=XboxLive.signin%20offline_access"
-    url += "&state=NOT_NEEDED"
+    url += "&scope=xboxlive.signin%20offline_access"
+    url += "&cobrandid=8058f65d-ce06-4c30-9559-473c9275a65d"
 
     return url
 }
 
-export async function msaLogin(){
+export async function msaLogin(){ // TODO: Return profile data
     const loginWindow = new BrowserWindow({
         backgroundColor: "white",
         center: true,
@@ -27,19 +27,31 @@ export async function msaLogin(){
     
     loginWindow.loadURL(createOAuthLink())
 
-    loginWindow.webContents.on("update-target-url", async (evt) => {
-        console.log(loginWindow.webContents.getURL());
-        
-        if(loginWindow.webContents.getURL().includes("code=")){
-            console.log("Code retrieved");
+    await new Promise((resolve, reject) => {
+        loginWindow.webContents.on("update-target-url", async (evt) => {
+            console.log(loginWindow.webContents.getURL());
+            
+            if(loginWindow.webContents.getURL().includes("code=")){
+                console.log("Code retrieved");
 
-            const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code")
+                try {
+                    const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code")
 
-            loginWindow.close()
+                    loginWindow.close()
 
-            await connectWithCode(code!)
-        }
-    })
+                    await connectWithCode(code!)  
+                } catch(err) {
+                    console.error(err);
+                    
+                    reject(null)
+                }
+
+                resolve(null)
+            }
+        })
+    }).catch(() => {return false})
+
+    return true
 }
 
 async function connectWithCode(code: string){
@@ -59,9 +71,9 @@ async function connectWithCode(code: string){
 
     const minecraftProfileData = await getMinecraftProfile(minecraftAccessToken)
     const username = minecraftProfileData!["name"]
-    const uuid = minecraftProfileData!["id"]    
-    
-    await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid})
+    const uuid = minecraftProfileData!["id"]   
+        
+    await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid})
 }
 
 async function getMinecraftProfile(accessToken: string){

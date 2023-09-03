@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.minecraftManifestForVersion = exports.minecraftManifest = void 0;
+exports.forgeVerStateManifest = exports.forgeManifest = exports.minecraftManifestForVersion = exports.minecraftManifest = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const const_1 = require("./const");
@@ -57,3 +57,33 @@ function minecraftManifestForVersion(version) {
     });
 }
 exports.minecraftManifestForVersion = minecraftManifestForVersion;
+// Download manifest containing all versions informations
+function forgeManifest() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Create directory if doesn't exist
+        const manifestPath = yield (0, HFileManagement_1.makeDir)(const_1.dataPath);
+        if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "forge_manifest.json"))) {
+            // Download manifest and return data
+            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsManifest, path_1.default.join(manifestPath, "forge_manifest.json"), (progress) => {
+                console.log(`Progression: ${progress}% du téléchargement du manifest`);
+            });
+        }
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "forge_manifest.json"), "utf-8"));
+    });
+}
+exports.forgeManifest = forgeManifest;
+// Download manifest containing the states of all forge versions (which is latest and which is recommended)
+function forgeVerStateManifest() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Create directory if doesn't exist
+        const manifestPath = yield (0, HFileManagement_1.makeDir)(const_1.dataPath);
+        if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "forge_manifest_promos.json"))) {
+            // Download manifest and return data
+            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsStatuesManifest, path_1.default.join(manifestPath, "forge_manifest_promos.json"), (progress) => {
+                console.log(`Progression: ${progress}% du téléchargement du manifest`);
+            });
+        }
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "forge_manifest_promos.json"), "utf-8"));
+    });
+}
+exports.forgeVerStateManifest = forgeVerStateManifest;

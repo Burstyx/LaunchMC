@@ -7,7 +7,7 @@ let mainWindow: BrowserWindow;
 
 function createAppWindow() {
     mainWindow = new BrowserWindow({
-        backgroundColor: "#2C2C2C",
+        backgroundColor: "black",
         center: true,
         frame: false,
         fullscreenable: false,
@@ -17,25 +17,29 @@ function createAppWindow() {
         minHeight: 620,
         minWidth: 1080,
         title: "Burstyx Launcher",
+        icon: path.join(__dirname, "icon.ico"),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
+            devTools: true
         }
     })
 
-    mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools({mode: "undocked"})
 
     initialize()
     enable(mainWindow.webContents)
     mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
 }
 
-app.on("ready", () => {
+app.on("ready", async () => {
     createAppWindow()
 
     mainWindow!.webContents.on("did-finish-load", () => {
         mainWindow.show();
     })
+})
 
-    initDiscordRPC()
+app.on("window-all-closed", () => {
+    app.quit() // TODO: Quit if no mc instance are opened, otherwise, if the window is still hidden, wait for mc instances to be closed before closing launcher
 })

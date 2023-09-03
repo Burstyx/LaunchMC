@@ -1,7 +1,7 @@
 {
-  "name": "burstylauncher",
-  "version": "1.0.0",
-  "description": "Bursty Launcher permettra de créer différentes instances pour chaque versions de Minecraft. Cela permet de rester organiser sans toucher au dossier du jeu pour modifier quelque chose. Il est compatible avec Curseforge et les différents API de modding (Fabric, Forge) ce qui vous permet de créer une instance Forge en quelque clic. Un système intuitif de création de modpack vous permettra de créer des modpacks optimisé facilement grâce à Curseforge et d'exporter vos profils pour qu'ils puisse être réutiliser.\r ### Pourquoi utiliser BurstyLauncher 🎮 ?\r Bursty Launcher est similaire au célèbre launcher MultiMC. En revanche, l'interface de BurstyLauncher est faites pour être plus intuitif et moderne. De plus, BurstyLauncher veut mettre en avant la création de modpack avec un système de création de modpack qu'on ne retrouve pas dans d'autres launcher.\r ### Les fonctionnalités 🚀\r - [ ] Création d'instance personnalisé\r - [ ] Gestion du téléchargement automatique (Java, Minecraft, Forge, Fabric)\r - [ ] Système de création de modpack\r - [ ] Connexion avec Curseforge pour les mods\r - [ ] Gestion multi-compte\r - [ ] Mise à jour automatique\r - D'autres fonctionnalités 👀...",
+  "name": "rubycli",
+  "version": "0.0.1-A",
+  "description": "Ruby Client, Minecraft launcher for all your vanilla/modded versions",
   "main": "src/electron.js",
   "scripts": {
     "build-js": "npx tsc",
@@ -22,16 +22,20 @@
   "homepage": "https://github.com/ItsBursty/BurstyLauncher#readme",
   "devDependencies": {
     "@types/adm-zip": "^0.5.0",
+    "@types/color": "^3.0.3",
     "@types/discord-rpc": "^4.0.4",
+    "@types/node-7z": "^2.1.5",
+    "@types/semver": "^7.5.0",
     "@types/uuid": "^9.0.1",
-    "electron": "^24.1.2",
-    "electron-builder": "^24.2.1"
+    "electron": "^25.7.0",
+    "electron-builder": "^24.4.0"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.9",
+    "@electron/remote": "^2.0.10",
     "adm-zip": "^0.5.10",
-    "discord-rich-presence": "^0.0.8",
+    "color": "^4.2.3",
     "discord-rpc": "^4.0.1",
+    "semver": "^7.5.4",
     "uuid": "^9.0.0"
   },
   "build": {

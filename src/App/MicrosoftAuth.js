@@ -18,8 +18,8 @@ function createOAuthLink() {
     url += "?client_id=" + const_js_1.clientId;
     url += "&response_type=" + "code";
     url += "&redirect_uri=" + const_js_1.redirectUrl;
-    url += "&scope=XboxLive.signin%20offline_access";
-    url += "&state=NOT_NEEDED";
+    url += "&scope=xboxlive.signin%20offline_access";
+    url += "&cobrandid=8058f65d-ce06-4c30-9559-473c9275a65d";
     return url;
 }
 exports.createOAuthLink = createOAuthLink;
@@ -34,15 +34,25 @@ function msaLogin() {
         loginWindow.setMenu(null);
         yield loginWindow.webContents.session.clearStorageData();
         loginWindow.loadURL(createOAuthLink());
-        loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
-            console.log(loginWindow.webContents.getURL());
-            if (loginWindow.webContents.getURL().includes("code=")) {
-                console.log("Code retrieved");
-                const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
-                loginWindow.close();
-                yield connectWithCode(code);
-            }
-        }));
+        yield new Promise((resolve, reject) => {
+            loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
+                console.log(loginWindow.webContents.getURL());
+                if (loginWindow.webContents.getURL().includes("code=")) {
+                    console.log("Code retrieved");
+                    try {
+                        const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
+                        loginWindow.close();
+                        yield connectWithCode(code);
+                    }
+                    catch (err) {
+                        console.error(err);
+                        reject(null);
+                    }
+                    resolve(null);
+                }
+            }));
+        }).catch(() => { return false; });
+        return true;
     });
 }
 exports.msaLogin = msaLogin;
@@ -61,7 +71,7 @@ function connectWithCode(code) {
         const minecraftProfileData = yield getMinecraftProfile(minecraftAccessToken);
         const username = minecraftProfileData["name"];
         const uuid = minecraftProfileData["id"];
-        yield (0, HMicrosoft_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "mojang", uuid: uuid });
+        yield (0, HMicrosoft_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid });
     });
 }
 function getMinecraftProfile(accessToken) {

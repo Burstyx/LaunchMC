@@ -18,6 +18,10 @@ const adm_zip_1 = __importDefault(require("adm-zip"));
 const HFileManagement_1 = require("./HFileManagement");
 // Download url async
 function downloadAsync(url, dest, callback, opt) {
+    if (fs_1.default.existsSync(dest) && (!opt || opt.overwrite == false)) {
+        console.log("Already exist, skip dl");
+        return;
+    }
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"));
         console.log("destDir:", destDir);
@@ -44,19 +48,22 @@ function downloadAsync(url, dest, callback, opt) {
                         }
                     }
                     file.close();
-                    resolve(xhr.status);
+                    resolve();
                 }
                 else {
                     console.log("erreur de téléchargement");
-                    reject(new Error("Erreur lors du téléchargement !"));
+                    reject();
                 }
             }
         };
+        let lastLoaded = 0;
         xhr.onprogress = (evt) => {
             const loaded = evt.loaded;
             const total = evt.total;
             const percentage = Math.round((loaded / total) * 100);
-            callback(percentage);
+            if (callback != undefined)
+                callback(percentage, loaded - lastLoaded);
+            lastLoaded = loaded;
         };
         xhr.open("GET", url);
         xhr.responseType = "arraybuffer";

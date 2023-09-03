@@ -5,14 +5,20 @@ import { makeDir } from "./HFileManagement"
 import {EventEmitter} from "node:events"
 
 interface DownloadOpt {
-    decompress: boolean,
+    decompress?: boolean,
+    overwrite?: boolean
 }
 
-type CallbackProgress = (progress: number) => void;
+type CallbackProgress = (progress: number, byteSent: number) => void;
 
 // Download url async
-export function downloadAsync(url: string, dest: string, callback: CallbackProgress, opt?: DownloadOpt) {
-    return new Promise(async (resolve, reject) => {
+export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
+    if(fs.existsSync(dest) && (!opt || opt.overwrite == false)) {
+        console.log("Already exist, skip dl");
+        return
+    }
+
+    return new Promise<void>(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
 
         console.log("destDir:", destDir);
@@ -49,13 +55,15 @@ export function downloadAsync(url: string, dest: string, callback: CallbackProgr
                     }
 
                     file.close()
-                    resolve(xhr.status)
+                    resolve()
                 }else{
                     console.log("erreur de téléchargement");
-                    reject(new Error("Erreur lors du téléchargement !"))
+                    reject()
                 }
             }
         }
+
+        let lastLoaded = 0
 
         xhr.onprogress = (evt) => {
             const loaded = evt.loaded
@@ -63,7 +71,10 @@ export function downloadAsync(url: string, dest: string, callback: CallbackProgr
 
             const percentage = Math.round((loaded / total) * 100)
 
-            callback(percentage)
+            if(callback != undefined)
+                callback(percentage, loaded - lastLoaded)
+            
+            lastLoaded = loaded
         }
 
         xhr.open("GET", url)

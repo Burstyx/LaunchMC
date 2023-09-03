@@ -1,0 +1,301 @@
+/* Default btn */
+.default-btn{
+  background-color: black;
+  padding: 10px;
+  border-radius: 5px;
+
+  border: solid #272727;
+
+  display: flex;
+  
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  transition: border .1s;
+}
+
+.default-btn.interactable:hover {
+  border: solid white;
+}
+
+.default-btn.danger:hover {
+  border: solid rgb(210, 0, 0);
+}
+
+.default-btn.active {
+  border: solid white;
+  background-color: #272727;
+}
+
+/* Img btn */
+.img-btn {
+  background-position: 50%;
+  background-size: cover;
+
+  border-radius: 5px;
+  
+  padding: 15px;
+
+  border: solid #272727;
+
+  cursor: pointer;
+
+  transition: border .1s;
+
+  position: relative;
+  
+  display: flex;
+  align-items: center;
+}
+
+.img-btn.interactable:hover {
+  border: solid white;
+}
+
+.img-btn.active {
+  border: solid white;
+}
+
+.img-btn.playing {
+  animation: infinite ease-in-out 2s playing-blinking alternate;
+}
+@keyframes playing-blinking {
+  from {
+    border: solid rgb(0, 210, 0) 2px;
+  }
+  to {
+    border: solid rgb(0, 120, 0) 2px;
+  }
+}
+
+.img-btn.preparing {
+  animation: infinite ease-in-out 2s preparing-blinking alternate;
+}
+
+@keyframes preparing-blinking {
+  from {
+    border: solid rgb(210, 210, 210) 2px;
+  }
+
+  to {
+    border: solid rgb(120, 120, 120) 2px;
+  }
+}
+
+/* Accent btn */
+.accent-btn {
+  width: fit-content;
+
+  font-size: 20px;
+
+  padding: 12px 75px;
+  border-radius: 5px;
+
+  transition: filter .25s, transform .25s;
+
+  cursor: pointer;
+}
+
+.accent-btn.interactable:hover {
+  filter: brightness(1.25);
+  transform: scale(1.03);
+}
+
+.accent-btn.interactable:active {
+  filter: brightness(0.75);
+  transform: scale(0.97);
+}
+
+/* Widget btn */ 
+.widget-btn {
+  background-color: #191919;
+  box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.25);
+
+  border-radius: 5px;
+  padding: 40px;
+
+  font-size: 18px;
+
+  text-align: center;
+  
+  position: relative;
+
+  transition: background-color .25s, transform .25s;
+
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-btn::before {
+  content: attr(widget-name);
+  position: absolute;
+  top: 5px;
+  left: 8px;
+
+  font-size: 12px;
+  font-weight: 100;
+}
+
+.widget-btn::after {
+  content: attr(subname);
+
+  font-size: 12px;
+  font-weight: 100;
+}
+
+.widget-btn.interactable:hover {
+  background-color: #222222;
+  transform: translateY(-2px);
+}
+
+/* Text input */
+input[type="text"] {
+  all: unset;
+  
+  background-color: black;
+  border: solid #272727;
+
+  padding: 10px;
+
+  border-radius: 100px;
+
+  transition: border .1s;
+}
+
+input[type="text"]:focus {
+  border: solid white;
+}
+
+/* Checkbox */
+
+.checkbox {
+  border-radius: 5px;
+
+  padding: 10px;
+
+  position: relative;
+  display: flex;
+
+  transition: background-color .25s, box-shadow .25s, transform .25s;
+
+  background-color: #191919;
+  box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.25);
+}
+
+.checkbox:hover {
+  background-color: #222222;
+  transform: translateY(-2px);
+}
+
+.checkbox::after {
+  content: '';
+  border: solid white;
+  border-radius: 5px;
+  position: absolute;
+
+  width: 15px;
+  height: 15px;
+  right: 10px;
+
+  transition: background-color .25s, box-shadow .25s;
+}
+
+.checkbox[checked]::after {
+  background-color: white;
+  box-shadow: 0 0 0px calc(15px / 2) inset white;
+}
+
+.checkbox[checked]::before {
+  content: '';
+  background-image: url(../resources/svg/checked.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  z-index: 1;
+  position: absolute;
+  
+  width: 19px;
+  height: 19px;
+  right: 10px;
+}
+
+/* Selector */
+selectorgroup {
+  display: flex;
+  flex-direction: column;
+  
+  gap: 5px
+}
+
+.selector {
+  border-radius: 5px;
+  
+  padding: 10px;
+
+  position: relative;
+  display: flex;
+
+  transition: background-color .25s, box-shadow .25s, transform .25s, color .25s;
+
+  background-color: #191919;
+  box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.25);
+}
+
+.selector[active] {
+  border-radius: 5px;
+
+  padding: 10px;
+
+  position: relative;
+  display: flex;
+
+  transition: background-color .25s, box-shadow .25s, transform .25s;
+
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.25);
+
+  color: #191919;
+}
+
+.selector:hover {
+  background-color: #222222;
+  transform: translateY(-2px);
+}
+
+.selector[active]:hover {
+  background-color: #ffffff;
+}
+
+/* Loading */
+.loading {
+  position: relative;
+}
+
+.loading::before {
+  content: url("../resources/svg/icon/white-inner.svg");
+  position: absolute;
+  top: calc(-22.5px);
+  left: calc(-30.5px);
+
+  animation: spinning 5s infinite linear;
+}
+
+.loading::after {
+  content: url("../resources/svg/icon/white-outer.svg");
+  position: absolute;
+  top: -25.5px;
+  left: -35.5px;
+
+  animation: spinning 8s infinite linear;
+}
+
+@keyframes spinning {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
