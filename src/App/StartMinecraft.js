@@ -27,7 +27,6 @@ const semver_1 = __importDefault(require("semver"));
 let mcProcs = {};
 function startMinecraft(version, instanceId, opt, forgeOpt) {
     return __awaiter(this, void 0, void 0, function* () {
-        // TODO If map_to_ressource == true -> object dans legacy
         // Get Minecraft version manifest
         const mcData = yield (0, HManifests_1.minecraftManifestForVersion)(version);
         yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);

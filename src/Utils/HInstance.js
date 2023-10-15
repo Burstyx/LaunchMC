@@ -20,6 +20,7 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
+var instances = {};
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");

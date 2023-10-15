@@ -27,7 +27,7 @@ const initializeModules = async () => {
 
     console.log("[Initialize Modules] Choose version window module");
     const chooseVersionWindow = require("./scripts/chooseVersionWin")
-    chooseVersionWindow.refreshVersionList()
+    await chooseVersionWindow.refreshVersionList()
 
     console.log("[Initialize Modules] Account manager window module");
     const accountManagerWindow = require("./scripts/accountManagerWin")
