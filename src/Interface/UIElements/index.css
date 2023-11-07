@@ -252,7 +252,7 @@ body {
   flex-direction: column;
   align-items: center;
 
-  overflow-y: clip;
+  overflow-y: overlay;
 }
 
 .window[window-id="instance-info"] .instance-info-area {
@@ -343,7 +343,7 @@ body {
 
   width: 100%;
 
-  overflow-y: clip;
+  overflow-y: overlay;
 
   margin: 5px;
 }
@@ -403,7 +403,7 @@ body {
 
   border-radius: 5px;
 
-  overflow-y: clip;
+  overflow-y: overlay;
 }
 
 .window[window-id="account-manager"] .actions-btn {
