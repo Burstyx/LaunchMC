@@ -96,6 +96,7 @@ function generateInstanceBtn(imagePath, title, id) {
             (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
             instanceElement.classList.add("active");
         }));
+        instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
     });
 }

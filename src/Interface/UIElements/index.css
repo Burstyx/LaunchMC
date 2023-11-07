@@ -41,8 +41,6 @@
   font-weight: 700;
 }
 
-@mixin default-btn {}
-
 * {
   margin: 0;
   padding: 0;
@@ -134,34 +132,18 @@ body {
   overflow-y: overlay;
 
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+
+  flex-direction: row;
+
   gap: 5px;
 
-  flex: 1;
   border-radius: 5px;
 }
 
-.sub-content .instance-info {
-  flex: 1;
-
-  border-radius: 5px;
-
-  background-color: var(--content-bg);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.instance-info .info-content {
-  height: 100%;
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  overflow-y: overlay;
+#instance-list div {
+  height: 175px;
+  width: 125px;
 }
 
 .info-content .info-backimg {
@@ -173,7 +155,7 @@ body {
   background-size: cover;
   background: linear-gradient(180deg,
   rgba(0, 0, 0, 0.15) 0%,
-  rgb(0, 0, 0, 0.85) calc(100% + 1px)) url() 50%;
+  rgb(0, 0, 0, 0.85) calc(100% + 1px)) 50%;
 
   position: relative;
 
@@ -205,34 +187,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.info-content .instance-info-area {
-  width: calc(100% - 10px);
-  max-width: 1200px;
-
-  position: relative;
-
-  top: 45px;
-  padding-bottom: 5px;
-
-  display: grid;
-  gap: 5px;
-}
-
-.instance-info-area .all-widgets {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  gap: 5px;
-}
-
-.instance-info-area .info-widgets {
-  height: 100%;
-
-  display: grid;
-  gap: 5px;
-  grid-template-columns: 1fr 1fr;
 }
 
 .screenshot-widget {}
@@ -272,11 +226,61 @@ body {
 
   /* FIXME: UNCOMMENT THIS IN PROD */
   opacity: 0;
-  transform: scale(.75); 
-
+  transform: scale(.75);
   pointer-events: none;
 
   transition: opacity .15s, transform .15s ease-out;
+}
+
+.window[window-id="instance-info"] {
+  flex: 1;
+
+  border-radius: 5px;
+
+  background-color: var(--content-bg);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.window[window-id="instance-info"] .info-content {
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow-y: clip;
+}
+
+.window[window-id="instance-info"] .instance-info-area {
+  width: calc(100% - 10px);
+  max-width: 1200px;
+
+  position: relative;
+
+  top: 45px;
+  padding-bottom: 5px;
+
+  display: grid;
+  gap: 5px;
+}
+
+.window[window-id="instance-info"] .instance-info-area .all-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 5px;
+}
+
+.window[window-id="instance-info"] .info-widgets {
+  height: 100%;
+
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr 1fr;
 }
 
 .window[window-id="new-instance"] .info-backimg {
@@ -339,7 +343,7 @@ body {
 
   width: 100%;
 
-  overflow-y: overlay;
+  overflow-y: clip;
 
   margin: 5px;
 }
@@ -358,8 +362,8 @@ body {
   flex-direction: column;
 
   background-color: #121212;
-    border-radius: 5px;
-    margin: 5px;
+  border-radius: 5px;
+  margin: 5px;
 
   gap: 5px;
 
@@ -399,7 +403,7 @@ body {
 
   border-radius: 5px;
 
-  overflow-y: overlay;
+  overflow-y: clip;
 }
 
 .window[window-id="account-manager"] .actions-btn {

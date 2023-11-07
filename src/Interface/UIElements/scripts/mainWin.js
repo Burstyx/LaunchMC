@@ -56,7 +56,7 @@ openAccountManagerWinBtn.addEventListener("click", (e) => { openWindow("account-
 
 exports.refreshAccountBtnImg = (uuid) => {
     console.log(uuid);
-    if (uuid == undefined) {
+    if (uuid === undefined) {
         return
     }
 

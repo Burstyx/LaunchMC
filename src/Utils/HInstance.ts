@@ -109,6 +109,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
         document.querySelector(".instance.active")?.classList.remove("active")
         instanceElement.classList.add("active")
     })
+    instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
     
     return instanceElement
 }
@@ -238,7 +239,6 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
         launchBtn.innerText = "Loading"
     }
-
 
     const contentBackground = document.getElementById("content-background")!
     contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
