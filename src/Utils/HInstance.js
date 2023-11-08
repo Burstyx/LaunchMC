@@ -20,7 +20,7 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
-var instances = {};
+var instances = [];
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");
@@ -73,10 +73,11 @@ function generateInstanceBtn(imagePath, title, id) {
         }
         // Instance Btn
         instanceElement.innerText = title;
-        instanceElement.classList.add("img-btn", "interactable", "instance");
+        instanceElement.classList.add("default-btn", "interactable", "instance");
         instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]);
         instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`;
         instanceElement.style.textShadow = "black 0px 0px 10px";
+        instanceElement.style.position = "relative";
         instanceElement.id = id;
         // Download track div
         let dlTrackerElement = document.createElement("div");
@@ -91,10 +92,7 @@ function generateInstanceBtn(imagePath, title, id) {
         dlTrackerElement.style.pointerEvents = "none";
         instanceElement.append(dlTrackerElement);
         instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
             yield setContentTo(id);
-            (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
-            instanceElement.classList.add("active");
         }));
         instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
@@ -271,19 +269,3 @@ function checkInstanceIntegrity(instanceId) {
     });
 }
 exports.checkInstanceIntegrity = checkInstanceIntegrity;
-// DEBUG ZONE
-// document.addEventListener("dblclick", (e) => {
-//     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
-//     setTimeout(() => {
-//         updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
-//         setTimeout(() => {
-//             updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
-//             setTimeout(() => {
-//                 updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
-//                  setTimeout(() => {
-//                     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
-//                 }, 2000)
-//             }, 2000)
-//         }, 2000)
-//     }, 2000)
-// })

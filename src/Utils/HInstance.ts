@@ -6,7 +6,7 @@ import { existsSync } from "original-fs"
 import Color from "color"
 import { concatJson } from "./Utils"
 
-var instances = {}
+var instances = [];
 
 async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
@@ -83,10 +83,11 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 
     // Instance Btn
     instanceElement.innerText = title
-    instanceElement.classList.add("img-btn", "interactable", "instance")
+    instanceElement.classList.add("default-btn", "interactable", "instance")
     instanceElement.setAttribute("state", InstanceState[InstanceState.Playable])
     instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`
     instanceElement.style.textShadow = "black 0px 0px 10px"
+    instanceElement.style.position = "relative"
     instanceElement.id = id
 
     // Download track div
@@ -105,10 +106,8 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 
     instanceElement.addEventListener("click", async (e) => {
         await setContentTo(id)
-
-        document.querySelector(".instance.active")?.classList.remove("active")
-        instanceElement.classList.add("active")
     })
+
     instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
     
     return instanceElement
@@ -248,9 +247,11 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList() { // FIXME: Refresh instance state and that's not good at all
+export async function refreshInstanceList() { // FIXME: instance state are clear and that's not good at all
     const instancesDiv = document.getElementById("instance-list")!
     instancesDiv.innerHTML = ""
+
+
     
     if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
@@ -322,20 +323,3 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
 export async function checkInstanceIntegrity(instanceId: string) {
     // TODO: Code
 }
-
-// DEBUG ZONE
-// document.addEventListener("dblclick", (e) => {
-//     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
-//     setTimeout(() => {
-//         updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
-//         setTimeout(() => {
-//             updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
-//             setTimeout(() => {
-//                 updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
-//                  setTimeout(() => {
-//                     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
-//                 }, 2000)
-//             }, 2000)
-//         }, 2000)
-//     }, 2000)
-// })

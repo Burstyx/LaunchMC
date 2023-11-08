@@ -37,7 +37,11 @@ const initializeModules = async () => {
     await refreshInstanceList()
 
     console.log("Initialize Discord RPC");
-    await initDiscordRPC()
+    try {
+        await initDiscordRPC()
+    } catch (e) {
+        console.log("Can't connect to Discord RPC service, maybe user don't have discord client?")
+    }
 
     console.log("Refreshing Microsoft Account");
     // Put logic here

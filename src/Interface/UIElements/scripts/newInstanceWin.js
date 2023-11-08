@@ -30,7 +30,6 @@ createInstanceBtn.addEventListener("click", async (e) => {
 
     // Create instance
     await createInstance(mcVersion, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader == "forge" ? { name: "forge", id: version } : undefined)
-    await setContentTo(instanceName)
 
     // Download Game and patch game with correct modloader
     if (modloader == "forge") {
