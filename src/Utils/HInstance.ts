@@ -6,7 +6,7 @@ import { existsSync } from "original-fs"
 import Color from "color"
 import { concatJson } from "./Utils"
 
-var instances = [];
+var instancesData: any[] = [];
 
 async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
@@ -106,6 +106,9 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 
     instanceElement.addEventListener("click", async (e) => {
         await setContentTo(id)
+
+        document.querySelector(".instance.active")?.classList.remove("active");
+        instanceElement.classList.add("active");
     })
 
     instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
@@ -249,9 +252,9 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
 export async function refreshInstanceList() { // FIXME: instance state are clear and that's not good at all
     const instancesDiv = document.getElementById("instance-list")!
+    await saveInstancesData();
+
     instancesDiv.innerHTML = ""
-
-
     
     if(existsSync(instancesPath)){
         const instances = await fs.readdir(instancesPath)
@@ -266,6 +269,8 @@ export async function refreshInstanceList() { // FIXME: instance state are clear
             }
         }
     }
+
+    await restoreInstancesData();
 }
 
 export async function getInstanceData(instanceId: string){
@@ -318,6 +323,34 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
 
     if(currentContentId == instanceId)
         await setContentTo(instanceId)
+}
+
+export async function saveInstancesData() {
+    const instances = document.getElementById("instance-list")!.children
+
+    for (const e of instances) {
+        // @ts-ignore
+        instancesData[e.id] = {};
+        // @ts-ignore
+        instancesData[e.id]["state"] = e.getAttribute("state");
+        // @ts-ignore
+        instancesData[e.id]["dlCount"] = e.firstElementChild.computedStyleMap().get("left").toString();
+    }
+
+    console.log(instancesData)
+}
+
+export async function restoreInstancesData() {
+    const instances = document.getElementById("instance-list")!.children
+
+    for (const e of instances) {
+        if(instancesData.includes(e.id)) {
+            // @ts-ignore
+            e.setAttribute("state", instancesData[e.id]["state"]);
+            // @ts-ignore
+            (e.firstElementChild as HTMLElement).style.left = instancesData[e.id]["dlCount"];
+        }
+    }
 }
 
 export async function checkInstanceIntegrity(instanceId: string) {

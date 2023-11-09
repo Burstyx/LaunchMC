@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkInstanceIntegrity = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.checkInstanceIntegrity = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -20,7 +20,7 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
-var instances = [];
+var instancesData = [];
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");
@@ -92,7 +92,10 @@ function generateInstanceBtn(imagePath, title, id) {
         dlTrackerElement.style.pointerEvents = "none";
         instanceElement.append(dlTrackerElement);
         instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             yield setContentTo(id);
+            (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
+            instanceElement.classList.add("active");
         }));
         instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
@@ -201,6 +204,7 @@ exports.setContentTo = setContentTo;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         const instancesDiv = document.getElementById("instance-list");
+        yield saveInstancesData();
         instancesDiv.innerHTML = "";
         if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
@@ -213,6 +217,7 @@ function refreshInstanceList() {
                 }
             }
         }
+        yield restoreInstancesData();
     });
 }
 exports.refreshInstanceList = refreshInstanceList;
@@ -263,6 +268,35 @@ function updateInstanceDlState(instanceId, newState) {
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;
+function saveInstancesData() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const instances = document.getElementById("instance-list").children;
+        for (const e of instances) {
+            // @ts-ignore
+            instancesData[e.id] = {};
+            // @ts-ignore
+            instancesData[e.id]["state"] = e.getAttribute("state");
+            // @ts-ignore
+            instancesData[e.id]["dlCount"] = e.firstElementChild.computedStyleMap().get("left").toString();
+        }
+        console.log(instancesData);
+    });
+}
+exports.saveInstancesData = saveInstancesData;
+function restoreInstancesData() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const instances = document.getElementById("instance-list").children;
+        for (const e of instances) {
+            if (instancesData.includes(e.id)) {
+                // @ts-ignore
+                e.setAttribute("state", instancesData[e.id]["state"]);
+                // @ts-ignore
+                e.firstElementChild.style.left = instancesData[e.id]["dlCount"];
+            }
+        }
+    });
+}
+exports.restoreInstancesData = restoreInstancesData;
 function checkInstanceIntegrity(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO: Code
