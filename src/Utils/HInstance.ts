@@ -6,7 +6,7 @@ import { existsSync } from "original-fs"
 import Color from "color"
 import { concatJson } from "./Utils"
 
-var instancesData: any[] = [];
+var instancesData = {};
 
 async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
@@ -96,7 +96,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
     dlTrackerElement.style.position = "absolute"
     dlTrackerElement.style.top = "0"
     dlTrackerElement.style.left = "100%"
-    dlTrackerElement.style.width = "100%"
+    dlTrackerElement.style.width = "0%"
     dlTrackerElement.style.height = "100%"
     dlTrackerElement.style.borderRadius = "5px"
     dlTrackerElement.style.backdropFilter = "saturate(0%)"
@@ -302,10 +302,14 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
     }
 
     console.log(progress);
-    
-    
+
+
+
     //@ts-ignore
-    dlTracker.style.left = `${progress >= 95 ? '100' : progress}%`
+    dlTracker.style.left = `${progress}%`;
+    //@ts-ignore
+    dlTracker.style.width = 100 - Number(dlTracker.style.left.substring(0, dlTracker.style.left.length - 1)) + '%';
+
 }
 
 export enum InstanceState {
@@ -334,7 +338,7 @@ export async function saveInstancesData() {
         // @ts-ignore
         instancesData[e.id]["state"] = e.getAttribute("state");
         // @ts-ignore
-        instancesData[e.id]["dlCount"] = e.firstElementChild.computedStyleMap().get("left").toString();
+        instancesData[e.id]["dlCount"] = e.firstElementChild?.style.left;
     }
 
     console.log(instancesData)
@@ -344,13 +348,22 @@ export async function restoreInstancesData() {
     const instances = document.getElementById("instance-list")!.children
 
     for (const e of instances) {
-        if(instancesData.includes(e.id)) {
+        console.log(instancesData.hasOwnProperty(e.id))
+        if(instancesData.hasOwnProperty(e.id)) {
             // @ts-ignore
             e.setAttribute("state", instancesData[e.id]["state"]);
+            console.log(e.getAttribute("state"));
+
+            console.log("yay")
+            //@ts-ignore
+            console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
             // @ts-ignore
-            (e.firstElementChild as HTMLElement).style.left = instancesData[e.id]["dlCount"];
+            updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
         }
+
     }
+
+    instancesData = [];
 }
 
 export async function checkInstanceIntegrity(instanceId: string) {

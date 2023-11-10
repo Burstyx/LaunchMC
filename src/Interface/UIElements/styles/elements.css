@@ -26,9 +26,25 @@
   border: solid rgb(210, 0, 0);
 }
 
-.default-btn.active {
+.default-btn:not(.instance).active {
   border: solid white;
   background-color: #272727;
+}
+
+.default-btn.instance[state="Loading"] {
+  border: solid grey;
+}
+
+.default-btn.instance[state="Downloading"] {
+  border: solid red;
+}
+
+.default-btn.instance[state="Update"] {
+  border: solid orange;
+}
+
+.default-btn.instance[state="Playing"] {
+  border: solid green;
 }
 
 /* Img btn */

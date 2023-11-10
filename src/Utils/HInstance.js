@@ -20,7 +20,7 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
-var instancesData = [];
+var instancesData = {};
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");
@@ -85,7 +85,7 @@ function generateInstanceBtn(imagePath, title, id) {
         dlTrackerElement.style.position = "absolute";
         dlTrackerElement.style.top = "0";
         dlTrackerElement.style.left = "100%";
-        dlTrackerElement.style.width = "100%";
+        dlTrackerElement.style.width = "0%";
         dlTrackerElement.style.height = "100%";
         dlTrackerElement.style.borderRadius = "5px";
         dlTrackerElement.style.backdropFilter = "saturate(0%)";
@@ -248,7 +248,9 @@ function updateInstanceDlProgress(instanceId, progress) {
     }
     console.log(progress);
     //@ts-ignore
-    dlTracker.style.left = `${progress >= 95 ? '100' : progress}%`;
+    dlTracker.style.left = `${progress}%`;
+    //@ts-ignore
+    dlTracker.style.width = 100 - Number(dlTracker.style.left.substring(0, dlTracker.style.left.length - 1)) + '%';
 }
 exports.updateInstanceDlProgress = updateInstanceDlProgress;
 var InstanceState;
@@ -269,6 +271,7 @@ function updateInstanceDlState(instanceId, newState) {
 }
 exports.updateInstanceDlState = updateInstanceDlState;
 function saveInstancesData() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         const instances = document.getElementById("instance-list").children;
         for (const e of instances) {
@@ -277,7 +280,7 @@ function saveInstancesData() {
             // @ts-ignore
             instancesData[e.id]["state"] = e.getAttribute("state");
             // @ts-ignore
-            instancesData[e.id]["dlCount"] = e.firstElementChild.computedStyleMap().get("left").toString();
+            instancesData[e.id]["dlCount"] = (_a = e.firstElementChild) === null || _a === void 0 ? void 0 : _a.style.left;
         }
         console.log(instancesData);
     });
@@ -287,13 +290,19 @@ function restoreInstancesData() {
     return __awaiter(this, void 0, void 0, function* () {
         const instances = document.getElementById("instance-list").children;
         for (const e of instances) {
-            if (instancesData.includes(e.id)) {
+            console.log(instancesData.hasOwnProperty(e.id));
+            if (instancesData.hasOwnProperty(e.id)) {
                 // @ts-ignore
                 e.setAttribute("state", instancesData[e.id]["state"]);
+                console.log(e.getAttribute("state"));
+                console.log("yay");
+                //@ts-ignore
+                console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
                 // @ts-ignore
-                e.firstElementChild.style.left = instancesData[e.id]["dlCount"];
+                updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
             }
         }
+        instancesData = [];
     });
 }
 exports.restoreInstancesData = restoreInstancesData;
