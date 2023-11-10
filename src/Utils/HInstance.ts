@@ -6,6 +6,7 @@ import { existsSync } from "original-fs"
 import Color from "color"
 import { concatJson } from "./Utils"
 
+var instancesData = {};
 
 async function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
@@ -82,10 +83,11 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 
     // Instance Btn
     instanceElement.innerText = title
-    instanceElement.classList.add("img-btn", "interactable", "instance")
+    instanceElement.classList.add("default-btn", "interactable", "instance")
     instanceElement.setAttribute("state", InstanceState[InstanceState.Playable])
     instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`
     instanceElement.style.textShadow = "black 0px 0px 10px"
+    instanceElement.style.position = "relative"
     instanceElement.id = id
 
     // Download track div
@@ -94,7 +96,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
     dlTrackerElement.style.position = "absolute"
     dlTrackerElement.style.top = "0"
     dlTrackerElement.style.left = "100%"
-    dlTrackerElement.style.width = "100%"
+    dlTrackerElement.style.width = "0%"
     dlTrackerElement.style.height = "100%"
     dlTrackerElement.style.borderRadius = "5px"
     dlTrackerElement.style.backdropFilter = "saturate(0%)"
@@ -105,9 +107,11 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
     instanceElement.addEventListener("click", async (e) => {
         await setContentTo(id)
 
-        document.querySelector(".instance.active")?.classList.remove("active")
-        instanceElement.classList.add("active")
+        document.querySelector(".instance.active")?.classList.remove("active");
+        instanceElement.classList.add("active");
     })
+
+    instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
     
     return instanceElement
 }
@@ -238,7 +242,6 @@ export async function setContentTo(id: string) { // TODO: Cleaning
         launchBtn.innerText = "Loading"
     }
 
-
     const contentBackground = document.getElementById("content-background")!
     contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
     url('${instanceData["imagePath"]}')`
@@ -247,8 +250,10 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList(){ // FIXME: Refresh instance state and that's not good at all
+export async function refreshInstanceList() { // FIXME: instance state are clear and that's not good at all
     const instancesDiv = document.getElementById("instance-list")!
+    await saveInstancesData();
+
     instancesDiv.innerHTML = ""
     
     if(existsSync(instancesPath)){
@@ -264,6 +269,8 @@ export async function refreshInstanceList(){ // FIXME: Refresh instance state an
             }
         }
     }
+
+    await restoreInstancesData();
 }
 
 export async function getInstanceData(instanceId: string){
@@ -295,10 +302,14 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
     }
 
     console.log(progress);
-    
-    
+
+
+
     //@ts-ignore
-    dlTracker.style.left = `${progress >= 95 ? '100' : progress}%`
+    dlTracker.style.left = `${progress}%`;
+    //@ts-ignore
+    dlTracker.style.width = 100 - Number(dlTracker.style.left.substring(0, dlTracker.style.left.length - 1)) + '%';
+
 }
 
 export enum InstanceState {
@@ -318,23 +329,43 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
         await setContentTo(instanceId)
 }
 
+export async function saveInstancesData() {
+    const instances = document.getElementById("instance-list")!.children
+
+    for (const e of instances) {
+        // @ts-ignore
+        instancesData[e.id] = {};
+        // @ts-ignore
+        instancesData[e.id]["state"] = e.getAttribute("state");
+        // @ts-ignore
+        instancesData[e.id]["dlCount"] = e.firstElementChild?.style.left;
+    }
+
+    console.log(instancesData)
+}
+
+export async function restoreInstancesData() {
+    const instances = document.getElementById("instance-list")!.children
+
+    for (const e of instances) {
+        console.log(instancesData.hasOwnProperty(e.id))
+        if(instancesData.hasOwnProperty(e.id)) {
+            // @ts-ignore
+            e.setAttribute("state", instancesData[e.id]["state"]);
+            console.log(e.getAttribute("state"));
+
+            console.log("yay")
+            //@ts-ignore
+            console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
+            // @ts-ignore
+            updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
+        }
+
+    }
+
+    instancesData = [];
+}
+
 export async function checkInstanceIntegrity(instanceId: string) {
     // TODO: Code
 }
-
-// DEBUG ZONE
-// document.addEventListener("dblclick", (e) => {
-//     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
-//     setTimeout(() => {
-//         updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
-//         setTimeout(() => {
-//             updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
-//             setTimeout(() => {
-//                 updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
-//                  setTimeout(() => {
-//                     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
-//                 }, 2000)
-//             }, 2000)
-//         }, 2000)
-//     }, 2000)
-// })

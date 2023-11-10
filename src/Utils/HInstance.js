@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkInstanceIntegrity = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.checkInstanceIntegrity = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -20,6 +20,7 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
+var instancesData = {};
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instance-list");
@@ -72,10 +73,11 @@ function generateInstanceBtn(imagePath, title, id) {
         }
         // Instance Btn
         instanceElement.innerText = title;
-        instanceElement.classList.add("img-btn", "interactable", "instance");
+        instanceElement.classList.add("default-btn", "interactable", "instance");
         instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]);
         instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`;
         instanceElement.style.textShadow = "black 0px 0px 10px";
+        instanceElement.style.position = "relative";
         instanceElement.id = id;
         // Download track div
         let dlTrackerElement = document.createElement("div");
@@ -83,7 +85,7 @@ function generateInstanceBtn(imagePath, title, id) {
         dlTrackerElement.style.position = "absolute";
         dlTrackerElement.style.top = "0";
         dlTrackerElement.style.left = "100%";
-        dlTrackerElement.style.width = "100%";
+        dlTrackerElement.style.width = "0%";
         dlTrackerElement.style.height = "100%";
         dlTrackerElement.style.borderRadius = "5px";
         dlTrackerElement.style.backdropFilter = "saturate(0%)";
@@ -95,6 +97,7 @@ function generateInstanceBtn(imagePath, title, id) {
             (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
             instanceElement.classList.add("active");
         }));
+        instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
     });
 }
@@ -201,6 +204,7 @@ exports.setContentTo = setContentTo;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         const instancesDiv = document.getElementById("instance-list");
+        yield saveInstancesData();
         instancesDiv.innerHTML = "";
         if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
@@ -213,6 +217,7 @@ function refreshInstanceList() {
                 }
             }
         }
+        yield restoreInstancesData();
     });
 }
 exports.refreshInstanceList = refreshInstanceList;
@@ -243,7 +248,9 @@ function updateInstanceDlProgress(instanceId, progress) {
     }
     console.log(progress);
     //@ts-ignore
-    dlTracker.style.left = `${progress >= 95 ? '100' : progress}%`;
+    dlTracker.style.left = `${progress}%`;
+    //@ts-ignore
+    dlTracker.style.width = 100 - Number(dlTracker.style.left.substring(0, dlTracker.style.left.length - 1)) + '%';
 }
 exports.updateInstanceDlProgress = updateInstanceDlProgress;
 var InstanceState;
@@ -263,25 +270,45 @@ function updateInstanceDlState(instanceId, newState) {
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;
+function saveInstancesData() {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        const instances = document.getElementById("instance-list").children;
+        for (const e of instances) {
+            // @ts-ignore
+            instancesData[e.id] = {};
+            // @ts-ignore
+            instancesData[e.id]["state"] = e.getAttribute("state");
+            // @ts-ignore
+            instancesData[e.id]["dlCount"] = (_a = e.firstElementChild) === null || _a === void 0 ? void 0 : _a.style.left;
+        }
+        console.log(instancesData);
+    });
+}
+exports.saveInstancesData = saveInstancesData;
+function restoreInstancesData() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const instances = document.getElementById("instance-list").children;
+        for (const e of instances) {
+            console.log(instancesData.hasOwnProperty(e.id));
+            if (instancesData.hasOwnProperty(e.id)) {
+                // @ts-ignore
+                e.setAttribute("state", instancesData[e.id]["state"]);
+                console.log(e.getAttribute("state"));
+                console.log("yay");
+                //@ts-ignore
+                console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
+                // @ts-ignore
+                updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
+            }
+        }
+        instancesData = [];
+    });
+}
+exports.restoreInstancesData = restoreInstancesData;
 function checkInstanceIntegrity(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         // TODO: Code
     });
 }
 exports.checkInstanceIntegrity = checkInstanceIntegrity;
-// DEBUG ZONE
-// document.addEventListener("dblclick", (e) => {
-//     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Downloading)
-//     setTimeout(() => {
-//         updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Loading)
-//         setTimeout(() => {
-//             updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playable)
-//             setTimeout(() => {
-//                 updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Playing)
-//                  setTimeout(() => {
-//                     updateInstanceDlState("cbffedb1-8ef6-4cab-b7bf-a9fdb83d453c", InstanceState.Update)
-//                 }, 2000)
-//             }, 2000)
-//         }, 2000)
-//     }, 2000)
-// })

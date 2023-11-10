@@ -21,22 +21,22 @@
   },
   "homepage": "https://github.com/ItsBursty/BurstyLauncher#readme",
   "devDependencies": {
-    "@types/adm-zip": "^0.5.0",
-    "@types/color": "^3.0.3",
-    "@types/discord-rpc": "^4.0.4",
-    "@types/node-7z": "^2.1.5",
-    "@types/semver": "^7.5.0",
-    "@types/uuid": "^9.0.1",
-    "electron": "^25.7.0",
-    "electron-builder": "^24.4.0"
+    "@types/adm-zip": "^0.5.2",
+    "@types/color": "^3.0.4",
+    "@types/discord-rpc": "^4.0.6",
+    "@types/node-7z": "^2.1.6",
+    "@types/semver": "^7.5.3",
+    "@types/uuid": "^9.0.5",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.10",
+    "@electron/remote": "^2.0.12",
     "adm-zip": "^0.5.10",
     "color": "^4.2.3",
     "discord-rpc": "^4.0.1",
     "semver": "^7.5.4",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "build": {
     "appId": "fr.burstyx.burstyxlauncher",

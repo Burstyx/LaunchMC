@@ -41,8 +41,6 @@
   font-weight: 700;
 }
 
-@mixin default-btn {}
-
 * {
   margin: 0;
   padding: 0;
@@ -64,6 +62,8 @@ body {
 
   display: flex;
   flex-direction: column;
+
+  overflow: hidden;
 }
 
 :root {
@@ -103,9 +103,9 @@ body {
 
 /* Sub content -> My instance tab */
 .sub-content {
-  height: calc(100% - 100px);
+  height: 100%;
 
-  margin: 0 5px 5px 5px;
+  margin: 0 5px 0 5px;
 
   display: flex;
   gap: 5px;
@@ -113,56 +113,41 @@ body {
   position: relative;
 }
 
-.sub-content .instance-sidebar {
-  width: 350px;
-  min-width: 350px;
-
-  height: 100%;
-
-  border-radius: 5px;
-
-  background-color: var(--content-bg);
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.instance-sidebar #instance-list {
-  margin: 5px;
-
-  overflow-x: hidden;
-  overflow-y: overlay;
-
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-
-  flex: 1;
-  border-radius: 5px;
-}
-
-.sub-content .instance-info {
-  flex: 1;
-
-  border-radius: 5px;
-
-  background-color: var(--content-bg);
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.instance-info .info-content {
-  height: 100%;
+.sub-content .instance-menu {
   width: 100%;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 
-  overflow-y: overlay;
+  height: calc(100vh - 105px);
+  overflow: overlay;
+
+  border-radius: 5px;
+
+  display: flex;
+  justify-content: center;
+
+  background-color: var(--content-bg);
+}
+
+.sub-content .instance-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.instance-menu #instance-list {
+  max-width: 932px;
+  height: max-content;
+  padding: 5px;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 5px;
+
+  border-radius: 5px;
+}
+
+#instance-list div {
+  height: 175px;
+  width: 125px;
 }
 
 .info-content .info-backimg {
@@ -171,13 +156,10 @@ body {
 
   border-radius: 5px;
 
-  background: linear-gradient(180deg,
-      rgba(0, 0, 0, 0.15) 0%,
-      rgb(0, 0, 0, 0.85) calc(100% + 1px)),
-    url();
-
   background-size: cover;
-  background-position: 50%;
+  background: linear-gradient(180deg,
+  rgba(0, 0, 0, 0.15) 0%,
+  rgb(0, 0, 0, 0.85) calc(100% + 1px)) 50%;
 
   position: relative;
 
@@ -209,34 +191,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.info-content .instance-info-area {
-  width: calc(100% - 10px);
-  max-width: 1200px;
-
-  position: relative;
-
-  top: 45px;
-  padding-bottom: 5px;
-
-  display: grid;
-  gap: 5px;
-}
-
-.instance-info-area .all-widgets {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  gap: 5px;
-}
-
-.instance-info-area .info-widgets {
-  height: 100%;
-
-  display: grid;
-  gap: 5px;
-  grid-template-columns: 1fr 1fr;
 }
 
 .screenshot-widget {}
@@ -276,11 +230,61 @@ body {
 
   /* FIXME: UNCOMMENT THIS IN PROD */
   opacity: 0;
-  transform: scale(.75); 
-
+  transform: scale(.75);
   pointer-events: none;
 
   transition: opacity .15s, transform .15s ease-out;
+}
+
+.window[window-id="instance-info"] {
+  flex: 1;
+
+  border-radius: 5px;
+
+  background-color: var(--content-bg);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.window[window-id="instance-info"] .info-content {
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow-y: overlay;
+}
+
+.window[window-id="instance-info"] .instance-info-area {
+  width: calc(100% - 10px);
+  max-width: 1200px;
+
+  position: relative;
+
+  top: 45px;
+  padding-bottom: 5px;
+
+  display: grid;
+  gap: 5px;
+}
+
+.window[window-id="instance-info"] .instance-info-area .all-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 5px;
+}
+
+.window[window-id="instance-info"] .info-widgets {
+  height: 100%;
+
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr 1fr;
 }
 
 .window[window-id="new-instance"] .info-backimg {
@@ -362,8 +366,8 @@ body {
   flex-direction: column;
 
   background-color: #121212;
-    border-radius: 5px;
-    margin: 5px;
+  border-radius: 5px;
+  margin: 5px;
 
   gap: 5px;
 

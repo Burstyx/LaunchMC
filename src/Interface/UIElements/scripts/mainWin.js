@@ -23,8 +23,15 @@ launchBtn.addEventListener("click", async () => {
         case InstanceState[InstanceState.Playing]:
             killGame(instanceId)
             return;
-        default:
-            console.log("Can't do anything");
+        case InstanceState[InstanceState.Downloading]:
+            console.log("Downloading, can't do anything!");
+            return;
+        case InstanceState[InstanceState.Update]:
+            console.log("Updating...");
+            return;
+        case InstanceState[InstanceState.Loading]:
+            console.log("Already launching!");
+            return;
     }
 
     // Fetch instance game version and type
@@ -56,7 +63,7 @@ openAccountManagerWinBtn.addEventListener("click", (e) => { openWindow("account-
 
 exports.refreshAccountBtnImg = (uuid) => {
     console.log(uuid);
-    if (uuid == undefined) {
+    if (uuid === undefined) {
         return
     }
 

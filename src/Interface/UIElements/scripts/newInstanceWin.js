@@ -22,7 +22,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
 
     // Set instance name to the default one if nothing has been entered by user
     let instanceName = userInstanceName
-    if (instanceName == "") {
+    if (instanceName === "") {
         instanceName = defaultInstanceName
     }
 
@@ -30,14 +30,11 @@ createInstanceBtn.addEventListener("click", async (e) => {
 
     // Create instance
     await createInstance(mcVersion, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader == "forge" ? { name: "forge", id: version } : undefined)
-    await setContentTo(instanceName)
 
     // Download Game and patch game with correct modloader
-    if (modloader == "forge") {
-        await downloadMinecraft(mcVersion, instanceName)
+    await downloadMinecraft(mcVersion, instanceName)
+    if (modloader === "forge") {
         await patchInstanceWithForge(instanceName, mcVersion, version)
-    } else {
-        await downloadMinecraft(mcVersion, instanceName)
     }
 })
 
