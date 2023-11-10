@@ -6,23 +6,17 @@ import {EventEmitter} from "node:events"
 
 interface DownloadOpt {
     decompress?: boolean,
-    overwrite?: boolean
 }
 
 type CallbackProgress = (progress: number, byteSent: number) => void;
 
 // Download url async
 export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
-    if(fs.existsSync(dest) && (!opt || opt.overwrite == false)) {
-        console.log("Already exist, skip dl");
-        return
-    }
-
     return new Promise<void>(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
 
         console.log("destDir:", destDir);
-        
+
         await makeDir(destDir)
         const file = fs.createWriteStream(dest)
 
@@ -41,7 +35,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
 
                     if(opt && opt["decompress"] == true){
                         console.log("décompression....");
-                        
+
                         const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
 
                         const zip = new AdmZip(dest)

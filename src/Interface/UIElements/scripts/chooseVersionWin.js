@@ -64,6 +64,7 @@ exports.refreshVersionList = async () => {
             versionsElement.addEventListener("click", (e) => {
                 const modloaderWidget = document.getElementById("open-choose-version-win")
                 modloaderWidget.setAttribute("version-id", version.id)
+                modloaderWidget.setAttribute("modloader-id", "vanilla")
                 modloaderWidget.setAttribute("subname", version.type)
                 modloaderWidget.innerText = version.id
 

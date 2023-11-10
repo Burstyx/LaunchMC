@@ -15,6 +15,8 @@
             <div class="default-btn active interactable">My Instances</div>
             <div class="default-btn interactable">My Servers</div>
             <div class="default-btn interactable">Settings</div>
+            <div class="default-btn interactable" id="open-account-manager-window" style="display: flex; gap: 5px;"><img
+                    src="https://minotar.net/avatar/Steve" id="profile-img" style="border-radius: 20px;" width="25px"></div>
         </div>
         <div class="win-btns">
             <div class="default-btn interactable" id="reduce-btn"><img src="./resources/svg/reduce.svg"></div>
@@ -26,52 +28,49 @@
         <div class="loading-page" id="loading-startup-launcher">
             <div class="loading"></div>
         </div>
-        <div class="instance-sidebar">
+        <div class="instance-menu">
+            <div class="default-btn interactable" id="open-create-instance-window" style="position: absolute; bottom: 10px; right: 10px"><img src="./resources/svg/add.svg" width="25px"></div>
             <div id="instance-list">
                 <!-- All instances will be there -->
             </div>
-            <div class="action-btns" style="display: flex; gap: 5px; margin: 0px 5px 5px 5px">
-                <div class="default-btn interactable" id="open-create-instance-window" style="flex: 10;"><img
-                        src="./resources/svg/add.svg"></div>
-                <div class="default-btn interactable" id="open-account-manager-window" style="flex: 1; display: flex; gap: 5px;"><img
-                        src="https://minotar.net/avatar/Steve" id="profile-img" style="border-radius: 20px;" width="25px"></div>
-            </div>
-        </div>
-        <div class="instance-info">
-            <div class="info-content" id="content" style="display: none;">
-                <div class="info-backimg" id="content-background">
-                    <div class="overlapping-info">
-                        <p style="font-size: 45px; font-weight: 600; text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);" id="instance-title"> <!-- Dynamic --> </p>
-                        <p style="font-size: 18px; text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);">By <span style="color: #FFF /* Dynamic */; font-weight: 400; transition: color .15s;" id="instance-author"> <!-- Dynamic --> </span></p>
-                    </div>
-                    <div class="action-btn">
-                        <div class="accent-btn interactable" style="position: relative; left: 5px; background-color: #2b2b2b /* Dynamic */; border: solid #363636 /* Dynamic */; box-shadow: 0 0 10px 1px #2b2b2b /* Dynamic */; transition: background-color .15s, border .15s, box-shadow .15s, transform .15s, filter .15s;" id="launchbtn">Play</div>
-                    </div>
-                </div>
-                
-                <div class="instance-info-area">
-                    <div class="all-widgets">
-                        <div class="info-widgets">
-                            <div class="widget-btn interactable" id="widget-version" widget-name="Version"> <!-- Dynamic --> </div>
-                            <div class="widget-btn interactable" id="widget-modloader" widget-name="Loader"> <!-- Dynamic --> </div>
-                            <div class="widget-btn interactable" id="widget-playtime" widget-name="Playtime"> <!-- Dynamic --> </div>
-                            <div class="widget-btn interactable" id="widget-lastplayed" widget-name="Last Played"> <!-- Dynamic --> </div>
-                        </div>
-                        <div class="widget-btn interactable screenshot-widget" id="widget-screenshot" widget-name="Last Screenshot" style="padding: 25px;">
-                            <div style="width: 100%; height: 100%; background: url(); background-position: 50%; background-size: cover; border-radius: 5px;"></div> <!-- Dynamic -->
-                        </div>
-                        <div class="widget-btn interactable" id="widget-post" style="grid-column: span 2;" widget-name="Last Post">
-                            <!-- Dynamic -->
-                        </div> 
-                    </div>
-                    <div class="widget-btn interactable" id="widget-description" widget-name="Description" style="text-align: left;">
-                        <!-- Dynamic -->
-                    </div>
-                </div>
-            </div>
-            <div class="loading" id="instance-info-loading" style="display: none;">Loading</div>
         </div>
         <div class="sub-window" id="sub-windows">
+            <div class="window" window-id="instance-info">
+                <div class="info-content" id="content">
+                    <div class="info-backimg" id="content-background">
+                        <!-- TODO: c moche ca -->
+                        <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; background-color: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px" onclick="require('./scripts/window').closeWindow('instance-info')"><img src="./resources/svg/back.svg" width="25px">Back</div>
+                        <div class="overlapping-info">
+                            <p style="font-size: 45px; font-weight: 600; text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);" id="instance-title"> &lt;!&ndash; Dynamic &ndash;&gt; </p>
+                            <p style="font-size: 18px; text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);">By <span style="color: #FFF /* Dynamic */; font-weight: 400; transition: color .15s;" id="instance-author"> &lt;!&ndash; Dynamic &ndash;&gt; </span></p>
+                        </div>
+                        <div class="action-btn">
+                            <div class="accent-btn interactable" style="position: relative; left: 5px; background-color: #2b2b2b /* Dynamic */; border: solid #363636 /* Dynamic */; box-shadow: 0 0 10px 1px #2b2b2b /* Dynamic */; transition: background-color .15s, border .15s, box-shadow .15s, transform .15s, filter .15s;" id="launchbtn">Play</div>
+                        </div>
+                    </div>
+
+                    <div class="instance-info-area">
+                        <div class="all-widgets">
+                            <div class="info-widgets">
+                                <div class="widget-btn interactable" id="widget-version" widget-name="Version"> Dynamic </div>
+                                <div class="widget-btn interactable" id="widget-modloader" widget-name="Loader"> Dynamic </div>
+                                <div class="widget-btn interactable" id="widget-playtime" widget-name="Playtime"> Dynamic  </div>
+                                <div class="widget-btn interactable" id="widget-lastplayed" widget-name="Last Played"> Dynamic </div>
+                            </div>
+                            <div class="widget-btn interactable screenshot-widget" id="widget-screenshot" widget-name="Last Screenshot" style="padding: 25px;">
+                                <div style="width: 100%; height: 100%; background-position: 50%; background-size: cover; border-radius: 5px;"></div> Dynamic
+                            </div>
+                            <div class="widget-btn interactable" id="widget-post" style="grid-column: span 2;" widget-name="Last Post">
+                                Dynamic
+                            </div>
+                        </div>
+                        <div class="widget-btn interactable" id="widget-description" widget-name="Description" style="text-align: left;">
+                            Dynamic
+                        </div>
+                    </div>
+                </div>
+                <div class="loading" id="instance-info-loading" style="display: none;">Loading</div>
+            </div>
             <div class="window" window-id="new-instance">
                 <div class="info-backimg" id="backimg-new-instance" image-path="./resources/images/default.png" style="background: url(./resources/images/default.png) 50% center / cover;">
                     <div class="change-image-container">
@@ -127,7 +126,7 @@
     <script>
         // Avoid middle mouse click to scroll
         document.addEventListener("mousedown", (e) => {
-            if (e.button == 1) {
+            if (e.button === 1) {
                 e.preventDefault()
             }
         }, { passive: false })
