@@ -41,8 +41,8 @@ function createInstance(version, instanceInfo, loaderInfo) {
                 "author": instanceInfo.author,
                 "accentColor": instanceInfo.accentColor,
                 "playtime": 0,
-                "lastplayed": null,
-                "description": null
+                "lastplayed": -1,
+                "description": ""
             },
             "gameData": {
                 "version": version,
