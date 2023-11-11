@@ -21,6 +21,7 @@ function downloadAsync(url, dest, callback, opt) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"));
         console.log("destDir:", destDir);
+        console.log("dest:", dest);
         yield (0, HFileManagement_1.makeDir)(destDir);
         const file = fs_1.default.createWriteStream(dest);
         const xhr = new XMLHttpRequest();
@@ -62,6 +63,11 @@ function downloadAsync(url, dest, callback, opt) {
             lastLoaded = loaded;
         };
         xhr.open("GET", url);
+        if ((opt === null || opt === void 0 ? void 0 : opt.headers) != undefined) {
+            for (const header of opt.headers) {
+                xhr.setRequestHeader(header.name, header.value);
+            }
+        }
         xhr.responseType = "arraybuffer";
         xhr.send();
     }));

@@ -6,6 +6,7 @@ import {EventEmitter} from "node:events"
 
 interface DownloadOpt {
     decompress?: boolean,
+    headers?: any
 }
 
 type CallbackProgress = (progress: number, byteSent: number) => void;
@@ -16,6 +17,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
 
         console.log("destDir:", destDir);
+        console.log("dest:", dest)
 
         await makeDir(destDir)
         const file = fs.createWriteStream(dest)
@@ -72,6 +74,13 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
         }
 
         xhr.open("GET", url)
+
+        if(opt?.headers != undefined) {
+            for (const header of opt.headers) {
+                xhr.setRequestHeader(header.name, header.value)
+            }
+        }
+
         xhr.responseType = "arraybuffer"
 
         xhr.send()
