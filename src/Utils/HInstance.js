@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkInstanceIntegrity = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -20,6 +20,8 @@ const HFileManagement_1 = require("./HFileManagement");
 const original_fs_1 = require("original-fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
+const DownloadGame_1 = require("../App/DownloadGame");
+const HDownload_1 = require("./HDownload");
 var instancesData = {};
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -39,8 +41,8 @@ function createInstance(version, instanceInfo, loaderInfo) {
                 "author": instanceInfo.author,
                 "accentColor": instanceInfo.accentColor,
                 "playtime": 0,
-                "lastplayed": null,
-                "description": null
+                "lastplayed": -1,
+                "description": ""
             },
             "gameData": {
                 "version": version,
@@ -75,7 +77,7 @@ function generateInstanceBtn(imagePath, title, id) {
         instanceElement.innerText = title;
         instanceElement.classList.add("default-btn", "interactable", "instance");
         instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]);
-        instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`;
+        instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${(0, Utils_1.replaceAll)(imagePath, '\\', '/')}')`;
         instanceElement.style.textShadow = "black 0px 0px 10px";
         instanceElement.style.position = "relative";
         instanceElement.id = id;
@@ -155,7 +157,23 @@ function setContentTo(id) {
         const widgetLastplayed = document.getElementById("widget-lastplayed"); // FIXME: Don't work
         widgetLastplayed.innerText = instanceData["lastplayed"];
         const widgetDesc = document.getElementById("widget-description"); // TODO: Write md rules
-        widgetDesc.innerText = instanceData["description"];
+        const desc = yield retrieveDescription(id);
+        if (desc !== "") {
+            widgetDesc.style.display = "flex";
+            widgetDesc.innerText = desc;
+        }
+        else {
+            widgetDesc.style.display = "none";
+        }
+        const widgetPosts = document.getElementById("widget-post");
+        const posts = yield retrievePosts(id);
+        if (posts !== "") {
+            widgetPosts.style.display = "flex";
+            widgetPosts.innerText = desc;
+        }
+        else {
+            widgetPosts.style.display = "none";
+        }
         const launchBtn = document.getElementById("launchbtn");
         const accentColor = instanceData["accentColor"];
         contentAuthor.style.color = accentColor;
@@ -193,9 +211,28 @@ function setContentTo(id) {
             launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
             launchBtn.innerText = "Loading";
         }
+        else if (currentState === InstanceState[InstanceState.Patching]) {
+            launchBtn.style.backgroundColor = "#e05609";
+            launchBtn.style.border = `solid #363636`;
+            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
+            launchBtn.innerText = "Patching";
+        }
+        else if (currentState === InstanceState[InstanceState.DLResources]) {
+            launchBtn.style.backgroundColor = "#2b2b2b";
+            launchBtn.style.border = `solid #363636`;
+            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
+            launchBtn.innerText = "Downloading Server Files";
+        }
+        else if (currentState === InstanceState[InstanceState.Verification]) {
+            launchBtn.style.backgroundColor = "#2b2b2b";
+            launchBtn.style.border = `solid #363636`;
+            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
+            launchBtn.innerText = "Finishing";
+        }
         const contentBackground = document.getElementById("content-background");
         contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
-    url('${instanceData["imagePath"]}')`;
+    url('${(0, Utils_1.replaceAll)(instanceData["imagePath"], '\\', '/')}')`;
+        contentBackground.style.backgroundSize = 'cover';
         loading.style.display = "none";
         content.style.display = "flex";
     });
@@ -204,7 +241,7 @@ exports.setContentTo = setContentTo;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         const instancesDiv = document.getElementById("instance-list");
-        yield saveInstancesData();
+        saveInstancesData();
         instancesDiv.innerHTML = "";
         if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
             const instances = yield promises_1.default.readdir(const_1.instancesPath);
@@ -217,7 +254,7 @@ function refreshInstanceList() {
                 }
             }
         }
-        yield restoreInstancesData();
+        restoreInstancesData();
     });
 }
 exports.refreshInstanceList = refreshInstanceList;
@@ -257,9 +294,12 @@ var InstanceState;
 (function (InstanceState) {
     InstanceState[InstanceState["Loading"] = 0] = "Loading";
     InstanceState[InstanceState["Downloading"] = 1] = "Downloading";
-    InstanceState[InstanceState["Playable"] = 2] = "Playable";
-    InstanceState[InstanceState["Update"] = 3] = "Update";
-    InstanceState[InstanceState["Playing"] = 4] = "Playing";
+    InstanceState[InstanceState["DLResources"] = 2] = "DLResources";
+    InstanceState[InstanceState["Verification"] = 3] = "Verification";
+    InstanceState[InstanceState["Patching"] = 4] = "Patching";
+    InstanceState[InstanceState["Playable"] = 5] = "Playable";
+    InstanceState[InstanceState["Update"] = 6] = "Update";
+    InstanceState[InstanceState["Playing"] = 7] = "Playing";
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceDlState(instanceId, newState) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -272,43 +312,102 @@ function updateInstanceDlState(instanceId, newState) {
 exports.updateInstanceDlState = updateInstanceDlState;
 function saveInstancesData() {
     var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const instances = document.getElementById("instance-list").children;
-        for (const e of instances) {
-            // @ts-ignore
-            instancesData[e.id] = {};
-            // @ts-ignore
-            instancesData[e.id]["state"] = e.getAttribute("state");
-            // @ts-ignore
-            instancesData[e.id]["dlCount"] = (_a = e.firstElementChild) === null || _a === void 0 ? void 0 : _a.style.left;
-        }
-        console.log(instancesData);
-    });
+    const instances = document.getElementById("instance-list").children;
+    for (const e of instances) {
+        // @ts-ignore
+        instancesData[e.id] = {};
+        // @ts-ignore
+        instancesData[e.id]["state"] = e.getAttribute("state");
+        // @ts-ignore
+        instancesData[e.id]["dlCount"] = (_a = e.firstElementChild) === null || _a === void 0 ? void 0 : _a.style.left;
+    }
+    console.log(instancesData);
 }
 exports.saveInstancesData = saveInstancesData;
 function restoreInstancesData() {
-    return __awaiter(this, void 0, void 0, function* () {
-        const instances = document.getElementById("instance-list").children;
-        for (const e of instances) {
-            console.log(instancesData.hasOwnProperty(e.id));
-            if (instancesData.hasOwnProperty(e.id)) {
-                // @ts-ignore
-                e.setAttribute("state", instancesData[e.id]["state"]);
-                console.log(e.getAttribute("state"));
-                console.log("yay");
-                //@ts-ignore
-                console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
-                // @ts-ignore
-                updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
-            }
+    const instances = document.getElementById("instance-list").children;
+    for (const e of instances) {
+        console.log(instancesData.hasOwnProperty(e.id));
+        if (instancesData.hasOwnProperty(e.id)) {
+            // @ts-ignore
+            e.setAttribute("state", instancesData[e.id]["state"]);
+            console.log(e.getAttribute("state"));
+            console.log("yay");
+            //@ts-ignore
+            console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
+            // @ts-ignore
+            updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
         }
-        instancesData = [];
-    });
+    }
+    instancesData = [];
 }
 exports.restoreInstancesData = restoreInstancesData;
+function convertProfileToInstance(profilePath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const profileJson = JSON.parse(yield promises_1.default.readFile(profilePath, "utf-8"));
+        const isVanilla = profileJson.game.loader == null;
+        //@ts-ignore
+        yield createInstance(profileJson.game.mcVersion, {
+            name: profileJson.instance.id,
+            accentColor: profileJson.instance.color,
+            author: profileJson.profile.author,
+            id: profileJson.instance.id,
+            imagePath: yield (0, HDownload_1.downloadAsync)(profileJson.instance.thumbnailUrl, path_1.default.join(const_1.instancesPath, profileJson.instance.id, "thumbnail" + path_1.default.extname(profileJson.instance.thumbnailUrl))),
+            versionType: profileJson.game.type
+        }, !isVanilla ? {
+            name: profileJson.game.loader.name,
+            id: profileJson.game.loader.id
+        } : undefined);
+        // Update description
+        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, profileJson.instance.id, "info.json"), "utf-8"));
+        data.instanceData.description = profileJson.instance.description;
+        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, profileJson.instance.id, "info.json"), JSON.stringify(data));
+        yield (0, DownloadGame_1.downloadMinecraft)(profileJson.game.mcVersion, profileJson.instance.id);
+        if (!isVanilla) {
+            yield (0, DownloadGame_1.patchInstanceWithForge)(profileJson.instance.id, profileJson.game.mcVersion, profileJson.game.loader.id);
+        }
+        yield updateInstanceDlState(profileJson.instance.id, InstanceState.DLResources);
+        // Download files
+        for (const fileData of profileJson.game.files) {
+            yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, profileJson.instance.id, fileData.path));
+        }
+        yield updateInstanceDlState(profileJson.instance.id, InstanceState.Playable);
+    });
+}
+exports.convertProfileToInstance = convertProfileToInstance;
+function retrieveDescription(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Get description on file server
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, id, "info.json"), "utf-8")).instanceData.description;
+    });
+}
+exports.retrieveDescription = retrieveDescription;
+function retrievePosts(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Get posts on file server
+        return new Promise((resolve, reject) => {
+            resolve("");
+        });
+    });
+}
+exports.retrievePosts = retrievePosts;
+function checkForUpdate(instanceId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield updateInstanceDlState(instanceId, InstanceState.Loading);
+        let updateFound = false;
+        // Check difference between this instance version and the serverside instance version
+        // If version is different, delete game files and replace them and update instance properties
+        if (updateFound)
+            yield updateInstanceDlState(instanceId, InstanceState.Update);
+        yield updateInstanceDlState(instanceId, InstanceState.Playable);
+    });
+}
+exports.checkForUpdate = checkForUpdate;
 function checkInstanceIntegrity(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
+        yield updateInstanceDlState(instanceId, InstanceState.Verification);
         // TODO: Code
+        yield updateInstanceDlState(instanceId, InstanceState.Playable);
     });
 }
 exports.checkInstanceIntegrity = checkInstanceIntegrity;

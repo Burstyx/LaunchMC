@@ -23,8 +23,6 @@ const promises_1 = __importDefault(require("fs/promises"));
 const os_1 = __importDefault(require("os"));
 const HInstance_1 = require("../Utils/HInstance");
 const child_process_1 = __importDefault(require("child_process"));
-const StartMinecraft_1 = require("./StartMinecraft");
-const HMicrosoft_1 = require("../Utils/HMicrosoft");
 const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
 function downloadMinecraft(version, instanceId) {
@@ -109,6 +107,7 @@ exports.downloadMinecraft = downloadMinecraft;
 function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
     var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
+        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Patching);
         // Download java if it doesn't exist
         const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
         // Download forge installer, work only for all versions after 1.5.2
@@ -236,7 +235,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                 }
             }
         }
-        yield (0, StartMinecraft_1.startMinecraft)(mcVersion, instanceId, { accesstoken: (yield (0, HMicrosoft_1.getActiveAccount)()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release" }, { id: forgeId });
+        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
     });
 }
 exports.patchInstanceWithForge = patchInstanceWithForge;

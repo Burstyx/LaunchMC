@@ -1,14 +1,23 @@
 const { openWindow } = require("./window")
 const { startMinecraft, killGame } = require("../../../App/StartMinecraft")
-const { InstanceState } = require("../../../Utils/HInstance")
+const { InstanceState, convertProfileToInstance} = require("../../../Utils/HInstance")
 const fs = require("fs/promises")
 const { gamePath } = require("../../../Utils/const")
 const { getActiveAccount } = require("../../../Utils/HMicrosoft")
+const {dialog} = require("@electron/remote")
 
 // Open new instance window
 const openCreateInstanceWinBtn = document.getElementById("open-create-instance-window")
 openCreateInstanceWinBtn.addEventListener("click", (e) => {
     openWindow("new-instance")
+})
+
+// Import json profile file
+const openImportProfileCtxDialog = document.getElementById("open-import-profile-ctxdialog")
+
+openImportProfileCtxDialog.addEventListener("click", async (e) => {
+    const result = await dialog.showOpenDialog({properties: ['openFile']})
+    if(result !== undefined) await convertProfileToInstance(result.filePaths[0])
 })
 
 // Launch instance button
@@ -31,6 +40,15 @@ launchBtn.addEventListener("click", async () => {
             return;
         case InstanceState[InstanceState.Loading]:
             console.log("Already launching!");
+            return;
+        case InstanceState[InstanceState.Patching]:
+            console.log("Patching instance, can't do anything");
+            return;
+        case InstanceState[InstanceState.DLResources]:
+            console.log("Downloading resources, can't do anything");
+            return;
+        case InstanceState[InstanceState.Verification]:
+            console.log("Verifying installation, wait");
             return;
     }
 
