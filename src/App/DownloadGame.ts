@@ -126,6 +126,8 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
 }
 
 export async function patchInstanceWithForge(instanceId: string, mcVersion: string, forgeId: string) {
+    await updateInstanceDlState(instanceId, InstanceState.Patching)
+
     // Download java if it doesn't exist
     const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
 
@@ -293,9 +295,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
         }
     }
 
-    await startMinecraft(mcVersion, instanceId, {accesstoken: (await getActiveAccount()).access_token, username: "ItsBursty", usertype: "msa", uuid: "5905494c31674f60abda3ac0bcbafcd7", versiontype: "release"}, {id: forgeId})
-
-    // Changer type de l'instance pour utiliser les bons arguments
+    await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
 // Download Minecraft libraries

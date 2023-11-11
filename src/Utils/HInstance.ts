@@ -1,10 +1,12 @@
 import fs from "fs/promises"
 import path from "path"
-import { instancesPath } from "../Utils/const"
-import { makeDir } from "./HFileManagement"
-import { existsSync } from "original-fs"
+import {instancesPath} from "../Utils/const"
+import {makeDir} from "./HFileManagement"
+import {existsSync} from "original-fs"
 import Color from "color"
-import { concatJson } from "./Utils"
+import {concatJson, replaceAll} from "./Utils"
+import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
+import {downloadAsync} from "./HDownload";
 
 var instancesData = {};
 
@@ -42,8 +44,8 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
             "author": instanceInfo.author,
             "accentColor": instanceInfo.accentColor,
             "playtime": 0,
-            "lastplayed": null,
-            "description": null
+            "lastplayed": -1,
+            "description": ""
         },
         "gameData": {
             "version": version,
@@ -85,7 +87,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
     instanceElement.innerText = title
     instanceElement.classList.add("default-btn", "interactable", "instance")
     instanceElement.setAttribute("state", InstanceState[InstanceState.Playable])
-    instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${imagePath}')`
+    instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${replaceAll(imagePath, '\\', '/')}')`
     instanceElement.style.textShadow = "black 0px 0px 10px"
     instanceElement.style.position = "relative"
     instanceElement.id = id
@@ -189,7 +191,24 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     widgetLastplayed.innerText = instanceData["lastplayed"]
 
     const widgetDesc = document.getElementById("widget-description")! // TODO: Write md rules
-    widgetDesc.innerText = instanceData["description"]
+
+    const desc = await retrieveDescription(id)
+    if(desc !== "") {
+        widgetDesc.style.display = "flex"
+        widgetDesc.innerText = desc
+    } else {
+        widgetDesc.style.display = "none"
+    }
+
+    const widgetPosts = document.getElementById("widget-post")!
+
+    const posts = await retrievePosts(id)
+    if(posts !== "") {
+        widgetPosts.style.display = "flex"
+        widgetPosts.innerText = desc
+    } else {
+        widgetPosts.style.display = "none"
+    }
 
     const launchBtn = document.getElementById("launchbtn")!
 
@@ -241,10 +260,32 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
         launchBtn.innerText = "Loading"
     }
+    else if(currentState === InstanceState[InstanceState.Patching]) {
+        launchBtn.style.backgroundColor = "#e05609"
+        launchBtn.style.border = `solid #363636`
+        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
+
+        launchBtn.innerText = "Patching"
+    }
+    else if(currentState === InstanceState[InstanceState.DLResources]) {
+        launchBtn.style.backgroundColor = "#2b2b2b"
+        launchBtn.style.border = `solid #363636`
+        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
+
+        launchBtn.innerText = "Downloading Server Files"
+    }
+    else if(currentState === InstanceState[InstanceState.Verification]) {
+        launchBtn.style.backgroundColor = "#2b2b2b"
+        launchBtn.style.border = `solid #363636`
+        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
+
+        launchBtn.innerText = "Finishing"
+    }
 
     const contentBackground = document.getElementById("content-background")!
     contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
-    url('${instanceData["imagePath"]}')`
+    url('${replaceAll(instanceData["imagePath"], '\\', '/')}')`
+    contentBackground.style.backgroundSize = 'cover'
 
     loading.style.display = "none"
     content.style.display = "flex"
@@ -252,7 +293,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
 export async function refreshInstanceList() { // FIXME: instance state are clear and that's not good at all
     const instancesDiv = document.getElementById("instance-list")!
-    await saveInstancesData();
+    saveInstancesData();
 
     instancesDiv.innerHTML = ""
     
@@ -270,7 +311,7 @@ export async function refreshInstanceList() { // FIXME: instance state are clear
         }
     }
 
-    await restoreInstancesData();
+    restoreInstancesData();
 }
 
 export async function getInstanceData(instanceId: string){
@@ -315,6 +356,9 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
 export enum InstanceState {
     Loading,
     Downloading,
+    DLResources,
+    Verification,
+    Patching,
     Playable,
     Update,
     Playing
@@ -329,7 +373,7 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
         await setContentTo(instanceId)
 }
 
-export async function saveInstancesData() {
+export function saveInstancesData() {
     const instances = document.getElementById("instance-list")!.children
 
     for (const e of instances) {
@@ -344,7 +388,7 @@ export async function saveInstancesData() {
     console.log(instancesData)
 }
 
-export async function restoreInstancesData() {
+export function restoreInstancesData() {
     const instances = document.getElementById("instance-list")!.children
 
     for (const e of instances) {
@@ -366,6 +410,73 @@ export async function restoreInstancesData() {
     instancesData = [];
 }
 
+export async function convertProfileToInstance(profilePath: any) {
+    const profileJson = JSON.parse(await fs.readFile(profilePath, "utf-8"));
+
+    const isVanilla = profileJson.game.loader == null;
+
+    //@ts-ignore
+    await createInstance(profileJson.game.mcVersion, {
+        name: profileJson.instance.id,
+        accentColor: profileJson.instance.color,
+        author: profileJson.profile.author,
+        id: profileJson.instance.id,
+        imagePath: await downloadAsync(profileJson.instance.thumbnailUrl, path.join(instancesPath, profileJson.instance.id, "thumbnail" + path.extname(profileJson.instance.thumbnailUrl))),
+        versionType: profileJson.game.type
+    }, !isVanilla ? {
+        name: profileJson.game.loader.name,
+        id: profileJson.game.loader.id
+    } : undefined)
+
+    // Update description
+    const data = JSON.parse(await fs.readFile(path.join(instancesPath, profileJson.instance.id, "info.json"), "utf-8"))
+    data.instanceData.description = profileJson.instance.description;
+    await fs.writeFile(path.join(instancesPath, profileJson.instance.id, "info.json"), JSON.stringify(data))
+
+    await downloadMinecraft(profileJson.game.mcVersion, profileJson.instance.id)
+    if(!isVanilla) {
+        await patchInstanceWithForge(profileJson.instance.id, profileJson.game.mcVersion, profileJson.game.loader.id)
+    }
+
+    await updateInstanceDlState(profileJson.instance.id, InstanceState.DLResources)
+
+    // Download files
+    for (const fileData of profileJson.game.files) {
+        await downloadAsync(fileData.url, path.join(instancesPath, profileJson.instance.id, fileData.path))
+    }
+
+    await updateInstanceDlState(profileJson.instance.id, InstanceState.Playable)
+}
+
+export async function retrieveDescription(id: string) {
+    // Get description on file server
+    return JSON.parse(await fs.readFile(path.join(instancesPath, id, "info.json"), "utf-8")).instanceData.description
+}
+
+export async function retrievePosts(id: string): Promise<string> {
+    // Get posts on file server
+    return new Promise((resolve, reject) => {
+        resolve("")
+    })
+}
+
+export async function checkForUpdate(instanceId: string) {
+    await updateInstanceDlState(instanceId, InstanceState.Loading)
+
+    let updateFound = false
+
+    // Check difference between this instance version and the serverside instance version
+    // If version is different, delete game files and replace them and update instance properties
+
+    if(updateFound) await updateInstanceDlState(instanceId, InstanceState.Update)
+
+    await updateInstanceDlState(instanceId, InstanceState.Playable)
+}
+
 export async function checkInstanceIntegrity(instanceId: string) {
+    await updateInstanceDlState(instanceId, InstanceState.Verification)
+
     // TODO: Code
+
+    await updateInstanceDlState(instanceId, InstanceState.Playable)
 }

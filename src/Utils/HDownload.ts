@@ -12,7 +12,7 @@ type CallbackProgress = (progress: number, byteSent: number) => void;
 
 // Download url async
 export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
-    return new Promise<void>(async (resolve, reject) => {
+    return new Promise<string>(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
 
         console.log("destDir:", destDir);
@@ -49,7 +49,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                     }
 
                     file.close()
-                    resolve()
+                    resolve(dest)
                 }else{
                     console.log("erreur de téléchargement");
                     reject()
