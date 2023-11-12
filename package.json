@@ -1,6 +1,6 @@
 {
   "name": "rubycli",
-  "version": "0.0.1-A",
+  "version": "0.0.2-A",
   "description": "Ruby Client, Minecraft launcher for all your vanilla/modded versions",
   "main": "src/electron.js",
   "scripts": {
