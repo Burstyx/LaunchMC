@@ -25,7 +25,7 @@ function checkForUpdate() {
         githubReleaseData = yield (0, HGitHub_1.getLatestRelease)();
         const currentVersion = require("../../package.json").version;
         const latestVersion = githubReleaseData === null || githubReleaseData === void 0 ? void 0 : githubReleaseData.tag_name;
-        if (currentVersion == latestVersion) {
+        if (currentVersion !== latestVersion) {
             console.log("Need to be updated!");
             const updateBtn = document.getElementById("update-btn");
             updateBtn.style.display = "flex";

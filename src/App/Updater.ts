@@ -13,7 +13,7 @@ export async function checkForUpdate() {
     const currentVersion = require("../../package.json").version;
     const latestVersion = githubReleaseData?.tag_name;
 
-    if(currentVersion == latestVersion) {
+    if(currentVersion !== latestVersion) {
         console.log("Need to be updated!")
 
         const updateBtn = document.getElementById("update-btn")
