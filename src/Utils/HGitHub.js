@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLatestRelease = void 0;
+exports.listProfiles = exports.getLatestRelease = void 0;
 function getLatestRelease() {
     return __awaiter(this, void 0, void 0, function* () {
         var myHeaders = new Headers();
@@ -31,3 +31,24 @@ function getLatestRelease() {
     });
 }
 exports.getLatestRelease = getLatestRelease;
+function listProfiles() {
+    return __awaiter(this, void 0, void 0, function* () {
+        var myHeaders = new Headers();
+        myHeaders.append("Accept", "application/vnd.github+json");
+        myHeaders.append("X-GitHub-Api-Version", "2022-11-28");
+        let latestRelease = null;
+        yield fetch("https://api.github.com/repos/tonityg/RubyClientReleases/contents/profiles", {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        })
+            .then((response) => __awaiter(this, void 0, void 0, function* () {
+            return yield response.json().then((data) => {
+                latestRelease = data;
+            });
+        }))
+            .catch(error => console.log("Can't retrieve latest release on GitHub... Can't check for update."));
+        return latestRelease;
+    });
+}
+exports.listProfiles = listProfiles;
