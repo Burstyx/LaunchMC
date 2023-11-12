@@ -5,6 +5,7 @@ const fs = require("fs/promises")
 const { gamePath } = require("../../../Utils/const")
 const { getActiveAccount } = require("../../../Utils/HMicrosoft")
 const {dialog} = require("@electron/remote")
+const {updateCliFrom, updateCli} = require("../../../App/Updater");
 
 // Open new instance window
 const openCreateInstanceWinBtn = document.getElementById("open-create-instance-window")
@@ -16,9 +17,12 @@ openCreateInstanceWinBtn.addEventListener("click", (e) => {
 const openImportProfileCtxDialog = document.getElementById("open-import-profile-ctxdialog")
 
 openImportProfileCtxDialog.addEventListener("click", async (e) => {
-    const result = await dialog.showOpenDialog({properties: ['openFile']})
+    const result = await dialog.showOpenDialog({properties: ['openFile'], filters: [{name: "Ruby Profile File", extensions: ["pruby"]}]})
     if(result !== undefined) await convertProfileToInstance(result.filePaths[0])
 })
+
+const updateBtn = document.getElementById("update-btn")
+updateBtn.addEventListener("click", async (e) => await updateCli())
 
 // Launch instance button
 const launchBtn = document.getElementById("launchbtn")

@@ -1,6 +1,6 @@
 {
   "name": "rubycli",
-  "version": "0.0.1-A",
+  "version": "0.0.2-A",
   "description": "Ruby Client, Minecraft launcher for all your vanilla/modded versions",
   "main": "src/electron.js",
   "scripts": {
@@ -35,12 +35,13 @@
     "adm-zip": "^0.5.10",
     "color": "^4.2.3",
     "discord-rpc": "^4.0.1",
+    "fs-extra": "^11.1.1",
     "semver": "^7.5.4",
     "uuid": "^9.0.1"
   },
   "build": {
     "appId": "fr.burstyx.burstyxlauncher",
-    "productName": "Burstyx Launcher",
+    "productName": "Ruby Client",
     "copyright": "All Rights Reserved",
     "win": {
       "target": [

@@ -1,6 +1,7 @@
 const { initDiscordRPC } = require("../../App/DIscordRPC");
 const { refreshInstanceList } = require("../../Utils/HInstance")
 const { getActiveAccount } = require("../../Utils/HMicrosoft")
+const {checkForUpdate} = require("../../App/Updater");
 
 const loadingStartup = document.getElementById("loading-startup-launcher")
 const menuBtn = document.getElementById("titlebar-menu-btns")
@@ -12,6 +13,9 @@ const initializeModules = async () => {
     console.log("Initialize Modules");
     loadingStartup.style.display = "flex"
     menuBtn.style.display = "none"
+
+    console.log("Checking for Updates")
+    await checkForUpdate()
 
     console.log("[Initialize Modules] Titlebar module");
     const titlebar = require("./scripts/titlebar")
