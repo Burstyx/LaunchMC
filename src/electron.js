@@ -32,7 +32,7 @@ function createAppWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            devTools: true
+            devTools: false
         }
     });
     mainWindow.webContents.openDevTools({ mode: "undocked" });

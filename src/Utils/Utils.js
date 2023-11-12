@@ -11,7 +11,6 @@ function replaceAll(text, toReplace, replacer) {
         var partAfter = replacedText.substring(startIndex + toReplace.length);
         // Concaténer les parties avec le bon dossier
         replacedText = partBefore + replacer + partAfter;
-        console.log(replacedText);
     }
     return replacedText;
 }
