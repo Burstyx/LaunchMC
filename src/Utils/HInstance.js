@@ -397,7 +397,9 @@ function convertProfileToInstance(profilePath) {
         yield updateInstanceDlState(profileJson.instance.id, InstanceState.DLResources);
         // Download files
         for (const fileData of profileJson.game.files) {
-            yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, profileJson.instance.id, fileData.path));
+            const ext = path_1.default.extname(fileData.path);
+            ext === ".zip" ? console.log("zip file detected") : null;
+            yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, profileJson.instance.id, fileData.path), undefined, { decompress: ext === ".zip" });
         }
         yield updateInstanceDlState(profileJson.instance.id, InstanceState.Playable);
     });

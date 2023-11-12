@@ -38,6 +38,7 @@ function downloadAsync(url, dest, callback, opt) {
                         const zip = new adm_zip_1.default(dest);
                         try {
                             zip.extractAllTo(destWithoutExt, true);
+                            fs_1.default.rmSync(dest);
                             console.log("décompressé !");
                         }
                         catch (err) {

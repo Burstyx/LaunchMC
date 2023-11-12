@@ -44,6 +44,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
 
                         try{
                             zip.extractAllTo(destWithoutExt, true)
+                            fs.rmSync(dest)
                             console.log("décompressé !");
                         }catch(err){
                             console.error(err);

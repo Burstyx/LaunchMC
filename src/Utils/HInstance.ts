@@ -473,7 +473,9 @@ export async function convertProfileToInstance(profilePath: any) {
 
     // Download files
     for (const fileData of profileJson.game.files) {
-        await downloadAsync(fileData.url, path.join(instancesPath, profileJson.instance.id, fileData.path))
+        const ext = path.extname(fileData.path)
+        ext === ".zip" ? console.log("zip file detected") : null
+        await downloadAsync(fileData.url, path.join(instancesPath, profileJson.instance.id, fileData.path), undefined, {decompress: ext === ".zip"})
     }
 
     await updateInstanceDlState(profileJson.instance.id, InstanceState.Playable)
