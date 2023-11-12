@@ -41,17 +41,18 @@ function updateCli() {
         loading.style.display = "flex";
         const dlUrl = githubReleaseData.assets[0].browser_download_url;
         const name = githubReleaseData.assets[0].name;
+        console.log(remote_1.app.getPath("exe"));
         yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => {
             var _a, _b;
-            const child = child_process_1.default.exec(`${installerPath} /S`);
+            const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH`);
             child.on("spawn", () => console.log("starting updating"));
             (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on("data", (data) => console.log(data));
             (_b = child.stderr) === null || _b === void 0 ? void 0 : _b.on("data", (data) => console.error(data));
             child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
                 console.log("finish updating");
                 yield promises_1.default.rm(installerPath);
-                remote_1.app.relaunch();
-                remote_1.app.exit();
+                //cp.exec(path.join(, "Ruby Client.exe"))
+                remote_1.app.quit();
             }));
         });
     });

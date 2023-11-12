@@ -32,16 +32,17 @@ export async function updateCli() {
     const dlUrl = githubReleaseData.assets[0].browser_download_url
     const name = githubReleaseData.assets[0].name
 
+    console.log(app.getPath("exe"))
+
     await downloadAsync(dlUrl, path.join(app.getPath("temp"), name)).then((installerPath) => {
-        const child = cp.exec(`${installerPath} /S`)
+        const child = cp.exec(`${installerPath} /S /LAUNCH`)
         child.on("spawn", () => console.log("starting updating"))
         child.stdout?.on("data", (data) => console.log(data))
         child.stderr?.on("data", (data) => console.error(data))
         child.on("exit", async () => {
             console.log("finish updating")
             await fs.rm(installerPath)
-            app.relaunch()
-            app.exit()
+            app.quit()
         })
     })
 }
