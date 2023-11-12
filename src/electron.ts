@@ -21,7 +21,7 @@ function createAppWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            devTools: false
+            devTools: true
         }
     })
 
