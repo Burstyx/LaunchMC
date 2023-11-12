@@ -7,7 +7,7 @@
     "build-js": "npx tsc",
     "run": "npm run build-js && electron .",
     "start sass watcher": "npx sass --watch ./src/style.scss ./src/style.css",
-    "windows build": "electron-builder build --win"
+    "windows build": "npm run build-js && electron-builder build --win"
   },
   "repository": {
     "type": "git",

@@ -51,7 +51,6 @@ function updateCli() {
             child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
                 console.log("finish updating");
                 yield promises_1.default.rm(installerPath);
-                //cp.exec(path.join(, "Ruby Client.exe"))
                 remote_1.app.quit();
             }));
         });
