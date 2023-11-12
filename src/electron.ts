@@ -25,7 +25,7 @@ function createAppWindow() {
         }
     })
 
-    mainWindow.webContents.openDevTools({mode: "undocked"})
+    //mainWindow.webContents.openDevTools({mode: "undocked"})
 
     initialize()
     enable(mainWindow.webContents)
