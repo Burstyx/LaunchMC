@@ -51,7 +51,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                     }
 
                     file.close()
-                    resolve(dest)
+                    file.on("close", () => resolve(dest))
                 }else{
                     console.log("erreur de téléchargement");
                     reject()

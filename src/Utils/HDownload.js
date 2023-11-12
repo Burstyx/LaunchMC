@@ -45,7 +45,7 @@ function downloadAsync(url, dest, callback, opt) {
                         }
                     }
                     file.close();
-                    resolve(dest);
+                    file.on("close", () => resolve(dest));
                 }
                 else {
                     console.log("erreur de téléchargement");

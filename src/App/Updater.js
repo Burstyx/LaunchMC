@@ -18,6 +18,7 @@ const HDownload_1 = require("../Utils/HDownload");
 const remote_1 = require("@electron/remote");
 const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
+const promises_1 = __importDefault(require("fs/promises"));
 let githubReleaseData = null;
 function checkForUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -36,11 +37,23 @@ function checkForUpdate() {
 exports.checkForUpdate = checkForUpdate;
 function updateCli() {
     return __awaiter(this, void 0, void 0, function* () {
+        const loading = document.getElementById("loading-startup-launcher");
+        loading.style.display = "flex";
         const dlUrl = githubReleaseData.assets[0].browser_download_url;
         const name = githubReleaseData.assets[0].name;
-        const installerPath = yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name));
-        console.log(installerPath);
-        child_process_1.default.exec(installerPath);
+        yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => {
+            var _a, _b;
+            const child = child_process_1.default.exec(`${installerPath} /S`);
+            child.on("spawn", () => console.log("starting updating"));
+            (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on("data", (data) => console.log(data));
+            (_b = child.stderr) === null || _b === void 0 ? void 0 : _b.on("data", (data) => console.error(data));
+            child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
+                console.log("finish updating");
+                yield promises_1.default.rm(installerPath);
+                remote_1.app.relaunch();
+                remote_1.app.exit();
+            }));
+        });
     });
 }
 exports.updateCli = updateCli;
