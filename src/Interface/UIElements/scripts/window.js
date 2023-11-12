@@ -34,3 +34,16 @@ exports.closeWindow = (windowId) => {
         }
     })
 }
+
+const loadingStartup = document.getElementById("loading-startup-launcher")
+const menuBtn = document.getElementById("titlebar-menu-btns")
+
+exports.setLoading = (active) => {
+    if(active) {
+        loadingStartup.style.display = "flex"
+        menuBtn.style.display = "none"
+    } else {
+        loadingStartup.style.display = "none"
+        menuBtn.style.display = "flex"
+    }
+}

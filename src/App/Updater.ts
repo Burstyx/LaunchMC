@@ -4,6 +4,7 @@ import {app} from "@electron/remote";
 import path from "path";
 import cp from "child_process"
 import fs from "fs/promises";
+const window = require("../Interface/UIElements/scripts/window.js")
 
 let githubReleaseData: any = null;
 
@@ -27,7 +28,7 @@ export async function checkForUpdate() {
 
 export async function updateCli() {
     const loading = document.getElementById("loading-startup-launcher")
-    loading!.style.display = "flex"
+    window.setLoading(true)
 
     const dlUrl = githubReleaseData.assets[0].browser_download_url
     const name = githubReleaseData.assets[0].name

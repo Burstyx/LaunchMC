@@ -22,6 +22,7 @@ const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
 const DownloadGame_1 = require("../App/DownloadGame");
 const HDownload_1 = require("./HDownload");
+const child_process_1 = __importDefault(require("child_process"));
 var instancesData = {};
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -99,6 +100,33 @@ function generateInstanceBtn(imagePath, title, id) {
             (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
             instanceElement.classList.add("active");
         }));
+        instanceElement.addEventListener("mousedown", (e) => {
+            if (e.button === 2) {
+                // @ts-ignore
+                const id = e.target.id;
+                // @ts-ignore
+                const state = e.target.getAttribute("state");
+                const rcMenu = document.getElementById("rcmenu-instance");
+                // @ts-ignore
+                rcMenu.style.top = e.clientY + "px";
+                // @ts-ignore
+                rcMenu.style.left = e.clientX + "px";
+                // @ts-ignore
+                rcMenu.style.display = "flex";
+                document.getElementById("rc_delete_instance").onclick = (e) => __awaiter(this, void 0, void 0, function* () {
+                    if (state === InstanceState[InstanceState.Playable]) {
+                        yield promises_1.default.rm(path_1.default.join(const_1.instancesPath, id), { recursive: true });
+                        yield refreshInstanceList();
+                    }
+                    else {
+                        console.log("Can't delete an instance which is occupied");
+                    }
+                });
+                document.getElementById("rc_open_instance_folder").onclick = (e) => {
+                    child_process_1.default.exec(`start "" "${path_1.default.join(const_1.instancesPath, id)}"`);
+                };
+            }
+        });
         instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
     });

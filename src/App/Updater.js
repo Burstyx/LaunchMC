@@ -19,6 +19,7 @@ const remote_1 = require("@electron/remote");
 const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
 const promises_1 = __importDefault(require("fs/promises"));
+const window = require("../Interface/UIElements/scripts/window.js");
 let githubReleaseData = null;
 function checkForUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -38,7 +39,7 @@ exports.checkForUpdate = checkForUpdate;
 function updateCli() {
     return __awaiter(this, void 0, void 0, function* () {
         const loading = document.getElementById("loading-startup-launcher");
-        loading.style.display = "flex";
+        window.setLoading(true);
         const dlUrl = githubReleaseData.assets[0].browser_download_url;
         const name = githubReleaseData.assets[0].name;
         console.log(remote_1.app.getPath("exe"));

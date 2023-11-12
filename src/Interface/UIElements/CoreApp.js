@@ -2,17 +2,17 @@ const { initDiscordRPC } = require("../../App/DIscordRPC");
 const { refreshInstanceList } = require("../../Utils/HInstance")
 const { getActiveAccount } = require("../../Utils/HMicrosoft")
 const {checkForUpdate} = require("../../App/Updater");
+const {setLoading} = require("./scripts/window");
 
-const loadingStartup = document.getElementById("loading-startup-launcher")
-const menuBtn = document.getElementById("titlebar-menu-btns")
+
 
 const initializeModules = async () => {
     // Retrieve all data from json files (get all of them one and use the ones stored in ram)
     // When using/updating those data stored in ram, write it on disk to save data
+    setLoading(true)
 
     console.log("Initialize Modules");
-    loadingStartup.style.display = "flex"
-    menuBtn.style.display = "none"
+
 
     console.log("Checking for Updates")
     await checkForUpdate()
@@ -50,10 +50,9 @@ const initializeModules = async () => {
     console.log("Refreshing Microsoft Account");
     // Put logic here
 
-    loadingStartup.style.display = "none"
-    menuBtn.style.display = "flex"
-
     console.log("Initialisation effectué sans erreur !")
+
+    setLoading(false)
 }
 
 initializeModules()

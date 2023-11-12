@@ -14,9 +14,6 @@ export function replaceAll(text: string, toReplace: string, replacer: string) {
 
         // Concaténer les parties avec le bon dossier
         replacedText = partBefore + replacer + partAfter;
-
-        console.log(replacedText);
-        
     }
 
     return replacedText
