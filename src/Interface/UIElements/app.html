@@ -125,6 +125,11 @@
             </div>
         </div>
     </div>
+    <div class="ctxmenu_rc" id="rcmenu-instance" style="display: none">
+        <div id="rc_edit_instance">Edit (soon)</div>
+        <div id="rc_open_instance_folder">Open folder</div>
+        <div class="danger" id="rc_delete_instance">Delete</div>
+    </div>
     <script>
         // Avoid middle mouse click to scroll
         document.addEventListener("mousedown", (e) => {
@@ -135,6 +140,13 @@
 
         // Automatically change rendered version
         document.getElementById("client-version").innerText = require("../../../package.json").version
+
+        // Hide ctx menu when clicking anywhere
+        for (let e of document.getElementsByClassName("ctxmenu_rc")) {
+            document.addEventListener("click", (evt) => {
+                e.style.display = "none"
+            })
+        }
     </script>
 
     <!-- App script -->

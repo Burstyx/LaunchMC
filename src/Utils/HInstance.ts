@@ -7,6 +7,7 @@ import Color from "color"
 import {concatJson, replaceAll} from "./Utils"
 import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
 import {downloadAsync} from "./HDownload";
+import cp from "child_process";
 
 var instancesData = {};
 
@@ -111,6 +112,36 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
 
         document.querySelector(".instance.active")?.classList.remove("active");
         instanceElement.classList.add("active");
+    })
+
+    instanceElement.addEventListener("mousedown", (e) => {
+        if(e.button === 2) {
+            // @ts-ignore
+            const id = e.target.id
+            // @ts-ignore
+            const state = e.target.getAttribute("state")
+
+            const rcMenu = document.getElementById("rcmenu-instance")
+            // @ts-ignore
+            rcMenu.style.top = e.clientY + "px"
+            // @ts-ignore
+            rcMenu.style.left = e.clientX + "px"
+            // @ts-ignore
+            rcMenu.style.display = "flex"
+
+            document.getElementById("rc_delete_instance")!.onclick = async (e) => {
+                if(state === InstanceState[InstanceState.Playable]) {
+                    await fs.rm(path.join(instancesPath, id), {recursive: true})
+                    await refreshInstanceList()
+                } else {
+                    console.log("Can't delete an instance which is occupied")
+                }
+            }
+
+            document.getElementById("rc_open_instance_folder")!.onclick = (e) => {
+                cp.exec(`start "" "${path.join(instancesPath, id)}"`)
+            }
+        }
     })
 
     instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
