@@ -1,7 +1,6 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, protocol } from "electron";
 import path from "path"
 import {initialize, enable} from "@electron/remote/main"
-import { initDiscordRPC } from "./App/DIscordRPC";
 
 let mainWindow: BrowserWindow;
 
