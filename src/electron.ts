@@ -31,7 +31,7 @@ function createAppWindow() {
     mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
 }
 
-app.on("ready", async () => {
+app.on("ready", () => {
     createAppWindow()
 
     mainWindow!.webContents.on("did-finish-load", () => {
