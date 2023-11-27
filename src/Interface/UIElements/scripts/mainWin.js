@@ -17,7 +17,7 @@ openCreateInstanceWinBtn.addEventListener("click", (e) => {
 const openImportProfileCtxDialog = document.getElementById("open-import-profile-ctxdialog")
 
 openImportProfileCtxDialog.addEventListener("click", async (e) => {
-    const result = await dialog.showOpenDialog({properties: ['openFile'], filters: [{name: "Ruby Profile File", extensions: ["pruby"]}]})
+    const result = await dialog.showOpenDialog({properties: ['openFile'], filters: [{name: "Ruby Profile File", extensions: ["json"]}]})
     if(result !== undefined) await convertProfileToInstance(result.filePaths[0])
 })
 

@@ -30,21 +30,23 @@ function downloadAsync(url, dest, callback, opt) {
                 if (xhr.status === 200) {
                     const responseArrayBuffer = xhr.response;
                     const buffer = Buffer.from(responseArrayBuffer);
+                    file.on("finish", () => {
+                        console.log("téléchargement terminé");
+                        if (opt && opt["decompress"] == true) {
+                            console.log("décompression....");
+                            const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
+                            const zip = new adm_zip_1.default(dest);
+                            try {
+                                zip.extractAllTo(destWithoutExt, true);
+                                fs_1.default.rmSync(dest);
+                                console.log("décompressé !");
+                            }
+                            catch (err) {
+                                console.error(err);
+                            }
+                        }
+                    });
                     file.write(buffer);
-                    console.log("téléchargement terminé");
-                    if (opt && opt["decompress"] == true) {
-                        console.log("décompression....");
-                        const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
-                        const zip = new adm_zip_1.default(dest);
-                        try {
-                            zip.extractAllTo(destWithoutExt, true);
-                            fs_1.default.rmSync(dest);
-                            console.log("décompressé !");
-                        }
-                        catch (err) {
-                            console.error(err);
-                        }
-                    }
                     file.close();
                     file.on("close", () => resolve(dest));
                 }

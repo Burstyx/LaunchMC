@@ -31,25 +31,27 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
 
                     const buffer = Buffer.from(responseArrayBuffer)
 
-                    file.write(buffer)
+                    file.on("finish", () => {
+                        console.log("téléchargement terminé");
 
-                    console.log("téléchargement terminé");
+                        if(opt && opt["decompress"] == true){
+                            console.log("décompression....");
 
-                    if(opt && opt["decompress"] == true){
-                        console.log("décompression....");
+                            const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
 
-                        const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
+                            const zip = new AdmZip(dest)
 
-                        const zip = new AdmZip(dest)
-
-                        try{
-                            zip.extractAllTo(destWithoutExt, true)
-                            fs.rmSync(dest)
-                            console.log("décompressé !");
-                        }catch(err){
-                            console.error(err);
+                            try{
+                                zip.extractAllTo(destWithoutExt, true)
+                                fs.rmSync(dest)
+                                console.log("décompressé !");
+                            }catch(err){
+                                console.error(err);
+                            }
                         }
-                    }
+                    })
+
+                    file.write(buffer)
 
                     file.close()
                     file.on("close", () => resolve(dest))
