@@ -22,7 +22,6 @@ async function addInstanceElement(imagePath: string, title: string, id: string){
 interface InstanceInfo {
     name: string,
     imagePath: string,
-    id: string,
     author: string,
     accentColor: string,
     versionType: string
@@ -34,7 +33,7 @@ interface LoaderInfo {
 }
 
 export async function createInstance(version: string, instanceInfo: InstanceInfo, loaderInfo?: LoaderInfo){
-    await makeDir(path.join(instancesPath, instanceInfo.id))
+    await makeDir(path.join(instancesPath, instanceInfo.name))
 
     // Default json configuration
     let defaultJson =
@@ -68,7 +67,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     }
 
     // Write instance conf on disk
-    await fs.writeFile(path.join(instancesPath, instanceInfo.id, "info.json"), JSON.stringify(
+    await fs.writeFile(path.join(instancesPath, instanceInfo.name, "info.json"), JSON.stringify(
         defaultJson
     ))
 
@@ -429,7 +428,6 @@ export function restoreInstancesData() {
             e.setAttribute("state", instancesData[e.id]["state"]);
             console.log(e.getAttribute("state"));
 
-            console.log("yay")
             //@ts-ignore
             console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
             // @ts-ignore
@@ -441,44 +439,36 @@ export function restoreInstancesData() {
     instancesData = [];
 }
 
-export async function convertProfileToInstance(profilePath: any) {
-    const profileJson = JSON.parse(await fs.readFile(profilePath, "utf-8"));
+export async function convertProfileToInstance(metadata: any, instanceData: any) {
+    const isVanilla = metadata["loader"] == null;
 
-    const isVanilla = profileJson.game.loader == null;
-
-    //@ts-ignore
-    await createInstance(profileJson.game.mcVersion, {
-        name: profileJson.instance.id,
-        accentColor: profileJson.instance.color,
-        author: profileJson.profile.author,
-        id: profileJson.instance.id,
-        imagePath: await downloadAsync(profileJson.instance.thumbnailUrl, path.join(instancesPath, profileJson.instance.id, "thumbnail" + path.extname(profileJson.instance.thumbnailUrl))),
-        versionType: profileJson.game.type
-    }, !isVanilla ? {
-        name: profileJson.game.loader.name,
-        id: profileJson.game.loader.id
+    await createInstance(metadata["mcVersion"], {
+        name: instanceData["name"],
+        accentColor: instanceData["accentColor"],
+        author: instanceData["author"],
+        imagePath: await downloadAsync(instanceData["thumbnailPath"], path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))),
+        versionType: metadata["type"]
+    },
+        !isVanilla ? {
+        name: metadata["loader"]["name"],
+        id: metadata["loader"]["id"]
     } : undefined)
 
-    // Update description
-    const data = JSON.parse(await fs.readFile(path.join(instancesPath, profileJson.instance.id, "info.json"), "utf-8"))
-    data.instanceData.description = profileJson.instance.description;
-    await fs.writeFile(path.join(instancesPath, profileJson.instance.id, "info.json"), JSON.stringify(data))
-
-    await downloadMinecraft(profileJson.game.mcVersion, profileJson.instance.id)
+    await downloadMinecraft(metadata["mcVersion"], instanceData["name"])
     if(!isVanilla) {
-        await patchInstanceWithForge(profileJson.instance.id, profileJson.game.mcVersion, profileJson.game.loader.id)
+        await patchInstanceWithForge(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"])
     }
 
-    await updateInstanceDlState(profileJson.instance.id, InstanceState.DLResources)
+    await updateInstanceDlState(instanceData["name"], InstanceState.DLResources)
 
     // Download files
-    for (const fileData of profileJson.game.files) {
+    for (const fileData of metadata["files"]) {
         const ext = path.extname(fileData.path)
         ext === ".zip" ? console.log("zip file detected") : null
-        await downloadAsync(fileData.url, path.join(instancesPath, profileJson.instance.id, fileData.path), undefined, {decompress: ext === ".zip"})
+        await downloadAsync(fileData.url, path.join(instancesPath, instanceData["name"], fileData.path), undefined, {decompress: ext === ".zip"})
     }
 
-    await updateInstanceDlState(profileJson.instance.id, InstanceState.Playable)
+    await updateInstanceDlState(instanceData["name"], InstanceState.Playable)
 }
 
 export async function retrieveDescription(id: string) {

@@ -8,33 +8,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateProfileBtn = void 0;
 const HGitHub_1 = require("./HGitHub");
 const HInstance_1 = require("./HInstance");
-const HDownload_1 = require("./HDownload");
-const remote_1 = require("@electron/remote");
-const path_1 = __importDefault(require("path"));
-const promises_1 = __importDefault(require("fs/promises"));
 function generateProfileBtn() {
     return __awaiter(this, void 0, void 0, function* () {
         const profiles = yield (0, HGitHub_1.listProfiles)();
         const profileList = document.getElementById("profile-list");
         profileList.innerHTML = "";
-        for (const profile of profiles) {
+        for (const name in profiles) {
             const profileElement = document.createElement("div");
             profileElement.classList.add("default-btn", "interactable", "profile");
             profileElement.style.width = "200px";
             profileElement.style.height = "100px";
-            profileElement.innerText = profile.name;
+            profileElement.innerText = name;
             profileElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
-                const dlUrl = profile.download_url;
-                const profilePath = yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), profile.name));
-                yield (0, HInstance_1.convertProfileToInstance)(profilePath);
-                yield promises_1.default.rm(path_1.default.join(remote_1.app.getPath("temp"), profile.name));
+                const metadata = yield (0, HGitHub_1.getMetadataOf)(profiles[name]);
+                const instanceData = yield (0, HGitHub_1.getInstanceDataOf)(profiles[name]);
+                console.log(metadata);
+                console.log(instanceData);
+                yield (0, HInstance_1.convertProfileToInstance)(metadata, instanceData);
             }));
             profileList.appendChild(profileElement);
         }

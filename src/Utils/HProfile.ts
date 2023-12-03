@@ -1,9 +1,5 @@
-import {listProfiles} from "./HGitHub";
+import {getInstanceDataOf, getMetadataOf, listProfiles} from "./HGitHub";
 import {convertProfileToInstance} from "./HInstance";
-import {downloadAsync} from "./HDownload";
-import {app} from "@electron/remote";
-import path from "path";
-import fs from "fs/promises";
 
 export async function generateProfileBtn() {
     const profiles: any = await listProfiles()
@@ -11,19 +7,21 @@ export async function generateProfileBtn() {
 
     profileList!.innerHTML = ""
 
-    for (const profile of profiles) {
+    for (const name in profiles) {
         const profileElement = document.createElement("div")
         profileElement.classList.add("default-btn", "interactable", "profile")
         profileElement.style.width = "200px"
         profileElement.style.height = "100px"
-        profileElement.innerText = profile.name
+        profileElement.innerText = name
 
         profileElement.addEventListener("click", async (e) => {
-            const dlUrl = profile.download_url
+            const metadata = await getMetadataOf(profiles[name])
+            const instanceData = await getInstanceDataOf(profiles[name])
 
-            const profilePath = await downloadAsync(dlUrl, path.join(app.getPath("temp"), profile.name))
-            await convertProfileToInstance(profilePath)
-            await fs.rm(path.join(app.getPath("temp"), profile.name))
+            console.log(metadata)
+            console.log(instanceData)
+
+            await convertProfileToInstance(metadata, instanceData)
         })
 
         profileList!.appendChild(profileElement)

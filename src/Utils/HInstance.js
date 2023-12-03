@@ -33,7 +33,7 @@ function addInstanceElement(imagePath, title, id) {
 }
 function createInstance(version, instanceInfo, loaderInfo) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo.id));
+        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo.name));
         // Default json configuration
         let defaultJson = {
             "instanceData": {
@@ -61,7 +61,7 @@ function createInstance(version, instanceInfo, loaderInfo) {
             defaultJson = (0, Utils_1.concatJson)(defaultJson, defaultLoaderJson);
         }
         // Write instance conf on disk
-        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo.id, "info.json"), JSON.stringify(defaultJson));
+        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo.name, "info.json"), JSON.stringify(defaultJson));
         // Update instance list
         yield refreshInstanceList();
     });
@@ -360,7 +360,6 @@ function restoreInstancesData() {
             // @ts-ignore
             e.setAttribute("state", instancesData[e.id]["state"]);
             console.log(e.getAttribute("state"));
-            console.log("yay");
             //@ts-ignore
             console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
             // @ts-ignore
@@ -370,38 +369,31 @@ function restoreInstancesData() {
     instancesData = [];
 }
 exports.restoreInstancesData = restoreInstancesData;
-function convertProfileToInstance(profilePath) {
+function convertProfileToInstance(metadata, instanceData) {
     return __awaiter(this, void 0, void 0, function* () {
-        const profileJson = JSON.parse(yield promises_1.default.readFile(profilePath, "utf-8"));
-        const isVanilla = profileJson.game.loader == null;
-        //@ts-ignore
-        yield createInstance(profileJson.game.mcVersion, {
-            name: profileJson.instance.id,
-            accentColor: profileJson.instance.color,
-            author: profileJson.profile.author,
-            id: profileJson.instance.id,
-            imagePath: yield (0, HDownload_1.downloadAsync)(profileJson.instance.thumbnailUrl, path_1.default.join(const_1.instancesPath, profileJson.instance.id, "thumbnail" + path_1.default.extname(profileJson.instance.thumbnailUrl))),
-            versionType: profileJson.game.type
+        const isVanilla = metadata["loader"] == null;
+        yield createInstance(metadata["mcVersion"], {
+            name: instanceData["name"],
+            accentColor: instanceData["accentColor"],
+            author: instanceData["author"],
+            imagePath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.instancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
+            versionType: metadata["type"]
         }, !isVanilla ? {
-            name: profileJson.game.loader.name,
-            id: profileJson.game.loader.id
+            name: metadata["loader"]["name"],
+            id: metadata["loader"]["id"]
         } : undefined);
-        // Update description
-        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, profileJson.instance.id, "info.json"), "utf-8"));
-        data.instanceData.description = profileJson.instance.description;
-        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, profileJson.instance.id, "info.json"), JSON.stringify(data));
-        yield (0, DownloadGame_1.downloadMinecraft)(profileJson.game.mcVersion, profileJson.instance.id);
+        yield (0, DownloadGame_1.downloadMinecraft)(metadata["mcVersion"], instanceData["name"]);
         if (!isVanilla) {
-            yield (0, DownloadGame_1.patchInstanceWithForge)(profileJson.instance.id, profileJson.game.mcVersion, profileJson.game.loader.id);
+            yield (0, DownloadGame_1.patchInstanceWithForge)(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"]);
         }
-        yield updateInstanceDlState(profileJson.instance.id, InstanceState.DLResources);
+        yield updateInstanceDlState(instanceData["name"], InstanceState.DLResources);
         // Download files
-        for (const fileData of profileJson.game.files) {
+        for (const fileData of metadata["files"]) {
             const ext = path_1.default.extname(fileData.path);
             ext === ".zip" ? console.log("zip file detected") : null;
-            yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, profileJson.instance.id, fileData.path), undefined, { decompress: ext === ".zip" });
+            yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, instanceData["name"], fileData.path), undefined, { decompress: ext === ".zip" });
         }
-        yield updateInstanceDlState(profileJson.instance.id, InstanceState.Playable);
+        yield updateInstanceDlState(instanceData["name"], InstanceState.Playable);
     });
 }
 exports.convertProfileToInstance = convertProfileToInstance;
