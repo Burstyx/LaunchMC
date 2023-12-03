@@ -310,7 +310,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
         launchBtn.style.border = `solid #363636`
         launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
 
-        launchBtn.innerText = "Finishing"
+        launchBtn.innerText = "Verifying"
     }
 
     const contentBackground = document.getElementById("content-background")!
@@ -521,7 +521,7 @@ export async function verifyInstanceFromRemote(name: string) {
     // Delete files not in server side
     const folders = metadata["folders"]
     for (const folder of folders) {
-        await fs.rmdir(path.join(instancesPath, name, folder))
+        await fs.rmdir(path.join(instancesPath, name, folder), {recursive: true})
     }
 
     // Download files not in the local side

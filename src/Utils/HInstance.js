@@ -256,7 +256,7 @@ function setContentTo(id) {
             launchBtn.style.backgroundColor = "#2b2b2b";
             launchBtn.style.border = `solid #363636`;
             launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
-            launchBtn.innerText = "Finishing";
+            launchBtn.innerText = "Verifying";
         }
         const contentBackground = document.getElementById("content-background");
         contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
@@ -447,7 +447,7 @@ function verifyInstanceFromRemote(name) {
         // Delete files not in server side
         const folders = metadata["folders"];
         for (const folder of folders) {
-            yield promises_1.default.rmdir(path_1.default.join(const_1.instancesPath, name, folder));
+            yield promises_1.default.rmdir(path_1.default.join(const_1.instancesPath, name, folder), { recursive: true });
         }
         // Download files not in the local side
         for (const fileData of metadata["files"]) {

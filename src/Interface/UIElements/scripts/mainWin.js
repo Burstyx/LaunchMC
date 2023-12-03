@@ -58,7 +58,7 @@ launchBtn.addEventListener("click", async () => {
 
     console.log("sdfsdfsdfsdf: " + instanceId)
 
-    await updateInstanceDlState(instanceId, InstanceState[InstanceState.Verification])
+    await updateInstanceDlState(instanceId, InstanceState.Verification)
     await verifyInstanceFromRemote(instanceId)
 
     // Fetch instance game version and type
