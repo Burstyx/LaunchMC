@@ -39,8 +39,6 @@ export async function listProfiles() {
 }
 
 export async function getMetadataOf(data: any): Promise<any> {
-    console.log(data)
-
     return await (await fetch(data["metadataUrl"])).json();
 }
 

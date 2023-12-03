@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -23,6 +23,7 @@ const Utils_1 = require("./Utils");
 const DownloadGame_1 = require("../App/DownloadGame");
 const HDownload_1 = require("./HDownload");
 const child_process_1 = __importDefault(require("child_process"));
+const HGitHub_1 = require("./HGitHub");
 var instancesData = {};
 function addInstanceElement(imagePath, title, id) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -433,3 +434,28 @@ function checkInstanceIntegrity(instanceId) {
     });
 }
 exports.checkInstanceIntegrity = checkInstanceIntegrity;
+function verifyInstanceFromRemote(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const profiles = yield (0, HGitHub_1.listProfiles)();
+        console.log(profiles); // @ts-ignore// @ts-ignore
+        console.log(profiles.hasOwnProperty(name));
+        // @ts-ignore
+        if (!profiles.hasOwnProperty(name))
+            return;
+        const metadata = yield (0, HGitHub_1.getMetadataOf)(profiles[name]);
+        console.log(metadata);
+        // Delete files not in server side
+        const folders = metadata["folders"];
+        for (const folder of folders) {
+            yield promises_1.default.rmdir(path_1.default.join(const_1.instancesPath, name, folder));
+        }
+        // Download files not in the local side
+        for (const fileData of metadata["files"]) {
+            if (!(0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, name, fileData["path"]))) {
+                yield (0, HDownload_1.downloadAsync)(fileData["url"], path_1.default.join(const_1.instancesPath, name, fileData["path"]));
+                console.log("downloaded: " + fileData["path"] + " from " + fileData["url"]);
+            }
+        }
+    });
+}
+exports.verifyInstanceFromRemote = verifyInstanceFromRemote;

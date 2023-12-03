@@ -8,6 +8,7 @@ import {concatJson, replaceAll} from "./Utils"
 import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
 import {downloadAsync} from "./HDownload";
 import cp from "child_process";
+import {getMetadataOf, listProfiles} from "./HGitHub";
 
 var instancesData = {};
 
@@ -502,4 +503,32 @@ export async function checkInstanceIntegrity(instanceId: string) {
     // TODO: Code
 
     await updateInstanceDlState(instanceId, InstanceState.Playable)
+}
+
+export async function verifyInstanceFromRemote(name: string) {
+    const profiles = await listProfiles()
+
+    console.log(profiles)// @ts-ignore// @ts-ignore
+    console.log(profiles.hasOwnProperty(name))
+
+    // @ts-ignore
+    if(!profiles.hasOwnProperty(name)) return;
+
+    const metadata = await getMetadataOf(profiles![name])
+
+    console.log(metadata)
+
+    // Delete files not in server side
+    const folders = metadata["folders"]
+    for (const folder of folders) {
+        await fs.rmdir(path.join(instancesPath, name, folder))
+    }
+
+    // Download files not in the local side
+    for (const fileData of metadata["files"]) {
+        if(!existsSync(path.join(instancesPath, name, fileData["path"]))) {
+            await downloadAsync(fileData["url"], path.join(instancesPath, name, fileData["path"]))
+            console.log("downloaded: " + fileData["path"] + " from " + fileData["url"])
+        }
+    }
 }

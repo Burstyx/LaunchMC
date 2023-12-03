@@ -1,6 +1,6 @@
 const { openWindow } = require("./window")
 const { startMinecraft, killGame } = require("../../../App/StartMinecraft")
-const { InstanceState, convertProfileToInstance} = require("../../../Utils/HInstance")
+const { InstanceState, convertProfileToInstance, verifyInstanceFromRemote, updateInstanceDlState} = require("../../../Utils/HInstance")
 const fs = require("fs/promises")
 const { gamePath } = require("../../../Utils/const")
 const { getActiveAccount } = require("../../../Utils/HMicrosoft")
@@ -55,6 +55,11 @@ launchBtn.addEventListener("click", async () => {
             console.log("Verifying installation, wait");
             return;
     }
+
+    console.log("sdfsdfsdfsdf: " + instanceId)
+
+    await updateInstanceDlState(instanceId, InstanceState[InstanceState.Verification])
+    await verifyInstanceFromRemote(instanceId)
 
     // Fetch instance game version and type
     const widgetVersion = document.getElementById("widget-version")
