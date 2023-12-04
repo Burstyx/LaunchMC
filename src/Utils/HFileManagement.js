@@ -12,27 +12,48 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readJarMetaInf = exports.mavenToArray = exports.extractAll = exports.extractFilesWithExt = exports.extractSpecificFile = exports.getAllFile = exports.makeDir = void 0;
+exports.readJarMetaInf = exports.mavenToArray = exports.extractSpecificFile = exports.getAllFile = exports.readDir = exports.makeDir = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
-const fs_1 = require("fs");
 const const_1 = require("./const");
 const DownloadGame_1 = require("../App/DownloadGame");
 const Utils_1 = require("./Utils");
-function makeDir(path) {
+const Debug_1 = require("./Debug");
+function makeDir(path, options) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!(0, fs_1.existsSync)(path))
-            yield promises_1.default.mkdir(path, { recursive: true });
+        try {
+            yield promises_1.default.mkdir(path, { mode: options === null || options === void 0 ? void 0 : options.mode, recursive: (options === null || options === void 0 ? void 0 : options.recursive) === undefined ? true : options.recursive });
+            (0, Debug_1.info)(`Created folder in ${path}...`);
+        }
+        catch (e) {
+            (0, Debug_1.error)(`Failed to create folder ${path} : ${e}`);
+        }
         return path;
     });
 }
 exports.makeDir = makeDir;
+function readDir(path, options) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const dir = yield promises_1.default.readdir(path, { recursive: options === null || options === void 0 ? void 0 : options.recursive, withFileTypes: true, encoding: options === null || options === void 0 ? void 0 : options.encoding });
+            (0, Debug_1.info)(`Reading directory ${path}...`);
+            return dir;
+        }
+        catch (e) {
+            (0, Debug_1.error)(`Failed to read directory ${path}: ${e}`);
+        }
+        return null;
+    });
+}
+exports.readDir = readDir;
 function getAllFile(pathDir) {
     return __awaiter(this, void 0, void 0, function* () {
         let files = [];
-        const items = yield promises_1.default.readdir(pathDir, { withFileTypes: true });
+        const items = yield readDir(pathDir);
+        if (items === null)
+            return files;
         for (const item of items) {
             if (item.isDirectory()) {
                 files = [
@@ -50,28 +71,28 @@ function getAllFile(pathDir) {
 exports.getAllFile = getAllFile;
 function extractSpecificFile(compressedDirPath, filePath, dest) {
     return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((res, rej) => __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            (0, Debug_1.info)(`Extracting ${filePath} from ${compressedDirPath}...`);
             filePath = (0, Utils_1.replaceAll)(filePath, "\\", "/");
             const jar = path_1.default.join(yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17), "jar");
-            console.log(`Extracting ${filePath} from ${compressedDirPath}...`);
             child_process_1.default.exec(jar + ` --list --file ${compressedDirPath}`, (err, stdout) => __awaiter(this, void 0, void 0, function* () {
                 var _a;
                 const files = stdout.split("\r\n");
                 for (const n of files) {
                     if (err != null) {
-                        console.error(err);
-                        rej();
+                        (0, Debug_1.error)(`Can't list files in ${compressedDirPath}: ${err}`);
+                        reject();
                     }
                     if (n == filePath) {
                         const proc = child_process_1.default.exec(`"${jar}" xf ${compressedDirPath} ${n}`, { cwd: path_1.default.dirname(compressedDirPath) });
                         proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
-                            console.log("Exited with code " + code);
                             if (dest != undefined) {
                                 yield fs_extra_1.default.move(path_1.default.join(path_1.default.dirname(compressedDirPath), filePath), dest, { overwrite: true });
                             }
-                            res();
+                            (0, Debug_1.info)(`Extracted ${filePath} from ${compressedDirPath}.`);
+                            resolve();
                         }));
-                        (_a = proc.stderr) === null || _a === void 0 ? void 0 : _a.on("data", (data) => console.error(data));
+                        (_a = proc.stderr) === null || _a === void 0 ? void 0 : _a.on("data", (data) => (0, Debug_1.error)(`An error occurred while extracting ${filePath} from ${compressedDirPath}: ${data}`));
                     }
                 }
             }));
@@ -79,32 +100,7 @@ function extractSpecificFile(compressedDirPath, filePath, dest) {
     });
 }
 exports.extractSpecificFile = extractSpecificFile;
-function extractFilesWithExt(compressedDirPath, ext) {
-    return __awaiter(this, void 0, void 0, function* () {
-    });
-}
-exports.extractFilesWithExt = extractFilesWithExt;
-function extractAll(compressedDirPath, dest) {
-    return __awaiter(this, void 0, void 0, function* () {
-    });
-}
-exports.extractAll = extractAll;
 function mavenToArray(maven, native, ext) {
-    // let mavenArray: string[] = []
-    // console.log("Here maven to array way");
-    // const mavenExt = maven.split("@")[1]
-    // console.log("mavenExt: " + mavenExt);
-    // maven = maven.split("@")[0]
-    // console.log("maven: " + maven);
-    // const mavenParts = maven.split(":")
-    // console.log("mavenParts: " + mavenParts);
-    // const linkParts = mavenParts[0].split(".")
-    // console.log("linkParts: " + linkParts);
-    // mavenArray = linkParts.concat(mavenParts.slice(1))
-    // console.log("mavenArray: " + mavenArray);
-    // mavenArray.push(`${mavenParts[mavenParts.length - 2]}-${mavenParts[mavenParts.length - 1]}${native ? `-${native}` : ""}.${ext != undefined ? ext : mavenExt != undefined ? mavenExt : "jar"}`)
-    // console.log("mavenArray: " + mavenArray);
-    // return mavenArray
     if (!maven.includes(":"))
         return [maven];
     const pathSplit = maven.split(':');
@@ -114,22 +110,27 @@ function mavenToArray(maven, native, ext) {
     const finalFileName = fileName.includes('@')
         ? fileName.replace('@', '.')
         : `${fileName}${native || ''}.${ext || 'jar'}`;
-    const initPath = pathSplit[0]
+    return pathSplit[0]
         .split('.')
         .concat(pathSplit[1])
         .concat(pathSplit[2].split('@')[0])
         .concat(`${pathSplit[1]}-${finalFileName}`);
-    return initPath;
 }
 exports.mavenToArray = mavenToArray;
 function readJarMetaInf(jar, attribute) {
     return __awaiter(this, void 0, void 0, function* () {
         yield extractSpecificFile(jar, "META-INF/MANIFEST.MF", path_1.default.join(const_1.tempPath, "MANIFEST.MF"));
-        const manifest = yield promises_1.default.readFile(path_1.default.join(const_1.tempPath, "MANIFEST.MF"), "utf-8");
-        yield promises_1.default.unlink(path_1.default.join(const_1.tempPath, "MANIFEST.MF"));
-        const lines = manifest.split("\n");
-        const mainClassLine = lines.find((line) => line.startsWith(`${attribute}: `));
-        return mainClassLine === null || mainClassLine === void 0 ? void 0 : mainClassLine.substring(`${attribute}: `.length);
+        try {
+            const manifest = yield promises_1.default.readFile(path_1.default.join(const_1.tempPath, "MANIFEST.MF"), "utf-8");
+            yield promises_1.default.unlink(path_1.default.join(const_1.tempPath, "MANIFEST.MF"));
+            const lines = manifest.split("\n");
+            const mainClassLine = lines.find((line) => line.startsWith(`${attribute}: `));
+            return mainClassLine === null || mainClassLine === void 0 ? void 0 : mainClassLine.substring(`${attribute}: `.length);
+        }
+        catch (e) {
+            (0, Debug_1.error)(`Failed to read MANIFEST file of ${jar}: ${e}`);
+        }
+        return null;
     });
 }
 exports.readJarMetaInf = readJarMetaInf;

@@ -44,7 +44,7 @@ function downloadAsync(url, dest, callback, opt) {
                                 yield promises_1.default.rm(dest);
                                 (0, Debug_1.info)(`Extracted and deleted ${dest}!`);
                             }
-                            catch (err) {
+                            catch (e) {
                                 if (opt.retry != undefined) {
                                     if (opt.retry > 0) {
                                         (0, Debug_1.error)(`Failed to download ${dest} from ${url}, ${opt.retry} remaining...`);
@@ -53,8 +53,7 @@ function downloadAsync(url, dest, callback, opt) {
                                     }
                                     return;
                                 }
-                                (0, Debug_1.error)(`Can't download ${dest} from ${url}, skip this file.`);
-                                (0, Debug_1.error)(err);
+                                (0, Debug_1.error)(`Can't download ${dest} from ${url}, skip this file: ${e}`);
                             }
                         }
                     }));
@@ -102,8 +101,7 @@ function downloadAsync(url, dest, callback, opt) {
             xhr.send();
         }
         catch (e) {
-            (0, Debug_1.error)(`Failed to use XHR object with url ${url}.`);
-            (0, Debug_1.error)(e);
+            (0, Debug_1.error)(`Failed to use XHR object with url ${url}: ${e}`);
         }
     }));
 }
