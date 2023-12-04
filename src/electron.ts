@@ -1,4 +1,4 @@
-import { app, BrowserWindow, protocol } from "electron";
+import { app, BrowserWindow } from "electron";
 import path from "path"
 import {initialize, enable} from "@electron/remote/main"
 
