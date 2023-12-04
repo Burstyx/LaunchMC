@@ -26,7 +26,7 @@ function createAppWindow() {
             devTools: true
         }
     });
-    // mainWindow.webContents.openDevTools({mode: "undocked"})
+    mainWindow.webContents.openDevTools({ mode: "undocked" });
     (0, main_1.initialize)();
     (0, main_1.enable)(mainWindow.webContents);
     mainWindow.loadFile(path_1.default.join(__dirname, "./Interface/UIElements/app.html"));
