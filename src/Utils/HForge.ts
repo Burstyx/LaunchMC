@@ -1,17 +1,15 @@
-import { extractSpecificFile, makeDir } from "./HFileManagement";
+import { extractSpecificFile } from "./HFileManagement";
 import { forgeMaven, minecraftVersionPath, tempPath } from "./const";
 import path from "path"
-import fs from "fs"
-import fsp from "fs/promises"
+import fs from "fs/promises"
 import { downloadAsync } from "./HDownload";
-import semver from "semver"
+import { existsSync } from "fs";
 
 export async function getForgeInstallerForVersion(forgeId: string) {
-    // Get forge installers folder
     const installerPath = path.join(tempPath, "forgeinstallers")
-    await makeDir(installerPath)
+    await fs.mkdir(installerPath, {recursive: true})
 
-    if(!fs.existsSync(path.join(installerPath, `forge-${forgeId}-installer.jar`))) {
+    if(!existsSync(path.join(installerPath, `forge-${forgeId}-installer.jar`))) {
         await downloadAsync(path.join(forgeMaven, "net", "minecraftforge", "forge", forgeId, `forge-${forgeId}-installer.jar`), path.join(installerPath, `forge-${forgeId}-installer.jar`))
     }
 

@@ -1,10 +1,7 @@
 import fs from "fs/promises"
 import AdmZip from "adm-zip"
-import { makeDir } from "./HFileManagement"
 import checksum from "checksum";
-import {createWriteStream} from "fs-extra";
-// @ts-ignore
-import {info, error} from "./Debug";
+import { createWriteStream } from "fs-extra";
 
 interface DownloadOpt {
     decompress?: boolean,
@@ -19,7 +16,7 @@ type CallbackProgress = (progress: number, byteSent: number) => void;
 export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
     return new Promise<string>(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
-        await makeDir(destDir)
+        await fs.mkdir(destDir, {recursive: true})
 
         const file = createWriteStream(dest)
         const xhr = new XMLHttpRequest();
@@ -27,37 +24,27 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
         xhr.onreadystatechange = () => {
             if(xhr.readyState === XMLHttpRequest.DONE){
                 if(xhr.status === 200){
-                    info(`Downloading ${dest} from ${url}...`)
-
                     const responseArrayBuffer = xhr.response;
                     const buffer = Buffer.from(responseArrayBuffer)
 
                     file.on("finish", async () => {
-                        info(`Downloaded ${dest} from ${url}!`)
-
                         if(opt && opt["decompress"] == true){
-                            info(`Extracting ${dest}...`)
-
                             const destWithoutExt = dest.substring(0, dest.lastIndexOf("."))
                             const zip = new AdmZip(dest)
 
                             try{
                                 zip.extractAllTo(destWithoutExt, true)
+
                                 await fs.rm(dest)
-                                info(`Extracted and deleted ${dest}!`)
-                            }catch(e){
+                            }catch(err){
                                 if(opt.retry != undefined) {
                                     if(opt.retry > 0) {
-                                        error(`Failed to download ${dest} from ${url}, ${opt.retry} remaining...`)
-
                                         await fs.rm(dest)
                                         await downloadAsync(url,  dest, callback, {retry: opt.retry - 1, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
                                     }
-
-                                    return
                                 }
 
-                                error(`Can't download ${dest} from ${url}, skip this file: ${e}`)
+                                reject(err)
                             }
                         }
                     })
@@ -82,8 +69,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                         resolve(dest)
                     })
                 }else{
-                    error(`Can't retrieve the URL ${url}, stopped with status code ${xhr.status}.`)
-                    reject()
+                    reject(Error(`${url} return code ${xhr.status}`))
                 }
             }
         }
@@ -112,8 +98,8 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
 
             xhr.responseType = "arraybuffer"
             xhr.send()
-        }catch (e) {
-            error(`Failed to use XHR object with url ${url}: ${e}`)
+        }catch (err) {
+            reject(err)
         }
     })
 }
