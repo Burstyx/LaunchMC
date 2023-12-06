@@ -46,20 +46,18 @@ export async function getForgeVersionIfExist(forgeId: string | undefined) {
         await fs.mkdir(versionPath, {recursive: true}).catch((err) => reject(err))
 
         if(!existsSync(path.join(versionPath, `${forgeId}.json`))) {
-            getForgeInstallerForVersion(forgeId).then((forgeInstaller) => {
-                getForgeInstallProfileIfExist(forgeId).then((forgeInstallProfile) => {
-
-                })
-            })
-
-            if(installProfile.json) {
-                const versionJsonPath = installProfile.json.startsWith("/") ? installProfile.json.replace("/", "") : installProfile.json
-                await extractSpecificFile(forgeInstallerPath, versionJsonPath, path.join(versionPath, `${forgeId}.json`))
-            } else {
-                await extractSpecificFile(forgeInstallerPath, "install_profile.json", path.join(versionPath, `${forgeId}.json`))
-            }
+            await getForgeInstallerForVersion(forgeId).then(async (forgeInstaller) => {
+                await getForgeInstallProfileIfExist(forgeId).then(async (forgeInstallProfile) => {
+                    if(forgeInstallProfile.json) {
+                        const versionJsonPath = forgeInstallProfile.json.startsWith("/") ? forgeInstallProfile.json.replace("/", "") : forgeInstallProfile.json
+                        await extractSpecificFile(forgeInstaller, versionJsonPath, path.join(versionPath, `${forgeId}.json`))
+                    } else {
+                        await extractSpecificFile(forgeInstaller, "install_profile.json", path.join(versionPath, `${forgeId}.json`))
+                    }
+                }).catch((err) => reject(err))
+            }).catch((err) => reject(err))
         }
 
-        return JSON.parse(await fsp.readFile(path.join(versionPath, `${forgeId}.json`), "utf-8"))
+        resolve(JSON.parse(await fs.readFile(path.join(versionPath, `${forgeId}.json`), "utf-8")))
     })
 }

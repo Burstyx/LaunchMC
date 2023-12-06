@@ -9,7 +9,7 @@ import { replaceAll } from "./Utils"
 export async function getAllFile(pathDir: string) {
     return new Promise<any>(async (resolve, reject) => {
         let files: any[] = []
-        fs.readdir(pathDir, {withFileTypes: true}).then(async (items) => {
+        await fs.readdir(pathDir, {withFileTypes: true}).then(async (items) => {
             if(items === null) return files;
 
             for(const item of items){
@@ -32,7 +32,7 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
     return new Promise<void>(async (resolve, reject) => {
         filePath = replaceAll(filePath, "\\", "/")
 
-        downloadAndGetJavaVersion(JavaVersions.JDK17).then((jarPath) => {
+        await downloadAndGetJavaVersion(JavaVersions.JDK17).then((jarPath) => {
             const jar = path.join(jarPath, `jar`)
 
             cp.exec(jar + ` --list --file ${compressedDirPath}`, async (err, stdout) => {
@@ -69,7 +69,7 @@ export async function readJarMetaInf(jar: string, attribute: string) {
     return new Promise<string>(async (resolve, reject) => {
         await extractSpecificFile(jar, "META-INF/MANIFEST.MF", path.join(tempPath, "MANIFEST.MF"))
 
-        fs.readFile(path.join(tempPath, "MANIFEST.MF"), "utf-8").then(async (manifest) => {
+        await fs.readFile(path.join(tempPath, "MANIFEST.MF"), "utf-8").then(async (manifest) => {
             await fs.unlink(path.join(tempPath, "MANIFEST.MF"))
 
             const lines = manifest.split("\n")

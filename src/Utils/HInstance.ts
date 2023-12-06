@@ -1,7 +1,6 @@
 import fs from "fs/promises"
 import path from "path"
-import {instancesPath} from "../Utils/const"
-import {makeDir} from "./HFileManagement"
+import {instancesPath} from "./const"
 import {existsSync} from "original-fs"
 import Color from "color"
 import {concatJson, replaceAll} from "./Utils"
@@ -10,22 +9,18 @@ import {downloadAsync} from "./HDownload";
 import cp from "child_process";
 import {getMetadataOf, listProfiles} from "./HGitHub";
 
-var instancesData = {};
+let instancesData = {};
 
-async function addInstanceElement(imagePath: string, title: string, id: string){
+function addInstanceElement(imagePath: string, title: string, id: string){
     const instanceDiv = document.getElementById("instance-list")!
 
-    const instanceElement = await generateInstanceBtn(imagePath, title, id)
-
-    instanceDiv.appendChild(instanceElement)
+    instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
 }
 
 interface InstanceInfo {
     name: string,
-    imagePath: string,
-    author: string,
-    accentColor: string,
-    versionType: string
+    coverUrl: string,
+    thumbUrl: string,
 }
 
 interface LoaderInfo {
@@ -34,60 +29,47 @@ interface LoaderInfo {
 }
 
 export async function createInstance(version: string, instanceInfo: InstanceInfo, loaderInfo?: LoaderInfo){
-    await makeDir(path.join(instancesPath, instanceInfo.name))
+    return new Promise<void>(async (resolve, reject) => {
+        await fs.mkdir(path.join(instancesPath, instanceInfo.name), {recursive: true}).catch((err) => reject(err))
 
-    // Default json configuration
-    let defaultJson =
-    {
-        "instanceData": {
-            "name": instanceInfo.name,
-            "imagePath": instanceInfo.imagePath,
-            "author": instanceInfo.author,
-            "accentColor": instanceInfo.accentColor,
-            "playtime": 0,
-            "lastplayed": -1,
-            "description": ""
-        },
-        "gameData": {
-            "version": version,
-            "versiontype": instanceInfo.versionType,
+        let defaultJson =
+            {
+                "instanceData": {
+                    "name": instanceInfo.name,
+                    "coverUrl": instanceInfo.coverUrl,
+                    "thumbUrl": instanceInfo.thumbUrl,
+                    "playtime": 0,
+                },
+                "gameData": {
+                    "version": version,
+                }
+            }
+
+        let defaultLoaderJson = {
+            "loader": {
+                "name": loaderInfo?.name,
+                "id": loaderInfo?.id
+            }
         }
-    }
 
-    let defaultLoaderJson = {
-        "loader": {
-            "name": loaderInfo?.name,
-            "id": loaderInfo?.id
+        if(loaderInfo) {
+            defaultJson = concatJson(defaultJson, defaultLoaderJson)
         }
-    }
 
+        await fs.writeFile(path.join(instancesPath, instanceInfo.name, "info.json"), JSON.stringify(defaultJson)).catch((err) => reject(err))
+        await refreshInstanceList().catch((err) => reject(err))
 
-    // If Forge instance then append forge conf to default conf
-    if(loaderInfo) {
-        defaultJson = concatJson(defaultJson, defaultLoaderJson)
-    }
-
-    // Write instance conf on disk
-    await fs.writeFile(path.join(instancesPath, instanceInfo.name, "info.json"), JSON.stringify(
-        defaultJson
-    ))
-
-    // Update instance list
-    await refreshInstanceList()
+        resolve()
+    })
 }
 
-async function generateInstanceBtn(imagePath: string, title: string, id: string) {
+function generateInstanceBtn(imagePath: string, title: string, id: string) {
     let instanceElement = document.createElement("div")
-
-    if(title.length > 20){
-        title = title.substring(0, 23)
-        title += "..."
-    }
 
     // Instance Btn
     instanceElement.innerText = title
     instanceElement.classList.add("default-btn", "interactable", "instance")
-    instanceElement.setAttribute("state", InstanceState[InstanceState.Playable])
+    // instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]) attribute should be stored in dict and not in html element
     instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${replaceAll(imagePath, '\\', '/')}')`
     instanceElement.style.textShadow = "black 0px 0px 10px"
     instanceElement.style.position = "relative"
@@ -322,7 +304,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList() { // FIXME: instance state are clear and that's not good at all
+export async function refreshInstanceList() {
     const instancesDiv = document.getElementById("instance-list")!
     saveInstancesData();
 
@@ -336,8 +318,8 @@ export async function refreshInstanceList() { // FIXME: instance state are clear
             if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
                 const dataJson = JSON.parse(data)
-                
-                await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], dataJson["instanceData"]["name"])
+
+                addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], dataJson["instanceData"]["name"])
             }
         }
     }
