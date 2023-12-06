@@ -28,7 +28,7 @@ function createAppWindow() {
 
     initialize()
     enable(mainWindow.webContents)
-    mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
+    mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app2.html"))
 }
 
 app.on("ready", () => {
