@@ -16,7 +16,7 @@ type CallbackProgress = (progress: number, byteSent: number) => void;
 export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
     return new Promise<string>(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
-        await fs.mkdir(destDir, {recursive: true})
+        await fs.mkdir(destDir, {recursive: true}).catch((err) => reject(err))
 
         const file = createWriteStream(dest)
         const xhr = new XMLHttpRequest();
@@ -35,7 +35,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                             try{
                                 zip.extractAllTo(destWithoutExt, true)
 
-                                await fs.rm(dest)
+                                await fs.rm(dest).catch((err) => reject(err))
                             }catch(err){
                                 if(opt.retry != undefined) {
                                     if(opt.retry > 0) {
@@ -58,7 +58,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                                 if(hash !== opt.hash) {
                                     if(opt.retry != undefined) {
                                         if(opt.retry > 0) {
-                                            await fs.rm(dest)
+                                            await fs.rm(dest).catch((err) => reject(err))
                                             await downloadAsync(url,  dest, callback, {retry: opt.retry - 1, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
                                         }
                                     }

@@ -47,7 +47,7 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
 
                         proc.on("close", async () => {
                             if(dest != undefined) {
-                                await move(path.join(path.dirname(compressedDirPath), filePath), dest, {overwrite: true})
+                                await move(path.join(path.dirname(compressedDirPath), filePath), dest, {overwrite: true}).catch((err) => reject(err))
                             }
 
                             resolve()
