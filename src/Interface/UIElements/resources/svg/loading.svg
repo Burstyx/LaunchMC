@@ -1,0 +1,3 @@
+<svg class="circle-svg circle-svg--stroked" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle class="circle-svg__circle circle-svg__circle--stroked circle-svg__circle--production circle-svg__circle--stroke-length circle-svg__circle--stroke-length-long" cx="50" cy="50" r="45"></circle>
+</svg>

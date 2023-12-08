@@ -2,15 +2,15 @@ const { getCurrentWindow } = require("@electron/remote")
 const {generateProfileBtn} = require("../../../Utils/HProfile");
 const {refreshInstanceList} = require("../../../Utils/HInstance");
 
-const closeBtn = document.getElementById("close-btn")
-const maximizeBtn = document.getElementById("minimize-btn")
-const reducebtn = document.getElementById("reduce-btn")
+const close = document.getElementById("close")
+const minmax = document.getElementById("minmax")
+const reduce = document.getElementById("reduce")
 
-closeBtn.addEventListener("click", () => {
+close.addEventListener("click", () => {
     getCurrentWindow().close()
 })
 
-maximizeBtn.addEventListener("click", () => {
+minmax.addEventListener("click", () => {
     if (getCurrentWindow().isMaximized()) {
         getCurrentWindow().restore()
     }
@@ -19,7 +19,8 @@ maximizeBtn.addEventListener("click", () => {
     }
 })
 
-reducebtn.addEventListener("click", () => {
+/*
+reduce.addEventListener("click", () => {
     getCurrentWindow().minimize()
 })
 
@@ -57,4 +58,4 @@ instancesBtn.addEventListener("click", async () => {
     instanceTab.style.display = "flex"
 
     await refreshInstanceList()
-})
+})*/
