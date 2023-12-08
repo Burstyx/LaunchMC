@@ -9,17 +9,29 @@
     <div id="window">
         <div id="topBar">
             <div id="menu-buttons">
-                <div class="themed-toggle-button" id="home"></div>
-                <div id="library"></div>
-                <div id="servers"></div>
+                <div class="button themed toggle" id="home"><img src="./resources/svg/discover.svg" width="55%"></div>
+                <div class="button themed toggle" active id="library"><img src="./resources/svg/library.svg" width="55%"></div>
+                <div class="button themed toggle" id="servers"><img src="./resources/svg/servers.svg" width="55%"></div>
             </div>
             <div id="window-buttons">
-
+                <div class="button" id="settings"><img src="./resources/svg/settings.svg" width="60%"></div>
+                <div class="button" id="reduce"><img src="./resources/svg/reduce.svg" width="55%"></div>
+                <div class="button" active id="minmax"><img src="./resources/svg/minmax.svg" width="50%"></div>
+                <div class="button danger" id="close"><img src="./resources/svg/close.svg" width="50%"></div>
             </div>
         </div>
         <div id="content">
-
+            <div class="elements-group" id="gr-library">
+                <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
+                <div id="instances">
+                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
+                </div>
+            </div>
         </div>
     </div>
+    <script src="./CoreApp.js"></script>
 </body>
 </html>

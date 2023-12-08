@@ -20,9 +20,9 @@
             <div class="default-btn interactable" id="update-btn" style="border: solid orange; display: none">Update now</div>
         </div>
         <div class="win-btns">
-            <div class="default-btn interactable" id="reduce-btn"><img src="./resources/svg/reduce.svg"></div>
-            <div class="default-btn interactable" id="minimize-btn"><img src="./resources/svg/maximize.svg"></div>
-            <div class="default-btn danger interactable" id="close-btn"><img src="./resources/svg/close.svg"></div>
+            <div class="default-btn interactable" id="reduce-btn"><img src="resources/svg/old/reduce.svg"></div>
+            <div class="default-btn interactable" id="minimize-btn"><img src="resources/svg/old/maximize.svg"></div>
+            <div class="default-btn danger interactable" id="close-btn"><img src="resources/svg/old/close.svg"></div>
         </div>
     </div>
     <div class="sub-content">
@@ -31,8 +31,8 @@
         </div>
         <!-- Tabs -->
         <div class="instance-menu tabcontent" id="instance-menu">
-            <div class="default-btn interactable" id="open-create-instance-window" style="position: absolute; bottom: 10px; right: 10px"><img src="./resources/svg/add.svg" width="25px"></div>
-            <div class="default-btn interactable" id="open-import-profile-ctxdialog" style="position: absolute; bottom: 10px; right: 70px"><img src="./resources/svg/import.svg" width="27px"></div>
+            <div class="default-btn interactable" id="open-create-instance-window" style="position: absolute; bottom: 10px; right: 10px"><img src="resources/svg/old/add.svg" width="25px"></div>
+            <div class="default-btn interactable" id="open-import-profile-ctxdialog" style="position: absolute; bottom: 10px; right: 70px"><img src="resources/svg/old/import.svg" width="27px"></div>
             <div id="instance-list">
                 <!-- All instances will be there -->
             </div>
@@ -48,7 +48,7 @@
                 <div class="info-content" id="content">
                     <div class="info-backimg" id="content-background">
                         <!-- TODO: c moche ca -->
-                        <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; background-color: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px" onclick="require('./scripts/window').closeWindow('instance-info')"><img src="./resources/svg/back.svg" width="25px">Back</div>
+                        <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 5px; background-color: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px" onclick="require('./scripts/window').closeWindow('instance-info')"><img src="resources/svg/old/back.svg" width="25px">Back</div>
                         <div class="overlapping-info">
                             <p style="font-size: 45px; font-weight: 600; text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);" id="instance-title"> &lt;!&ndash; Dynamic &ndash;&gt; </p>
                             <p style="font-size: 18px; text-shadow: 0px 0px 10px rgba(0, 0, 0, 1);">By <span style="color: #FFF /* Dynamic */; font-weight: 400; transition: color .15s;" id="instance-author"> &lt;!&ndash; Dynamic &ndash;&gt; </span></p>

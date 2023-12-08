@@ -1,52 +1,217 @@
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-Light.ttf);
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-Regular.ttf);
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-Medium.ttf);
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-SemiBold.ttf);
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-Bold.ttf);
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-ExtraBold.ttf);
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: rubik;
+    src: url(./resources/fonts/Rubik-Black.ttf);
+    font-weight: 700;
+}
+
+* {
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+
+    color: white;
+    font-family: "Rubik", serif;
+    font-weight: 200;
+}
+
 body {
     padding: 0;
     margin: 0;
-    overflow: hidden;
 
     --content: #1B1B1B;
-    --color-theme: #5018AB;
+    --color-theme: #36223d;
 }
 
-/* CSS Custom Elements */
-.themed-toggle-button {
-    height: 100%; /* ou la largeur que vous voulez */
+/*region Custom Elements*/
+/*region Button*/
+.button {
     aspect-ratio: 1 / 1;
 
-    background-color: var(--color-theme);
+    background-color: #2E2E2E;
 
-    border-radius: 8px;
+    border-radius: 35%;
+
+    display: flex;
+    justify-content: center;
+
+    transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s;
 }
 
-/* CSS Window */
+.button:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    filter: brightness(.85);
+}
 
+.button:active {
+    transform: scale(0.95);
+}
+
+.button.themed {
+    background-color: var(--color-theme);
+}
+
+.button.danger {
+    background-color: #3D2222;
+}
+/*endregion*/
+/*region Toggle*/
+.button.toggle {
+    background-color: transparent;
+}
+
+.button.toggle[active] {
+    background-color: #2E2E2E;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.button.toggle[active].themed {
+    background-color: var(--color-theme);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+/*endregion*/
+
+.instance {
+    aspect-ratio: 1.5 / 2.3;
+    width: 125px;
+
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url("./resources/images/default-forge.jpg");
+    background-position: 50%;
+    background-size: cover;
+
+    border-radius: 20px;
+
+    display: flex;
+    justify-content: center;
+
+    transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s;
+}
+
+.instance p {
+    text-align: center;
+    align-self: end;
+
+    margin: 8px;
+    font-size: 14px;
+}
+
+.instance:hover {
+    transform: scale(1.015);
+}
+
+.instance:active {
+    transform: scale(.95);
+}
+/*endregion*/
+
+/*region Core*/
 #window {
     width: 100vw;
     height: 100vh;
     background-color: var(--content);
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 5px;
 }
 
+/*region TopBar*/
 #topBar {
-    height: 75px;
+    height: 50px;
 
-    margin: 5px 5px 0 5px;
+    padding: 8px;
+
+    display: flex;
+    align-items: center;
+
+    justify-content: space-between;
+
+    -webkit-app-region: drag;
 }
 
 #menu-buttons {
     height: 100%;
-    padding: 0 5px 0 5px;
+    padding: 0 8px 0 8px;
+
+    display: flex;
+    gap: 8px;
 }
+
+#menu-buttons div {
+    height: 100%;
+    -webkit-app-region: none;
+}
+
+#window-buttons {
+    height: 60%;
+    padding: 0 8px 0 8px;
+
+    display: flex;
+    gap: 8px;
+}
+
+#window-buttons div {
+    height: 100%;
+    -webkit-app-region: none;
+}
+/*endregion*/
 
 #content {
-    height: 100%;
+    height: calc(100% - 74px);
+    position: relative;
 
-    background: radial-gradient(var(--color-theme), #FFF);
+    background-color: #101010;
 
-    border-radius: 8px;
+    border-radius: 20px;
 
-    margin: 0 5px 5px 5px;
+    margin: 0 8px 8px 8px;
 }
+/*endregion*/
+
+/*region Library*/
+#new-instance {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+
+    width: 50px;
+}
+
+#instances{
+    padding: 8px;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+/*endregion*/
