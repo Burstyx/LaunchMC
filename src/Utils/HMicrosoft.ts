@@ -5,6 +5,7 @@ import path from "path"
 
 interface AccountInfo {
     accesstoken: any,
+    refreshtoken: any,
     username: string,
     uuid: string,
     usertype: string,
@@ -39,7 +40,7 @@ export async function addAccount(opt: AccountInfo){
 
     const shouldBeActive = await getActiveAccount() == null ? true : false
 
-    data["accounts"].push({"access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive})
+    data["accounts"].push({"access_token": opt["accesstoken"], "refresh_token": opt["refreshtoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive})
 
     await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data))
 }

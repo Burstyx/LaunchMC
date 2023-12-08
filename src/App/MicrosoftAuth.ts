@@ -1,6 +1,6 @@
 import { BrowserWindow } from "@electron/remote"
 import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Utils/const.js"
-import { addAccount } from "../Utils/HMicrosoft.js"
+import {addAccount, changeAccountProperty, getAccount, getActiveAccount} from "../Utils/HMicrosoft.js"
 
 export function createOAuthLink(){
     let url = msAuth
@@ -57,6 +57,7 @@ export async function msaLogin(){ // TODO: Return profile data
 async function connectWithCode(code: string){
     const msFetchedData = await getAccessToken(code!)
     const accessToken = msFetchedData!["access_token"]
+    const refreshToken = msFetchedData!["refresh_token"]
 
     const xbxLiveFetchedData = await getXbxLiveToken(accessToken)
     const uhs = xbxLiveFetchedData!["DisplayClaims"]["xui"][0]["uhs"]
@@ -73,7 +74,28 @@ async function connectWithCode(code: string){
     const username = minecraftProfileData!["name"]
     const uuid = minecraftProfileData!["id"]   
         
-    await addAccount({accesstoken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid})
+    await addAccount({accesstoken: minecraftAccessToken, refreshtoken: refreshToken, username: username, usertype: "msa", uuid: uuid})
+}
+
+export async function refreshToken() {
+    const activeAccount = await getActiveAccount()
+    const uuid = activeAccount["uuid"]
+    const refreshToken = activeAccount["refresh_token"]
+
+    const refreshedData = await refreshAccessToken(refreshToken)
+
+    const xbxLiveFetchedData = await getXbxLiveToken(refreshedData!["access_token"])
+    const uhs = xbxLiveFetchedData!["DisplayClaims"]["xui"][0]["uhs"]
+    const xbxToken = xbxLiveFetchedData!["Token"]
+
+    const xstsFetchedData = await getXstsToken(xbxToken)
+    const xstsToken = xstsFetchedData!["Token"]
+
+    const minecraftFetchedData = await getMinecraftBearerToken(uhs, xstsToken)
+    const minecraftAccessToken = minecraftFetchedData!["access_token"]
+
+    await changeAccountProperty(uuid, "access_token", minecraftAccessToken)
+    await changeAccountProperty(uuid, "refresh_token", refreshedData!["refresh_token"])
 }
 
 async function getMinecraftProfile(accessToken: string){
@@ -107,7 +129,7 @@ async function refreshAccessToken(refreshToken: string){
     urlencoded.append("redirect_uri", redirectUrl)
 
     var response = undefined
-        
+
     await fetch(msAccessToken, {method: "POST", headers: header, body: urlencoded, redirect: "follow"}).then(async (res) => {
         await res.json().then((val) => {
             response = val

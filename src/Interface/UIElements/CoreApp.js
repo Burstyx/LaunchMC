@@ -3,6 +3,7 @@ const { refreshInstanceList } = require("../../Utils/HInstance")
 const { getActiveAccount } = require("../../Utils/HMicrosoft")
 const {checkForUpdate} = require("../../App/Updater");
 const {setLoading} = require("./scripts/window");
+const {refreshToken} = require("../../App/MicrosoftAuth")
 
 
 
@@ -48,7 +49,7 @@ const initializeModules = async () => {
     }
 
     console.log("Refreshing Microsoft Account");
-    // Put logic here
+    await refreshToken()
 
     console.log("Initialisation effectué sans erreur !")
 

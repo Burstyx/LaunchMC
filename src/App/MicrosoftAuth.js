@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.msaLogin = exports.createOAuthLink = void 0;
+exports.refreshToken = exports.msaLogin = exports.createOAuthLink = void 0;
 const remote_1 = require("@electron/remote");
 const const_js_1 = require("../Utils/const.js");
 const HMicrosoft_js_1 = require("../Utils/HMicrosoft.js");
@@ -60,6 +60,7 @@ function connectWithCode(code) {
     return __awaiter(this, void 0, void 0, function* () {
         const msFetchedData = yield getAccessToken(code);
         const accessToken = msFetchedData["access_token"];
+        const refreshToken = msFetchedData["refresh_token"];
         const xbxLiveFetchedData = yield getXbxLiveToken(accessToken);
         const uhs = xbxLiveFetchedData["DisplayClaims"]["xui"][0]["uhs"];
         const xbxToken = xbxLiveFetchedData["Token"];
@@ -71,9 +72,27 @@ function connectWithCode(code) {
         const minecraftProfileData = yield getMinecraftProfile(minecraftAccessToken);
         const username = minecraftProfileData["name"];
         const uuid = minecraftProfileData["id"];
-        yield (0, HMicrosoft_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid });
+        yield (0, HMicrosoft_js_1.addAccount)({ accesstoken: minecraftAccessToken, refreshtoken: refreshToken, username: username, usertype: "msa", uuid: uuid });
     });
 }
+function refreshToken() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const activeAccount = yield (0, HMicrosoft_js_1.getActiveAccount)();
+        const uuid = activeAccount["uuid"];
+        const refreshToken = activeAccount["refresh_token"];
+        const refreshedData = yield refreshAccessToken(refreshToken);
+        const xbxLiveFetchedData = yield getXbxLiveToken(refreshedData["access_token"]);
+        const uhs = xbxLiveFetchedData["DisplayClaims"]["xui"][0]["uhs"];
+        const xbxToken = xbxLiveFetchedData["Token"];
+        const xstsFetchedData = yield getXstsToken(xbxToken);
+        const xstsToken = xstsFetchedData["Token"];
+        const minecraftFetchedData = yield getMinecraftBearerToken(uhs, xstsToken);
+        const minecraftAccessToken = minecraftFetchedData["access_token"];
+        yield (0, HMicrosoft_js_1.changeAccountProperty)(uuid, "access_token", minecraftAccessToken);
+        yield (0, HMicrosoft_js_1.changeAccountProperty)(uuid, "refresh_token", refreshedData["refresh_token"]);
+    });
+}
+exports.refreshToken = refreshToken;
 function getMinecraftProfile(accessToken) {
     return __awaiter(this, void 0, void 0, function* () {
         var header = new Headers();

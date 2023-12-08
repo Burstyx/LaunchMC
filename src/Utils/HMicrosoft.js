@@ -40,7 +40,7 @@ function addAccount(opt) {
             data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
         }
         const shouldBeActive = (yield getActiveAccount()) == null ? true : false;
-        data["accounts"].push({ "access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive });
+        data["accounts"].push({ "access_token": opt["accesstoken"], "refresh_token": opt["refreshtoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive });
         yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data));
     });
 }
