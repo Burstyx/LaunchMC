@@ -1,0 +1,52 @@
+body {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+
+    --content: #1B1B1B;
+    --color-theme: #5018AB;
+}
+
+/* CSS Custom Elements */
+.themed-toggle-button {
+    height: 100%; /* ou la largeur que vous voulez */
+    aspect-ratio: 1 / 1;
+
+    background-color: var(--color-theme);
+
+    border-radius: 8px;
+}
+
+/* CSS Window */
+
+#window {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--content);
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+#topBar {
+    height: 75px;
+
+    margin: 5px 5px 0 5px;
+}
+
+#menu-buttons {
+    height: 100%;
+    padding: 0 5px 0 5px;
+}
+
+#content {
+    height: 100%;
+
+    background: radial-gradient(var(--color-theme), #FFF);
+
+    border-radius: 8px;
+
+    margin: 0 5px 5px 5px;
+}
