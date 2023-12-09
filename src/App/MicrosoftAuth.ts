@@ -79,6 +79,9 @@ async function connectWithCode(code: string){
 
 export async function refreshToken() {
     const activeAccount = await getActiveAccount()
+
+    if(activeAccount === null) return;
+
     const uuid = activeAccount["uuid"]
     const refreshToken = activeAccount["refresh_token"]
 
