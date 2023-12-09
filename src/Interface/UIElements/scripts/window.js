@@ -1,4 +1,4 @@
-const subWindow = document.getElementById("sub-windows")
+/*const subWindow = document.getElementById("sub-windows")
 const windows = document.querySelectorAll(".window")
 
 let windowsIdOpened = []
@@ -33,10 +33,10 @@ exports.closeWindow = (windowId) => {
             window.style.pointerEvents = "none"
         }
     })
-}
+}*/
 
-const loadingStartup = document.getElementById("loading-startup-launcher")
-const menuBtn = document.getElementById("titlebar-menu-btns")
+const loadingStartup = document.getElementById("startup-loading")
+const menuBtn = document.getElementById("menu-buttons")
 
 exports.setLoading = (active) => {
     if(active) {

@@ -199,17 +199,37 @@ body {
 /*endregion*/
 
 /*region Loading*/
-#gr-loading {
+#startup-loading {
+    z-index: 1;
+
     position: absolute;
-    top: 50%;
-    left: 50%;
+
+    top: 5px;
+    left: 5px;
+
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    background-color: #101010;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    -webkit-app-region: drag;
+
+    border-radius: 20px;
+}
+
+#startup-loading img {
+    position: absolute;
 
     animation: spinning .75s infinite linear;
+
 }
 
 @keyframes spinning {
-    from { transform: translate(-50%) rotate(0deg) }
-    to { transform: translate(-50%) rotate(360deg) }
+    from { transform: rotate(0deg) }
+    to { transform: rotate(360deg) }
 }
 /*endregion*/
 
