@@ -1,38 +1,46 @@
+const home = document.getElementById("home")
+const library = document.getElementById("library")
+const servers = document.getElementById("servers")
 
+const grHome = document.getElementById("gr-discover")
+const grLibrary = document.getElementById("gr-library")
+const grServers = document.getElementById("gr-servers")
 
-/*
-const discoverBtn = document.getElementById("discoverBtn")
-discoverBtn.addEventListener("click", async () => {
-    const activeElement = document.querySelector("#titlebar-menu-btns .active")
-    activeElement.classList.remove("active")
+let activeBtn = library
+let activeGroup = grLibrary;
 
-    discoverBtn.classList.add("active")
+home.addEventListener("click", () => {
+    activeGroup.style.display = "none";
+    grHome.style.display = "block";
 
-    const tabsContent = document.getElementsByClassName("tabcontent")
-    for (let e of tabsContent) {
-        e.style.display = "none"
-    }
+    activeGroup = grHome
 
-    const discoverTab = document.getElementById("discover-menu")
-    discoverTab.style.display = "flex"
+    activeBtn.toggleAttribute("active", false)
+    home.toggleAttribute("active", true)
 
-    await generateProfileBtn()
+    activeBtn = home
 })
 
-const instancesBtn = document.getElementById("instancesBtn")
-instancesBtn.addEventListener("click", async () => {
-    const activeElement = document.querySelector("#titlebar-menu-btns .active")
-    activeElement.classList.remove("active")
+library.addEventListener("click", () => {
+    activeGroup.style.display = "none";
+    grLibrary.style.display = "block";
 
-    instancesBtn.classList.add("active")
+    activeGroup = grLibrary
 
-    const tabsContent = document.getElementsByClassName("tabcontent")
-    for (let e of tabsContent) {
-        e.style.display = "none"
-    }
+    activeBtn.toggleAttribute("active", false)
+    library.toggleAttribute("active", true)
 
-    const instanceTab = document.getElementById("instance-menu")
-    instanceTab.style.display = "flex"
+    activeBtn = library
+})
 
-    await refreshInstanceList()
-})*/
+servers.addEventListener("click", () => {
+    activeGroup.style.display = "none";
+    grServers.style.display = "block";
+
+    activeGroup = grServers;
+
+    activeBtn.toggleAttribute("active", false)
+    servers.toggleAttribute("active", true)
+
+    activeBtn = servers
+})

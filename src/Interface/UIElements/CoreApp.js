@@ -5,15 +5,16 @@ const {setLoading} = require("./scripts/window");
 
 
 const initializeModules = async () => {
-    // Retrieve all data from json files (get all of them one and use the ones stored in ram)
-    // When using/updating those data stored in ram, write it on disk to save data
     setLoading(true)
 
-    console.log("Checking for Updates")
+    console.log("Checking for updates")
     await checkForUpdate()
 
-    console.log("[Initializing] Window Buttons");
+    console.log("[Initializing] Window buttons");
     require("./scripts/winbtn")
+
+    console.log("[Initializing] Menu buttons")
+    require("./scripts/menubtn")
 
     /*console.log("[Initialize Modules] Interactable elements module");
     require("./scripts/elements")*/
