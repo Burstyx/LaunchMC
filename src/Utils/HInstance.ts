@@ -22,10 +22,11 @@ async function addInstanceElement(imagePath: string, title: string, id: string){
 
 interface InstanceInfo {
     name: string,
-    imagePath: string,
-    author: string,
-    accentColor: string,
-    versionType: string
+    thumbnailPath: string,
+}
+
+interface ServerInstanceInfo extends InstanceInfo{
+    "coverPath": string,
 }
 
 interface LoaderInfo {
@@ -33,43 +34,51 @@ interface LoaderInfo {
     id: string
 }
 
-export async function createInstance(version: string, instanceInfo: InstanceInfo, loaderInfo?: LoaderInfo){
+export async function createInstance(version: string, instanceInfo: InstanceInfo | ServerInstanceInfo, loaderInfo?: LoaderInfo){
     await makeDir(path.join(instancesPath, instanceInfo.name))
 
+    let instanceConfiguration = {}
+
     // Default json configuration
-    let defaultJson =
-    {
-        "instanceData": {
-            "name": instanceInfo.name,
-            "imagePath": instanceInfo.imagePath,
-            "author": instanceInfo.author,
-            "accentColor": instanceInfo.accentColor,
-            "playtime": 0,
-            "lastplayed": -1,
-            "description": ""
-        },
-        "gameData": {
-            "version": version,
-            "versiontype": instanceInfo.versionType,
+    if(<ServerInstanceInfo>instanceInfo) {
+        instanceConfiguration = {
+            "instance-data": {
+                "name": instanceInfo.name,
+                "thumbnail-path": instanceInfo.thumbnailPath,
+                "cover-path": (<ServerInstanceInfo>instanceInfo).coverPath,
+                "play-time": 0,
+            },
+            "gameData": {
+                "version": version,
+            }
+        }
+    } else {
+        instanceConfiguration = {
+            "instance-data": {
+                "name": instanceInfo.name,
+                "thumbnail-path": instanceInfo.thumbnailPath,
+                "play-time": 0,
+            },
+            "gameData": {
+                "version": version,
+            }
         }
     }
 
-    let defaultLoaderJson = {
-        "loader": {
-            "name": loaderInfo?.name,
-            "id": loaderInfo?.id
-        }
-    }
-
-
-    // If Forge instance then append forge conf to default conf
     if(loaderInfo) {
-        defaultJson = concatJson(defaultJson, defaultLoaderJson)
+        let defaultLoaderJson = {
+            "loader": {
+                "name": loaderInfo.name,
+                "id": loaderInfo.id
+            }
+        }
+
+        instanceConfiguration = concatJson(instanceConfiguration, defaultLoaderJson)
     }
 
     // Write instance conf on disk
     await fs.writeFile(path.join(instancesPath, instanceInfo.name, "info.json"), JSON.stringify(
-        defaultJson
+        instanceConfiguration
     ))
 
     // Update instance list
