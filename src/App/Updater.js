@@ -25,11 +25,11 @@ function checkForUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
         githubReleaseData = yield (0, HGitHub_1.getLatestRelease)();
         const currentVersion = require("../../package.json").version;
-        const latestVersion = githubReleaseData === null || githubReleaseData === void 0 ? void 0 : githubReleaseData.tag_name;
+        const latestVersion = githubReleaseData["tag_name"];
         if (currentVersion !== latestVersion) {
             console.log("Need to be updated!");
-            const updateBtn = document.getElementById("update-btn");
-            updateBtn.style.display = "flex";
+            const settings = document.getElementById("settings");
+            settings.setAttribute("badge", "");
             return;
         }
         console.log("Latest version already installed!");

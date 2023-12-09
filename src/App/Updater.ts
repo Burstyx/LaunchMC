@@ -12,13 +12,13 @@ export async function checkForUpdate() {
     githubReleaseData = await getLatestRelease()
 
     const currentVersion = require("../../package.json").version;
-    const latestVersion = githubReleaseData?.tag_name;
+    const latestVersion = githubReleaseData!["tag_name"];
 
     if(currentVersion !== latestVersion) {
         console.log("Need to be updated!")
 
-        const updateBtn = document.getElementById("update-btn")
-        updateBtn!.style.display = "flex"
+        const settings = document.getElementById("settings")
+        settings!.setAttribute("badge", "");
 
         return
     }

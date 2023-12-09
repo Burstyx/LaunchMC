@@ -12,33 +12,33 @@ const initializeModules = async () => {
     console.log("Checking for Updates")
     await checkForUpdate()
 
-    console.log("[Initialize Modules] Titlebar module");
-    require("./scripts/titlebar")
+    console.log("[Initializing] Window Buttons");
+    require("./scripts/winbtn")
 
-    console.log("[Initialize Modules] Interactable elements module");
-    require("./scripts/elements")
+    /*console.log("[Initialize Modules] Interactable elements module");
+    require("./scripts/elements")*/
 
-    console.log("[Initialize Modules] Main window module");
+    //console.log("[Initializing] Content section");
     /*require("./scripts/mainWin")*/
 
-    console.log("[Initialize Modules] New instance window module");
+    //console.log("[Initialize Modules] New instance window module");
     /*require("./scripts/newInstanceWin")*/
 
-    console.log("[Initialize Modules] Choose version window module");
+    //console.log("[Initialize Modules] Choose version window module");
     /*const chooseVersionWindow = require("./scripts/chooseVersionWin")
     await chooseVersionWindow.refreshVersionList()*/
 
-    console.log("[Initialize Modules] Account manager window module");
+    //console.log("[Initialize Modules] Account manager window module");
     /*const accountManagerWindow = require("./scripts/accountManagerWin")
     await accountManagerWindow.refreshAccountList()*/
 
-    console.log("Update Instance List");
-    /*await refreshInstanceList()*/
+    /*console.log("Update Instance List");
+    await refreshInstanceList()*/
 
     console.log("Initialize Discord RPC");
     await initDiscordRPC()
 
-    console.log("Refreshing Microsoft Account");
+    //console.log("Refreshing Microsoft Account");
     // Put logic here
 
     console.log("Initialisation effectué sans erreur !")

@@ -49,6 +49,24 @@
     font-weight: 200;
 }
 
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(40, 40, 40, 0.75);
+
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(40, 40, 40, .9);
+}
+
 body {
     padding: 0;
     margin: 0;
@@ -72,6 +90,27 @@ body {
     transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s;
 }
 
+.button[badge] {
+    position: relative;
+}
+
+.button[badge]::after {
+    content: attr(badge);
+    text-align: center;
+    font-size: 55%;
+
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    transform: translate(15%, 15%);
+
+    background-color: red;
+    border-radius: 100%;
+
+    width: 35%;
+    height: 35%;
+}
+
 .button:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     filter: brightness(.85);
@@ -85,9 +124,25 @@ body {
     background-color: var(--color-theme);
 }
 
+.button.green {
+    background-color: #05E400;
+}
+
 .button.danger {
     background-color: #3D2222;
 }
+
+.popup {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 /*endregion*/
 /*region Toggle*/
 .button.toggle {
@@ -135,6 +190,26 @@ body {
 
 .instance:active {
     transform: scale(.95);
+}
+
+.widget {
+    background-color: var(--color-theme);
+    border-radius: 10px;
+
+    font-size: 14px;
+
+    padding: 2px;
+
+    transition: box-shadow .15s, transform .15s, filter .15s;
+}
+
+.widget:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    filter: brightness(.85);
+}
+
+.widget:active {
+    transform: scale(0.95);
 }
 /*endregion*/
 
@@ -195,6 +270,8 @@ body {
     border-radius: 20px;
 
     margin: 0 8px 8px 8px;
+
+    overflow-y: overlay;
 }
 /*endregion*/
 
@@ -204,18 +281,16 @@ body {
 
     position: absolute;
 
-    top: 5px;
-    left: 5px;
+    top: 8px;
+    left: 8px;
 
-    width: calc(100% - 10px);
-    height: calc(100% - 10px);
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
     background-color: #101010;
 
     display: flex;
     justify-content: center;
     align-items: center;
-
-    -webkit-app-region: drag;
 
     border-radius: 20px;
 }
@@ -231,6 +306,9 @@ body {
     from { transform: rotate(0deg) }
     to { transform: rotate(360deg) }
 }
+/*endregion*/
+
+/*region Discover*/
 /*endregion*/
 
 /*region Library*/
@@ -249,4 +327,95 @@ body {
     flex-wrap: wrap;
     gap: 8px;
 }
+/*endregion*/
+
+/*region Servers*/
+#own-servers{
+    padding: 8px;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#avail-servers{
+    padding: 8px;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#gr-servers p {
+    margin: 0;
+    padding: 8px;
+}
+
+/*region Server Info Popup*/
+#popup-server-info {
+    display: flex;
+    justify-content: center;
+}
+
+#popup-server-info > div {
+    margin: 8px 25%;
+    width: 100%;
+
+    max-width: 800px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#popup-server-info > div > #server-thumbnail {
+    background-image: url("./resources/images/default.png");
+    background-size: cover;
+    background-position: center;
+
+    height: 45%;
+    max-height: 400px;
+
+    width: 100%;
+
+    aspect-ratio: 3 / 1;
+
+    border-radius: 20px;
+
+    position: relative;
+}
+
+#popup-server-info > div > #server-thumbnail > #server-brand-logo {
+    width: 50%;
+    margin-top: 10px;
+
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#popup-server-info > div > #server-thumbnail > #server-instance-action {
+    position: absolute;
+    width: 50px;
+    margin: 0;
+
+    bottom: -15px;
+    left: 30px;
+}
+
+#popup-server-info > div > #server-details {
+    margin-top: calc(15px + 8px);
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    gap: 8px;
+}
+
+#popup-server-info > div > #server-details > div {
+    width: 200px;
+}
+/*endregion*/
 /*endregion*/

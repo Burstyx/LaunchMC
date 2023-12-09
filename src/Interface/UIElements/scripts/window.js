@@ -36,14 +36,11 @@ exports.closeWindow = (windowId) => {
 }*/
 
 const loadingStartup = document.getElementById("startup-loading")
-const menuBtn = document.getElementById("menu-buttons")
 
 exports.setLoading = (active) => {
     if(active) {
         loadingStartup.style.display = "flex"
-        menuBtn.style.display = "none"
     } else {
         loadingStartup.style.display = "none"
-        menuBtn.style.display = "flex"
     }
 }

@@ -1,29 +1,6 @@
-const { getCurrentWindow } = require("@electron/remote")
-const {generateProfileBtn} = require("../../../Utils/HProfile");
-const {refreshInstanceList} = require("../../../Utils/HInstance");
 
-const close = document.getElementById("close")
-const minmax = document.getElementById("minmax")
-const reduce = document.getElementById("reduce")
-
-close.addEventListener("click", () => {
-    getCurrentWindow().close()
-})
-
-minmax.addEventListener("click", () => {
-    if (getCurrentWindow().isMaximized()) {
-        getCurrentWindow().restore()
-    }
-    else {
-        getCurrentWindow().maximize()
-    }
-})
 
 /*
-reduce.addEventListener("click", () => {
-    getCurrentWindow().minimize()
-})
-
 const discoverBtn = document.getElementById("discoverBtn")
 discoverBtn.addEventListener("click", async () => {
     const activeElement = document.querySelector("#titlebar-menu-btns .active")

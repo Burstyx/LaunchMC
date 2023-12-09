@@ -14,20 +14,50 @@
                 <div class="button themed toggle" id="servers"><img src="./resources/svg/servers.svg" width="55%"></div>
             </div>
             <div id="window-buttons">
-                <div class="button" id="settings"><img src="./resources/svg/settings.svg" width="60%"></div>
+                <div class="button" badge="" id="settings"><img src="./resources/svg/settings.svg" width="60%"></div>
                 <div class="button" id="reduce"><img src="./resources/svg/reduce.svg" width="55%"></div>
-                <div class="button" active id="minmax"><img src="./resources/svg/minmax.svg" width="50%"></div>
-                <div class="button danger" id="close"><img src="./resources/svg/close.svg" width="50%"></div>
+                <div class="button" id="minmax"><img src="./resources/svg/minmax.svg" width="50%"></div>
+                <div class="button danger" id="close" style="z-index: 999"><img src="./resources/svg/close.svg" width="50%"></div>
             </div>
         </div>
-        <div id="startup-loading"><img src="./resources/svg/loading.svg" width="100px"></div>
+        <div id="startup-loading" style="display: none"><img src="./resources/svg/loading.svg" width="100px"></div>
         <div id="content">
-            <div class="elements-group" id="gr-library">
+            <div class="elements-group" id="gr-discover" style="display: none">
+
+            </div>
+            <div class="elements-group" id="gr-library" style="display: none">
                 <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
                 <div id="instances">
                     <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
-                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
-                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance-id02" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance-id03" style="object-fit: cover"><p>My cool survival game</p></div>
+                </div>
+            </div>
+            <div class="elements-group" id="gr-servers">
+                <p>Jouer</p>
+                <div id="own-servers">
+                    <p>Vous n'avez aucun serveur d'installé</p>
+                </div>
+
+                <p>Rejoindre</p>
+                <div id="avail-servers">
+                    <div class="instance" id="orion2054"><p>Orion2054 | WIP</p></div>
+                    <div class="instance" id="hypixel"><p>Hypixel</p></div>
+                </div>
+
+                <div class="popup" id="popup-server-info">
+                    <div>
+                        <div id="server-thumbnail">
+                            <img src="./resources/images/mc.png" id="server-brand-logo">
+                            <div class="button green" id="server-instance-action"><img src="./resources/svg/download.svg" width="55%"></div>
+                        </div>
+                        <div id="server-details">
+                            <div class="widget"><p>Forge 1.12.2</p></div>
+                            <div class="widget"><p>Fichiers</p></div>
+                            <div class="widget"><p>Console</p></div>
+                            <div class="widget"><p>Paramètres</p></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
