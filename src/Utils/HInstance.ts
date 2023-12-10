@@ -1,8 +1,8 @@
 import fs from "fs/promises"
 import path from "path"
-import {instancesPath} from "../Utils/const"
+import {instancesPath, localInstancesPath} from "../Utils/const"
 import {makeDir} from "./HFileManagement"
-import {existsSync} from "original-fs"
+import {existsSync} from "fs"
 import Color from "color"
 import {concatJson, replaceAll} from "./Utils"
 import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
@@ -10,12 +10,12 @@ import {downloadAsync} from "./HDownload";
 import cp from "child_process";
 import {getMetadataOf, listProfiles} from "./HGitHub";
 
-var instancesData = {};
+let instanceStates = {};
 
-async function addInstanceElement(imagePath: string, title: string, id: string){
-    const instanceDiv = document.getElementById("instance-list")!
+async function addInstanceElement(imagePath: string, title: string){
+    const instanceDiv = document.getElementById("instances")!
 
-    const instanceElement = await generateInstanceBtn(imagePath, title, id)
+    const instanceElement = await generateInstanceBtn(imagePath, title)
 
     instanceDiv.appendChild(instanceElement)
 }
@@ -23,10 +23,14 @@ async function addInstanceElement(imagePath: string, title: string, id: string){
 interface InstanceInfo {
     name: string,
     thumbnailPath: string,
+    type: "instance"
 }
 
-interface ServerInstanceInfo extends InstanceInfo{
+interface ServerInstanceInfo{
+    name: string,
+    thumbnailPath: string,
     "coverPath": string,
+    type: "server_instance"
 }
 
 interface LoaderInfo {
@@ -40,13 +44,13 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     let instanceConfiguration = {}
 
     // Default json configuration
-    if(<ServerInstanceInfo>instanceInfo) {
+    if(instanceInfo.type === 'server_instance') {
         instanceConfiguration = {
-            "instance-data": {
+            "instance": {
                 "name": instanceInfo.name,
-                "thumbnail-path": instanceInfo.thumbnailPath,
-                "cover-path": (<ServerInstanceInfo>instanceInfo).coverPath,
-                "play-time": 0,
+                "thumbnail_path": instanceInfo.thumbnailPath,
+                "cover_path": (<ServerInstanceInfo>instanceInfo).coverPath,
+                "play_time": 0,
             },
             "gameData": {
                 "version": version,
@@ -54,10 +58,10 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
         }
     } else {
         instanceConfiguration = {
-            "instance-data": {
+            "instance": {
                 "name": instanceInfo.name,
-                "thumbnail-path": instanceInfo.thumbnailPath,
-                "play-time": 0,
+                "thumbnail_path": instanceInfo.thumbnailPath,
+                "play_time": 0,
             },
             "gameData": {
                 "version": version,
@@ -82,48 +86,27 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     ))
 
     // Update instance list
-    await refreshInstanceList()
+    await refreshLocalInstanceList()
 }
 
-async function generateInstanceBtn(imagePath: string, title: string, id: string) {
-    let instanceElement = document.createElement("div")
+async function generateInstanceBtn(imagePath: string, title: string) {
+    const instanceElement = document.createElement("div")
 
-    if(title.length > 20){
-        title = title.substring(0, 23)
-        title += "..."
-    }
+    // Instance text
+    const titleElement = document.createElement("p")
+    titleElement.innerText = title;
+    instanceElement.append(titleElement)
 
     // Instance Btn
-    instanceElement.innerText = title
-    instanceElement.classList.add("default-btn", "interactable", "instance")
-    instanceElement.setAttribute("state", InstanceState[InstanceState.Playable])
-    instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${replaceAll(imagePath, '\\', '/')}')`
-    instanceElement.style.textShadow = "black 0px 0px 10px"
-    instanceElement.style.position = "relative"
-    instanceElement.id = id
-
-    // Download track div
-    let dlTrackerElement = document.createElement("div")
-    dlTrackerElement.classList.add("dltracker")
-    dlTrackerElement.style.position = "absolute"
-    dlTrackerElement.style.top = "0"
-    dlTrackerElement.style.left = "100%"
-    dlTrackerElement.style.width = "0%"
-    dlTrackerElement.style.height = "100%"
-    dlTrackerElement.style.borderRadius = "5px"
-    dlTrackerElement.style.backdropFilter = "saturate(0%)"
-    dlTrackerElement.style.pointerEvents = "none"
-
-    instanceElement.append(dlTrackerElement)
+    instanceElement.id = title
+    instanceElement.classList.add("instance")
+    instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${replaceAll(imagePath, '\\', '/')}'))`
 
     instanceElement.addEventListener("click", async (e) => {
-        await setContentTo(id)
-
-        document.querySelector(".instance.active")?.classList.remove("active");
-        instanceElement.classList.add("active");
+        await setContentTo(title)
     })
 
-    instanceElement.addEventListener("mousedown", (e) => {
+    /*instanceElement.addEventListener("mousedown", (e) => {
         if(e.button === 2) {
             // @ts-ignore
             const id = e.target.id
@@ -141,7 +124,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
             document.getElementById("rc_delete_instance")!.onclick = async (e) => {
                 if(state === InstanceState[InstanceState.Playable]) {
                     await fs.rm(path.join(instancesPath, id), {recursive: true})
-                    await refreshInstanceList()
+                    await refreshLocalInstanceList()
                 } else {
                     console.log("Can't delete an instance which is occupied")
                 }
@@ -151,7 +134,7 @@ async function generateInstanceBtn(imagePath: string, title: string, id: string)
                 cp.exec(`start "" "${path.join(instancesPath, id)}"`)
             }
         }
-    })
+    })*/
 
     instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
     
@@ -331,27 +314,22 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     content.style.display = "flex"
 }
 
-export async function refreshInstanceList() { // FIXME: instance state are clear and that's not good at all
-    const instancesDiv = document.getElementById("instance-list")!
-    saveInstancesData();
-
+export async function refreshLocalInstanceList() {
+    const instancesDiv = document.getElementById("instances")!
     instancesDiv.innerHTML = ""
     
-    if(existsSync(instancesPath)){
-        const instances = await fs.readdir(instancesPath)
+    if(existsSync(localInstancesPath)){
+        const instances = await fs.readdir(localInstancesPath, {withFileTypes: true})
         
-        // Get all instances
-        for(const e in instances){            
-            if(existsSync(path.join(instancesPath, instances[e], "info.json"))){
-                const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
+        for(const file of instances){
+            if(file.isDirectory() && existsSync(path.join(localInstancesPath, file.name, "info.json"))){
+                const data = await fs.readFile(path.join(localInstancesPath, file.name, "info.json"), "utf8")
                 const dataJson = JSON.parse(data)
                 
-                await addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], dataJson["instanceData"]["name"])
+                await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"])
             }
         }
     }
-
-    restoreInstancesData();
 }
 
 export async function getInstanceData(instanceId: string){
@@ -413,51 +391,16 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
         await setContentTo(instanceId)
 }
 
-export function saveInstancesData() {
-    const instances = document.getElementById("instance-list")!.children
-
-    for (const e of instances) {
-        // @ts-ignore
-        instancesData[e.id] = {};
-        // @ts-ignore
-        instancesData[e.id]["state"] = e.getAttribute("state");
-        // @ts-ignore
-        instancesData[e.id]["dlCount"] = e.firstElementChild?.style.left;
-    }
-
-    console.log(instancesData)
-}
-
-export function restoreInstancesData() {
-    const instances = document.getElementById("instance-list")!.children
-
-    for (const e of instances) {
-        console.log(instancesData.hasOwnProperty(e.id))
-        if(instancesData.hasOwnProperty(e.id)) {
-            // @ts-ignore
-            e.setAttribute("state", instancesData[e.id]["state"]);
-            console.log(e.getAttribute("state"));
-
-            //@ts-ignore
-            console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
-            // @ts-ignore
-            updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
-        }
-
-    }
-
-    instancesData = [];
-}
-
 export async function convertProfileToInstance(metadata: any, instanceData: any) {
     const isVanilla = metadata["loader"] == null;
 
     await createInstance(metadata["mcVersion"], {
         name: instanceData["name"],
-        accentColor: instanceData["accentColor"],
-        author: instanceData["author"],
-        imagePath: await downloadAsync(instanceData["thumbnailPath"], path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))),
-        versionType: metadata["type"]
+        thumbnailPath: await downloadAsync(
+            instanceData["thumbnailPath"],
+            path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
+        ),
+        type: "instance"
     },
         !isVanilla ? {
         name: metadata["loader"]["name"],

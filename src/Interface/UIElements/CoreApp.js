@@ -1,6 +1,7 @@
 const { initDiscordRPC } = require("../../App/DIscordRPC");
 const {checkForUpdate} = require("../../App/Updater");
 const {setLoading} = require("./scripts/window");
+const {refreshLocalInstanceList} = require("../../Utils/HInstance");
 
 
 
@@ -33,8 +34,8 @@ const initializeModules = async () => {
     /*const accountManagerWindow = require("./scripts/accountManagerWin")
     await accountManagerWindow.refreshAccountList()*/
 
-    /*console.log("Update Instance List");
-    await refreshInstanceList()*/
+    console.log("Update Instance List");
+    await refreshLocalInstanceList()
 
     console.log("Initialize Discord RPC");
     await initDiscordRPC()

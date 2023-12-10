@@ -25,14 +25,30 @@
             <div class="elements-group" id="gr-discover" style="display: none">
 
             </div>
+
             <div class="elements-group" id="gr-library">
                 <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
                 <div id="instances">
-                    <div class="instance" id="instance-id" style="object-fit: cover"><p>My cool survival game</p></div>
-                    <div class="instance" id="instance-id02" style="object-fit: cover"><p>My cool survival game</p></div>
-                    <div class="instance" id="instance-id03" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance_id-01" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance_id-02" style="object-fit: cover"><p>My cool survival game</p></div>
+                    <div class="instance" id="instance_id-03" style="object-fit: cover"><p>My cool survival game</p></div>
+                </div>
+                <div class="popup instance-info-popup">
+                    <div>
+                        <div class="instance-thumbnail">
+                            <p id="instance-title">Ma survie Minecraft 1.12.2</p>
+                            <div class="button green instance-action" id="instance-action"><img src="./resources/svg/download.svg" width="55%"></div>
+                        </div>
+                        <div class="instance-details">
+                            <div class="widget"><p>Forge 1.12.2</p></div>
+                            <div class="widget"><p>Fichiers</p></div>
+                            <div class="widget"><p>Console</p></div>
+                            <div class="widget"><p>Paramètres</p></div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div class="elements-group" id="gr-servers" style="display: none">
                 <p>Jouer</p>
                 <div id="own-servers">
@@ -41,19 +57,18 @@
 
                 <p>Rejoindre</p>
                 <div id="avail-servers">
-                    <div class="instance" id="orion2054"><p>Orion2054 | WIP</p></div>
-                    <div class="instance" id="hypixel"><p>Hypixel</p></div>
+                    <div class="instance" id="server_instance_id-orion2054"><p>Orion2054 | WIP</p></div>
+                    <div class="instance" id="server_instance_id-hypixel"><p>Hypixel</p></div>
                 </div>
 
-                <div class="popup" id="popup-server-info" style="display: none">
+                <div class="popup instance-info-popup" style="display: none">
                     <div>
-                        <div id="server-thumbnail">
+                        <div class="instance-thumbnail">
                             <img src="./resources/images/mc.png" id="server-brand-logo">
-                            <div class="button green" id="server-instance-action"><img src="./resources/svg/download.svg" width="55%"></div>
+                            <div class="button green instance-action" id="server-instance-action"><img src="./resources/svg/download.svg" width="55%"></div>
                         </div>
-                        <div id="server-details">
-                            <div class="widget"><p>Forge 1.12.2</p></div>
-                            <div class="widget"><p>Fichiers</p></div>
+                        <div class="instance-details">
+                            <div class="widget" disabled><p>Forge 1.12.2</p></div>
                             <div class="widget"><p>Console</p></div>
                             <div class="widget"><p>Paramètres</p></div>
                         </div>

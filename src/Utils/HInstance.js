@@ -12,122 +12,114 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.restoreInstancesData = exports.saveInstancesData = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshLocalInstanceList = exports.setContentTo = exports.createInstance = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const HFileManagement_1 = require("./HFileManagement");
-const original_fs_1 = require("original-fs");
+const fs_1 = require("fs");
 const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
 const DownloadGame_1 = require("../App/DownloadGame");
 const HDownload_1 = require("./HDownload");
-const child_process_1 = __importDefault(require("child_process"));
 const HGitHub_1 = require("./HGitHub");
-var instancesData = {};
-function addInstanceElement(imagePath, title, id) {
+let instanceStates = {};
+function addInstanceElement(imagePath, title) {
     return __awaiter(this, void 0, void 0, function* () {
-        const instanceDiv = document.getElementById("instance-list");
-        const instanceElement = yield generateInstanceBtn(imagePath, title, id);
+        const instanceDiv = document.getElementById("instances");
+        const instanceElement = yield generateInstanceBtn(imagePath, title);
         instanceDiv.appendChild(instanceElement);
     });
 }
 function createInstance(version, instanceInfo, loaderInfo) {
     return __awaiter(this, void 0, void 0, function* () {
         yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo.name));
+        let instanceConfiguration = {};
         // Default json configuration
-        let defaultJson = {
-            "instanceData": {
-                "name": instanceInfo.name,
-                "imagePath": instanceInfo.imagePath,
-                "author": instanceInfo.author,
-                "accentColor": instanceInfo.accentColor,
-                "playtime": 0,
-                "lastplayed": -1,
-                "description": ""
-            },
-            "gameData": {
-                "version": version,
-                "versiontype": instanceInfo.versionType,
-            }
-        };
-        let defaultLoaderJson = {
-            "loader": {
-                "name": loaderInfo === null || loaderInfo === void 0 ? void 0 : loaderInfo.name,
-                "id": loaderInfo === null || loaderInfo === void 0 ? void 0 : loaderInfo.id
-            }
-        };
-        // If Forge instance then append forge conf to default conf
+        if (instanceInfo.type === 'server_instance') {
+            instanceConfiguration = {
+                "instance": {
+                    "name": instanceInfo.name,
+                    "thumbnail_path": instanceInfo.thumbnailPath,
+                    "cover_path": instanceInfo.coverPath,
+                    "play_time": 0,
+                },
+                "gameData": {
+                    "version": version,
+                }
+            };
+        }
+        else {
+            instanceConfiguration = {
+                "instance": {
+                    "name": instanceInfo.name,
+                    "thumbnail_path": instanceInfo.thumbnailPath,
+                    "play_time": 0,
+                },
+                "gameData": {
+                    "version": version,
+                }
+            };
+        }
         if (loaderInfo) {
-            defaultJson = (0, Utils_1.concatJson)(defaultJson, defaultLoaderJson);
+            let defaultLoaderJson = {
+                "loader": {
+                    "name": loaderInfo.name,
+                    "id": loaderInfo.id
+                }
+            };
+            instanceConfiguration = (0, Utils_1.concatJson)(instanceConfiguration, defaultLoaderJson);
         }
         // Write instance conf on disk
-        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo.name, "info.json"), JSON.stringify(defaultJson));
+        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo.name, "info.json"), JSON.stringify(instanceConfiguration));
         // Update instance list
-        yield refreshInstanceList();
+        yield refreshLocalInstanceList();
     });
 }
 exports.createInstance = createInstance;
-function generateInstanceBtn(imagePath, title, id) {
+function generateInstanceBtn(imagePath, title) {
     return __awaiter(this, void 0, void 0, function* () {
-        let instanceElement = document.createElement("div");
-        if (title.length > 20) {
-            title = title.substring(0, 23);
-            title += "...";
-        }
+        const instanceElement = document.createElement("div");
+        // Instance text
+        const titleElement = document.createElement("p");
+        titleElement.innerText = title;
+        instanceElement.append(titleElement);
         // Instance Btn
-        instanceElement.innerText = title;
-        instanceElement.classList.add("default-btn", "interactable", "instance");
-        instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]);
-        instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${(0, Utils_1.replaceAll)(imagePath, '\\', '/')}')`;
-        instanceElement.style.textShadow = "black 0px 0px 10px";
-        instanceElement.style.position = "relative";
-        instanceElement.id = id;
-        // Download track div
-        let dlTrackerElement = document.createElement("div");
-        dlTrackerElement.classList.add("dltracker");
-        dlTrackerElement.style.position = "absolute";
-        dlTrackerElement.style.top = "0";
-        dlTrackerElement.style.left = "100%";
-        dlTrackerElement.style.width = "0%";
-        dlTrackerElement.style.height = "100%";
-        dlTrackerElement.style.borderRadius = "5px";
-        dlTrackerElement.style.backdropFilter = "saturate(0%)";
-        dlTrackerElement.style.pointerEvents = "none";
-        instanceElement.append(dlTrackerElement);
+        instanceElement.id = title;
+        instanceElement.classList.add("instance");
+        instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${(0, Utils_1.replaceAll)(imagePath, '\\', '/')}'))`;
         instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
-            var _a;
-            yield setContentTo(id);
-            (_a = document.querySelector(".instance.active")) === null || _a === void 0 ? void 0 : _a.classList.remove("active");
-            instanceElement.classList.add("active");
+            yield setContentTo(title);
         }));
-        instanceElement.addEventListener("mousedown", (e) => {
-            if (e.button === 2) {
+        /*instanceElement.addEventListener("mousedown", (e) => {
+            if(e.button === 2) {
                 // @ts-ignore
-                const id = e.target.id;
+                const id = e.target.id
                 // @ts-ignore
-                const state = e.target.getAttribute("state");
-                const rcMenu = document.getElementById("rcmenu-instance");
+                const state = e.target.getAttribute("state")
+    
+                const rcMenu = document.getElementById("rcmenu-instance")
                 // @ts-ignore
-                rcMenu.style.top = e.clientY + "px";
+                rcMenu.style.top = e.clientY + "px"
                 // @ts-ignore
-                rcMenu.style.left = e.clientX + "px";
+                rcMenu.style.left = e.clientX + "px"
                 // @ts-ignore
-                rcMenu.style.display = "flex";
-                document.getElementById("rc_delete_instance").onclick = (e) => __awaiter(this, void 0, void 0, function* () {
-                    if (state === InstanceState[InstanceState.Playable]) {
-                        yield promises_1.default.rm(path_1.default.join(const_1.instancesPath, id), { recursive: true });
-                        yield refreshInstanceList();
+                rcMenu.style.display = "flex"
+    
+                document.getElementById("rc_delete_instance")!.onclick = async (e) => {
+                    if(state === InstanceState[InstanceState.Playable]) {
+                        await fs.rm(path.join(instancesPath, id), {recursive: true})
+                        await refreshLocalInstanceList()
+                    } else {
+                        console.log("Can't delete an instance which is occupied")
                     }
-                    else {
-                        console.log("Can't delete an instance which is occupied");
-                    }
-                });
-                document.getElementById("rc_open_instance_folder").onclick = (e) => {
-                    child_process_1.default.exec(`start "" "${path_1.default.join(const_1.instancesPath, id)}"`);
-                };
+                }
+    
+                document.getElementById("rc_open_instance_folder")!.onclick = (e) => {
+                    cp.exec(`start "" "${path.join(instancesPath, id)}"`)
+                }
             }
-        });
+        })*/
         instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
     });
@@ -267,29 +259,26 @@ function setContentTo(id) {
     });
 }
 exports.setContentTo = setContentTo;
-function refreshInstanceList() {
+function refreshLocalInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
-        const instancesDiv = document.getElementById("instance-list");
-        saveInstancesData();
+        const instancesDiv = document.getElementById("instances");
         instancesDiv.innerHTML = "";
-        if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
-            const instances = yield promises_1.default.readdir(const_1.instancesPath);
-            // Get all instances
-            for (const e in instances) {
-                if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, instances[e], "info.json"))) {
-                    const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instances[e], "info.json"), "utf8");
+        if ((0, fs_1.existsSync)(const_1.localInstancesPath)) {
+            const instances = yield promises_1.default.readdir(const_1.localInstancesPath, { withFileTypes: true });
+            for (const file of instances) {
+                if (file.isDirectory() && (0, fs_1.existsSync)(path_1.default.join(const_1.localInstancesPath, file.name, "info.json"))) {
+                    const data = yield promises_1.default.readFile(path_1.default.join(const_1.localInstancesPath, file.name, "info.json"), "utf8");
                     const dataJson = JSON.parse(data);
-                    yield addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], dataJson["instanceData"]["name"]);
+                    yield addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"]);
                 }
             }
         }
-        restoreInstancesData();
     });
 }
-exports.refreshInstanceList = refreshInstanceList;
+exports.refreshLocalInstanceList = refreshLocalInstanceList;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if ((0, original_fs_1.existsSync)(const_1.instancesPath)) {
+        if ((0, fs_1.existsSync)(const_1.instancesPath)) {
             const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), "utf-8");
             const dataJson = JSON.parse(data);
             return { "data": dataJson, "gamePath": path_1.default.join(const_1.instancesPath, instanceId) };
@@ -339,46 +328,13 @@ function updateInstanceDlState(instanceId, newState) {
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;
-function saveInstancesData() {
-    var _a;
-    const instances = document.getElementById("instance-list").children;
-    for (const e of instances) {
-        // @ts-ignore
-        instancesData[e.id] = {};
-        // @ts-ignore
-        instancesData[e.id]["state"] = e.getAttribute("state");
-        // @ts-ignore
-        instancesData[e.id]["dlCount"] = (_a = e.firstElementChild) === null || _a === void 0 ? void 0 : _a.style.left;
-    }
-    console.log(instancesData);
-}
-exports.saveInstancesData = saveInstancesData;
-function restoreInstancesData() {
-    const instances = document.getElementById("instance-list").children;
-    for (const e of instances) {
-        console.log(instancesData.hasOwnProperty(e.id));
-        if (instancesData.hasOwnProperty(e.id)) {
-            // @ts-ignore
-            e.setAttribute("state", instancesData[e.id]["state"]);
-            console.log(e.getAttribute("state"));
-            //@ts-ignore
-            console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
-            // @ts-ignore
-            updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)));
-        }
-    }
-    instancesData = [];
-}
-exports.restoreInstancesData = restoreInstancesData;
 function convertProfileToInstance(metadata, instanceData) {
     return __awaiter(this, void 0, void 0, function* () {
         const isVanilla = metadata["loader"] == null;
         yield createInstance(metadata["mcVersion"], {
             name: instanceData["name"],
-            accentColor: instanceData["accentColor"],
-            author: instanceData["author"],
-            imagePath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.instancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
-            versionType: metadata["type"]
+            thumbnailPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.instancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
+            type: "instance"
         }, !isVanilla ? {
             name: metadata["loader"]["name"],
             id: metadata["loader"]["id"]
@@ -451,7 +407,7 @@ function verifyInstanceFromRemote(name) {
         }
         // Download files not in the local side
         for (const fileData of metadata["files"]) {
-            if (!(0, original_fs_1.existsSync)(path_1.default.join(const_1.instancesPath, name, fileData["path"]))) {
+            if (!(0, fs_1.existsSync)(path_1.default.join(const_1.instancesPath, name, fileData["path"]))) {
                 yield (0, HDownload_1.downloadAsync)(fileData["url"], path_1.default.join(const_1.instancesPath, name, fileData["path"]));
                 console.log("downloaded: " + fileData["path"] + " from " + fileData["url"]);
             }

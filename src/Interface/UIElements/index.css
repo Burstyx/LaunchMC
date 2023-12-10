@@ -327,6 +327,22 @@ body {
     flex-wrap: wrap;
     gap: 8px;
 }
+
+/*region Instance Info Popup*/
+#instance-title {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 100%;
+    padding: 8px;
+
+    font-size: min(3vw, 50px);;
+    text-shadow: 0 0 10px black;
+    text-align: center;
+}
+/*endregion*/
 /*endregion*/
 
 /*region Servers*/
@@ -346,18 +362,18 @@ body {
     gap: 8px;
 }
 
-#gr-servers p {
+#gr-servers > p {
     margin: 0;
     padding: 8px;
 }
 
 /*region Server Info Popup*/
-#popup-server-info {
+.instance-info-popup {
     display: flex;
     justify-content: center;
 }
 
-#popup-server-info > div {
+.instance-info-popup > div {
     margin: 8px 25%;
     width: 100%;
 
@@ -368,7 +384,7 @@ body {
     align-items: center;
 }
 
-#popup-server-info > div > #server-thumbnail {
+.instance-thumbnail {
     background-image: url("./resources/images/default.png");
     background-size: cover;
     background-position: center;
@@ -385,17 +401,17 @@ body {
     position: relative;
 }
 
-#popup-server-info > div > #server-thumbnail > #server-brand-logo {
+.instance-info-popup  > div > .instance-thumbnail > #server-brand-logo {
     width: 50%;
     margin-top: 10px;
 
     position: absolute;
-    top: 25%;
+    top: 10%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
-#popup-server-info > div > #server-thumbnail > #server-instance-action {
+.instance-action {
     position: absolute;
     width: 50px;
     margin: 0;
@@ -404,7 +420,7 @@ body {
     left: 30px;
 }
 
-#popup-server-info > div > #server-details {
+.instance-details {
     margin-top: calc(15px + 8px);
 
     display: flex;
@@ -414,8 +430,12 @@ body {
     gap: 8px;
 }
 
-#popup-server-info > div > #server-details > div {
+.instance-details > .widget {
     width: 200px;
+}
+
+.instance-details > .widget > p {
+    margin: 8px;
 }
 /*endregion*/
 /*endregion*/
