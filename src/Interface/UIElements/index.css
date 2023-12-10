@@ -143,6 +143,10 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
+.popup:active {
+    display: none;
+}
+
 /*endregion*/
 /*region Toggle*/
 .button.toggle {
@@ -401,7 +405,7 @@ body {
     position: relative;
 }
 
-.instance-info-popup  > div > .instance-thumbnail > #server-brand-logo {
+.instance-info-popup > div > .instance-thumbnail > #server-brand-logo {
     width: 50%;
     margin-top: 10px;
 
