@@ -18,13 +18,12 @@ const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const HFileManagement_1 = require("./HFileManagement");
 const fs_1 = require("fs");
-const color_1 = __importDefault(require("color"));
 const Utils_1 = require("./Utils");
 const DownloadGame_1 = require("../App/DownloadGame");
 const HDownload_1 = require("./HDownload");
 const HGitHub_1 = require("./HGitHub");
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
-let instanceStates = {};
+let occupiedInstancesWithStates = {};
 function addInstanceElement(imagePath, title) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceDiv = document.getElementById("instances");
@@ -45,7 +44,7 @@ function createInstance(version, instanceInfo, loaderInfo) {
                     "cover_path": instanceInfo.coverPath,
                     "play_time": 0,
                 },
-                "gameData": {
+                "game": {
                     "version": version,
                 }
             };
@@ -57,7 +56,7 @@ function createInstance(version, instanceInfo, loaderInfo) {
                     "thumbnail_path": instanceInfo.thumbnailPath,
                     "play_time": 0,
                 },
-                "gameData": {
+                "game_data": {
                     "version": version,
                 }
             };
@@ -126,137 +125,66 @@ function generateInstanceBtn(imagePath, title) {
     });
 }
 let currentContentId = null;
-function setContentTo(id) {
+function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        currentContentId = id;
-        // Get instance state
-        const instance = document.getElementById(id);
-        const currentState = instance === null || instance === void 0 ? void 0 : instance.getAttribute("state");
-        // Fetch instance json
-        const instanceJson = yield getInstanceData(id);
-        // Hide current content
-        const content = document.getElementById("content");
-        content.style.display = "none";
-        // Show loading animation
-        const loading = document.getElementById("instance-info-loading");
-        loading.style.display = "auto";
+        currentContentId = name;
+        const instanceJson = yield getInstanceData(name);
         // No data found, cancel process
         if (!instanceJson) {
             console.error("No instance data found");
             return;
         }
-        // Separate instance datas
-        const instanceData = instanceJson.data.instanceData;
-        const gameData = instanceJson.data.gameData;
-        const loaderData = instanceJson.data.loader;
+        // Split instance data
+        const instanceData = instanceJson["data"]["instance"];
+        const gameData = instanceJson["data"]["game"];
+        const loaderData = instanceJson["data"]["loader"];
         // Set title
         const contentTitle = document.getElementById("instance-title");
-        contentTitle.innerText = instanceData.name;
-        // Set author
-        const contentAuthor = document.getElementById("instance-author");
-        contentAuthor.innerText = instanceData.author;
+        contentTitle.innerText = instanceData["name"];
         // Set version
-        const widgetVersion = document.getElementById("widget-version");
-        widgetVersion.setAttribute("subname", gameData.versiontype);
-        widgetVersion.innerText = gameData.version;
-        // Set modloader
-        let currentModloader = loaderData === null || loaderData === void 0 ? void 0 : loaderData.name;
-        let modloaderId = loaderData === null || loaderData === void 0 ? void 0 : loaderData.id;
-        console.log(currentModloader);
-        const widgetModloader = document.getElementById("widget-modloader");
-        widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla";
-        widgetModloader.setAttribute("subname", currentModloader ? modloaderId : gameData.version);
+        const instanceVersion = document.getElementById("instance-version");
+        instanceVersion.innerHTML = "";
+        const instanceVersionText = document.createElement("p");
+        instanceVersionText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`;
+        instanceVersion.append(instanceVersionText);
         // Set playtime
-        const widgetPlaytime = document.getElementById("widget-playtime");
+        /*const instancePlaytime = document.getElementById("instance-playtime")!
+    
         let h, m;
-        const timeInMiliseconds = instanceData.playtime;
+        const timeInMiliseconds = instanceData["play_time"]
+    
         h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
         m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
-        m < 10 ? m = `0${m}` : m = `${m}`;
-        h < 10 ? h = `0${h}` : h = `${h}`;
-        widgetPlaytime.innerText = `${h}h${m}`;
-        // Set last played
-        const widgetLastplayed = document.getElementById("widget-lastplayed"); // FIXME: Don't work
-        widgetLastplayed.innerText = instanceData["lastplayed"];
-        const widgetDesc = document.getElementById("widget-description"); // TODO: Write md rules
-        const desc = yield retrieveDescription(id);
-        if (desc !== "") {
-            widgetDesc.style.display = "flex";
-            widgetDesc.innerText = desc;
+    
+        m < 10 ? m = `0${m}` : m = `${m}`
+        h < 10 ? h = `0${h}` : h = `${h}`
+    
+        instancePlaytime.innerText = `${h}h${m}`*/
+        const launchBtn = document.getElementById("instance-action");
+        const iconBtn = launchBtn.querySelector("img");
+        const currentState = occupiedInstancesWithStates.hasOwnProperty(name)
+            ? occupiedInstancesWithStates["name"]
+            : InstanceState.Playable;
+        switch (currentState) {
+            case InstanceState.Playing:
+                launchBtn.style.backgroundColor = "red";
+                iconBtn.setAttribute("src", "./resources/svg/stop.svg");
+                break;
+            case InstanceState.Loading && InstanceState.Patching && InstanceState.Downloading && InstanceState.DLResources && InstanceState.Verification:
+                launchBtn.style.backgroundColor = "grey";
+                iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+                break;
+            case InstanceState.Playable:
+                launchBtn.style.backgroundColor = "green";
+                iconBtn.setAttribute("src", "./resources/svg/play.svg");
+                break;
+            case InstanceState.Update:
+                launchBtn.style.backgroundColor = "orange";
+                iconBtn.setAttribute("src", "./resources/svg/update.svg");
+                break;
         }
-        else {
-            widgetDesc.style.display = "none";
-        }
-        const widgetPosts = document.getElementById("widget-post");
-        const posts = yield retrievePosts(id);
-        if (posts !== "") {
-            widgetPosts.style.display = "flex";
-            widgetPosts.innerText = desc;
-        }
-        else {
-            widgetPosts.style.display = "none";
-        }
-        const launchBtn = document.getElementById("launchbtn");
-        const accentColor = instanceData["accentColor"];
-        contentAuthor.style.color = accentColor;
-        const color = (0, color_1.default)(accentColor);
-        const borderColor = color.darken(-.25).hex();
-        launchBtn.style.backgroundColor = accentColor;
-        launchBtn.style.border = `solid ${borderColor}`;
-        launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`;
-        launchBtn.innerText = "Play";
-        if (currentState === InstanceState[InstanceState.Playing]) {
-            launchBtn.style.backgroundColor = "red";
-            const color = (0, color_1.default)("#ff0000");
-            const borderColor = color.darken(-.25).hex();
-            launchBtn.style.border = `solid ${borderColor}`;
-            launchBtn.style.boxShadow = `0 0 10px 1px red`;
-            launchBtn.innerText = "Stop";
-        }
-        else if (currentState === InstanceState[InstanceState.Update]) {
-            launchBtn.style.backgroundColor = "green";
-            const color = (0, color_1.default)("#00ff00");
-            const borderColor = color.darken(-.25).hex();
-            launchBtn.style.border = `solid ${borderColor}`;
-            launchBtn.style.boxShadow = `0 0 10px 1px green`;
-            launchBtn.innerText = "Update";
-        }
-        else if (currentState === InstanceState[InstanceState.Downloading]) {
-            launchBtn.style.backgroundColor = "#2b2b2b";
-            launchBtn.style.border = `solid #363636`;
-            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
-            launchBtn.innerText = "Downloading";
-        }
-        else if (currentState === InstanceState[InstanceState.Loading]) {
-            launchBtn.style.backgroundColor = "#2b2b2b";
-            launchBtn.style.border = `solid #363636`;
-            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
-            launchBtn.innerText = "Loading";
-        }
-        else if (currentState === InstanceState[InstanceState.Patching]) {
-            launchBtn.style.backgroundColor = "#e05609";
-            launchBtn.style.border = `solid #363636`;
-            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
-            launchBtn.innerText = "Patching";
-        }
-        else if (currentState === InstanceState[InstanceState.DLResources]) {
-            launchBtn.style.backgroundColor = "#2b2b2b";
-            launchBtn.style.border = `solid #363636`;
-            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
-            launchBtn.innerText = "Downloading Server Files";
-        }
-        else if (currentState === InstanceState[InstanceState.Verification]) {
-            launchBtn.style.backgroundColor = "#2b2b2b";
-            launchBtn.style.border = `solid #363636`;
-            launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`;
-            launchBtn.innerText = "Verifying";
-        }
-        const contentBackground = document.getElementById("content-background");
-        contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
-    url('${(0, Utils_1.replaceAll)(instanceData["imagePath"], '\\', '/')}')`;
-        contentBackground.style.backgroundSize = 'cover';
-        loading.style.display = "none";
-        content.style.display = "flex";
+        const contentBackground = document.getElementById("instance-thumbnail");
+        contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
     });
 }
 exports.setContentTo = setContentTo;
@@ -279,10 +207,10 @@ function refreshLocalInstanceList() {
 exports.refreshLocalInstanceList = refreshLocalInstanceList;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if ((0, fs_1.existsSync)(const_1.instancesPath)) {
-            const data = yield promises_1.default.readFile(path_1.default.join(const_1.instancesPath, instanceId, "info.json"), "utf-8");
+        if ((0, fs_1.existsSync)(const_1.localInstancesPath)) {
+            const data = yield promises_1.default.readFile(path_1.default.join(const_1.localInstancesPath, instanceId, "info.json"), "utf-8");
             const dataJson = JSON.parse(data);
-            return { "data": dataJson, "gamePath": path_1.default.join(const_1.instancesPath, instanceId) };
+            return { "data": dataJson, "game_path": path_1.default.join(const_1.localInstancesPath, instanceId) };
         }
     });
 }

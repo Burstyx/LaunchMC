@@ -384,7 +384,7 @@ body {
     align-items: center;
 }
 
-.instance-thumbnail {
+#instance-thumbnail {
     background-image: url("./resources/images/default.png");
     background-size: cover;
     background-position: center;

@@ -10,7 +10,7 @@ import {downloadAsync} from "./HDownload";
 import {getMetadataOf, listProfiles} from "./HGitHub";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
-let instanceStates = {};
+let occupiedInstancesWithStates : any = {};
 
 async function addInstanceElement(imagePath: string, title: string){
     const instanceDiv = document.getElementById("instances")!
@@ -49,10 +49,10 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
             "instance": {
                 "name": instanceInfo.name,
                 "thumbnail_path": instanceInfo.thumbnailPath,
-                "cover_path": (<ServerInstanceInfo>instanceInfo).coverPath,
+                "cover_path": instanceInfo.coverPath,
                 "play_time": 0,
             },
-            "gameData": {
+            "game": {
                 "version": version,
             }
         }
@@ -63,7 +63,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
                 "thumbnail_path": instanceInfo.thumbnailPath,
                 "play_time": 0,
             },
-            "gameData": {
+            "game_data": {
                 "version": version,
             }
         }
@@ -141,23 +141,10 @@ async function generateInstanceBtn(imagePath: string, title: string) {
 }
 
 let currentContentId: string | null = null
-export async function setContentTo(id: string) { // TODO: Cleaning
-    currentContentId = id
+export async function setContentTo(name: string) { // TODO: Cleaning
+    currentContentId = name
 
-    // Get instance state
-    const instance = document.getElementById(id)
-    const currentState = instance?.getAttribute("state")
-
-    // Fetch instance json
-    const instanceJson = await getInstanceData(id)
-    
-    // Hide current content
-    const content = document.getElementById("content")!
-    content.style.display = "none"
-
-    // Show loading animation
-    const loading = document.getElementById("instance-info-loading")!
-    loading.style.display = "auto"
+    const instanceJson = await getInstanceData(name)
 
     // No data found, cancel process
     if(!instanceJson) {
@@ -165,40 +152,29 @@ export async function setContentTo(id: string) { // TODO: Cleaning
         return
     }
 
-    // Separate instance datas
-    const instanceData = instanceJson.data.instanceData
-    const gameData = instanceJson.data.gameData
-    const loaderData = instanceJson.data.loader
+    // Split instance data
+    const instanceData = instanceJson["data"]["instance"]
+    const gameData = instanceJson["data"]["game"]
+    const loaderData = instanceJson["data"]["loader"]
 
     // Set title
     const contentTitle = document.getElementById("instance-title")!
-    contentTitle.innerText = instanceData.name
-
-    // Set author
-    const contentAuthor = document.getElementById("instance-author")!
-    contentAuthor.innerText = instanceData.author
+    contentTitle.innerText = instanceData["name"]
 
     // Set version
-    const widgetVersion = document.getElementById("widget-version")!
-    widgetVersion.setAttribute("subname", gameData.versiontype)
-    widgetVersion.innerText = gameData.version
+    const instanceVersion = document.getElementById("instance-version")!
+    instanceVersion.innerHTML = "";
 
-    // Set modloader
-    let currentModloader = loaderData?.name
-    let modloaderId = loaderData?.id
-    
-    console.log(currentModloader);
-    
-    const widgetModloader = document.getElementById("widget-modloader")!
-    widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla"
+    const instanceVersionText = document.createElement("p")
+    instanceVersionText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`
 
-    widgetModloader.setAttribute("subname", currentModloader ? modloaderId : gameData.version)
+    instanceVersion.append(instanceVersionText)
 
     // Set playtime
-    const widgetPlaytime = document.getElementById("widget-playtime")!
+    /*const instancePlaytime = document.getElementById("instance-playtime")!
 
     let h, m;
-    const timeInMiliseconds = instanceData.playtime
+    const timeInMiliseconds = instanceData["play_time"]
 
     h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
     m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
@@ -206,111 +182,36 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     m < 10 ? m = `0${m}` : m = `${m}`
     h < 10 ? h = `0${h}` : h = `${h}`
 
-    widgetPlaytime.innerText = `${h}h${m}`
+    instancePlaytime.innerText = `${h}h${m}`*/
 
-    // Set last played
-    const widgetLastplayed = document.getElementById("widget-lastplayed")! // FIXME: Don't work
-    widgetLastplayed.innerText = instanceData["lastplayed"]
+    const launchBtn = document.getElementById("instance-action")!
+    const iconBtn = launchBtn.querySelector("img")!
 
-    const widgetDesc = document.getElementById("widget-description")! // TODO: Write md rules
+    const currentState = occupiedInstancesWithStates.hasOwnProperty(name)
+        ? occupiedInstancesWithStates["name"]
+        : InstanceState.Playable
 
-    const desc = await retrieveDescription(id)
-    if(desc !== "") {
-        widgetDesc.style.display = "flex"
-        widgetDesc.innerText = desc
-    } else {
-        widgetDesc.style.display = "none"
+    switch (currentState) {
+        case InstanceState.Playing:
+            launchBtn.style.backgroundColor = "red"
+            iconBtn.setAttribute("src", "./resources/svg/stop.svg")
+            break;
+        case InstanceState.Loading && InstanceState.Patching && InstanceState.Downloading && InstanceState.DLResources && InstanceState.Verification:
+            launchBtn.style.backgroundColor = "grey"
+            iconBtn.setAttribute("src", "./resources/svg/loading.svg")
+            break;
+        case InstanceState.Playable:
+            launchBtn.style.backgroundColor = "green"
+            iconBtn.setAttribute("src", "./resources/svg/play.svg")
+            break;
+        case InstanceState.Update:
+            launchBtn.style.backgroundColor = "orange"
+            iconBtn.setAttribute("src", "./resources/svg/update.svg")
+            break;
     }
 
-    const widgetPosts = document.getElementById("widget-post")!
-
-    const posts = await retrievePosts(id)
-    if(posts !== "") {
-        widgetPosts.style.display = "flex"
-        widgetPosts.innerText = desc
-    } else {
-        widgetPosts.style.display = "none"
-    }
-
-    const launchBtn = document.getElementById("launchbtn")!
-
-    const accentColor = instanceData["accentColor"]
-    contentAuthor.style.color = accentColor
-    
-    const color = Color(accentColor)
-    const borderColor = color.darken(-.25).hex()
-    
-    launchBtn.style.backgroundColor = accentColor
-    launchBtn.style.border = `solid ${borderColor}`
-    launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`
-
-    launchBtn.innerText = "Play"
-
-    if(currentState === InstanceState[InstanceState.Playing]){
-        launchBtn.style.backgroundColor = "red"
-
-        const color = Color("#ff0000")
-        const borderColor = color.darken(-.25).hex()
-
-        launchBtn.style.border = `solid ${borderColor}`
-        launchBtn.style.boxShadow = `0 0 10px 1px red`
-
-        launchBtn.innerText = "Stop"
-    }
-    else if(currentState === InstanceState[InstanceState.Update]){
-        launchBtn.style.backgroundColor = "green"
-
-        const color = Color("#00ff00")
-        const borderColor = color.darken(-.25).hex()
-
-        launchBtn.style.border = `solid ${borderColor}`
-        launchBtn.style.boxShadow = `0 0 10px 1px green`
-
-        launchBtn.innerText = "Update"
-    }
-    else if(currentState === InstanceState[InstanceState.Downloading]){
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Downloading"
-    }
-    else if(currentState === InstanceState[InstanceState.Loading]){
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Loading"
-    }
-    else if(currentState === InstanceState[InstanceState.Patching]) {
-        launchBtn.style.backgroundColor = "#e05609"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Patching"
-    }
-    else if(currentState === InstanceState[InstanceState.DLResources]) {
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Downloading Server Files"
-    }
-    else if(currentState === InstanceState[InstanceState.Verification]) {
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Verifying"
-    }
-
-    const contentBackground = document.getElementById("content-background")!
-    contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
-    url('${replaceAll(instanceData["imagePath"], '\\', '/')}')`
-    contentBackground.style.backgroundSize = 'cover'
-
-    loading.style.display = "none"
-    content.style.display = "flex"
+    const contentBackground = document.getElementById("instance-thumbnail")!
+    contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
 }
 
 export async function refreshLocalInstanceList() {
@@ -332,11 +233,11 @@ export async function refreshLocalInstanceList() {
 }
 
 export async function getInstanceData(instanceId: string){
-    if(existsSync(instancesPath)){             
-        const data = await fs.readFile(path.join(instancesPath, instanceId, "info.json"), "utf-8")
+    if(existsSync(localInstancesPath)){
+        const data = await fs.readFile(path.join(localInstancesPath, instanceId, "info.json"), "utf-8")
         const dataJson = JSON.parse(data)
 
-        return {"data": dataJson, "gamePath": path.join(instancesPath, instanceId)}
+        return {"data": dataJson, "game_path": path.join(localInstancesPath, instanceId)}
     }
 }
 
