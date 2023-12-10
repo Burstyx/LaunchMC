@@ -1,6 +1,6 @@
 const { initDiscordRPC } = require("../../App/DIscordRPC");
 const {checkForUpdate} = require("../../App/Updater");
-const {setLoading} = require("./scripts/window");
+const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const {refreshLocalInstanceList} = require("../../Utils/HInstance");
 
 

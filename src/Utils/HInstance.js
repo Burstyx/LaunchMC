@@ -23,6 +23,7 @@ const Utils_1 = require("./Utils");
 const DownloadGame_1 = require("../App/DownloadGame");
 const HDownload_1 = require("./HDownload");
 const HGitHub_1 = require("./HGitHub");
+const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 let instanceStates = {};
 function addInstanceElement(imagePath, title) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -90,6 +91,7 @@ function generateInstanceBtn(imagePath, title) {
         instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${(0, Utils_1.replaceAll)(imagePath, '\\', '/')}'))`;
         instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
             yield setContentTo(title);
+            openPopup('instance-info');
         }));
         /*instanceElement.addEventListener("mousedown", (e) => {
             if(e.button === 2) {
@@ -120,7 +122,6 @@ function generateInstanceBtn(imagePath, title) {
                 }
             }
         })*/
-        instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")');
         return instanceElement;
     });
 }

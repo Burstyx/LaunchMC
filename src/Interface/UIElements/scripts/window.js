@@ -1,42 +1,25 @@
-/*const subWindow = document.getElementById("sub-windows")
-const windows = document.querySelectorAll(".window")
+const popups = document.querySelectorAll(".popup")
+let currentPopup = null
 
-let windowsIdOpened = []
+exports.openPopup = (popupId) => {
+    popups.forEach((popup) => {
+        if (popup.getAttribute("popup-id") === popupId) {
+            popup.style.display = "flex"
 
-exports.openWindow = (windowId) => {
-    subWindow.style.opacity = "1"
-    subWindow.style.pointerEvents = "all"
-
-    windowsIdOpened.push(windowId)
-
-    windows.forEach((window) => {
-        if (window.getAttribute("window-id") === windowId) {
-            window.style.opacity = "1"
-            window.style.transform = "scale(1)"
-            window.style.pointerEvents = "all"
+            currentPopup = popup
         }
     })
 }
 
-exports.closeWindow = (windowId) => {
-    windowsIdOpened.splice(windowsIdOpened.indexOf(windowId))
+exports.closePopup = (popupId) => {
+    if(currentPopup != null) {
+        currentPopup.style.display = "none"
 
-    if (windowsIdOpened.length == 0) {
-        subWindow.style.opacity = "0"
-        subWindow.style.pointerEvents = "none"
+        currentPopup = null;
     }
-
-    windows.forEach((window) => {
-        if (window.getAttribute("window-id") === windowId) {
-            window.style.opacity = "0"
-            window.style.transform = "scale(.85)"
-            window.style.pointerEvents = "none"
-        }
-    })
-}*/
+}
 
 const loadingStartup = document.getElementById("startup-loading")
-
 exports.setLoading = (active) => {
     if(active) {
         loadingStartup.style.display = "flex"

@@ -7,8 +7,8 @@ import Color from "color"
 import {concatJson, replaceAll} from "./Utils"
 import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
 import {downloadAsync} from "./HDownload";
-import cp from "child_process";
 import {getMetadataOf, listProfiles} from "./HGitHub";
+const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 let instanceStates = {};
 
@@ -104,6 +104,7 @@ async function generateInstanceBtn(imagePath: string, title: string) {
 
     instanceElement.addEventListener("click", async (e) => {
         await setContentTo(title)
+        openPopup('instance-info')
     })
 
     /*instanceElement.addEventListener("mousedown", (e) => {
@@ -136,8 +137,6 @@ async function generateInstanceBtn(imagePath: string, title: string) {
         }
     })*/
 
-    instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
-    
     return instanceElement
 }
 
