@@ -1,13 +1,18 @@
 import {listProfiles} from "../Utils/HGitHub";
 import {addInstanceElement} from "../Utils/HInstance";
+const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 export async function addServerInstancesTo() {
+    const availServerDiv = document.getElementById("avail-servers")!
     const profileList = await listProfiles()
 
-    console.log(profileList)
+    availServerDiv.innerHTML = "";
 
-    const thumbnailImage = profileList!["thumbnailUrl"]
-    const name = profileList!["name"]
-
-    await addInstanceElement(thumbnailImage, name, document.getElementById("avail-servers")!)
+    // @ts-ignore
+    for (const profile in profileList) {
+        const element = await addInstanceElement(profileList![profile]["thumbnailUrl"], profile, availServerDiv)
+        element.addEventListener("click", () => {
+            openPopup("download-instance-info")
+        })
+    }
 }

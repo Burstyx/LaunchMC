@@ -16,6 +16,8 @@ export async function addInstanceElement(imagePath: string, title: string, paren
     const instanceElement = await generateInstanceBtn(imagePath, title)
 
     parentDiv.appendChild(instanceElement)
+
+    return instanceElement
 }
 
 interface InstanceInfo {

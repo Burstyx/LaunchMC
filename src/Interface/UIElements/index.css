@@ -211,6 +211,10 @@ body {
 .widget:active {
     transform: scale(0.95);
 }
+
+.loading {
+    background-image: url("./resources/svg/loading.svg");
+}
 /*endregion*/
 
 /*region Core*/

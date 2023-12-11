@@ -12,13 +12,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.addServerInstancesTo = void 0;
 const HGitHub_1 = require("../Utils/HGitHub");
 const HInstance_1 = require("../Utils/HInstance");
+const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 function addServerInstancesTo() {
     return __awaiter(this, void 0, void 0, function* () {
+        const availServerDiv = document.getElementById("avail-servers");
         const profileList = yield (0, HGitHub_1.listProfiles)();
-        console.log(profileList);
-        const thumbnailImage = profileList["thumbnailUrl"];
-        const name = profileList["name"];
-        yield (0, HInstance_1.addInstanceElement)(thumbnailImage, name, document.getElementById("avail-servers"));
+        availServerDiv.innerHTML = "";
+        // @ts-ignore
+        for (const profile in profileList) {
+            const element = yield (0, HInstance_1.addInstanceElement)(profileList[profile]["thumbnailUrl"], profile, availServerDiv);
+            element.addEventListener("click", () => {
+                openPopup("download-instance-info");
+            });
+        }
     });
 }
 exports.addServerInstancesTo = addServerInstancesTo;

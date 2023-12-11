@@ -29,6 +29,7 @@ function addInstanceElement(imagePath, title, parentDiv) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceElement = yield generateInstanceBtn(imagePath, title);
         parentDiv.appendChild(instanceElement);
+        return instanceElement;
     });
 }
 exports.addInstanceElement = addInstanceElement;
