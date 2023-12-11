@@ -193,24 +193,24 @@ export async function setContentTo(name: string) { // TODO: Cleaning
 
     switch (currentState) {
         case InstanceState.Playing:
-            launchBtn.style.backgroundColor = "red"
+            launchBtn.style.backgroundColor = "#FF0000"
             iconBtn.setAttribute("src", "./resources/svg/stop.svg")
             break;
         case InstanceState.Loading && InstanceState.Patching && InstanceState.Downloading && InstanceState.DLResources && InstanceState.Verification:
-            launchBtn.style.backgroundColor = "grey"
+            launchBtn.style.backgroundColor = "#5C5C5C"
             iconBtn.setAttribute("src", "./resources/svg/loading.svg")
             break;
         case InstanceState.Playable:
-            launchBtn.style.backgroundColor = "green"
+            launchBtn.style.backgroundColor = "#05E400"
             iconBtn.setAttribute("src", "./resources/svg/play.svg")
             break;
         case InstanceState.Update:
-            launchBtn.style.backgroundColor = "orange"
+            launchBtn.style.backgroundColor = "#FF6600"
             iconBtn.setAttribute("src", "./resources/svg/update.svg")
             break;
     }
 
-    const contentBackground = document.getElementById("instance-thumbnail")!
+    const contentBackground = document.getElementById("local-instance-thumbnail")!
     contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
 }
 

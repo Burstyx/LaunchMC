@@ -143,10 +143,6 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.popup:active {
-    display: none;
-}
-
 /*endregion*/
 /*region Toggle*/
 .button.toggle {
@@ -335,16 +331,13 @@ body {
 /*region Instance Info Popup*/
 #instance-title {
     position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    bottom: 35px;
+    left: 10px;
 
-    width: 100%;
-    padding: 8px;
+    margin: 8px;
 
     font-size: min(3vw, 50px);;
-    text-shadow: 0 0 10px black;
-    text-align: center;
+    text-shadow: 0 1px 5px black;
 }
 /*endregion*/
 /*endregion*/
@@ -388,7 +381,7 @@ body {
     align-items: center;
 }
 
-#instance-thumbnail {
+.instance-thumbnail {
     background-image: url("./resources/images/default.png");
     background-size: cover;
     background-position: center;
@@ -405,7 +398,7 @@ body {
     position: relative;
 }
 
-.instance-info-popup > div > .instance-thumbnail > #server-brand-logo {
+.instance-info-popup > div > .instance-thumbnail > .server-brand-logo {
     width: 50%;
     margin-top: 10px;
 

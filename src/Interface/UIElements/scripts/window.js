@@ -1,4 +1,9 @@
 const popups = document.querySelectorAll(".popup")
+
+popups.forEach((popup) => {
+    popup.addEventListener("click", () => popup === event.target ? popup.style.display = "none" : undefined)
+})
+
 let currentPopup = null
 
 exports.openPopup = (popupId) => {

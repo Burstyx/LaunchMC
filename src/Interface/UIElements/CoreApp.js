@@ -3,8 +3,6 @@ const {checkForUpdate} = require("../../App/Updater");
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const {refreshLocalInstanceList} = require("../../Utils/HInstance");
 
-
-
 const initializeModules = async () => {
     setLoading(true)
 

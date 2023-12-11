@@ -25,6 +25,8 @@ library.addEventListener("click", () => {
     activeGroup.style.display = "none";
     grLibrary.style.display = "block";
 
+    // Refresh Instance List
+
     activeGroup = grLibrary
 
     activeBtn.toggleAttribute("active", false)
@@ -36,6 +38,8 @@ library.addEventListener("click", () => {
 servers.addEventListener("click", () => {
     activeGroup.style.display = "none";
     grServers.style.display = "block";
+
+    // Refresh Servers List
 
     activeGroup = grServers;
 
