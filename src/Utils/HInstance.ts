@@ -3,21 +3,19 @@ import path from "path"
 import {instancesPath, localInstancesPath} from "../Utils/const"
 import {makeDir} from "./HFileManagement"
 import {existsSync} from "fs"
-import Color from "color"
 import {concatJson, replaceAll} from "./Utils"
 import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
 import {downloadAsync} from "./HDownload";
 import {getMetadataOf, listProfiles} from "./HGitHub";
+import isUrl from "is-url"
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 let occupiedInstancesWithStates : any = {};
 
-async function addInstanceElement(imagePath: string, title: string){
-    const instanceDiv = document.getElementById("instances")!
-
+export async function addInstanceElement(imagePath: string, title: string, parentDiv: HTMLElement){
     const instanceElement = await generateInstanceBtn(imagePath, title)
 
-    instanceDiv.appendChild(instanceElement)
+    parentDiv.appendChild(instanceElement)
 }
 
 interface InstanceInfo {
@@ -100,7 +98,9 @@ async function generateInstanceBtn(imagePath: string, title: string) {
     // Instance Btn
     instanceElement.id = title
     instanceElement.classList.add("instance")
-    instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${replaceAll(imagePath, '\\', '/')}'))`
+
+    if(!isUrl(imagePath)) imagePath = replaceAll(imagePath, '\\', '/')
+    instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${imagePath}'))`
 
     instanceElement.addEventListener("click", async (e) => {
         await setContentTo(title)
@@ -226,7 +226,7 @@ export async function refreshLocalInstanceList() {
                 const data = await fs.readFile(path.join(localInstancesPath, file.name, "info.json"), "utf8")
                 const dataJson = JSON.parse(data)
                 
-                await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"])
+                await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv)
             }
         }
     }

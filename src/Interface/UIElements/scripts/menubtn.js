@@ -1,3 +1,5 @@
+const {addServerInstancesTo} = require("../../../App/ServerInstances");
+
 const home = document.getElementById("home")
 const library = document.getElementById("library")
 const servers = document.getElementById("servers")
@@ -35,7 +37,7 @@ library.addEventListener("click", () => {
     activeBtn = library
 })
 
-servers.addEventListener("click", () => {
+servers.addEventListener("click", async () => {
     activeGroup.style.display = "none";
     grServers.style.display = "block";
 
@@ -47,4 +49,6 @@ servers.addEventListener("click", () => {
     servers.toggleAttribute("active", true)
 
     activeBtn = servers
+
+    await addServerInstancesTo()
 })

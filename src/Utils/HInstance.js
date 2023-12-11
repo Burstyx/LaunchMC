@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshLocalInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshLocalInstanceList = exports.setContentTo = exports.createInstance = exports.addInstanceElement = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -22,15 +22,16 @@ const Utils_1 = require("./Utils");
 const DownloadGame_1 = require("../App/DownloadGame");
 const HDownload_1 = require("./HDownload");
 const HGitHub_1 = require("./HGitHub");
+const is_url_1 = __importDefault(require("is-url"));
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 let occupiedInstancesWithStates = {};
-function addInstanceElement(imagePath, title) {
+function addInstanceElement(imagePath, title, parentDiv) {
     return __awaiter(this, void 0, void 0, function* () {
-        const instanceDiv = document.getElementById("instances");
         const instanceElement = yield generateInstanceBtn(imagePath, title);
-        instanceDiv.appendChild(instanceElement);
+        parentDiv.appendChild(instanceElement);
     });
 }
+exports.addInstanceElement = addInstanceElement;
 function createInstance(version, instanceInfo, loaderInfo) {
     return __awaiter(this, void 0, void 0, function* () {
         yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo.name));
@@ -87,7 +88,9 @@ function generateInstanceBtn(imagePath, title) {
         // Instance Btn
         instanceElement.id = title;
         instanceElement.classList.add("instance");
-        instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${(0, Utils_1.replaceAll)(imagePath, '\\', '/')}'))`;
+        if (!(0, is_url_1.default)(imagePath))
+            imagePath = (0, Utils_1.replaceAll)(imagePath, '\\', '/');
+        instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${imagePath}'))`;
         instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
             yield setContentTo(title);
             openPopup('instance-info');
@@ -198,7 +201,7 @@ function refreshLocalInstanceList() {
                 if (file.isDirectory() && (0, fs_1.existsSync)(path_1.default.join(const_1.localInstancesPath, file.name, "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.localInstancesPath, file.name, "info.json"), "utf8");
                     const dataJson = JSON.parse(data);
-                    yield addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"]);
+                    yield addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv);
                 }
             }
         }
