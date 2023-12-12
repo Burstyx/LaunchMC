@@ -1,4 +1,5 @@
 const {addServerInstancesTo} = require("../../../App/ServerInstances");
+const {refreshServerInstanceList} = require("../../../Utils/HInstance");
 
 const home = document.getElementById("home")
 const library = document.getElementById("library")
@@ -50,5 +51,6 @@ servers.addEventListener("click", async () => {
 
     activeBtn = servers
 
+    await refreshServerInstanceList()
     await addServerInstancesTo()
 })

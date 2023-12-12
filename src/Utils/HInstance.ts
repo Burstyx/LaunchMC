@@ -39,7 +39,7 @@ interface LoaderInfo {
 }
 
 export async function createInstance(version: string, instanceInfo: InstanceInfo | ServerInstanceInfo, loaderInfo?: LoaderInfo){
-    await makeDir(path.join(instancesPath, instanceInfo.name))
+    await makeDir(path.join(serversInstancesPath, instanceInfo.name))
 
     let instanceConfiguration = {}
 
@@ -81,7 +81,7 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
     }
 
     // Write instance conf on disk
-    await fs.writeFile(path.join(instancesPath, instanceInfo.name, "info.json"), JSON.stringify(
+    await fs.writeFile(path.join(serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(
         instanceConfiguration
     ))
 
@@ -233,6 +233,28 @@ export async function refreshLocalInstanceList() {
     }
 }
 
+export async function refreshServerInstanceList() {
+    const instancesDiv = document.getElementById("own-servers")!
+    instancesDiv.innerHTML = ""
+
+    if(existsSync(serversInstancesPath)){
+        const instances = await fs.readdir(serversInstancesPath, {withFileTypes: true})
+
+        for(const file of instances){
+            if(file.isDirectory() && existsSync(path.join(serversInstancesPath, file.name, "info.json"))){
+                const data = await fs.readFile(path.join(serversInstancesPath, file.name, "info.json"), "utf8")
+                const dataJson = JSON.parse(data)
+
+                const element = await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv)
+                element.addEventListener("click", async (e) => {
+                    await setContentTo(dataJson["instance"]["name"])
+                    openPopup('server-instance-info')
+                })
+            }
+        }
+    }
+}
+
 export async function getInstanceData(instanceId: string){
     if(existsSync(localInstancesPath)){
         const data = await fs.readFile(path.join(localInstancesPath, instanceId, "info.json"), "utf-8")
@@ -301,7 +323,11 @@ export async function convertProfileToInstance(metadata: any, instanceData: any)
             instanceData["thumbnailPath"],
             path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
         ),
-        type: "instance"
+        coverPath: await downloadAsync(
+            instanceData["thumbnailPath"],
+            path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
+        ),
+        type: "server_instance"
     },
         !isVanilla ? {
         name: metadata["loader"]["name"],

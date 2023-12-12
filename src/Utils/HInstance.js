@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshLocalInstanceList = exports.setContentTo = exports.createInstance = exports.addInstanceElement = void 0;
+exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshServerInstanceList = exports.refreshLocalInstanceList = exports.setContentTo = exports.createInstance = exports.addInstanceElement = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -35,7 +35,7 @@ function addInstanceElement(imagePath, title, parentDiv) {
 exports.addInstanceElement = addInstanceElement;
 function createInstance(version, instanceInfo, loaderInfo) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceInfo.name));
+        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.serversInstancesPath, instanceInfo.name));
         let instanceConfiguration = {};
         // Default json configuration
         if (instanceInfo.type === 'server_instance') {
@@ -73,7 +73,7 @@ function createInstance(version, instanceInfo, loaderInfo) {
             instanceConfiguration = (0, Utils_1.concatJson)(instanceConfiguration, defaultLoaderJson);
         }
         // Write instance conf on disk
-        yield promises_1.default.writeFile(path_1.default.join(const_1.instancesPath, instanceInfo.name, "info.json"), JSON.stringify(instanceConfiguration));
+        yield promises_1.default.writeFile(path_1.default.join(const_1.serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(instanceConfiguration));
         // Update instance list
         yield refreshLocalInstanceList();
     });
@@ -209,6 +209,27 @@ function refreshLocalInstanceList() {
     });
 }
 exports.refreshLocalInstanceList = refreshLocalInstanceList;
+function refreshServerInstanceList() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const instancesDiv = document.getElementById("own-servers");
+        instancesDiv.innerHTML = "";
+        if ((0, fs_1.existsSync)(const_1.serversInstancesPath)) {
+            const instances = yield promises_1.default.readdir(const_1.serversInstancesPath, { withFileTypes: true });
+            for (const file of instances) {
+                if (file.isDirectory() && (0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, file.name, "info.json"))) {
+                    const data = yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, file.name, "info.json"), "utf8");
+                    const dataJson = JSON.parse(data);
+                    const element = yield addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv);
+                    element.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
+                        yield setContentTo(dataJson["instance"]["name"]);
+                        openPopup('server-instance-info');
+                    }));
+                }
+            }
+        }
+    });
+}
+exports.refreshServerInstanceList = refreshServerInstanceList;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
         if ((0, fs_1.existsSync)(const_1.localInstancesPath)) {
@@ -267,7 +288,8 @@ function convertProfileToInstance(metadata, instanceData) {
         yield createInstance(metadata["mcVersion"], {
             name: instanceData["name"],
             thumbnailPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
-            type: "instance"
+            coverPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
+            type: "server_instance"
         }, !isVanilla ? {
             name: metadata["loader"]["name"],
             id: metadata["loader"]["id"]

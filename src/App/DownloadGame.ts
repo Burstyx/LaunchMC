@@ -3,7 +3,26 @@ import { extractSpecificFile, makeDir, mavenToArray, readJarMetaInf } from "../U
 import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import { downloadAsync } from "../Utils/HDownload"
-import { dataPath, gamePath, indexesPath, instancesPath, java17Name, java17Url, java17Version, java8Name, java8Url, java8Version, javaPath, librariesPath, loggingConfPath, minecraftVersionPath, objectPath, resourcePackage, tempPath } from "../Utils/const"
+import {
+    dataPath,
+    gamePath,
+    indexesPath,
+    instancesPath,
+    java17Name,
+    java17Url,
+    java17Version,
+    java8Name,
+    java8Url,
+    java8Version,
+    javaPath,
+    librariesPath,
+    loggingConfPath,
+    minecraftVersionPath,
+    objectPath,
+    resourcePackage,
+    serversInstancesPath,
+    tempPath
+} from "../Utils/const"
 import path from "path"
 import fs from "fs/promises"
 import os from "os"
@@ -107,7 +126,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
 
         await makeDir(path.join(objectPath, subhash))
 
-        const fullPath = path.join(instancesPath, instanceId, "resources", e)
+        const fullPath = path.join(serversInstancesPath, instanceId, "resources", e)
         const fileName = fullPath.split("\\").pop()
         const dirPath = fullPath.substring(0, fullPath.indexOf(fileName!))
 

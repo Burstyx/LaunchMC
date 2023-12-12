@@ -1,4 +1,5 @@
 const {listProfiles} = require("../../../Utils/HGitHub");
+const {refreshServerInstanceList} = require("../../../Utils/HInstance");
 const convertProfileToInstance = require("../../../Utils/HInstance").convertProfileToInstance;
 const getInstanceDataOf = require("../../../Utils/HGitHub").getInstanceDataOf;
 const getMetadataOf = require("../../../Utils/HGitHub").getMetadataOf;
@@ -13,6 +14,8 @@ serverInstanceAction.onclick = async () => {
     const profile = (await listProfiles())[getCurrentServerInstanceId()]
 
     await convertProfileToInstance(await getMetadataOf(profile), await getInstanceDataOf(profile))
+
+    await refreshServerInstanceList()
 }
 
 console.log(serverInstanceAction.onclick)
