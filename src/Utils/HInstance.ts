@@ -1,6 +1,6 @@
 import fs from "fs/promises"
 import path from "path"
-import {instancesPath, localInstancesPath} from "../Utils/const"
+import {instancesPath, localInstancesPath, serversInstancesPath} from "../Utils/const"
 import {makeDir} from "./HFileManagement"
 import {existsSync} from "fs"
 import {concatJson, replaceAll} from "./Utils"
@@ -103,11 +103,6 @@ async function generateInstanceBtn(imagePath: string, title: string) {
 
     if(!isUrl(imagePath)) imagePath = replaceAll(imagePath, '\\', '/')
     instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${imagePath}'))`
-
-    instanceElement.addEventListener("click", async (e) => {
-        await setContentTo(title)
-        openPopup('instance-info')
-    })
 
     /*instanceElement.addEventListener("mousedown", (e) => {
         if(e.button === 2) {
@@ -228,7 +223,11 @@ export async function refreshLocalInstanceList() {
                 const data = await fs.readFile(path.join(localInstancesPath, file.name, "info.json"), "utf8")
                 const dataJson = JSON.parse(data)
                 
-                await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv)
+                const element = await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv)
+                element.addEventListener("click", async (e) => {
+                    await setContentTo(dataJson["instance"]["name"])
+                    openPopup('instance-info')
+                })
             }
         }
     }
@@ -300,7 +299,7 @@ export async function convertProfileToInstance(metadata: any, instanceData: any)
         name: instanceData["name"],
         thumbnailPath: await downloadAsync(
             instanceData["thumbnailPath"],
-            path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
+            path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
         ),
         type: "instance"
     },

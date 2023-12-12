@@ -92,10 +92,6 @@ function generateInstanceBtn(imagePath, title) {
         if (!(0, is_url_1.default)(imagePath))
             imagePath = (0, Utils_1.replaceAll)(imagePath, '\\', '/');
         instanceElement.style.backgroundImage = `linear-gradient(transparent, rgba(0, 0, 0, 0.85)), url('${imagePath}'))`;
-        instanceElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
-            yield setContentTo(title);
-            openPopup('instance-info');
-        }));
         /*instanceElement.addEventListener("mousedown", (e) => {
             if(e.button === 2) {
                 // @ts-ignore
@@ -202,7 +198,11 @@ function refreshLocalInstanceList() {
                 if (file.isDirectory() && (0, fs_1.existsSync)(path_1.default.join(const_1.localInstancesPath, file.name, "info.json"))) {
                     const data = yield promises_1.default.readFile(path_1.default.join(const_1.localInstancesPath, file.name, "info.json"), "utf8");
                     const dataJson = JSON.parse(data);
-                    yield addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv);
+                    const element = yield addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv);
+                    element.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
+                        yield setContentTo(dataJson["instance"]["name"]);
+                        openPopup('instance-info');
+                    }));
                 }
             }
         }
@@ -266,7 +266,7 @@ function convertProfileToInstance(metadata, instanceData) {
         const isVanilla = metadata["loader"] == null;
         yield createInstance(metadata["mcVersion"], {
             name: instanceData["name"],
-            thumbnailPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.instancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
+            thumbnailPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
             type: "instance"
         }, !isVanilla ? {
             name: metadata["loader"]["name"],

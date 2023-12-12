@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addServerInstancesTo = void 0;
+exports.getCurrentServerInstanceId = exports.addServerInstancesTo = void 0;
 const HGitHub_1 = require("../Utils/HGitHub");
 const HInstance_1 = require("../Utils/HInstance");
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
+let currentServerInstanceId = "";
 function addServerInstancesTo() {
     return __awaiter(this, void 0, void 0, function* () {
         const availServerDiv = document.getElementById("avail-servers");
@@ -23,8 +24,13 @@ function addServerInstancesTo() {
             const element = yield (0, HInstance_1.addInstanceElement)(profileList[profile]["thumbnailUrl"], profile, availServerDiv);
             element.addEventListener("click", () => {
                 openPopup("download-instance-info");
+                currentServerInstanceId = profileList[profile]["name"];
             });
         }
     });
 }
 exports.addServerInstancesTo = addServerInstancesTo;
+function getCurrentServerInstanceId() {
+    return currentServerInstanceId;
+}
+exports.getCurrentServerInstanceId = getCurrentServerInstanceId;

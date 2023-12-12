@@ -15,8 +15,13 @@ const initializeModules = async () => {
     console.log("[Initializing] Menu buttons")
     require("./scripts/menubtn")
 
-    /*console.log("[Initialize Modules] Interactable elements module");
-    require("./scripts/elements")*/
+    console.log("[Initialize Modules] Interactable elements module");
+    require("./scripts/elements")
+
+    console.log("[Initialize Modules] Server instance info elements module");
+    require("./scripts/serverInstanceInfo")
+
+
 
     //console.log("[Initializing] Content section");
     /*require("./scripts/mainWin")*/
