@@ -17,20 +17,19 @@ const promises_1 = __importDefault(require("fs/promises"));
 const fs_1 = require("fs");
 const const_1 = require("./const");
 const path_1 = __importDefault(require("path"));
-const HFileManagement_1 = require("./HFileManagement");
 const HDownload_1 = require("./HDownload");
 // Download manifest containing all versions informations
 function minecraftManifest() {
     return __awaiter(this, void 0, void 0, function* () {
         // Create directory if doesn't exist
-        const manifestPath = yield (0, HFileManagement_1.makeDir)(const_1.dataPath);
-        if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "versions_manifest.json"))) {
+        //const manifestPath = await makeDir(dataPath)
+        if (!(0, fs_1.existsSync)(path_1.default.join("manifestPath", "versions_manifest.json"))) {
             // Download manifest and return data
-            yield (0, HDownload_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(manifestPath, "versions_manifest.json"), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(const_1.versionsManifest, path_1.default.join("manifestPath", "versions_manifest.json"), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest`);
             });
         }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "versions_manifest.json"), "utf-8"));
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("manifestPath", "versions_manifest.json"), "utf-8"));
     });
 }
 exports.minecraftManifest = minecraftManifest;
@@ -38,22 +37,22 @@ exports.minecraftManifest = minecraftManifest;
 function minecraftManifestForVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
         // Create directory if doesn't exist
-        const versionPath = yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.minecraftVersionPath, version));
-        if (!(0, fs_1.existsSync)(path_1.default.join(versionPath, `${version}.json`))) {
+        //const versionPath = await makeDir(path.join(minecraftVersionPath, version))
+        if (!(0, fs_1.existsSync)(path_1.default.join("versionPath", `${version}.json`))) {
             // Get manifest containing all versions informations
             yield minecraftManifest().then((data) => __awaiter(this, void 0, void 0, function* () {
                 // Retrieve data for the wanted version
                 for (var i = 0; i < data["versions"].length; i++) {
                     if (data["versions"][i]["id"] == version) {
                         // Download manifest of wanted version
-                        yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
+                        yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join("versionPath", `${version}.json`), (progress) => {
                             console.log(`Progression: ${progress}% du téléchargement du manifest`);
                         });
                     }
                 }
             }));
         }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8"));
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("versionPath", `${version}.json`), "utf-8"));
     });
 }
 exports.minecraftManifestForVersion = minecraftManifestForVersion;
@@ -61,14 +60,14 @@ exports.minecraftManifestForVersion = minecraftManifestForVersion;
 function forgeManifest() {
     return __awaiter(this, void 0, void 0, function* () {
         // Create directory if doesn't exist
-        const manifestPath = yield (0, HFileManagement_1.makeDir)(const_1.dataPath);
-        if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "forge_manifest.json"))) {
+        //const manifestPath = await makeDir(dataPath)
+        if (!(0, fs_1.existsSync)(path_1.default.join("manifestPath", "forge_manifest.json"))) {
             // Download manifest and return data
-            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsManifest, path_1.default.join(manifestPath, "forge_manifest.json"), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsManifest, path_1.default.join("manifestPath", "forge_manifest.json"), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest`);
             });
         }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "forge_manifest.json"), "utf-8"));
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("manifestPath", "forge_manifest.json"), "utf-8"));
     });
 }
 exports.forgeManifest = forgeManifest;
@@ -76,14 +75,14 @@ exports.forgeManifest = forgeManifest;
 function forgeVerStateManifest() {
     return __awaiter(this, void 0, void 0, function* () {
         // Create directory if doesn't exist
-        const manifestPath = yield (0, HFileManagement_1.makeDir)(const_1.dataPath);
-        if (!(0, fs_1.existsSync)(path_1.default.join(manifestPath, "forge_manifest_promos.json"))) {
+        //const manifestPath = await makeDir(dataPath)
+        if (!(0, fs_1.existsSync)(path_1.default.join("manifestPath", "forge_manifest_promos.json"))) {
             // Download manifest and return data
-            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsStatuesManifest, path_1.default.join(manifestPath, "forge_manifest_promos.json"), (progress) => {
+            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsStatuesManifest, path_1.default.join("manifestPath", "forge_manifest_promos.json"), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest`);
             });
         }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(manifestPath, "forge_manifest_promos.json"), "utf-8"));
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("manifestPath", "forge_manifest_promos.json"), "utf-8"));
     });
 }
 exports.forgeVerStateManifest = forgeVerStateManifest;

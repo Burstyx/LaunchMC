@@ -3,7 +3,7 @@ import cp from "child_process"
 import path from "path"
 import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, javaPath, java17Version, java17Name } from "../Utils/const"
 import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList, parseRule } from "./DownloadGame"
-import { makeDir, mavenToArray } from "../Utils/HFileManagement"
+import { mavenToArray } from "../Utils/HFileManagement"
 import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
 import { getForgeVersionIfExist } from "../Utils/HForge"
@@ -165,7 +165,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     jvmArgs.push("-Dfml.ignorePatchDiscrepancies=true")
 
     // Set natives path
-    jvmArgs.push("-Djava.library.path=" + await makeDir(path.join(instancesPath, instanceId, "natives")))
+    //jvmArgs.push("-Djava.library.path=" + await makeDir(path.join(instancesPath, instanceId, "natives")))
 
     // Set classpaths
     let classPathes: string[] = []

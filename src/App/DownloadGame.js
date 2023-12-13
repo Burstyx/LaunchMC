@@ -43,7 +43,7 @@ function downloadMinecraft(version, instanceId) {
             const versionDataManifest = yield (0, HManifests_1.minecraftManifestForVersion)(version);
             console.log(versionDataManifest["assetIndex"]["url"]);
             console.log(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
-            yield (0, HFileManagement_1.makeDir)(const_1.indexesPath);
+            //await makeDir(indexesPath)
             yield (0, HDownload_1.downloadAsync)(versionDataManifest["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
                 console.log("ASSETS DOWNLOADED");
@@ -68,7 +68,7 @@ function downloadMinecraft(version, instanceId) {
             // Téléchargement du client
             yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Downloading);
             console.log("[INFO] Téléchargement du client");
-            yield (0, HFileManagement_1.makeDir)(const_1.minecraftVersionPath);
+            //await makeDir(minecraftVersionPath)
             yield (0, HDownload_1.downloadAsync)(versionDataManifest.downloads.client.url, path_1.default.join(const_1.minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
                 console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
                 currentDownloadedSize += byteSent;
@@ -90,11 +90,11 @@ function downloadMinecraft(version, instanceId) {
                 console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
                 const hash = indexDataManifest["objects"][e]["hash"];
                 const subhash = hash.substring(0, 2);
-                yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
+                //await makeDir(path.join(objectPath, subhash))
                 const fullPath = path_1.default.join(const_1.serversInstancesPath, instanceId, "resources", e);
                 const fileName = fullPath.split("\\").pop();
                 const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
-                yield (0, HFileManagement_1.makeDir)(dirPath);
+                //await makeDir(dirPath)
                 yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.objectPath, subhash, hash), (progress, byteSend) => {
                     currentDownloadedSize += byteSend;
                     (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
@@ -175,7 +175,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                 const jarFilePathInInstaller = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath;
                 const jarFileDestPath = (0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path || forgeInstallProfileData.install.path);
                 const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/");
-                yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.librariesPath, forgeJarPathWithoutFile));
+                //await makeDir(path.join(librariesPath, forgeJarPathWithoutFile))
                 // Fetch the jar in the installer
                 if ((_c = forgeInstallProfileData.install) === null || _c === void 0 ? void 0 : _c.filePath) {
                     yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, jarFilePathInInstaller, path_1.default.join(const_1.librariesPath, jarFileDestPath.join("/")));
@@ -403,7 +403,7 @@ var JavaVersions;
 })(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
 function downloadAndGetJavaVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HFileManagement_1.makeDir)(const_1.javaPath);
+        //await makeDir(javaPath)
         if (version == JavaVersions.JDK8) {
             if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"))) {
                 return path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin");

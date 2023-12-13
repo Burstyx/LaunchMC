@@ -1,4 +1,4 @@
-import { extractSpecificFile, makeDir, mavenToArray, readJarMetaInf } from "../Utils/HFileManagement"
+import { extractSpecificFile, mavenToArray, readJarMetaInf } from "../Utils/HFileManagement"
 
 import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
@@ -57,7 +57,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         console.log(versionDataManifest["assetIndex"]["url"]);
         console.log(path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
 
-        await makeDir(indexesPath)
+        //await makeDir(indexesPath)
         await downloadAsync(versionDataManifest["assetIndex"]["url"], path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress: number) => {
             console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
             console.log("ASSETS DOWNLOADED");
@@ -92,7 +92,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         await updateInstanceDlState(instanceId, InstanceState.Downloading)
         console.log("[INFO] Téléchargement du client");
 
-        await makeDir(minecraftVersionPath)
+        //await makeDir(minecraftVersionPath)
 
         await downloadAsync(versionDataManifest.downloads.client.url, path.join(minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
             console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
@@ -125,13 +125,13 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
             const hash = indexDataManifest["objects"][e]["hash"]
             const subhash = hash.substring(0, 2)
 
-            await makeDir(path.join(objectPath, subhash))
+            //await makeDir(path.join(objectPath, subhash))
 
             const fullPath = path.join(serversInstancesPath, instanceId, "resources", e)
             const fileName = fullPath.split("\\").pop()
             const dirPath = fullPath.substring(0, fullPath.indexOf(fileName!))
 
-            await makeDir(dirPath)
+            //await makeDir(dirPath)
 
             await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(objectPath, subhash, hash), (progress, byteSend) => {
                 currentDownloadedSize += byteSend
@@ -233,7 +233,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
 
             const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/")
 
-            await makeDir(path.join(librariesPath, forgeJarPathWithoutFile))
+            //await makeDir(path.join(librariesPath, forgeJarPathWithoutFile))
             // Fetch the jar in the installer
             if(forgeInstallProfileData.install?.filePath) {
                 await extractSpecificFile(forgeInstallerPath, jarFilePathInInstaller, path.join(librariesPath, jarFileDestPath.join("/")))
@@ -493,7 +493,7 @@ export enum JavaVersions {
 }
 
 export async function downloadAndGetJavaVersion(version: JavaVersions) {
-    await makeDir(javaPath)
+    //await makeDir(javaPath)
 
     if (version == JavaVersions.JDK8) {
         if(existsSync(path.join(javaPath, java8Version, java8Name, "bin"))) {

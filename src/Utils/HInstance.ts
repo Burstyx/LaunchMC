@@ -7,31 +7,28 @@ import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
 import {downloadAsync} from "./HDownload";
 import cp from "child_process";
 import {getMetadataOf, listProfiles} from "./HGitHub";
-import isUrl from "is-url"
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
-let occupiedInstancesWithStates : any = {};
-let dlServerOccupiedInstancesWithStates : any = {};
 
-export async function addInstanceElement(imagePath: string, title: string, parentDiv: HTMLElement){
-    const instanceElement = await generateInstanceBtn(imagePath, title)
-
-    parentDiv.appendChild(instanceElement)
-
-    return instanceElement
-}
-
-interface InstanceInfo {
+interface InstanceOpts {
     name: string,
     thumbnailPath: string,
     type: "instance"
 }
 
-interface ServerInstanceInfo{
+interface ServerInstanceOpts{
     name: string,
     thumbnailPath: string,
-    "coverPath": string,
+    coverPath: string,
     type: "server_instance"
+}
+
+export async function addInstanceElement(thumbnailPath: string, title: string, parentDiv: HTMLElement){
+    const instanceElement = await generateInstanceBtn({name: title, thumbnailPath: thumbnailPath, coverPath: thumbnailPath, type: "server_instance"})
+
+    parentDiv.appendChild(instanceElement)
+
+    return instanceElement
 }
 
 interface LoaderInfo {
@@ -39,9 +36,9 @@ interface LoaderInfo {
     id: string
 }
 
-export async function createInstance(version: string, instanceInfo: InstanceInfo | ServerInstanceInfo, loaderInfo?: LoaderInfo){
-    return new Promise<void>(async (resolve )=> {
-        await makeDir(path.join(serversInstancesPath, instanceInfo.name))
+export async function createInstance(version: string, instanceInfo: InstanceOpts | ServerInstanceOpts, loaderInfo?: LoaderInfo){
+    return new Promise<void>(async (resolve, reject)=> {
+        await fs.mkdir(path.join(serversInstancesPath, instanceInfo.name), {recursive: true}).catch((err) => reject(err))
 
         let instanceConfiguration = {}
 
@@ -85,64 +82,29 @@ export async function createInstance(version: string, instanceInfo: InstanceInfo
         // Write instance conf on disk
         await fs.writeFile(path.join(serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(
             instanceConfiguration
-        ))
+        )).catch((err) => reject(err))
 
-        // Update instance list
-        await refreshLocalInstanceList()
+        //FIXME Refresh server instances list
 
         resolve()
     })
 }
 
-async function generateInstanceBtn(imagePath: string, title: string) {
+async function generateInstanceBtn(opts: InstanceOpts | ServerInstanceOpts) {
     const instanceElement = document.createElement("div")
 
-    // Instance text
-    const titleElement = document.createElement("p")
-    titleElement.innerText = title;
-    instanceElement.append(titleElement)
+    const textElement = document.createElement("p")
+    textElement.innerText = opts.name;
+    instanceElement.append(textElement)
 
-    // Instance Btn
-    instanceElement.id = title
+    instanceElement.id = opts.name
     instanceElement.classList.add("instance")
 
-    instanceElement.append(dlTrackerElement)
-
-    instanceElement.addEventListener("click", async (e) => {
-        await setContentTo(id)
+    instanceElement.addEventListener("click", async () => {
+        await setContentTo(opts.name)
 
         document.querySelector(".instance.active")?.classList.remove("active");
         instanceElement.classList.add("active");
-    })
-
-    instanceElement.addEventListener("mousedown", (e) => {
-        if(e.button === 2) {
-            // @ts-ignore
-            const id = e.target.id
-            // @ts-ignore
-            const state = e.target.getAttribute("state")
-
-            const rcMenu = document.getElementById("rcmenu-instance")
-            // @ts-ignore
-            rcMenu.style.top = e.clientY + "px"
-            // @ts-ignore
-            rcMenu.style.left = e.clientX + "px"
-            // @ts-ignore
-            rcMenu.style.display = "flex"
-
-            document.getElementById("rc_delete_instance")!.onclick = async (e) => {
-                if(state === InstanceState[InstanceState.Playable]) {
-                    await fs.rm(path.join(instancesPath, id), {recursive: true})
-                    await refreshInstanceList()
-                } else {
-                    console.log("Can't delete an instance which is occupied")
-                }
-            }
-
-            document.getElementById("rc_open_instance_folder")!.onclick = (e) => {
-                cp.exec(`start "" "${path.join(instancesPath, id)}"`)
-            }
-        }
     })
 
     instanceElement.setAttribute("onclick", 'require("./scripts/window.js").openWindow("instance-info")')
@@ -160,7 +122,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
     // Fetch instance json
     const instanceJson = await getInstanceData(id)
-    
+
     // Hide current content
     const content = document.getElementById("content")!
     content.style.display = "none"
@@ -170,7 +132,7 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     loading.style.display = "auto"
 
     // No data found, cancel process
-    if(!instanceJson) {
+    if (!instanceJson) {
         console.error("No instance data found");
         return
     }
@@ -196,9 +158,9 @@ export async function setContentTo(id: string) { // TODO: Cleaning
     // Set modloader
     let currentModloader = loaderData?.name
     let modloaderId = loaderData?.id
-    
+
     console.log(currentModloader);
-    
+
     const widgetModloader = document.getElementById("widget-modloader")!
     widgetModloader.innerText = currentModloader ? currentModloader[0].toUpperCase() + currentModloader.slice(1) : "Vanilla"
 
@@ -224,97 +186,16 @@ export async function setContentTo(id: string) { // TODO: Cleaning
 
     const widgetDesc = document.getElementById("widget-description")! // TODO: Write md rules
 
-    const desc = await retrieveDescription(id)
-    if(desc !== "") {
-        widgetDesc.style.display = "flex"
-        widgetDesc.innerText = desc
-    } else {
-        widgetDesc.style.display = "none"
-    }
-
     const widgetPosts = document.getElementById("widget-post")!
-
-    const posts = await retrievePosts(id)
-    if(posts !== "") {
-        widgetPosts.style.display = "flex"
-        widgetPosts.innerText = desc
-    } else {
-        widgetPosts.style.display = "none"
-    }
 
     const launchBtn = document.getElementById("launchbtn")!
 
     const accentColor = instanceData["accentColor"]
     contentAuthor.style.color = accentColor
-    
-    const color = Color(accentColor)
-    const borderColor = color.darken(-.25).hex()
-    
-    launchBtn.style.backgroundColor = accentColor
-    launchBtn.style.border = `solid ${borderColor}`
-    launchBtn.style.boxShadow = `0 0 10px 1px ${accentColor}`
 
     launchBtn.innerText = "Play"
-
-    if(currentState === InstanceState[InstanceState.Playing]){
-        launchBtn.style.backgroundColor = "red"
-
-        const color = Color("#ff0000")
-        const borderColor = color.darken(-.25).hex()
-
-        launchBtn.style.border = `solid ${borderColor}`
-        launchBtn.style.boxShadow = `0 0 10px 1px red`
-
-        launchBtn.innerText = "Stop"
-    }
-    else if(currentState === InstanceState[InstanceState.Update]){
-        launchBtn.style.backgroundColor = "green"
-
-        const color = Color("#00ff00")
-        const borderColor = color.darken(-.25).hex()
-
-        launchBtn.style.border = `solid ${borderColor}`
-        launchBtn.style.boxShadow = `0 0 10px 1px green`
-
-        launchBtn.innerText = "Update"
-    }
-    else if(currentState === InstanceState[InstanceState.Downloading]){
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Downloading"
-    }
-    else if(currentState === InstanceState[InstanceState.Loading]){
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Loading"
-    }
-    else if(currentState === InstanceState[InstanceState.Patching]) {
-        launchBtn.style.backgroundColor = "#e05609"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Patching"
-    }
-    else if(currentState === InstanceState[InstanceState.DLResources]) {
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Downloading Server Files"
-    }
-    else if(currentState === InstanceState[InstanceState.Verification]) {
-        launchBtn.style.backgroundColor = "#2b2b2b"
-        launchBtn.style.border = `solid #363636`
-        launchBtn.style.boxShadow = `0 0 10px 1px #2b2b2b`
-
-        launchBtn.innerText = "Verifying"
-    }
-
-export async function refreshServerInstanceList() {
+}
+export async function refreshLocalInstanceList() {
     const instancesDiv = document.getElementById("own-servers")!
     instancesDiv.innerHTML = ""
     
@@ -335,8 +216,6 @@ export async function refreshServerInstanceList() {
             }
         }
     }
-
-    restoreInstancesData();
 }
 
 export async function getInstanceData(instanceId: string){
@@ -399,51 +278,13 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
         await setContentTo(instanceId)
 }
 
-export function saveInstancesData() {
-    const instances = document.getElementById("instance-list")!.children
-
-    for (const e of instances) {
-        // @ts-ignore
-        instancesData[e.id] = {};
-        // @ts-ignore
-        instancesData[e.id]["state"] = e.getAttribute("state");
-        // @ts-ignore
-        instancesData[e.id]["dlCount"] = e.firstElementChild?.style.left;
-    }
-
-    console.log(instancesData)
-}
-
-export function restoreInstancesData() {
-    const instances = document.getElementById("instance-list")!.children
-
-    for (const e of instances) {
-        console.log(instancesData.hasOwnProperty(e.id))
-        if(instancesData.hasOwnProperty(e.id)) {
-            // @ts-ignore
-            e.setAttribute("state", instancesData[e.id]["state"]);
-            console.log(e.getAttribute("state"));
-
-            //@ts-ignore
-            console.log(Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
-            // @ts-ignore
-            updateInstanceDlProgress(e.id, Number(instancesData[e.id]["dlCount"].substring(0, instancesData[e.id]["dlCount"].length - 1)))
-        }
-
-    }
-
-    instancesData = [];
-}
-
 export async function convertProfileToInstance(metadata: any, instanceData: any) {
     const isVanilla = metadata["loader"] == null;
 
     await createInstance(metadata["mcVersion"], {
         name: instanceData["name"],
-        accentColor: instanceData["accentColor"],
-        author: instanceData["author"],
-        imagePath: await downloadAsync(instanceData["thumbnailPath"], path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))),
-        versionType: metadata["type"]
+        thumbnailPath: await downloadAsync(instanceData["thumbnailPath"], path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))),
+        type: "instance"
     },
         !isVanilla ? {
         name: metadata["loader"]["name"],
@@ -467,18 +308,6 @@ export async function convertProfileToInstance(metadata: any, instanceData: any)
     await updateInstanceDlState(instanceData["name"], InstanceState.Playable)
 }
 
-export async function retrieveDescription(id: string) {
-    // Get description on file server
-    return JSON.parse(await fs.readFile(path.join(instancesPath, id, "info.json"), "utf-8")).instanceData.description
-}
-
-export async function retrievePosts(id: string): Promise<string> {
-    // Get posts on file server
-    return new Promise((resolve, reject) => {
-        resolve("")
-    })
-}
-
 export async function checkForUpdate(instanceId: string) {
     await updateInstanceDlState(instanceId, InstanceState.Loading)
 
@@ -500,6 +329,7 @@ export async function checkInstanceIntegrity(instanceId: string) {
     await updateInstanceDlState(instanceId, InstanceState.Playable)
 }
 
+/*
 export async function verifyInstanceFromRemote(name: string) {
     const profiles = await listProfiles()
 
@@ -526,4 +356,4 @@ export async function verifyInstanceFromRemote(name: string) {
             console.log("downloaded: " + fileData["path"] + " from " + fileData["url"])
         }
     }
-}
+}*/

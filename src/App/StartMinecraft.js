@@ -141,7 +141,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         // Ignore FML check for jar injection
         jvmArgs.push("-Dfml.ignorePatchDiscrepancies=true");
         // Set natives path
-        jvmArgs.push("-Djava.library.path=" + (yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.instancesPath, instanceId, "natives"))));
+        //jvmArgs.push("-Djava.library.path=" + await makeDir(path.join(instancesPath, instanceId, "natives")))
         // Set classpaths
         let classPathes = [];
         let mcLibrariesArray = (0, DownloadGame_1.minecraftLibraryList)(mcData);
