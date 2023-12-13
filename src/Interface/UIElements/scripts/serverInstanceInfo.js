@@ -1,5 +1,5 @@
 const {listProfiles} = require("../../../Utils/HGitHub");
-const {refreshServerInstanceList, updateInstanceDlState, InstanceState} = require("../../../Utils/HInstance");
+const {refreshServerInstanceList, updateInstanceDlState, InstanceState, updateDlServerInstanceState} = require("../../../Utils/HInstance");
 const convertProfileToInstance = require("../../../Utils/HInstance").convertProfileToInstance;
 const getInstanceDataOf = require("../../../Utils/HGitHub").getInstanceDataOf;
 const getMetadataOf = require("../../../Utils/HGitHub").getMetadataOf;
@@ -12,11 +12,9 @@ console.log(serverInstanceAction.onclick)
 
 serverInstanceAction.onclick = async () => {
     const profile = (await listProfiles())[getCurrentServerInstanceId()]
-    await updateInstanceDlState(profile["name"], InstanceState.Loading)
+    await updateDlServerInstanceState(profile["name"], InstanceState.Loading)
 
     await convertProfileToInstance(await getMetadataOf(profile), await getInstanceDataOf(profile))
-
-    await refreshServerInstanceList()
 }
 
 console.log(serverInstanceAction.onclick)

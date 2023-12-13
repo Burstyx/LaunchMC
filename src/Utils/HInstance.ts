@@ -11,6 +11,7 @@ import isUrl from "is-url"
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 let occupiedInstancesWithStates : any = {};
+let dlServerOccupiedInstancesWithStates : any = {};
 
 export async function addInstanceElement(imagePath: string, title: string, parentDiv: HTMLElement){
     const instanceElement = await generateInstanceBtn(imagePath, title)
@@ -39,54 +40,58 @@ interface LoaderInfo {
 }
 
 export async function createInstance(version: string, instanceInfo: InstanceInfo | ServerInstanceInfo, loaderInfo?: LoaderInfo){
-    await makeDir(path.join(serversInstancesPath, instanceInfo.name))
+    return new Promise<void>(async (resolve )=> {
+        await makeDir(path.join(serversInstancesPath, instanceInfo.name))
 
-    let instanceConfiguration = {}
+        let instanceConfiguration = {}
 
-    // Default json configuration
-    if(instanceInfo.type === 'server_instance') {
-        instanceConfiguration = {
-            "instance": {
-                "name": instanceInfo.name,
-                "thumbnail_path": instanceInfo.thumbnailPath,
-                "cover_path": instanceInfo.coverPath,
-                "play_time": 0,
-            },
-            "game": {
-                "version": version,
+        // Default json configuration
+        if(instanceInfo.type === 'server_instance') {
+            instanceConfiguration = {
+                "instance": {
+                    "name": instanceInfo.name,
+                    "thumbnail_path": instanceInfo.thumbnailPath,
+                    "cover_path": instanceInfo.coverPath,
+                    "play_time": 0,
+                },
+                "game": {
+                    "version": version,
+                }
             }
-        }
-    } else {
-        instanceConfiguration = {
-            "instance": {
-                "name": instanceInfo.name,
-                "thumbnail_path": instanceInfo.thumbnailPath,
-                "play_time": 0,
-            },
-            "game_data": {
-                "version": version,
-            }
-        }
-    }
-
-    if(loaderInfo) {
-        let defaultLoaderJson = {
-            "loader": {
-                "name": loaderInfo.name,
-                "id": loaderInfo.id
+        } else {
+            instanceConfiguration = {
+                "instance": {
+                    "name": instanceInfo.name,
+                    "thumbnail_path": instanceInfo.thumbnailPath,
+                    "play_time": 0,
+                },
+                "game_data": {
+                    "version": version,
+                }
             }
         }
 
-        instanceConfiguration = concatJson(instanceConfiguration, defaultLoaderJson)
-    }
+        if(loaderInfo) {
+            let defaultLoaderJson = {
+                "loader": {
+                    "name": loaderInfo.name,
+                    "id": loaderInfo.id
+                }
+            }
 
-    // Write instance conf on disk
-    await fs.writeFile(path.join(serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(
-        instanceConfiguration
-    ))
+            instanceConfiguration = concatJson(instanceConfiguration, defaultLoaderJson)
+        }
 
-    // Update instance list
-    await refreshLocalInstanceList()
+        // Write instance conf on disk
+        await fs.writeFile(path.join(serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(
+            instanceConfiguration
+        ))
+
+        // Update instance list
+        await refreshLocalInstanceList()
+
+        resolve()
+    })
 }
 
 async function generateInstanceBtn(imagePath: string, title: string) {
@@ -215,6 +220,38 @@ export async function setContentTo(name: string) { // TODO: Cleaning
     contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
 }
 
+let dlCurrentContentId: string | null = null;
+export async function setDlServerContentTo(name: string, version: string, thumbnail: string, cover: string, logoPath: string) { // TODO: Cleaning
+    dlCurrentContentId = name
+
+    // Set title
+    const logoImg = document.getElementById("dl-page-server-brand-logo")!
+    logoImg.setAttribute("src", logoPath)
+
+    // Set version
+    const instanceVersion = document.getElementById("dl-page-version")!
+    instanceVersion.innerHTML = version;
+
+    const dlBtn = document.getElementById("download-instance-action")!
+    const iconBtn = dlBtn.querySelector("img")!
+
+    const currentState = dlServerOccupiedInstancesWithStates[name]
+
+    switch (currentState) {
+        case InstanceState.ToDownload:
+            dlBtn.style.backgroundColor = "#00ff33"
+            iconBtn.setAttribute("src", "./resources/svg/download.svg")
+            break;
+        case InstanceState.Loading:
+            dlBtn.style.backgroundColor = "#5C5C5C"
+            iconBtn.setAttribute("src", "./resources/svg/loading.svg")
+            break;
+    }
+
+    const contentBackground = document.getElementById("dl-page-thumbnail")!
+    contentBackground.style.backgroundImage = `url('${replaceAll(thumbnail, '\\', '/')}')`
+}
+
 export async function refreshLocalInstanceList() {
     const instancesDiv = document.getElementById("instances")!
     instancesDiv.innerHTML = ""
@@ -301,6 +338,7 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
 export enum InstanceState {
     Loading,
     Downloading,
+    ToDownload,
     DLResources,
     Verification,
     Patching,
@@ -315,41 +353,53 @@ export async function updateInstanceDlState(instanceId: string, newState: Instan
     await setContentTo(instanceId)
 }
 
+export async function updateDlServerInstanceState(instanceId: string, newState: InstanceState) {
+    dlServerOccupiedInstancesWithStates[instanceId] = newState
+
+    await setDlServerContentTo(instanceId, "1.12.2-VersionDeFDPEdition", "./resources/images/default.png", "./resources/images/default.png", "./resources/images/mc.png")
+}
+
 export async function convertProfileToInstance(metadata: any, instanceData: any) {
-    const isVanilla = metadata["loader"] == null;
+    return new Promise<void>(async (resolve) => {
+        const isVanilla = metadata["loader"] == null;
 
-    await createInstance(metadata["mcVersion"], {
-        name: instanceData["name"],
-        thumbnailPath: await downloadAsync(
-            instanceData["thumbnailPath"],
-            path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
-        ),
-        coverPath: await downloadAsync(
-            instanceData["thumbnailPath"],
-            path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
-        ),
-        type: "server_instance"
-    },
-        !isVanilla ? {
-        name: metadata["loader"]["name"],
-        id: metadata["loader"]["id"]
-    } : undefined)
+        await updateInstanceDlState(instanceData["name"], InstanceState.Loading)
 
-    await downloadMinecraft(metadata["mcVersion"], instanceData["name"])
-    if(!isVanilla) {
-        await patchInstanceWithForge(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"])
-    }
+        await createInstance(metadata["mcVersion"], {
+                name: instanceData["name"],
+                thumbnailPath: await downloadAsync(
+                    instanceData["thumbnailPath"],
+                    path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
+                ),
+                coverPath: await downloadAsync(
+                    instanceData["thumbnailPath"],
+                    path.join(serversInstancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))
+                ),
+                type: "server_instance"
+            },
+            !isVanilla ? {
+                name: metadata["loader"]["name"],
+                id: metadata["loader"]["id"]
+            } : undefined)
 
-    await updateInstanceDlState(instanceData["name"], InstanceState.DLResources)
+        await downloadMinecraft(metadata["mcVersion"], instanceData["name"])
+        if(!isVanilla) {
+            await patchInstanceWithForge(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"])
+        }
 
-    // Download files
-    for (const fileData of metadata["files"]) {
-        const ext = path.extname(fileData.path)
-        ext === ".zip" ? console.log("zip file detected") : null
-        await downloadAsync(fileData.url, path.join(instancesPath, instanceData["name"], fileData.path), undefined, {decompress: ext === ".zip"})
-    }
+        await updateInstanceDlState(instanceData["name"], InstanceState.DLResources)
 
-    await updateInstanceDlState(instanceData["name"], InstanceState.Playable)
+        // Download files
+        for (const fileData of metadata["files"]) {
+            const ext = path.extname(fileData.path)
+            ext === ".zip" ? console.log("zip file detected") : null
+            await downloadAsync(fileData.url, path.join(instancesPath, instanceData["name"], fileData.path), undefined, {decompress: ext === ".zip"})
+        }
+
+        await updateInstanceDlState(instanceData["name"], InstanceState.Playable)
+
+        resolve()
+    })
 }
 
 export async function retrieveDescription(id: string) {

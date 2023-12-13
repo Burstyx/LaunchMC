@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshServerInstanceList = exports.refreshLocalInstanceList = exports.setContentTo = exports.createInstance = exports.addInstanceElement = void 0;
+exports.verifyInstanceFromRemote = exports.checkInstanceIntegrity = exports.checkForUpdate = exports.retrievePosts = exports.retrieveDescription = exports.convertProfileToInstance = exports.updateDlServerInstanceState = exports.updateInstanceDlState = exports.InstanceState = exports.updateInstanceDlProgress = exports.getInstanceById = exports.getInstanceData = exports.refreshServerInstanceList = exports.refreshLocalInstanceList = exports.setDlServerContentTo = exports.setContentTo = exports.createInstance = exports.addInstanceElement = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -25,6 +25,7 @@ const HGitHub_1 = require("./HGitHub");
 const is_url_1 = __importDefault(require("is-url"));
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 let occupiedInstancesWithStates = {};
+let dlServerOccupiedInstancesWithStates = {};
 function addInstanceElement(imagePath, title, parentDiv) {
     return __awaiter(this, void 0, void 0, function* () {
         const instanceElement = yield generateInstanceBtn(imagePath, title);
@@ -35,47 +36,50 @@ function addInstanceElement(imagePath, title, parentDiv) {
 exports.addInstanceElement = addInstanceElement;
 function createInstance(version, instanceInfo, loaderInfo) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.serversInstancesPath, instanceInfo.name));
-        let instanceConfiguration = {};
-        // Default json configuration
-        if (instanceInfo.type === 'server_instance') {
-            instanceConfiguration = {
-                "instance": {
-                    "name": instanceInfo.name,
-                    "thumbnail_path": instanceInfo.thumbnailPath,
-                    "cover_path": instanceInfo.coverPath,
-                    "play_time": 0,
-                },
-                "game": {
-                    "version": version,
-                }
-            };
-        }
-        else {
-            instanceConfiguration = {
-                "instance": {
-                    "name": instanceInfo.name,
-                    "thumbnail_path": instanceInfo.thumbnailPath,
-                    "play_time": 0,
-                },
-                "game_data": {
-                    "version": version,
-                }
-            };
-        }
-        if (loaderInfo) {
-            let defaultLoaderJson = {
-                "loader": {
-                    "name": loaderInfo.name,
-                    "id": loaderInfo.id
-                }
-            };
-            instanceConfiguration = (0, Utils_1.concatJson)(instanceConfiguration, defaultLoaderJson);
-        }
-        // Write instance conf on disk
-        yield promises_1.default.writeFile(path_1.default.join(const_1.serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(instanceConfiguration));
-        // Update instance list
-        yield refreshLocalInstanceList();
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.serversInstancesPath, instanceInfo.name));
+            let instanceConfiguration = {};
+            // Default json configuration
+            if (instanceInfo.type === 'server_instance') {
+                instanceConfiguration = {
+                    "instance": {
+                        "name": instanceInfo.name,
+                        "thumbnail_path": instanceInfo.thumbnailPath,
+                        "cover_path": instanceInfo.coverPath,
+                        "play_time": 0,
+                    },
+                    "game": {
+                        "version": version,
+                    }
+                };
+            }
+            else {
+                instanceConfiguration = {
+                    "instance": {
+                        "name": instanceInfo.name,
+                        "thumbnail_path": instanceInfo.thumbnailPath,
+                        "play_time": 0,
+                    },
+                    "game_data": {
+                        "version": version,
+                    }
+                };
+            }
+            if (loaderInfo) {
+                let defaultLoaderJson = {
+                    "loader": {
+                        "name": loaderInfo.name,
+                        "id": loaderInfo.id
+                    }
+                };
+                instanceConfiguration = (0, Utils_1.concatJson)(instanceConfiguration, defaultLoaderJson);
+            }
+            // Write instance conf on disk
+            yield promises_1.default.writeFile(path_1.default.join(const_1.serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(instanceConfiguration));
+            // Update instance list
+            yield refreshLocalInstanceList();
+            resolve();
+        }));
     });
 }
 exports.createInstance = createInstance;
@@ -191,6 +195,34 @@ function setContentTo(name) {
     });
 }
 exports.setContentTo = setContentTo;
+let dlCurrentContentId = null;
+function setDlServerContentTo(name, version, thumbnail, cover, logoPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        dlCurrentContentId = name;
+        // Set title
+        const logoImg = document.getElementById("dl-page-server-brand-logo");
+        logoImg.setAttribute("src", logoPath);
+        // Set version
+        const instanceVersion = document.getElementById("dl-page-version");
+        instanceVersion.innerHTML = version;
+        const dlBtn = document.getElementById("download-instance-action");
+        const iconBtn = dlBtn.querySelector("img");
+        const currentState = dlServerOccupiedInstancesWithStates[name];
+        switch (currentState) {
+            case InstanceState.ToDownload:
+                dlBtn.style.backgroundColor = "#00ff33";
+                iconBtn.setAttribute("src", "./resources/svg/download.svg");
+                break;
+            case InstanceState.Loading:
+                dlBtn.style.backgroundColor = "#5C5C5C";
+                iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+                break;
+        }
+        const contentBackground = document.getElementById("dl-page-thumbnail");
+        contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(thumbnail, '\\', '/')}')`;
+    });
+}
+exports.setDlServerContentTo = setDlServerContentTo;
 function refreshLocalInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         const instancesDiv = document.getElementById("instances");
@@ -269,12 +301,13 @@ var InstanceState;
 (function (InstanceState) {
     InstanceState[InstanceState["Loading"] = 0] = "Loading";
     InstanceState[InstanceState["Downloading"] = 1] = "Downloading";
-    InstanceState[InstanceState["DLResources"] = 2] = "DLResources";
-    InstanceState[InstanceState["Verification"] = 3] = "Verification";
-    InstanceState[InstanceState["Patching"] = 4] = "Patching";
-    InstanceState[InstanceState["Playable"] = 5] = "Playable";
-    InstanceState[InstanceState["Update"] = 6] = "Update";
-    InstanceState[InstanceState["Playing"] = 7] = "Playing";
+    InstanceState[InstanceState["ToDownload"] = 2] = "ToDownload";
+    InstanceState[InstanceState["DLResources"] = 3] = "DLResources";
+    InstanceState[InstanceState["Verification"] = 4] = "Verification";
+    InstanceState[InstanceState["Patching"] = 5] = "Patching";
+    InstanceState[InstanceState["Playable"] = 6] = "Playable";
+    InstanceState[InstanceState["Update"] = 7] = "Update";
+    InstanceState[InstanceState["Playing"] = 8] = "Playing";
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceDlState(instanceId, newState) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -283,30 +316,41 @@ function updateInstanceDlState(instanceId, newState) {
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;
+function updateDlServerInstanceState(instanceId, newState) {
+    return __awaiter(this, void 0, void 0, function* () {
+        dlServerOccupiedInstancesWithStates[instanceId] = newState;
+        yield setDlServerContentTo(instanceId, "1.12.2-VersionDeFDPEdition", "./resources/images/default.png", "./resources/images/default.png", "./resources/images/mc.png");
+    });
+}
+exports.updateDlServerInstanceState = updateDlServerInstanceState;
 function convertProfileToInstance(metadata, instanceData) {
     return __awaiter(this, void 0, void 0, function* () {
-        const isVanilla = metadata["loader"] == null;
-        yield createInstance(metadata["mcVersion"], {
-            name: instanceData["name"],
-            thumbnailPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
-            coverPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
-            type: "server_instance"
-        }, !isVanilla ? {
-            name: metadata["loader"]["name"],
-            id: metadata["loader"]["id"]
-        } : undefined);
-        yield (0, DownloadGame_1.downloadMinecraft)(metadata["mcVersion"], instanceData["name"]);
-        if (!isVanilla) {
-            yield (0, DownloadGame_1.patchInstanceWithForge)(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"]);
-        }
-        yield updateInstanceDlState(instanceData["name"], InstanceState.DLResources);
-        // Download files
-        for (const fileData of metadata["files"]) {
-            const ext = path_1.default.extname(fileData.path);
-            ext === ".zip" ? console.log("zip file detected") : null;
-            yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, instanceData["name"], fileData.path), undefined, { decompress: ext === ".zip" });
-        }
-        yield updateInstanceDlState(instanceData["name"], InstanceState.Playable);
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            const isVanilla = metadata["loader"] == null;
+            yield updateInstanceDlState(instanceData["name"], InstanceState.Loading);
+            yield createInstance(metadata["mcVersion"], {
+                name: instanceData["name"],
+                thumbnailPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
+                coverPath: yield (0, HDownload_1.downloadAsync)(instanceData["thumbnailPath"], path_1.default.join(const_1.serversInstancesPath, instanceData["name"], "thumbnail" + path_1.default.extname(instanceData["thumbnailPath"]))),
+                type: "server_instance"
+            }, !isVanilla ? {
+                name: metadata["loader"]["name"],
+                id: metadata["loader"]["id"]
+            } : undefined);
+            yield (0, DownloadGame_1.downloadMinecraft)(metadata["mcVersion"], instanceData["name"]);
+            if (!isVanilla) {
+                yield (0, DownloadGame_1.patchInstanceWithForge)(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"]);
+            }
+            yield updateInstanceDlState(instanceData["name"], InstanceState.DLResources);
+            // Download files
+            for (const fileData of metadata["files"]) {
+                const ext = path_1.default.extname(fileData.path);
+                ext === ".zip" ? console.log("zip file detected") : null;
+                yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.instancesPath, instanceData["name"], fileData.path), undefined, { decompress: ext === ".zip" });
+            }
+            yield updateInstanceDlState(instanceData["name"], InstanceState.Playable);
+            resolve();
+        }));
     });
 }
 exports.convertProfileToInstance = convertProfileToInstance;

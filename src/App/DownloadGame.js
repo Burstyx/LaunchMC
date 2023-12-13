@@ -27,215 +27,221 @@ const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
 function downloadMinecraft(version, instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Préparation
-        console.log("[INFO] Preparing to the download");
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
-        (0, HInstance_1.updateInstanceDlProgress)(instanceId, 0);
-        // Variables de tracking du dl
-        let numberOfLibrariesToDownload = 0;
-        let numberOfLibrariesDownloaded = 0;
-        let numberOfAssetsToDownload = 0;
-        let numberOfAssetsDownloaded = 0;
-        let totalSizeToDl = 0; // TODO: Compute this to track dl efficiently
-        let currentDownloadedSize = 0;
-        // Téléchargement/Récupération des manifests nécessaire
-        const versionDataManifest = yield (0, HManifests_1.minecraftManifestForVersion)(version);
-        console.log(versionDataManifest["assetIndex"]["url"]);
-        console.log(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
-        yield (0, HFileManagement_1.makeDir)(const_1.indexesPath);
-        yield (0, HDownload_1.downloadAsync)(versionDataManifest["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress) => {
-            console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
-            console.log("ASSETS DOWNLOADED");
-        });
-        const indexDataManifest = JSON.parse((yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"));
-        if (indexDataManifest == null) {
-            return;
-        }
-        // Initialisation du traking du dl
-        numberOfLibrariesToDownload = versionDataManifest.libraries.length;
-        for (const e in indexDataManifest.objects) {
-            numberOfAssetsToDownload++;
-        }
-        console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
-        // Calcul taille total
-        // Calcul taille client + assets + libraries
-        // client
-        const clientSize = versionDataManifest.downloads.client.size;
-        const assetsSize = versionDataManifest.assetIndex.totalSize;
-        const librariesSize = minecraftLibraryTotalSize(versionDataManifest);
-        totalSizeToDl = clientSize + assetsSize + librariesSize;
-        // Téléchargement du client
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Downloading);
-        console.log("[INFO] Téléchargement du client");
-        yield (0, HFileManagement_1.makeDir)(const_1.minecraftVersionPath);
-        yield (0, HDownload_1.downloadAsync)(versionDataManifest.downloads.client.url, path_1.default.join(const_1.minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
-            console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
-            currentDownloadedSize += byteSent;
-            (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
-        });
-        // Téléchargement des librairies
-        console.log("[INFO] Téléchargement des librairies");
-        let librariesArg = "";
-        for (let i = 0; i < versionDataManifest.libraries.length; i++) {
-            const fetchedByte = yield downloadMinecraftLibrary(versionDataManifest, i);
-            numberOfLibrariesDownloaded++;
-            console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
-            currentDownloadedSize += fetchedByte;
-            (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
-        }
-        // Téléchargement des assets
-        console.log("[INFO] Téléchargement des assets");
-        for (const e in indexDataManifest["objects"]) {
-            console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
-            const hash = indexDataManifest["objects"][e]["hash"];
-            const subhash = hash.substring(0, 2);
-            yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
-            const fullPath = path_1.default.join(const_1.serversInstancesPath, instanceId, "resources", e);
-            const fileName = fullPath.split("\\").pop();
-            const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
-            yield (0, HFileManagement_1.makeDir)(dirPath);
-            yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.objectPath, subhash, hash), (progress, byteSend) => {
-                currentDownloadedSize += byteSend;
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            // Préparation
+            console.log("[INFO] Preparing to the download");
+            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
+            (0, HInstance_1.updateInstanceDlProgress)(instanceId, 0);
+            // Variables de tracking du dl
+            let numberOfLibrariesToDownload = 0;
+            let numberOfLibrariesDownloaded = 0;
+            let numberOfAssetsToDownload = 0;
+            let numberOfAssetsDownloaded = 0;
+            let totalSizeToDl = 0; // TODO: Compute this to track dl efficiently
+            let currentDownloadedSize = 0;
+            // Téléchargement/Récupération des manifests nécessaire
+            const versionDataManifest = yield (0, HManifests_1.minecraftManifestForVersion)(version);
+            console.log(versionDataManifest["assetIndex"]["url"]);
+            console.log(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
+            yield (0, HFileManagement_1.makeDir)(const_1.indexesPath);
+            yield (0, HDownload_1.downloadAsync)(versionDataManifest["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress) => {
+                console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
+                console.log("ASSETS DOWNLOADED");
+            });
+            const indexDataManifest = JSON.parse((yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"));
+            if (indexDataManifest == null) {
+                return;
+            }
+            // Initialisation du traking du dl
+            numberOfLibrariesToDownload = versionDataManifest.libraries.length;
+            for (const e in indexDataManifest.objects) {
+                numberOfAssetsToDownload++;
+            }
+            console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
+            // Calcul taille total
+            // Calcul taille client + assets + libraries
+            // client
+            const clientSize = versionDataManifest.downloads.client.size;
+            const assetsSize = versionDataManifest.assetIndex.totalSize;
+            const librariesSize = minecraftLibraryTotalSize(versionDataManifest);
+            totalSizeToDl = clientSize + assetsSize + librariesSize;
+            // Téléchargement du client
+            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Downloading);
+            console.log("[INFO] Téléchargement du client");
+            yield (0, HFileManagement_1.makeDir)(const_1.minecraftVersionPath);
+            yield (0, HDownload_1.downloadAsync)(versionDataManifest.downloads.client.url, path_1.default.join(const_1.minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
+                console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
+                currentDownloadedSize += byteSent;
                 (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
             });
-            numberOfAssetsDownloaded++;
-        }
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            // Téléchargement des librairies
+            console.log("[INFO] Téléchargement des librairies");
+            let librariesArg = "";
+            for (let i = 0; i < versionDataManifest.libraries.length; i++) {
+                const fetchedByte = yield downloadMinecraftLibrary(versionDataManifest, i);
+                numberOfLibrariesDownloaded++;
+                console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
+                currentDownloadedSize += fetchedByte;
+                (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
+            }
+            // Téléchargement des assets
+            console.log("[INFO] Téléchargement des assets");
+            for (const e in indexDataManifest["objects"]) {
+                console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
+                const hash = indexDataManifest["objects"][e]["hash"];
+                const subhash = hash.substring(0, 2);
+                yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.objectPath, subhash));
+                const fullPath = path_1.default.join(const_1.serversInstancesPath, instanceId, "resources", e);
+                const fileName = fullPath.split("\\").pop();
+                const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
+                yield (0, HFileManagement_1.makeDir)(dirPath);
+                yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.objectPath, subhash, hash), (progress, byteSend) => {
+                    currentDownloadedSize += byteSend;
+                    (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
+                });
+                numberOfAssetsDownloaded++;
+            }
+            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            resolve();
+        }));
     });
 }
 exports.downloadMinecraft = downloadMinecraft;
 function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
-    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Patching);
-        // Download java if it doesn't exist
-        const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
-        // Download forge installer, work only for all versions after 1.5.2
-        const forgeInstallerPath = yield (0, HForge_1.getForgeInstallerForVersion)(forgeId);
-        const forgeInstallProfileData = yield (0, HForge_1.getForgeInstallProfileIfExist)(forgeId);
-        // Get all libraries to download
-        let libraries;
-        if (!forgeInstallProfileData.versionInfo)
-            libraries = forgeInstallProfileData.libraries;
-        else
-            libraries = forgeInstallProfileData.versionInfo.libraries;
-        if (forgeInstallProfileData.json) {
-            const forgeVersionData = yield (0, HForge_1.getForgeVersionIfExist)(forgeId);
-            libraries = libraries.concat(forgeVersionData.libraries);
-        }
-        // Skip forge extract and download it instead
-        let skipForgeExtract = false;
-        if (!forgeInstallProfileData.path && !((_a = forgeInstallProfileData.install) === null || _a === void 0 ? void 0 : _a.filePath)) {
-            skipForgeExtract = true;
-        }
-        console.log(libraries);
-        for (const library of libraries) {
-            console.log("Downloading: " + library.name);
-            let natives = "";
-            if (library.rules) {
-                if (!parseRule(library.rules)) {
-                    console.log("Rule don't allow the download of this library, skipping.");
-                    continue;
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            var _a, _b, _c, _d;
+            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Patching);
+            // Download java if it doesn't exist
+            const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
+            // Download forge installer, work only for all versions after 1.5.2
+            const forgeInstallerPath = yield (0, HForge_1.getForgeInstallerForVersion)(forgeId);
+            const forgeInstallProfileData = yield (0, HForge_1.getForgeInstallProfileIfExist)(forgeId);
+            // Get all libraries to download
+            let libraries;
+            if (!forgeInstallProfileData.versionInfo)
+                libraries = forgeInstallProfileData.libraries;
+            else
+                libraries = forgeInstallProfileData.versionInfo.libraries;
+            if (forgeInstallProfileData.json) {
+                const forgeVersionData = yield (0, HForge_1.getForgeVersionIfExist)(forgeId);
+                libraries = libraries.concat(forgeVersionData.libraries);
+            }
+            // Skip forge extract and download it instead
+            let skipForgeExtract = false;
+            if (!forgeInstallProfileData.path && !((_a = forgeInstallProfileData.install) === null || _a === void 0 ? void 0 : _a.filePath)) {
+                skipForgeExtract = true;
+            }
+            console.log(libraries);
+            for (const library of libraries) {
+                console.log("Downloading: " + library.name);
+                let natives = "";
+                if (library.rules) {
+                    if (!parseRule(library.rules)) {
+                        console.log("Rule don't allow the download of this library, skipping.");
+                        continue;
+                    }
+                }
+                if (library.natives) {
+                    natives = library.natives[(0, Utils_1.osToMCFormat)(process.platform)];
+                }
+                const libraryPath = ((0, HFileManagement_1.mavenToArray)(library.name, natives != "" ? `-${natives}` : undefined)).join("/");
+                if ((_b = library.downloads) === null || _b === void 0 ? void 0 : _b.artifact) {
+                    const dlLink = library.downloads.artifact.url;
+                    const dlDest = library.downloads.artifact.path;
+                    // If not url as been assigned
+                    if (dlLink == "") {
+                        const fileToFetch = "maven/" + library.downloads.artifact.path;
+                        const destFile = `${const_1.librariesPath}/` + library.downloads.artifact.path;
+                        yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, fileToFetch, destFile);
+                    }
+                    yield (0, HDownload_1.downloadAsync)(dlLink, path_1.default.join(const_1.librariesPath, dlDest));
+                }
+                else if ((library === null || library === void 0 ? void 0 : library.name.includes("net.minecraftforge:forge:")) || (library === null || library === void 0 ? void 0 : library.name.includes("net.minecraftforge:minecraftforge:"))) {
+                    console.log("Skip " + library.name);
+                }
+                else if (library.url) {
+                    const forgeBaseUrl = "https://maven.minecraftforge.net/";
+                    yield (0, HDownload_1.downloadAsync)(`${forgeBaseUrl}${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+                }
+                else if (!library.url) {
+                    yield (0, HDownload_1.downloadAsync)(`https://libraries.minecraft.net/${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
+                }
+                else {
+                    console.log("Case not handled or just it won't work");
                 }
             }
-            if (library.natives) {
-                natives = library.natives[(0, Utils_1.osToMCFormat)(process.platform)];
-            }
-            const libraryPath = ((0, HFileManagement_1.mavenToArray)(library.name, natives != "" ? `-${natives}` : undefined)).join("/");
-            if ((_b = library.downloads) === null || _b === void 0 ? void 0 : _b.artifact) {
-                const dlLink = library.downloads.artifact.url;
-                const dlDest = library.downloads.artifact.path;
-                // If not url as been assigned
-                if (dlLink == "") {
-                    const fileToFetch = "maven/" + library.downloads.artifact.path;
-                    const destFile = `${const_1.librariesPath}/` + library.downloads.artifact.path;
-                    yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, fileToFetch, destFile);
+            if (!skipForgeExtract) {
+                const jarFilePathInInstaller = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath;
+                const jarFileDestPath = (0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path || forgeInstallProfileData.install.path);
+                const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/");
+                yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.librariesPath, forgeJarPathWithoutFile));
+                // Fetch the jar in the installer
+                if ((_c = forgeInstallProfileData.install) === null || _c === void 0 ? void 0 : _c.filePath) {
+                    yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, jarFilePathInInstaller, path_1.default.join(const_1.librariesPath, jarFileDestPath.join("/")));
                 }
-                yield (0, HDownload_1.downloadAsync)(dlLink, path_1.default.join(const_1.librariesPath, dlDest));
+                // Search for the jar in maven folder in the installer
+                else if (forgeInstallProfileData.path) {
+                    yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, path_1.default.join("maven", jarFileDestPath.join("/")), path_1.default.join(const_1.librariesPath, jarFileDestPath.join("/")));
+                }
             }
-            else if ((library === null || library === void 0 ? void 0 : library.name.includes("net.minecraftforge:forge:")) || (library === null || library === void 0 ? void 0 : library.name.includes("net.minecraftforge:minecraftforge:"))) {
-                console.log("Skip " + library.name);
-            }
-            else if (library.url) {
-                const forgeBaseUrl = "https://maven.minecraftforge.net/";
-                yield (0, HDownload_1.downloadAsync)(`${forgeBaseUrl}${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
-            }
-            else if (!library.url) {
-                yield (0, HDownload_1.downloadAsync)(`https://libraries.minecraft.net/${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
-            }
-            else {
-                console.log("Case not handled or just it won't work");
-            }
-        }
-        if (!skipForgeExtract) {
-            const jarFilePathInInstaller = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath;
-            const jarFileDestPath = (0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path || forgeInstallProfileData.install.path);
-            const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/");
-            yield (0, HFileManagement_1.makeDir)(path_1.default.join(const_1.librariesPath, forgeJarPathWithoutFile));
-            // Fetch the jar in the installer
-            if ((_c = forgeInstallProfileData.install) === null || _c === void 0 ? void 0 : _c.filePath) {
-                yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, jarFilePathInInstaller, path_1.default.join(const_1.librariesPath, jarFileDestPath.join("/")));
-            }
-            // Search for the jar in maven folder in the installer
-            else if (forgeInstallProfileData.path) {
-                yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, path_1.default.join("maven", jarFileDestPath.join("/")), path_1.default.join(const_1.librariesPath, jarFileDestPath.join("/")));
-            }
-        }
-        if ((_d = forgeInstallProfileData.processors) === null || _d === void 0 ? void 0 : _d.length) {
-            console.log("Patching Forge");
-            const universalJarPath = forgeInstallProfileData.libraries.find((lib) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path;
-            console.log(universalJarPath);
-            // Getting client.lzma from installer
-            yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "data/client.lzma", path_1.default.join(const_1.librariesPath, forgeInstallProfileData.path ? ((0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path, "-universal-clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
-            const { processors } = forgeInstallProfileData;
-            for (const key in processors) {
-                const p = processors[key];
-                console.log("Patching with " + p.jar);
-                if (!p.sides || p.sides.includes("client")) {
-                    const replaceDataArg = (arg) => {
-                        const finalArg = arg.replace("{", "").replace("}", "");
-                        if (forgeInstallProfileData.data[finalArg]) {
-                            if (finalArg == "BINPATCH") {
-                                return path_1.default.join(const_1.librariesPath, universalJarPath || (0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path).join("/")).slice(0, -4) + "-clientdata.lzma";
+            if ((_d = forgeInstallProfileData.processors) === null || _d === void 0 ? void 0 : _d.length) {
+                console.log("Patching Forge");
+                const universalJarPath = forgeInstallProfileData.libraries.find((lib) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path;
+                console.log(universalJarPath);
+                // Getting client.lzma from installer
+                yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, "data/client.lzma", path_1.default.join(const_1.librariesPath, forgeInstallProfileData.path ? ((0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path, "-universal-clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"));
+                const { processors } = forgeInstallProfileData;
+                for (const key in processors) {
+                    const p = processors[key];
+                    console.log("Patching with " + p.jar);
+                    if (!p.sides || p.sides.includes("client")) {
+                        const replaceDataArg = (arg) => {
+                            const finalArg = arg.replace("{", "").replace("}", "");
+                            if (forgeInstallProfileData.data[finalArg]) {
+                                if (finalArg == "BINPATCH") {
+                                    return path_1.default.join(const_1.librariesPath, universalJarPath || (0, HFileManagement_1.mavenToArray)(forgeInstallProfileData.path).join("/")).slice(0, -4) + "-clientdata.lzma";
+                                }
+                                let res = forgeInstallProfileData.data[finalArg].client;
+                                console.log(arg + " transformed to " + res);
+                                return res;
                             }
-                            let res = forgeInstallProfileData.data[finalArg].client;
-                            console.log(arg + " transformed to " + res);
-                            return res;
-                        }
-                        return arg
-                            .replace("{SIDE}", "client")
-                            .replace("{ROOT}", `"${const_1.tempPath}"`)
-                            .replace("{MINECRAFT_JAR}", `"${path_1.default.join(const_1.minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".jar")}"`)
-                            .replace("{MINECRAFT_VERSION}", `"${path_1.default.join(const_1.minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".json")}"`)
-                            .replace("{INSTALLER}", `"${path_1.default.join(const_1.tempPath, forgeInstallProfileData.version + ".jar")}"`)
-                            .replace("{LIBRARY_DIR}", `"${const_1.librariesPath}"`);
-                    };
-                    const formatPath = (pathToFormat) => {
-                        if (pathToFormat.startsWith("[")) {
-                            pathToFormat = pathToFormat.replace("[", "").replace("]", "");
-                            pathToFormat = ((0, HFileManagement_1.mavenToArray)(pathToFormat)).join("/");
-                            return `"${path_1.default.join(const_1.librariesPath, pathToFormat)}"`;
-                        }
-                        return pathToFormat;
-                    };
-                    const jarPath = path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(p.jar)));
-                    const args = p.args.map((arg) => replaceDataArg(arg))
-                        .map((arg) => formatPath(arg));
-                    const classPaths = p.classpath.map((cp) => `"${path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(cp)))}"`);
-                    console.log(classPaths);
-                    const mainClass = yield (0, HFileManagement_1.readJarMetaInf)(jarPath, "Main-Class");
-                    console.log("Main class: " + mainClass);
-                    yield new Promise((res) => {
-                        const proc = child_process_1.default.spawn(`"${path_1.default.join(java17Path, "javaw")}"`, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args], { shell: true });
-                        console.log(proc.spawnargs);
-                        proc.stdout.on("data", data => console.log(data.toString()));
-                        proc.stderr.on("data", err => console.error(err.toString()));
-                        proc.on("close", code => { console.log("Exited with code " + code); res(); });
-                    });
+                            return arg
+                                .replace("{SIDE}", "client")
+                                .replace("{ROOT}", `"${const_1.tempPath}"`)
+                                .replace("{MINECRAFT_JAR}", `"${path_1.default.join(const_1.minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".jar")}"`)
+                                .replace("{MINECRAFT_VERSION}", `"${path_1.default.join(const_1.minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".json")}"`)
+                                .replace("{INSTALLER}", `"${path_1.default.join(const_1.tempPath, forgeInstallProfileData.version + ".jar")}"`)
+                                .replace("{LIBRARY_DIR}", `"${const_1.librariesPath}"`);
+                        };
+                        const formatPath = (pathToFormat) => {
+                            if (pathToFormat.startsWith("[")) {
+                                pathToFormat = pathToFormat.replace("[", "").replace("]", "");
+                                pathToFormat = ((0, HFileManagement_1.mavenToArray)(pathToFormat)).join("/");
+                                return `"${path_1.default.join(const_1.librariesPath, pathToFormat)}"`;
+                            }
+                            return pathToFormat;
+                        };
+                        const jarPath = path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(p.jar)));
+                        const args = p.args.map((arg) => replaceDataArg(arg))
+                            .map((arg) => formatPath(arg));
+                        const classPaths = p.classpath.map((cp) => `"${path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(cp)))}"`);
+                        console.log(classPaths);
+                        const mainClass = yield (0, HFileManagement_1.readJarMetaInf)(jarPath, "Main-Class");
+                        console.log("Main class: " + mainClass);
+                        yield new Promise((res) => {
+                            const proc = child_process_1.default.spawn(`"${path_1.default.join(java17Path, "javaw")}"`, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path_1.default.delimiter), mainClass, ...args], { shell: true });
+                            console.log(proc.spawnargs);
+                            proc.stdout.on("data", data => console.log(data.toString()));
+                            proc.stderr.on("data", err => console.error(err.toString()));
+                            proc.on("close", code => { console.log("Exited with code " + code); res(); });
+                        });
+                    }
                 }
             }
-        }
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            resolve();
+        }));
     });
 }
 exports.patchInstanceWithForge = patchInstanceWithForge;
