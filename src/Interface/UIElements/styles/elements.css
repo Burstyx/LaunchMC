@@ -228,7 +228,7 @@ input[type="text"]:focus {
 
 .checkbox[checked]::before {
   content: '';
-  background-image: url(../resources/svg/checked.svg);
+  background-image: url(../resources/svg/old/checked.svg);
   background-repeat: no-repeat;
   background-size: contain;
   z-index: 1;
@@ -292,7 +292,7 @@ selectorgroup {
 }
 
 .loading::before {
-  content: url("../resources/svg/icon/white-inner.svg");
+  content: url("../resources/svg/old/icon/white-inner.svg");
   position: absolute;
   top: calc(-22.5px);
   left: calc(-30.5px);
@@ -301,7 +301,7 @@ selectorgroup {
 }
 
 .loading::after {
-  content: url("../resources/svg/icon/white-outer.svg");
+  content: url("../resources/svg/old/icon/white-outer.svg");
   position: absolute;
   top: -25.5px;
   left: -35.5px;

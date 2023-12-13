@@ -1,26 +1,37 @@
 import fs from "fs/promises"
 import path from "path"
-import {instancesPath} from "./const"
-import {existsSync} from "original-fs"
-import Color from "color"
+import {instancesPath, localInstancesPath, serversInstancesPath} from "./const"
+import {existsSync} from "fs"
 import {concatJson, replaceAll} from "./Utils"
 import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
 import {downloadAsync} from "./HDownload";
 import cp from "child_process";
 import {getMetadataOf, listProfiles} from "./HGitHub";
+import isUrl from "is-url"
+const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
-let instancesData = {};
+let occupiedInstancesWithStates : any = {};
+let dlServerOccupiedInstancesWithStates : any = {};
 
-function addInstanceElement(imagePath: string, title: string, id: string){
-    const instanceDiv = document.getElementById("instance-list")!
+export async function addInstanceElement(imagePath: string, title: string, parentDiv: HTMLElement){
+    const instanceElement = await generateInstanceBtn(imagePath, title)
 
-    instanceDiv.appendChild(generateInstanceBtn(imagePath, title, id))
+    parentDiv.appendChild(instanceElement)
+
+    return instanceElement
 }
 
 interface InstanceInfo {
     name: string,
-    coverUrl: string,
-    thumbUrl: string,
+    thumbnailPath: string,
+    type: "instance"
+}
+
+interface ServerInstanceInfo{
+    name: string,
+    thumbnailPath: string,
+    "coverPath": string,
+    type: "server_instance"
 }
 
 interface LoaderInfo {
@@ -28,64 +39,72 @@ interface LoaderInfo {
     id: string
 }
 
-export async function createInstance(version: string, instanceInfo: InstanceInfo, loaderInfo?: LoaderInfo){
-    return new Promise<void>(async (resolve, reject) => {
-        await fs.mkdir(path.join(instancesPath, instanceInfo.name), {recursive: true}).catch((err) => reject(err))
+export async function createInstance(version: string, instanceInfo: InstanceInfo | ServerInstanceInfo, loaderInfo?: LoaderInfo){
+    return new Promise<void>(async (resolve )=> {
+        await makeDir(path.join(serversInstancesPath, instanceInfo.name))
 
-        let defaultJson =
-            {
-                "instanceData": {
+        let instanceConfiguration = {}
+
+        // Default json configuration
+        if(instanceInfo.type === 'server_instance') {
+            instanceConfiguration = {
+                "instance": {
                     "name": instanceInfo.name,
-                    "coverUrl": instanceInfo.coverUrl,
-                    "thumbUrl": instanceInfo.thumbUrl,
-                    "playtime": 0,
+                    "thumbnail_path": instanceInfo.thumbnailPath,
+                    "cover_path": instanceInfo.coverPath,
+                    "play_time": 0,
                 },
-                "gameData": {
+                "game": {
                     "version": version,
                 }
             }
-
-        let defaultLoaderJson = {
-            "loader": {
-                "name": loaderInfo?.name,
-                "id": loaderInfo?.id
+        } else {
+            instanceConfiguration = {
+                "instance": {
+                    "name": instanceInfo.name,
+                    "thumbnail_path": instanceInfo.thumbnailPath,
+                    "play_time": 0,
+                },
+                "game_data": {
+                    "version": version,
+                }
             }
         }
 
         if(loaderInfo) {
-            defaultJson = concatJson(defaultJson, defaultLoaderJson)
+            let defaultLoaderJson = {
+                "loader": {
+                    "name": loaderInfo.name,
+                    "id": loaderInfo.id
+                }
+            }
+
+            instanceConfiguration = concatJson(instanceConfiguration, defaultLoaderJson)
         }
 
-        await fs.writeFile(path.join(instancesPath, instanceInfo.name, "info.json"), JSON.stringify(defaultJson)).catch((err) => reject(err))
-        await refreshInstanceList().catch((err) => reject(err))
+        // Write instance conf on disk
+        await fs.writeFile(path.join(serversInstancesPath, instanceInfo.name, "info.json"), JSON.stringify(
+            instanceConfiguration
+        ))
+
+        // Update instance list
+        await refreshLocalInstanceList()
 
         resolve()
     })
 }
 
-function generateInstanceBtn(imagePath: string, title: string, id: string) {
-    let instanceElement = document.createElement("div")
+async function generateInstanceBtn(imagePath: string, title: string) {
+    const instanceElement = document.createElement("div")
+
+    // Instance text
+    const titleElement = document.createElement("p")
+    titleElement.innerText = title;
+    instanceElement.append(titleElement)
 
     // Instance Btn
-    instanceElement.innerText = title
-    instanceElement.classList.add("default-btn", "interactable", "instance")
-    // instanceElement.setAttribute("state", InstanceState[InstanceState.Playable]) attribute should be stored in dict and not in html element
-    instanceElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url('${replaceAll(imagePath, '\\', '/')}')`
-    instanceElement.style.textShadow = "black 0px 0px 10px"
-    instanceElement.style.position = "relative"
-    instanceElement.id = id
-
-    // Download track div
-    let dlTrackerElement = document.createElement("div")
-    dlTrackerElement.classList.add("dltracker")
-    dlTrackerElement.style.position = "absolute"
-    dlTrackerElement.style.top = "0"
-    dlTrackerElement.style.left = "100%"
-    dlTrackerElement.style.width = "0%"
-    dlTrackerElement.style.height = "100%"
-    dlTrackerElement.style.borderRadius = "5px"
-    dlTrackerElement.style.backdropFilter = "saturate(0%)"
-    dlTrackerElement.style.pointerEvents = "none"
+    instanceElement.id = title
+    instanceElement.classList.add("instance")
 
     instanceElement.append(dlTrackerElement)
 
@@ -295,19 +314,8 @@ export async function setContentTo(id: string) { // TODO: Cleaning
         launchBtn.innerText = "Verifying"
     }
 
-    const contentBackground = document.getElementById("content-background")!
-    contentBackground.style.backgroundImage = `linear-gradient(180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8) 100%),
-    url('${replaceAll(instanceData["imagePath"], '\\', '/')}')`
-    contentBackground.style.backgroundSize = 'cover'
-
-    loading.style.display = "none"
-    content.style.display = "flex"
-}
-
-export async function refreshInstanceList() {
-    const instancesDiv = document.getElementById("instance-list")!
-    saveInstancesData();
-
+export async function refreshServerInstanceList() {
+    const instancesDiv = document.getElementById("own-servers")!
     instancesDiv.innerHTML = ""
     
     if(existsSync(instancesPath)){
@@ -319,7 +327,11 @@ export async function refreshInstanceList() {
                 const data = await fs.readFile(path.join(instancesPath, instances[e], "info.json"), "utf8")
                 const dataJson = JSON.parse(data)
 
-                addInstanceElement(dataJson["instanceData"]["imagePath"], dataJson["instanceData"]["name"], dataJson["instanceData"]["name"])
+                const element = await addInstanceElement(dataJson["instance"]["thumbnail_path"], dataJson["instance"]["name"], instancesDiv)
+                element.addEventListener("click", async (e) => {
+                    await setContentTo(dataJson["instance"]["name"])
+                    openPopup('server-instance-info')
+                })
             }
         }
     }
@@ -369,6 +381,7 @@ export function updateInstanceDlProgress(instanceId: string, progress: number) {
 export enum InstanceState {
     Loading,
     Downloading,
+    ToDownload,
     DLResources,
     Verification,
     Patching,

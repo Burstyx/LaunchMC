@@ -15,11 +15,10 @@ export async function initDiscordRPC(){
         await switchDiscordRPCState(DiscordRPCState.InLauncher)
     })
 
-    await client.login({clientId})
+    client.login({clientId}).catch((err) => err)
 }
 
 export async function switchDiscordRPCState(newState: DiscordRPCState){
-    
     switch(newState){
         case DiscordRPCState.InLauncher:
             await client.setActivity({

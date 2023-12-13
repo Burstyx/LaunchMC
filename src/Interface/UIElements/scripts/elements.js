@@ -1,3 +1,4 @@
+/*
 exports.registerCheckbox = (checkbox) => {
     checkbox.addEventListener("click", (e) => {
         checkbox.toggleAttribute("checked")
@@ -27,3 +28,4 @@ const allSelectorsGr = document.querySelectorAll("selectorgroup")
 allSelectorsGr.forEach((gr) => {
     this.registerSelectorGroup(gr)
 })
+*/

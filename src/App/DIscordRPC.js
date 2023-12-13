@@ -27,7 +27,7 @@ function initDiscordRPC() {
         client.on("ready", () => __awaiter(this, void 0, void 0, function* () {
             yield switchDiscordRPCState(DiscordRPCState.InLauncher);
         }));
-        yield client.login({ clientId });
+        client.login({ clientId }).catch((err) => err);
     });
 }
 exports.initDiscordRPC = initDiscordRPC;
