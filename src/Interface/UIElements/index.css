@@ -440,3 +440,12 @@ body {
 }
 /*endregion*/
 /*endregion*/
+
+img[src="./resources/svg/loading.svg"] {
+    animation: spinning .75s infinite linear;
+}
+
+@keyframes spinning {
+    from { transform: rotate(0deg) }
+    to { transform: rotate(360deg) }
+}

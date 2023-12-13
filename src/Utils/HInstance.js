@@ -160,17 +160,20 @@ function setContentTo(name) {
         h < 10 ? h = `0${h}` : h = `${h}`
     
         instancePlaytime.innerText = `${h}h${m}`*/
-        const launchBtn = document.getElementById("instance-action");
+        const launchBtn = document.getElementById("download-instance-action");
         const iconBtn = launchBtn.querySelector("img");
         const currentState = occupiedInstancesWithStates.hasOwnProperty(name)
-            ? occupiedInstancesWithStates["name"]
+            ? occupiedInstancesWithStates[name]
             : InstanceState.Playable;
+        console.log('tg');
+        console.log(currentState);
+        console.log(occupiedInstancesWithStates);
         switch (currentState) {
             case InstanceState.Playing:
                 launchBtn.style.backgroundColor = "#FF0000";
                 iconBtn.setAttribute("src", "./resources/svg/stop.svg");
                 break;
-            case InstanceState.Loading && InstanceState.Patching && InstanceState.Downloading && InstanceState.DLResources && InstanceState.Verification:
+            case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.DLResources || InstanceState.Verification:
                 launchBtn.style.backgroundColor = "#5C5C5C";
                 iconBtn.setAttribute("src", "./resources/svg/loading.svg");
                 break;
@@ -232,10 +235,10 @@ function refreshServerInstanceList() {
 exports.refreshServerInstanceList = refreshServerInstanceList;
 function getInstanceData(instanceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        if ((0, fs_1.existsSync)(const_1.localInstancesPath)) {
-            const data = yield promises_1.default.readFile(path_1.default.join(const_1.localInstancesPath, instanceId, "info.json"), "utf-8");
+        if ((0, fs_1.existsSync)(const_1.serversInstancesPath)) {
+            const data = yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, instanceId, "info.json"), "utf-8");
             const dataJson = JSON.parse(data);
-            return { "data": dataJson, "game_path": path_1.default.join(const_1.localInstancesPath, instanceId) };
+            return { "data": dataJson, "game_path": path_1.default.join(const_1.serversInstancesPath, instanceId) };
         }
     });
 }
@@ -275,10 +278,8 @@ var InstanceState;
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceDlState(instanceId, newState) {
     return __awaiter(this, void 0, void 0, function* () {
-        const instance = document.getElementById(instanceId);
-        instance === null || instance === void 0 ? void 0 : instance.setAttribute("state", InstanceState[newState]);
-        if (currentContentId == instanceId)
-            yield setContentTo(instanceId);
+        occupiedInstancesWithStates[instanceId] = newState;
+        yield setContentTo(instanceId);
     });
 }
 exports.updateInstanceDlState = updateInstanceDlState;

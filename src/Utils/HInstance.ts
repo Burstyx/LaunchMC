@@ -181,19 +181,23 @@ export async function setContentTo(name: string) { // TODO: Cleaning
 
     instancePlaytime.innerText = `${h}h${m}`*/
 
-    const launchBtn = document.getElementById("instance-action")!
+    const launchBtn = document.getElementById("download-instance-action")!
     const iconBtn = launchBtn.querySelector("img")!
 
     const currentState = occupiedInstancesWithStates.hasOwnProperty(name)
-        ? occupiedInstancesWithStates["name"]
+        ? occupiedInstancesWithStates[name]
         : InstanceState.Playable
+
+    console.log('tg')
+    console.log(currentState)
+    console.log(occupiedInstancesWithStates)
 
     switch (currentState) {
         case InstanceState.Playing:
             launchBtn.style.backgroundColor = "#FF0000"
             iconBtn.setAttribute("src", "./resources/svg/stop.svg")
             break;
-        case InstanceState.Loading && InstanceState.Patching && InstanceState.Downloading && InstanceState.DLResources && InstanceState.Verification:
+        case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.DLResources || InstanceState.Verification:
             launchBtn.style.backgroundColor = "#5C5C5C"
             iconBtn.setAttribute("src", "./resources/svg/loading.svg")
             break;
@@ -256,11 +260,11 @@ export async function refreshServerInstanceList() {
 }
 
 export async function getInstanceData(instanceId: string){
-    if(existsSync(localInstancesPath)){
-        const data = await fs.readFile(path.join(localInstancesPath, instanceId, "info.json"), "utf-8")
+    if(existsSync(serversInstancesPath)){
+        const data = await fs.readFile(path.join(serversInstancesPath, instanceId, "info.json"), "utf-8")
         const dataJson = JSON.parse(data)
 
-        return {"data": dataJson, "game_path": path.join(localInstancesPath, instanceId)}
+        return {"data": dataJson, "game_path": path.join(serversInstancesPath, instanceId)}
     }
 }
 
@@ -306,12 +310,9 @@ export enum InstanceState {
 }
 
 export async function updateInstanceDlState(instanceId: string, newState: InstanceState) {
-    const instance = document.getElementById(instanceId)
-    
-    instance?.setAttribute("state", InstanceState[newState])
+    occupiedInstancesWithStates[instanceId] = newState
 
-    if(currentContentId == instanceId)
-        await setContentTo(instanceId)
+    await setContentTo(instanceId)
 }
 
 export async function convertProfileToInstance(metadata: any, instanceData: any) {
