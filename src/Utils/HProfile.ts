@@ -1,5 +1,4 @@
-import {getInstanceDataOf, getMetadataOf, listProfiles} from "./HGitHub";
-import {convertProfileToInstance} from "./HInstance";
+import {getInstanceDataOf, getMetadataOf, listProfiles} from "./HRemoteProfiles";
 
 export async function generateProfileBtn() {
     const profiles: any = await listProfiles()
@@ -21,7 +20,7 @@ export async function generateProfileBtn() {
             console.log(metadata)
             console.log(instanceData)
 
-            await convertProfileToInstance(metadata, instanceData)
+            //await convertProfileToInstance(metadata, instanceData)
         })
 
         profileList!.appendChild(profileElement)

@@ -44,15 +44,15 @@ function listProfiles() {
     });
 }
 exports.listProfiles = listProfiles;
-function getMetadataOf(data) {
+function getMetadataOf(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield (yield fetch(data["metadataUrl"])).json();
+        return yield (yield fetch((yield listProfiles())[name]["metadataUrl"])).json();
     });
 }
 exports.getMetadataOf = getMetadataOf;
-function getInstanceDataOf(data) {
+function getInstanceDataOf(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield (yield fetch(data["instanceUrl"])).json();
+        return yield (yield fetch((yield listProfiles())[name]["instanceUrl"])).json();
     });
 }
 exports.getInstanceDataOf = getInstanceDataOf;

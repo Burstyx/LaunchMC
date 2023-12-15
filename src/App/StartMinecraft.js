@@ -19,7 +19,6 @@ const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
-const HInstance_1 = require("../Utils/HInstance");
 const DIscordRPC_1 = require("./DIscordRPC");
 const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
@@ -29,7 +28,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
     return __awaiter(this, void 0, void 0, function* () {
         // Get Minecraft version manifest
         const mcData = yield (0, HManifests_1.minecraftManifestForVersion)(version);
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
+        //await updateInstanceDlState(instanceId, InstanceState.Loading)
         // Get Forge version manifest
         const isForgeVersion = forgeOpt != undefined;
         console.log(isForgeVersion);
@@ -186,7 +185,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
         console.log(fullMcArgs.join(" "));
         const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs, { cwd: path_1.default.join(const_1.instancesPath, instanceId) });
         console.log(proc.spawnargs);
-        yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playing);
+        //await updateInstanceDlState(instanceId, InstanceState.Playing)
         yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InGame);
         mcProcs[instanceId] = proc;
         proc.stdout.on("data", (data) => {
@@ -210,7 +209,7 @@ function startMinecraft(version, instanceId, opt, forgeOpt) {
                 default:
                     break;
             }
-            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            //await updateInstanceDlState(instanceId, InstanceState.Playable)
             yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InLauncher);
             delete mcProcs[instanceId];
         }));

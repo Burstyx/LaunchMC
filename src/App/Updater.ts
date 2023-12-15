@@ -1,4 +1,4 @@
-import {getLatestRelease} from "../Utils/HGitHub";
+import {getLatestRelease} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
 import {app} from "@electron/remote";
 import path from "path";

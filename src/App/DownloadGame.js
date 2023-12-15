@@ -21,7 +21,6 @@ const const_1 = require("../Utils/const");
 const path_1 = __importDefault(require("path"));
 const promises_1 = __importDefault(require("fs/promises"));
 const os_1 = __importDefault(require("os"));
-const HInstance_1 = require("../Utils/HInstance");
 const child_process_1 = __importDefault(require("child_process"));
 const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
@@ -30,8 +29,8 @@ function downloadMinecraft(version, instanceId) {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
             // Préparation
             console.log("[INFO] Preparing to the download");
-            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Loading);
-            (0, HInstance_1.updateInstanceDlProgress)(instanceId, 0);
+            /*await updateInstanceDlState(instanceId, InstanceState.Loading)
+            updateInstanceDlProgress(instanceId, 0)*/
             // Variables de tracking du dl
             let numberOfLibrariesToDownload = 0;
             let numberOfLibrariesDownloaded = 0;
@@ -66,13 +65,13 @@ function downloadMinecraft(version, instanceId) {
             const librariesSize = minecraftLibraryTotalSize(versionDataManifest);
             totalSizeToDl = clientSize + assetsSize + librariesSize;
             // Téléchargement du client
-            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Downloading);
+            //await updateInstanceDlState(instanceId, InstanceState.Downloading)
             console.log("[INFO] Téléchargement du client");
             //await makeDir(minecraftVersionPath)
             yield (0, HDownload_1.downloadAsync)(versionDataManifest.downloads.client.url, path_1.default.join(const_1.minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
                 console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
                 currentDownloadedSize += byteSent;
-                (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
+                //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
             });
             // Téléchargement des librairies
             console.log("[INFO] Téléchargement des librairies");
@@ -82,7 +81,7 @@ function downloadMinecraft(version, instanceId) {
                 numberOfLibrariesDownloaded++;
                 console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
                 currentDownloadedSize += fetchedByte;
-                (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
+                //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
             }
             // Téléchargement des assets
             console.log("[INFO] Téléchargement des assets");
@@ -97,11 +96,11 @@ function downloadMinecraft(version, instanceId) {
                 //await makeDir(dirPath)
                 yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.objectPath, subhash, hash), (progress, byteSend) => {
                     currentDownloadedSize += byteSend;
-                    (0, HInstance_1.updateInstanceDlProgress)(instanceId, (currentDownloadedSize * 100) / totalSizeToDl);
+                    //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
                 });
                 numberOfAssetsDownloaded++;
             }
-            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            //await updateInstanceDlState(instanceId, InstanceState.Playable)
             resolve();
         }));
     });
@@ -110,8 +109,8 @@ exports.downloadMinecraft = downloadMinecraft;
 function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            //await updateInstanceDlState(instanceId, InstanceState.Patching)
             var _a, _b, _c, _d;
-            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Patching);
             // Download java if it doesn't exist
             const java17Path = yield downloadAndGetJavaVersion(JavaVersions.JDK17);
             // Download forge installer, work only for all versions after 1.5.2
@@ -239,7 +238,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                     }
                 }
             }
-            yield (0, HInstance_1.updateInstanceDlState)(instanceId, HInstance_1.InstanceState.Playable);
+            //await updateInstanceDlState(instanceId, InstanceState.Playable)
             resolve();
         }));
     });

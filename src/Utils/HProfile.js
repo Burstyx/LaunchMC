@@ -10,11 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateProfileBtn = void 0;
-const HGitHub_1 = require("./HGitHub");
-const HInstance_1 = require("./HInstance");
+const HRemoteProfiles_1 = require("./HRemoteProfiles");
 function generateProfileBtn() {
     return __awaiter(this, void 0, void 0, function* () {
-        const profiles = yield (0, HGitHub_1.listProfiles)();
+        const profiles = yield (0, HRemoteProfiles_1.listProfiles)();
         const profileList = document.getElementById("profile-list");
         profileList.innerHTML = "";
         for (const name in profiles) {
@@ -24,11 +23,11 @@ function generateProfileBtn() {
             profileElement.style.height = "100px";
             profileElement.innerText = name;
             profileElement.addEventListener("click", (e) => __awaiter(this, void 0, void 0, function* () {
-                const metadata = yield (0, HGitHub_1.getMetadataOf)(profiles[name]);
-                const instanceData = yield (0, HGitHub_1.getInstanceDataOf)(profiles[name]);
+                const metadata = yield (0, HRemoteProfiles_1.getMetadataOf)(profiles[name]);
+                const instanceData = yield (0, HRemoteProfiles_1.getInstanceDataOf)(profiles[name]);
                 console.log(metadata);
                 console.log(instanceData);
-                yield (0, HInstance_1.convertProfileToInstance)(metadata, instanceData);
+                //await convertProfileToInstance(metadata, instanceData)
             }));
             profileList.appendChild(profileElement);
         }

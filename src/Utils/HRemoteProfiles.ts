@@ -30,10 +30,10 @@ export async function listProfiles() {
     })
 }
 
-export async function getMetadataOf(data: any): Promise<any> {
-    return await (await fetch(data["metadataUrl"])).json();
+export async function getMetadataOf(name: string): Promise<any> {
+    return await (await fetch((await listProfiles())[name]["metadataUrl"])).json();
 }
 
-export async function getInstanceDataOf(data: any): Promise<any> {
-    return await (await fetch(data["instanceUrl"])).json();
+export async function getInstanceDataOf(name: string): Promise<any> {
+    return await (await fetch((await listProfiles())[name]["instanceUrl"])).json();
 }

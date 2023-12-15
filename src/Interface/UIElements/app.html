@@ -26,12 +26,9 @@
 
             </div>
 
-            <div class="elements-group" id="gr-library" style="display: none">
+            <div class="elements-group" id="gr-library">
                 <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
                 <div id="instances">
-                    <div class="instance" id="instance_id-01" style="object-fit: cover"><p>My cool survival game</p></div>
-                    <div class="instance" id="instance_id-02" style="object-fit: cover"><p>My cool survival game</p></div>
-                    <div class="instance" id="instance_id-03" style="object-fit: cover"><p>My cool survival game</p></div>
                 </div>
                 <div class="popup instance-info-popup" popup-id="instance-info" style="display: none">
                     <div>
@@ -49,7 +46,7 @@
                 </div>
             </div>
 
-            <div class="elements-group" id="gr-servers">
+            <div class="elements-group" id="gr-servers" style="display: none">
                 <p>Jouer</p>
                 <div id="own-servers">
                     <p>Vous n'avez aucun serveur d'installé</p>
@@ -57,15 +54,12 @@
 
                 <p>Rejoindre</p>
                 <div id="avail-servers">
-                    <div class="loading"></div>
-                    <div class="instance" id="server_instance_id-orion2054"><p>Orion2054 | WIP</p></div>
-                    <div class="instance" id="server_instance_id-hypixel"><p>Hypixel</p></div>
                 </div>
 
                 <div class="popup instance-info-popup" popup-id="download-instance-info" style="display: none">
                     <div>
                         <div class="instance-thumbnail" id="dl-page-thumbnail">
-                            <img src="./resources/images/mc.png" class="server-brand-logo" id="dl-page-server-brand-logo">
+                            <img src="./resources/images/mc.png" class="dl-page-brand-logo" id="dl-page-server-brand-logo">
                             <div class="button green instance-action" id="download-instance-action"><img src="./resources/svg/download.svg" width="45%"></div>
                         </div>
                         <div class="instance-details">
@@ -82,7 +76,7 @@
                             <div class="button green instance-action" id="server-instance-action"><img src="./resources/svg/play.svg" width="45%"></div>
                         </div>
                         <div class="instance-details">
-                            <div class="widget"><p>Forge 1.12.2</p></div>
+                            <div class="widget" id="server-version"><p>Forge 1.12.2</p></div>
                             <div class="widget"><p>Console</p></div>
                             <div class="widget"><p>Paramètres</p></div>
                         </div>

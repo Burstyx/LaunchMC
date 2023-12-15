@@ -1,8 +1,8 @@
-const {listProfiles} = require("../../../Utils/HGitHub");
+const {listProfiles} = require("../../../Utils/HRemoteProfiles");
 const {refreshServerInstanceList, updateInstanceDlState, InstanceState, updateDlServerInstanceState} = require("../../../Utils/HInstance");
 const convertProfileToInstance = require("../../../Utils/HInstance").convertProfileToInstance;
-const getInstanceDataOf = require("../../../Utils/HGitHub").getInstanceDataOf;
-const getMetadataOf = require("../../../Utils/HGitHub").getMetadataOf;
+const getInstanceDataOf = require("../../../Utils/HRemoteProfiles").getInstanceDataOf;
+const getMetadataOf = require("../../../Utils/HRemoteProfiles").getMetadataOf;
 const getCurrentServerInstanceId = require("../../../App/ServerInstances").getCurrentServerInstanceId;
 
 const serverInstanceAction = document.getElementById("download-instance-action")

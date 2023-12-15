@@ -22,13 +22,11 @@ var DiscordRPCState;
 let client;
 const clientId = "1116091725061046353";
 function initDiscordRPC() {
-    return __awaiter(this, void 0, void 0, function* () {
-        client = new discord_rpc_1.default.Client({ transport: "ipc" });
-        client.on("ready", () => __awaiter(this, void 0, void 0, function* () {
-            yield switchDiscordRPCState(DiscordRPCState.InLauncher);
-        }));
-        client.login({ clientId }).catch((err) => err);
-    });
+    client = new discord_rpc_1.default.Client({ transport: "ipc" });
+    client.on("ready", () => __awaiter(this, void 0, void 0, function* () {
+        yield switchDiscordRPCState(DiscordRPCState.InLauncher);
+    }));
+    client.login({ clientId }).catch((err) => err);
 }
 exports.initDiscordRPC = initDiscordRPC;
 function switchDiscordRPCState(newState) {

@@ -4,7 +4,6 @@ import path from "path"
 import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, javaPath, java17Version, java17Name } from "../Utils/const"
 import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList, parseRule } from "./DownloadGame"
 import { mavenToArray } from "../Utils/HFileManagement"
-import { InstanceState, updateInstanceDlState } from "../Utils/HInstance"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
 import { getForgeVersionIfExist } from "../Utils/HForge"
 import { removeDuplicates, replaceAll } from "../Utils/Utils"
@@ -32,7 +31,7 @@ let mcProcs: any = {}
 export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt, forgeOpt?: ForgeArgsOpt) { // TODO: Get game libraries
     // Get Minecraft version manifest
     const mcData = await minecraftManifestForVersion(version)
-    await updateInstanceDlState(instanceId, InstanceState.Loading)
+    //await updateInstanceDlState(instanceId, InstanceState.Loading)
 
     
     // Get Forge version manifest
@@ -233,7 +232,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
     
     console.log(proc.spawnargs);
     
-    await updateInstanceDlState(instanceId, InstanceState.Playing)
+    //await updateInstanceDlState(instanceId, InstanceState.Playing)
     await switchDiscordRPCState(DiscordRPCState.InGame)
 
     mcProcs[instanceId] = proc
@@ -263,7 +262,7 @@ export async function startMinecraft(version: string, instanceId: string, opt: M
                 break;
         }
 
-        await updateInstanceDlState(instanceId, InstanceState.Playable)
+        //await updateInstanceDlState(instanceId, InstanceState.Playable)
         await switchDiscordRPCState(DiscordRPCState.InLauncher)
 
         delete mcProcs[instanceId]

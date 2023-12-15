@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateCli = exports.checkForUpdate = void 0;
-const HGitHub_1 = require("../Utils/HGitHub");
+const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HDownload_1 = require("../Utils/HDownload");
 const remote_1 = require("@electron/remote");
 const path_1 = __importDefault(require("path"));
@@ -23,7 +23,7 @@ const window = require("../Interface/UIElements/scripts/window.js");
 let githubReleaseData = null;
 function checkForUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
-        githubReleaseData = yield (0, HGitHub_1.getLatestRelease)();
+        githubReleaseData = yield (0, HRemoteProfiles_1.getLatestRelease)();
         const currentVersion = require("../../package.json").version;
         const latestVersion = githubReleaseData["tag_name"];
         if (currentVersion !== latestVersion) {

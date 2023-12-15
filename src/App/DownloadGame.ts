@@ -26,7 +26,6 @@ import {
 import path from "path"
 import fs from "fs/promises"
 import os from "os"
-import { InstanceState, updateInstanceDlProgress, updateInstanceDlState } from "../Utils/HInstance"
 import cp from "child_process"
 import { startMinecraft } from "./StartMinecraft"
 import { getActiveAccount } from "../Utils/HMicrosoft"
@@ -38,8 +37,8 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         // Préparation
         console.log("[INFO] Preparing to the download");
 
-        await updateInstanceDlState(instanceId, InstanceState.Loading)
-        updateInstanceDlProgress(instanceId, 0)
+        /*await updateInstanceDlState(instanceId, InstanceState.Loading)
+        updateInstanceDlProgress(instanceId, 0)*/
 
         // Variables de tracking du dl
         let numberOfLibrariesToDownload = 0
@@ -89,7 +88,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         totalSizeToDl = clientSize + assetsSize + librariesSize
 
         // Téléchargement du client
-        await updateInstanceDlState(instanceId, InstanceState.Downloading)
+        //await updateInstanceDlState(instanceId, InstanceState.Downloading)
         console.log("[INFO] Téléchargement du client");
 
         //await makeDir(minecraftVersionPath)
@@ -99,7 +98,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
 
             currentDownloadedSize += byteSent
 
-            updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
+            //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
         })
 
         // Téléchargement des librairies
@@ -113,7 +112,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
             console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
             currentDownloadedSize += fetchedByte
 
-            updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
+            //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
         }
 
         // Téléchargement des assets
@@ -136,13 +135,13 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
             await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(objectPath, subhash, hash), (progress, byteSend) => {
                 currentDownloadedSize += byteSend
 
-                updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
+                //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
             })
 
             numberOfAssetsDownloaded++
         }
 
-        await updateInstanceDlState(instanceId, InstanceState.Playable)
+        //await updateInstanceDlState(instanceId, InstanceState.Playable)
 
         resolve()
     })
@@ -150,7 +149,7 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
 
 export async function patchInstanceWithForge(instanceId: string, mcVersion: string, forgeId: string) {
     return new Promise<void>(async (resolve) => {
-        await updateInstanceDlState(instanceId, InstanceState.Patching)
+        //await updateInstanceDlState(instanceId, InstanceState.Patching)
 
         // Download java if it doesn't exist
         const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
@@ -319,7 +318,7 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
             }
         }
 
-        await updateInstanceDlState(instanceId, InstanceState.Playable)
+        //await updateInstanceDlState(instanceId, InstanceState.Playable)
 
         resolve()
     })

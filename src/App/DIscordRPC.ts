@@ -8,7 +8,7 @@ export enum DiscordRPCState{
 let client: RPC.Client
 const clientId = "1116091725061046353"
 
-export async function initDiscordRPC(){
+export function initDiscordRPC(){
     client = new RPC.Client({transport: "ipc"})
 
     client.on("ready", async () => {
