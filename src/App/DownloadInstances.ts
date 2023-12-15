@@ -1,12 +1,7 @@
 import {replaceAll} from "../Utils/Utils";
-import {getInstanceData} from "./LocalInstances";
 import {getInstanceDataOf, getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
-import fs from "fs/promises";
-import {serversInstancesPath} from "../Utils/const";
-import {existsSync} from "fs";
-import path from "path";
 import {addInstanceElement} from "../Utils/HInstance";
-import {generateInstanceBtn, ServerInstanceOpts} from "../Utils/HInstance";
+const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 let instancesStates : any = {};
 
@@ -23,11 +18,12 @@ export async function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
         const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.ToDownload
 
+        const dlInfoData = (await listProfiles())[name]
         const instanceData = await getInstanceDataOf(name)
         const metadata = await getMetadataOf(name)
 
-        const serverBrandLogo = document.getElementById("dl-page-brand-logo")!
-        serverBrandLogo.setAttribute("src", `${replaceAll(instanceData["cover_path"], '\\', '/')}`)
+        const serverBrandLogo = document.getElementById("dl-page-server-brand-logo")!
+        serverBrandLogo.setAttribute("src", `${replaceAll(dlInfoData["coverUrl"], '\\', '/')}`)
 
         // Set version
         const widgetVersion = document.getElementById("dl-page-version")
@@ -56,7 +52,7 @@ export async function setContentTo(name: string) { // TODO: Cleaning
         }
 
         const contentBackground = document.getElementById("dl-page-thumbnail")!
-        contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
+        contentBackground.style.backgroundImage = `url('${replaceAll(dlInfoData["thumbnailUrl"], '\\', '/')}')`
 
         resolve()
     })
@@ -75,7 +71,11 @@ export async function refreshInstanceList() {
 
             for(const instance in profiles){
                 console.log(instance)
-                await addInstanceElement({name: profiles[instance]["name"], thumbnailPath: profiles[instance]["thumbnailPath"], coverPath: profiles[instance]["coverUrl"], version: profiles[instance]["thumbnailPath"]}, instancesDiv)
+                const element = await addInstanceElement({name: profiles[instance]["name"], thumbnailPath: profiles[instance]["thumbnailPath"], coverPath: profiles[instance]["coverUrl"], version: profiles[instance]["thumbnailPath"]}, instancesDiv)
+                element.addEventListener("click", () => {
+                    setContentTo(profiles[instance]["name"])
+                    openPopup("download-instance-info")
+                })
             }
 
             resolve()

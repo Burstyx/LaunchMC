@@ -13,6 +13,7 @@ exports.updateInstanceDlState = exports.refreshInstanceList = exports.setContent
 const Utils_1 = require("../Utils/Utils");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HInstance_1 = require("../Utils/HInstance");
+const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 let instancesStates = {};
 var InstanceState;
 (function (InstanceState) {
@@ -27,10 +28,11 @@ function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.ToDownload;
+            const dlInfoData = (yield (0, HRemoteProfiles_1.listProfiles)())[name];
             const instanceData = yield (0, HRemoteProfiles_1.getInstanceDataOf)(name);
             const metadata = yield (0, HRemoteProfiles_1.getMetadataOf)(name);
-            const serverBrandLogo = document.getElementById("dl-page-brand-logo");
-            serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(instanceData["cover_path"], '\\', '/')}`);
+            const serverBrandLogo = document.getElementById("dl-page-server-brand-logo");
+            serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(dlInfoData["coverUrl"], '\\', '/')}`);
             // Set version
             const widgetVersion = document.getElementById("dl-page-version");
             if (widgetVersion) {
@@ -55,7 +57,7 @@ function setContentTo(name) {
                     break;
             }
             const contentBackground = document.getElementById("dl-page-thumbnail");
-            contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
+            contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(dlInfoData["thumbnailUrl"], '\\', '/')}')`;
             resolve();
         }));
     });
@@ -71,7 +73,11 @@ function refreshInstanceList() {
                 console.log(profiles);
                 for (const instance in profiles) {
                     console.log(instance);
-                    yield (0, HInstance_1.addInstanceElement)({ name: profiles[instance]["name"], thumbnailPath: profiles[instance]["thumbnailPath"], coverPath: profiles[instance]["coverUrl"], version: profiles[instance]["thumbnailPath"] }, instancesDiv);
+                    const element = yield (0, HInstance_1.addInstanceElement)({ name: profiles[instance]["name"], thumbnailPath: profiles[instance]["thumbnailPath"], coverPath: profiles[instance]["coverUrl"], version: profiles[instance]["thumbnailPath"] }, instancesDiv);
+                    element.addEventListener("click", () => {
+                        setContentTo(profiles[instance]["name"]);
+                        openPopup("download-instance-info");
+                    });
                 }
                 resolve();
             }
