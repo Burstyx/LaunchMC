@@ -60,8 +60,6 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
                 }
             })
         }).catch((err) => reject(err))
-
-        reject(Error(`${filePath} don't exist in ${compressedDirPath}`))
     })
 }
 

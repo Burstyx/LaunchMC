@@ -21,7 +21,7 @@ export async function minecraftManifest() {
 
 // Download manifest for a specific Minecraft versions
 export async function minecraftManifestForVersion(version: string) {
-    // Create directory if doesn't exist
+    // Create directory if it doesn't exist
     //const versionPath = await makeDir(path.join(minecraftVersionPath, version))
 
     if(!existsSync(path.join("versionPath", `${version}.json`))){

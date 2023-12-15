@@ -9,52 +9,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceDlState = exports.refreshInstanceList = exports.setContentTo = exports.InstanceState = void 0;
+exports.updateInstanceState = exports.refreshInstanceList = exports.setContentTo = exports.InstanceState = exports.currentInstanceOpened = exports.instancesStates = void 0;
 const Utils_1 = require("../Utils/Utils");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HInstance_1 = require("../Utils/HInstance");
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
-let instancesStates = {};
+exports.instancesStates = {};
+exports.currentInstanceOpened = null;
 var InstanceState;
 (function (InstanceState) {
     InstanceState[InstanceState["ToDownload"] = 0] = "ToDownload";
     InstanceState[InstanceState["Owned"] = 1] = "Owned";
     InstanceState[InstanceState["Loading"] = 2] = "Loading";
-    InstanceState[InstanceState["Downloading"] = 3] = "Downloading";
-    InstanceState[InstanceState["Verification"] = 4] = "Verification";
-    InstanceState[InstanceState["Patching"] = 5] = "Patching";
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.ToDownload;
+            const currentState = exports.instancesStates.hasOwnProperty(name) ? exports.instancesStates[name] : InstanceState.ToDownload;
+            updateInstanceState(name, currentState);
             const dlInfoData = (yield (0, HRemoteProfiles_1.listProfiles)())[name];
-            const instanceData = yield (0, HRemoteProfiles_1.getInstanceDataOf)(name);
             const metadata = yield (0, HRemoteProfiles_1.getMetadataOf)(name);
             const serverBrandLogo = document.getElementById("dl-page-server-brand-logo");
-            serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(dlInfoData["coverUrl"], '\\', '/')}`);
+            serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(dlInfoData["brandLogoUrl"], '\\', '/')}`);
             // Set version
             const widgetVersion = document.getElementById("dl-page-version");
             if (widgetVersion) {
+                widgetVersion.innerHTML = "";
                 const widgetText = document.createElement("p");
                 widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`;
                 widgetVersion.append(widgetText);
-            }
-            const dlBtn = document.getElementById("download-instance-action");
-            const iconBtn = dlBtn.querySelector("img");
-            switch (currentState) {
-                case InstanceState.ToDownload:
-                    dlBtn.style.backgroundColor = "#FF0000";
-                    iconBtn.setAttribute("src", "./resources/svg/download.svg");
-                    break;
-                case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
-                    dlBtn.style.backgroundColor = "#5C5C5C";
-                    iconBtn.setAttribute("src", "./resources/svg/loading.svg");
-                    break;
-                case InstanceState.Owned:
-                    dlBtn.style.backgroundColor = "#05E400";
-                    iconBtn.setAttribute("src", "./resources/svg/play.svg");
-                    break;
             }
             const contentBackground = document.getElementById("dl-page-thumbnail");
             contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(dlInfoData["thumbnailUrl"], '\\', '/')}')`;
@@ -71,11 +54,17 @@ function refreshInstanceList() {
                 instancesDiv.innerHTML = "";
                 const profiles = yield (0, HRemoteProfiles_1.listProfiles)();
                 console.log(profiles);
-                for (const instance in profiles) {
-                    console.log(instance);
-                    const element = yield (0, HInstance_1.addInstanceElement)({ name: profiles[instance]["name"], thumbnailPath: profiles[instance]["thumbnailPath"], coverPath: profiles[instance]["coverUrl"], version: profiles[instance]["thumbnailPath"] }, instancesDiv);
+                for (const instanceName in profiles) {
+                    const element = yield (0, HInstance_1.addInstanceElement)({
+                        name: instanceName,
+                        thumbnailPath: profiles[instanceName]["thumbnailPath"],
+                        coverPath: profiles[instanceName]["coverUrl"],
+                        version: profiles[instanceName]["thumbnailPath"]
+                    }, instancesDiv);
                     element.addEventListener("click", () => {
-                        setContentTo(profiles[instance]["name"]);
+                        exports.currentInstanceOpened = instanceName;
+                        console.log(exports.currentInstanceOpened);
+                        setContentTo(instanceName);
                         openPopup("download-instance-info");
                     });
                 }
@@ -87,11 +76,24 @@ function refreshInstanceList() {
     });
 }
 exports.refreshInstanceList = refreshInstanceList;
-function updateInstanceDlState(name, newState) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const instance = document.getElementById(name);
-        instancesStates[name] = newState;
-        yield setContentTo(name);
-    });
+function updateInstanceState(name, newState) {
+    const instance = document.getElementById(name);
+    exports.instancesStates[name] = newState;
+    const dlBtn = document.getElementById("download-instance-action");
+    const iconBtn = dlBtn.querySelector("img");
+    switch (newState) {
+        case InstanceState.ToDownload:
+            dlBtn.style.backgroundColor = "#05E400";
+            iconBtn.setAttribute("src", "./resources/svg/download.svg");
+            break;
+        case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
+            dlBtn.style.backgroundColor = "#5C5C5C";
+            iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+            break;
+        case InstanceState.Owned:
+            dlBtn.style.backgroundColor = "#05E400";
+            iconBtn.setAttribute("src", "./resources/svg/play.svg");
+            break;
+    }
 }
-exports.updateInstanceDlState = updateInstanceDlState;
+exports.updateInstanceState = updateInstanceState;

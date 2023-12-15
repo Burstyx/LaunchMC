@@ -24,7 +24,7 @@ export interface ServerInstanceOpts{
     version: string,
 }
 
-export interface LoaderInfo {
+export interface LoaderOpts {
     name: string,
     id: string
 }
@@ -69,36 +69,6 @@ export async function addInstanceElement(instanceOpts: InstanceOpts | ServerInst
     //@ts-ignore
     dlTracker.style.width = 100 - Number(dlTracker.style.left.substring(0, dlTracker.style.left.length - 1)) + '%';
 
-}*/
-
-/*export async function convertProfileToInstance(metadata: any, instanceData: any) {
-    const isVanilla = metadata["loader"] == null;
-
-    await createInstance(metadata["mcVersion"], {
-        name: instanceData["name"],
-        thumbnailPath: await downloadAsync(instanceData["thumbnailPath"], path.join(instancesPath, instanceData["name"], "thumbnail" + path.extname(instanceData["thumbnailPath"]))),
-        type: "instance"
-    },
-        !isVanilla ? {
-        name: metadata["loader"]["name"],
-        id: metadata["loader"]["id"]
-    } : undefined)
-
-    await downloadMinecraft(metadata["mcVersion"], instanceData["name"])
-    if(!isVanilla) {
-        await patchInstanceWithForge(instanceData["name"], metadata["mcVersion"], metadata["loader"]["id"])
-    }
-
-    await updateInstanceDlState(instanceData["name"], InstanceState.DLResources)
-
-    // Download files
-    for (const fileData of metadata["files"]) {
-        const ext = path.extname(fileData.path)
-        ext === ".zip" ? console.log("zip file detected") : null
-        await downloadAsync(fileData.url, path.join(instancesPath, instanceData["name"], fileData.path), undefined, {decompress: ext === ".zip"})
-    }
-
-    await updateInstanceDlState(instanceData["name"], InstanceState.Playable)
 }*/
 
 /*export async function checkForUpdate(instanceId: string) {

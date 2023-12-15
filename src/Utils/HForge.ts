@@ -33,7 +33,6 @@ export async function getForgeInstallProfileIfExist(forgeId: string) {
 
             resolve(data)
         }).catch((err) => reject(err))
-
     })
 }
 

@@ -51,6 +51,6 @@ servers.addEventListener("click", async () => {
 
     activeBtn = servers
 
-    await ServerInstances.refreshInstanceList()
-    await DownloadInstances.refreshInstanceList()
+    await ServerInstances.refreshInstanceList().catch((err) => console.error(err))
+    await DownloadInstances.refreshInstanceList().catch((err) => console.error(err))
 })

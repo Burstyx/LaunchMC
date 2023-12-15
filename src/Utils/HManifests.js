@@ -36,7 +36,7 @@ exports.minecraftManifest = minecraftManifest;
 // Download manifest for a specific Minecraft versions
 function minecraftManifestForVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Create directory if doesn't exist
+        // Create directory if it doesn't exist
         //const versionPath = await makeDir(path.join(minecraftVersionPath, version))
         if (!(0, fs_1.existsSync)(path_1.default.join("versionPath", `${version}.json`))) {
             // Get manifest containing all versions informations

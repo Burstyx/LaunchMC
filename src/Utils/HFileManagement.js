@@ -71,7 +71,6 @@ function extractSpecificFile(compressedDirPath, filePath, dest) {
                     }
                 }));
             }).catch((err) => reject(err));
-            reject(Error(`${filePath} don't exist in ${compressedDirPath}`));
         }));
     });
 }

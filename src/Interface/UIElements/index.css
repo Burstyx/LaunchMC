@@ -404,12 +404,11 @@ body {
 
 .instance-info-popup > div > .instance-thumbnail > .server-brand-logo {
     width: 50%;
-    margin-top: 10px;
 
     position: absolute;
-    top: 10%;
+    top: 2%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%);
 }
 
 .instance-action {

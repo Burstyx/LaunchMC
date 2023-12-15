@@ -1,20 +1,31 @@
 const {listProfiles} = require("../../../Utils/HRemoteProfiles");
-const {refreshServerInstanceList, updateInstanceDlState, InstanceState, updateDlServerInstanceState} = require("../../../Utils/HInstance");
-const convertProfileToInstance = require("../../../Utils/HInstance").convertProfileToInstance;
-const getInstanceDataOf = require("../../../Utils/HRemoteProfiles").getInstanceDataOf;
-const getMetadataOf = require("../../../Utils/HRemoteProfiles").getMetadataOf;
-const getCurrentServerInstanceId = require("../../../App/ServerInstances").getCurrentServerInstanceId;
+const {downloadServerInstance} = require("../../../App/ServerInstances");
+const {updateInstanceState, InstanceState, instancesStates} = require("../../../App/DownloadInstances");
 
 const serverInstanceAction = document.getElementById("download-instance-action")
 
-console.log(serverInstanceAction)
-console.log(serverInstanceAction.onclick)
-
 serverInstanceAction.onclick = async () => {
-    const profile = (await listProfiles())[getCurrentServerInstanceId()]
-    await updateDlServerInstanceState(profile["name"], InstanceState.Loading)
+    const currentInstanceOpened = require("../../../App/DownloadInstances").currentInstanceOpened
+    const currentState = instancesStates[currentInstanceOpened]
 
-    await convertProfileToInstance(await getMetadataOf(profile), await getInstanceDataOf(profile))
+    switch (currentState) {
+        case InstanceState.Owned:
+            return
+        case InstanceState.Loading:
+            return
+    }
+
+    console.log(currentInstanceOpened)
+    const profile = (await listProfiles())[currentInstanceOpened]
+
+    await updateInstanceState(profile["name"], InstanceState.Loading)
+
+    await downloadServerInstance({
+        name: profile["name"],
+        thumbnailPath: profile["thumbnailUrl"],
+        coverPath: profile["coverUrl"],
+        version: profile["version"]
+    })
+
+    await updateInstanceState(profile["name"], InstanceState.Owned)
 }
-
-console.log(serverInstanceAction.onclick)

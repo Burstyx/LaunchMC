@@ -24,7 +24,7 @@ function downloadAsync(url, dest, callback, opt) {
         yield promises_1.default.mkdir(destDir, { recursive: true }).catch((err) => reject(err));
         const file = (0, fs_extra_1.createWriteStream)(dest);
         const xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = () => {
+        xhr.onreadystatechange = () => __awaiter(this, void 0, void 0, function* () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200) {
                     const responseArrayBuffer = xhr.response;
@@ -38,12 +38,6 @@ function downloadAsync(url, dest, callback, opt) {
                                 yield promises_1.default.rm(dest).catch((err) => reject(err));
                             }
                             catch (err) {
-                                if (opt.retry != undefined) {
-                                    if (opt.retry > 0) {
-                                        yield promises_1.default.rm(dest);
-                                        yield downloadAsync(url, dest, callback, { retry: opt.retry - 1, hash: opt.hash, headers: opt.headers, decompress: opt.decompress });
-                                    }
-                                }
                                 reject(err);
                             }
                         }
@@ -51,26 +45,52 @@ function downloadAsync(url, dest, callback, opt) {
                     file.write(buffer);
                     file.close();
                     file.on("close", () => {
+                        // Check file hash
                         if ((opt === null || opt === void 0 ? void 0 : opt.hash) != undefined) {
                             checksum_1.default.file(dest, (err, hash) => __awaiter(this, void 0, void 0, function* () {
                                 if (hash !== opt.hash) {
+                                    console.log(`${destDir} is not valid!`);
                                     if (opt.retry != undefined) {
-                                        if (opt.retry > 0) {
+                                        if (opt.retry.count > 0) {
                                             yield promises_1.default.rm(dest).catch((err) => reject(err));
-                                            yield downloadAsync(url, dest, callback, { retry: opt.retry - 1, hash: opt.hash, headers: opt.headers, decompress: opt.decompress });
+                                            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress });
+                                            }), opt.retry.timeout);
+                                        }
+                                        else {
+                                            reject(`Can't download file from ${url}, the checksum cannot be verified: expected -> ${opt.hash} ; current -> ${hash}.`);
                                         }
                                     }
                                 }
+                                else {
+                                    console.log(`${dest} validated successfully!`);
+                                    resolve(dest);
+                                }
                             }));
                         }
-                        resolve(dest);
+                        else {
+                            resolve(dest);
+                        }
                     });
                 }
                 else {
-                    reject(Error(`${url} return code ${xhr.status}`));
+                    if ((opt === null || opt === void 0 ? void 0 : opt.retry) != undefined) {
+                        if (opt.retry.count > 0) {
+                            yield promises_1.default.rm(dest).catch((err) => reject(err));
+                            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress });
+                            }), opt.retry.timeout);
+                        }
+                        else {
+                            reject(`All attempt has be used to download file from ${url} without success. Error code: ${xhr.status}.`);
+                        }
+                    }
+                    else {
+                        reject(`Can't download file from ${url}, code: ${xhr.status}.`);
+                    }
                 }
             }
-        };
+        });
         let lastLoaded = 0;
         xhr.onprogress = (evt) => {
             const loaded = evt.loaded;

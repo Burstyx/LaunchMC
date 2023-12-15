@@ -12,13 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceDlState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.createInstance = void 0;
+exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const Utils_1 = require("../Utils/Utils");
 const fs_1 = require("fs");
 const HInstance_1 = require("../Utils/HInstance");
+const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
+const HDownload_1 = require("../Utils/HDownload");
+const DownloadGame_1 = require("./DownloadGame");
 let instancesStates = {};
 function createInstance(instanceOpts, loaderOpts) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -53,12 +56,12 @@ function createInstance(instanceOpts, loaderOpts) {
         }));
     });
 }
-exports.createInstance = createInstance;
 function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable;
             yield getInstanceData(name).then((instanceJson) => {
+                const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable;
+                updateInstanceState(name, currentState);
                 const instanceData = instanceJson["data"]["instance"];
                 const gameData = instanceJson["data"]["game"];
                 const loaderData = instanceJson["data"].hasOwnProperty("loader") ? instanceJson["data"]["loader"] : null;
@@ -79,22 +82,6 @@ function setContentTo(name) {
                 h < 10 ? h = `0${h}` : h = `${h}`
     
                 widgetPlaytime.innerText = `${h}h${m}`*/
-                const launchBtn = document.getElementById("server-instance-action");
-                const iconBtn = launchBtn.querySelector("img");
-                switch (currentState) {
-                    case InstanceState.Playing:
-                        launchBtn.style.backgroundColor = "#FF0000";
-                        iconBtn.setAttribute("src", "./resources/svg/stop.svg");
-                        break;
-                    case InstanceState.Loading || InstanceState.DlAssets || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
-                        launchBtn.style.backgroundColor = "#5C5C5C";
-                        iconBtn.setAttribute("src", "./resources/svg/loading.svg");
-                        break;
-                    case InstanceState.Playable:
-                        launchBtn.style.backgroundColor = "#05E400";
-                        iconBtn.setAttribute("src", "./resources/svg/play.svg");
-                        break;
-                }
                 const contentBackground = document.getElementById("local-instance-thumbnail");
                 contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
             }).catch((err) => reject(err));
@@ -117,7 +104,8 @@ function refreshInstanceList() {
                             element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () { return yield setContentTo(instance.name); }));
                         }
                     }
-                })).then(() => resolve()).catch((err) => reject(err));
+                    resolve();
+                })).catch((err) => reject(err));
             }
             else
                 reject(`Unexpected error when refreshing instance list.`);
@@ -142,19 +130,61 @@ function getInstanceData(name) {
 exports.getInstanceData = getInstanceData;
 var InstanceState;
 (function (InstanceState) {
-    InstanceState[InstanceState["Loading"] = 0] = "Loading";
-    InstanceState[InstanceState["Downloading"] = 1] = "Downloading";
-    InstanceState[InstanceState["Verification"] = 2] = "Verification";
-    InstanceState[InstanceState["Patching"] = 3] = "Patching";
-    InstanceState[InstanceState["DlAssets"] = 4] = "DlAssets";
-    InstanceState[InstanceState["Playable"] = 5] = "Playable";
-    InstanceState[InstanceState["Playing"] = 6] = "Playing";
+    InstanceState[InstanceState["Playable"] = 0] = "Playable";
+    InstanceState[InstanceState["Loading"] = 1] = "Loading";
+    InstanceState[InstanceState["Playing"] = 2] = "Playing";
+    InstanceState[InstanceState["NeedUpdate"] = 3] = "NeedUpdate";
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
-function updateInstanceDlState(name, newState) {
+function updateInstanceState(name, newState) {
+    const instance = document.getElementById(name);
+    instancesStates[name] = newState;
+    const launchBtn = document.getElementById("server-instance-action");
+    const iconBtn = launchBtn.querySelector("img");
+    switch (newState) {
+        case InstanceState.Playing:
+            launchBtn.style.backgroundColor = "#FF0000";
+            iconBtn.setAttribute("src", "./resources/svg/stop.svg");
+            break;
+        case InstanceState.NeedUpdate:
+            launchBtn.style.backgroundColor = "#D73600";
+            iconBtn.setAttribute("src", "./resources/svg/update.svg");
+            break;
+        case InstanceState.Loading:
+            launchBtn.style.backgroundColor = "#5C5C5C";
+            iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+            break;
+        case InstanceState.Playable:
+            launchBtn.style.backgroundColor = "#05E400";
+            iconBtn.setAttribute("src", "./resources/svg/play.svg");
+            break;
+    }
+}
+exports.updateInstanceState = updateInstanceState;
+function downloadServerInstance(instanceOpts) {
     return __awaiter(this, void 0, void 0, function* () {
-        const instance = document.getElementById(name);
-        instancesStates[name] = newState;
-        yield setContentTo(name);
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield (0, HRemoteProfiles_1.getMetadataOf)(instanceOpts.name).then((metadata) => __awaiter(this, void 0, void 0, function* () {
+                const isVanilla = !metadata.hasOwnProperty("loader");
+                yield createInstance(instanceOpts, !isVanilla ? {
+                    name: metadata["loader"]["name"],
+                    id: metadata["loader"]["id"]
+                } : undefined).catch((err) => reject(err));
+                console.log("instance created downloading mc");
+                yield (0, DownloadGame_1.downloadMinecraft)(metadata["mcVersion"], instanceOpts.name).catch((err) => reject(err));
+                if (!isVanilla) {
+                    console.log("miencraft downloaded, dl forge");
+                    yield (0, DownloadGame_1.patchInstanceWithForge)(instanceOpts.name, metadata["mcVersion"], metadata["loader"]["id"]).catch((err) => reject(err));
+                }
+                console.log("forge downloaded updating instance");
+                // Download files
+                for (const fileData of metadata["files"]) {
+                    const ext = path_1.default.extname(fileData.path);
+                    ext === ".zip" ? console.log("zip file detected") : null;
+                    yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.serversInstancesPath, instanceOpts.name, fileData.path), undefined, { decompress: ext === ".zip" }).catch((err) => reject(err));
+                }
+                resolve();
+            })).catch((err) => reject(err));
+        }));
     });
 }
-exports.updateInstanceDlState = updateInstanceDlState;
+exports.downloadServerInstance = downloadServerInstance;

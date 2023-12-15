@@ -6,14 +6,14 @@ import {
     addInstanceElement,
     generateInstanceBtn,
     InstanceOpts,
-    LoaderInfo,
+    LoaderOpts,
     ServerInstanceOpts
 } from "../Utils/HInstance";
 import {existsSync} from "fs";
 
 let instancesStates : any = {};
 
-export async function createInstance(instanceOpts: InstanceOpts, loaderOpts?: LoaderInfo){
+async function createInstance(instanceOpts: InstanceOpts, loaderOpts?: LoaderOpts){
     return new Promise<void>(async (resolve, reject)=> {
         await fs.mkdir(path.join(localInstancesPath, instanceOpts.name), {recursive: true}).catch((err) => reject(err))
 

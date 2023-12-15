@@ -1,13 +1,9 @@
 import { extractSpecificFile, mavenToArray, readJarMetaInf } from "../Utils/HFileManagement"
-
 import { existsSync } from "original-fs"
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import { downloadAsync } from "../Utils/HDownload"
 import {
-    dataPath,
-    gamePath,
     indexesPath,
-    instancesPath,
     java17Name,
     java17Url,
     java17Version,
@@ -16,7 +12,6 @@ import {
     java8Version,
     javaPath,
     librariesPath,
-    loggingConfPath,
     minecraftVersionPath,
     objectPath,
     resourcePackage,
@@ -27,18 +22,13 @@ import path from "path"
 import fs from "fs/promises"
 import os from "os"
 import cp from "child_process"
-import { startMinecraft } from "./StartMinecraft"
-import { getActiveAccount } from "../Utils/HMicrosoft"
 import { getForgeInstallProfileIfExist, getForgeInstallerForVersion, getForgeVersionIfExist } from "../Utils/HForge"
 import { osToMCFormat } from "../Utils/Utils"
 
-export async function downloadMinecraft(version: string, instanceId: string) { // TODO: Validate files
-    return new Promise<void>(async (resolve) => {
+export async function downloadMinecraft(version: string, instanceName: string) { // TODO: Validate files
+    return new Promise<void>(async (resolve, reject) => {
         // Préparation
-        console.log("[INFO] Preparing to the download");
-
-        /*await updateInstanceDlState(instanceId, InstanceState.Loading)
-        updateInstanceDlProgress(instanceId, 0)*/
+        //updateInstanceDlProgress(instanceId, 0)
 
         // Variables de tracking du dl
         let numberOfLibrariesToDownload = 0
@@ -51,276 +41,290 @@ export async function downloadMinecraft(version: string, instanceId: string) { /
         let currentDownloadedSize = 0
 
         // Téléchargement/Récupération des manifests nécessaire
-        const versionDataManifest = await minecraftManifestForVersion(version)
+        await minecraftManifestForVersion(version).then(async (versionDataManifest) => {
+            await fs.mkdir(indexesPath, {recursive: true}).catch((err) => reject(err))
 
-        console.log(versionDataManifest["assetIndex"]["url"]);
-        console.log(path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"));
+            await downloadAsync(versionDataManifest["assetIndex"]["url"], path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress: number) => {
+                console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
+            }, {
+                retry: {
+                    count: 3,
+                    timeout: 2500
+                },
+                hash: versionDataManifest["assetIndex"]["sha1"]
+            }).catch((err) => reject(err))
 
-        //await makeDir(indexesPath)
-        await downloadAsync(versionDataManifest["assetIndex"]["url"], path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress: number) => {
-            console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
-            console.log("ASSETS DOWNLOADED");
-        })
+            const indexDataManifest: any = JSON.parse((await fs.readFile(path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"))
+            if (indexDataManifest == null) return
 
-        const indexDataManifest: any = JSON.parse((await fs.readFile(path.join(indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"))
+            // Initialisation du traking du dl
+            numberOfLibrariesToDownload = versionDataManifest["libraries"].length
+            for (const e in indexDataManifest.objects) {
+                numberOfAssetsToDownload++
+            }
 
-        if (indexDataManifest == null) {
-            return
-        }
+            // Calcul taille total
 
-        // Initialisation du traking du dl
-        numberOfLibrariesToDownload = versionDataManifest.libraries.length
+            // Calcul taille client + assets + libraries
+            // client
+            const clientSize = versionDataManifest["downloads"]["client"]["size"]
+            const assetsSize = versionDataManifest["assetIndex"]["totalSize"]
+            const librariesSize = minecraftLibraryTotalSize(versionDataManifest)
 
-        for (const e in indexDataManifest.objects) {
-            numberOfAssetsToDownload++
-        }
+            totalSizeToDl = clientSize + assetsSize + librariesSize
 
-        console.log("numberOfAssetsToDownload: " + numberOfAssetsToDownload);
+            // Téléchargement du client
+            console.log("[INFO] Téléchargement du client");
 
-        // Calcul taille total
+            await fs.mkdir(minecraftVersionPath, {recursive: true}).catch((err) => reject(err))
 
-        // Calcul taille client + assets + libraries
-        // client
-        const clientSize = versionDataManifest.downloads.client.size
-        const assetsSize = versionDataManifest.assetIndex.totalSize
-        const librariesSize = minecraftLibraryTotalSize(versionDataManifest)
+            await downloadAsync(versionDataManifest["downloads"]["client"]["url"], path.join(minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
+                console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
 
-        totalSizeToDl = clientSize + assetsSize + librariesSize
-
-        // Téléchargement du client
-        //await updateInstanceDlState(instanceId, InstanceState.Downloading)
-        console.log("[INFO] Téléchargement du client");
-
-        //await makeDir(minecraftVersionPath)
-
-        await downloadAsync(versionDataManifest.downloads.client.url, path.join(minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
-            console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
-
-            currentDownloadedSize += byteSent
-
-            //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
-        })
-
-        // Téléchargement des librairies
-        console.log("[INFO] Téléchargement des librairies");
-        let librariesArg = ""
-
-        for (let i = 0; i < versionDataManifest.libraries.length; i++) {
-            const fetchedByte = await downloadMinecraftLibrary(versionDataManifest, i)
-            numberOfLibrariesDownloaded++
-
-            console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
-            currentDownloadedSize += fetchedByte
-
-            //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
-        }
-
-        // Téléchargement des assets
-        console.log("[INFO] Téléchargement des assets");
-
-        for (const e in indexDataManifest["objects"]) {
-            console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
-
-            const hash = indexDataManifest["objects"][e]["hash"]
-            const subhash = hash.substring(0, 2)
-
-            //await makeDir(path.join(objectPath, subhash))
-
-            const fullPath = path.join(serversInstancesPath, instanceId, "resources", e)
-            const fileName = fullPath.split("\\").pop()
-            const dirPath = fullPath.substring(0, fullPath.indexOf(fileName!))
-
-            //await makeDir(dirPath)
-
-            await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(objectPath, subhash, hash), (progress, byteSend) => {
-                currentDownloadedSize += byteSend
+                currentDownloadedSize += byteSent
 
                 //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
-            })
+            }, {
+                retry: {
+                    count: 3,
+                    timeout: 2500
+                },
+                hash: versionDataManifest["downloads"]["client"]["sha1"]
+            }).catch((err) => reject(err))
 
-            numberOfAssetsDownloaded++
-        }
+            // Téléchargement des librairies
+            console.log("[INFO] Téléchargement des librairies");
 
-        //await updateInstanceDlState(instanceId, InstanceState.Playable)
+            for (let i = 0; i < versionDataManifest.libraries.length; i++) {
+                await downloadMinecraftLibrary(versionDataManifest, i).then((fetchedByte) => {
+                    numberOfLibrariesDownloaded++
 
-        resolve()
+                    console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
+                    currentDownloadedSize += fetchedByte
+
+                    //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
+                }).catch((err) => reject(err))
+            }
+
+            // Téléchargement des assets
+            console.log("[INFO] Téléchargement des assets");
+
+            for (const e in indexDataManifest["objects"]) {
+                console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
+
+                const hash = indexDataManifest["objects"][e]["hash"]
+                const subhash = hash.substring(0, 2)
+
+                await fs.mkdir(path.join(objectPath, subhash), {recursive: true}).catch((err) => reject(err))
+
+                const fullPath = path.join(serversInstancesPath, instanceName, "resources", e)
+                const fileName = fullPath.split("\\").pop()
+                const dirPath = fullPath.substring(0, fullPath.indexOf(fileName!))
+
+                await fs.mkdir(dirPath, {recursive: true}).catch((err) => reject(err))
+
+                await downloadAsync(path.join(resourcePackage, subhash, hash), path.join(objectPath, subhash, hash), (progress, byteSend) => {
+                    currentDownloadedSize += byteSend
+
+                    //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
+                }, {
+                    retry: {
+                        count: 3,
+                        timeout: 2500
+                    },
+                    hash: hash
+                }).catch((err) => reject(err))
+
+                numberOfAssetsDownloaded++
+            }
+
+            resolve()
+        })
+
+
     })
 }
 
 export async function patchInstanceWithForge(instanceId: string, mcVersion: string, forgeId: string) {
-    return new Promise<void>(async (resolve) => {
+    return new Promise<void>(async (resolve, reject) => {
         //await updateInstanceDlState(instanceId, InstanceState.Patching)
 
-        // Download java if it doesn't exist
-        const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
+        await downloadAndGetJavaVersion(JavaVersions.JDK17).then(async (java17Path) => {
+            // FIXME: Download forge installer, work only for all versions after 1.5.2
+            await getForgeInstallerForVersion(forgeId).then(async (forgeInstallerPath) => {
+                await getForgeInstallProfileIfExist(forgeId).then(async (forgeInstallProfileData) => {
+                    // Get all libraries to download
+                    let libraries: any
+                    if(!forgeInstallProfileData["versionInfo"])
+                        libraries = forgeInstallProfileData["libraries"]
+                    else
+                        libraries = forgeInstallProfileData["versionInfo"]["libraries"]
 
-        // Download forge installer, work only for all versions after 1.5.2
-        const forgeInstallerPath = await getForgeInstallerForVersion(forgeId)
-        const forgeInstallProfileData = await getForgeInstallProfileIfExist(forgeId)
+                    if(forgeInstallProfileData.json) {
+                        await getForgeVersionIfExist(forgeId).then((forgeVersionData) => {
+                            libraries = libraries.concat(forgeVersionData["libraries"])
+                        }).catch((err) => reject(err))
+                    }
 
-        // Get all libraries to download
-        let libraries
-        if(!forgeInstallProfileData.versionInfo)
-            libraries = forgeInstallProfileData.libraries
-        else
-            libraries = forgeInstallProfileData.versionInfo.libraries
+                    // Skip forge extract and download it instead
+                    let skipForgeExtract = false
+                    if(!forgeInstallProfileData["path"] && !forgeInstallProfileData["install"]["filePath"]) {
+                        skipForgeExtract = true
+                    }
 
-        if(forgeInstallProfileData.json) {
-            const forgeVersionData = await getForgeVersionIfExist(forgeId)
-            libraries = libraries.concat(forgeVersionData.libraries)
-        }
+                    for(const library of libraries) {
+                        console.log("Downloading: " + library["name"]);
 
-        // Skip forge extract and download it instead
-        let skipForgeExtract = false
+                        let natives = ""
 
-        if(!forgeInstallProfileData.path && !forgeInstallProfileData.install?.filePath) {
-            skipForgeExtract = true
-        }
-
-        console.log(libraries);
-
-        for(const library of libraries) {
-            console.log("Downloading: " + library.name);
-
-            let natives = ""
-
-            if(library.rules) {
-                if(!parseRule(library.rules)) {
-                    console.log("Rule don't allow the download of this library, skipping.");
-                    continue
-                }
-            }
-
-            if(library.natives) {
-                natives = library.natives[osToMCFormat(process.platform)]
-            }
-
-            const libraryPath = (mavenToArray(library.name, natives != "" ? `-${natives}` : undefined)).join("/");
-
-            if(library.downloads?.artifact) {
-                const dlLink = library.downloads.artifact.url
-                const dlDest = library.downloads.artifact.path
-
-                // If not url as been assigned
-                if(dlLink == "") {
-                    const fileToFetch = "maven/" + library.downloads.artifact.path
-                    const destFile = `${librariesPath}/` + library.downloads.artifact.path
-
-                    await extractSpecificFile(forgeInstallerPath, fileToFetch, destFile)
-                }
-
-                await downloadAsync(dlLink, path.join(librariesPath, dlDest))
-            }
-            else if (library?.name.includes("net.minecraftforge:forge:") || library?.name.includes("net.minecraftforge:minecraftforge:")) {
-                console.log("Skip " + library.name);
-            }
-            else if(library.url) {
-                const forgeBaseUrl = "https://maven.minecraftforge.net/"
-                await downloadAsync(`${forgeBaseUrl}${libraryPath}`, path.join(librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
-            }
-            else if(!library.url) {
-                await downloadAsync(`https://libraries.minecraft.net/${libraryPath}`, path.join(librariesPath, libraryPath), (prog, byte) => console.log(prog + " forge library"));
-            }
-            else {
-                console.log("Case not handled or just it won't work");
-            }
-        }
-
-        if(!skipForgeExtract) {
-            const jarFilePathInInstaller = forgeInstallProfileData.path || forgeInstallProfileData.install.filePath
-            const jarFileDestPath = mavenToArray(forgeInstallProfileData.path || forgeInstallProfileData.install.path)
-
-            const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/")
-
-            //await makeDir(path.join(librariesPath, forgeJarPathWithoutFile))
-            // Fetch the jar in the installer
-            if(forgeInstallProfileData.install?.filePath) {
-                await extractSpecificFile(forgeInstallerPath, jarFilePathInInstaller, path.join(librariesPath, jarFileDestPath.join("/")))
-            }
-            // Search for the jar in maven folder in the installer
-            else if(forgeInstallProfileData.path) {
-                await extractSpecificFile(forgeInstallerPath, path.join("maven", jarFileDestPath.join("/")), path.join(librariesPath, jarFileDestPath.join("/")))
-            }
-        }
-
-        if(forgeInstallProfileData.processors?.length) {
-            console.log("Patching Forge");
-
-            const universalJarPath = forgeInstallProfileData.libraries.find((lib: {name: string}) => lib.name.startsWith("net.minecraftforge:forge")).downloads.artifact.path
-            console.log(universalJarPath);
-
-
-            // Getting client.lzma from installer
-            await extractSpecificFile(forgeInstallerPath, "data/client.lzma", path.join(librariesPath, forgeInstallProfileData.path ? (mavenToArray(forgeInstallProfileData.path, "-universal-clientdata", "lzma")).join("/") : universalJarPath.slice(0, -4) + "-clientdata.lzma"))
-
-            const { processors } = forgeInstallProfileData
-
-            for(const key in processors) {
-                const p = processors[key]
-
-                console.log("Patching with " + p.jar);
-
-                if(!p.sides || p.sides.includes("client")) {
-                    const replaceDataArg = (arg: string) => {
-                        const finalArg = arg.replace("{", "").replace("}", "")
-                        if(forgeInstallProfileData.data[finalArg]) {
-                            if(finalArg == "BINPATCH") {
-                                return path.join(librariesPath, universalJarPath || mavenToArray(forgeInstallProfileData.path).join("/")).slice(0, -4) + "-clientdata.lzma"
+                        if(library["rules"]) {
+                            if(!parseRule(library["rules"])) {
+                                console.log("Rule don't allow the download of this library, skipping.");
+                                continue
                             }
-
-                            let res: string = forgeInstallProfileData.data[finalArg].client
-
-                            console.log(arg + " transformed to " + res);
-
-                            return res
                         }
 
-                        return arg
-                            .replace("{SIDE}", "client")
-                            .replace("{ROOT}", `"${tempPath}"`)
-                            .replace("{MINECRAFT_JAR}", `"${path.join(minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".jar")}"`)
-                            .replace("{MINECRAFT_VERSION}", `"${path.join(minecraftVersionPath, forgeInstallProfileData.minecraft, forgeInstallProfileData.minecraft + ".json")}"`)
-                            .replace("{INSTALLER}", `"${path.join(tempPath, forgeInstallProfileData.version + ".jar")}"`)
-                            .replace("{LIBRARY_DIR}", `"${librariesPath}"`)
-                    }
-
-                    const formatPath = (pathToFormat: string) => {
-                        if(pathToFormat.startsWith("[")) {
-                            pathToFormat = pathToFormat.replace("[", "").replace("]", "")
-                            pathToFormat = (mavenToArray(pathToFormat)).join("/")
-
-                            return `"${path.join(librariesPath, pathToFormat)}"`
+                        if(library["natives"]) {
+                            natives = library["natives"][osToMCFormat(process.platform)]
                         }
 
-                        return pathToFormat
+                        const libraryPath = (mavenToArray(library.name, natives != "" ? `-${natives}` : undefined)).join("/");
+
+                        if(library["downloads"]["artifact"]) {
+                            const dlLink = library["downloads"]["artifact"]["url"]
+                            const hash = library["downloads"]["artifact"]["sha1"]
+                            const dlDest = library["downloads"]["artifact"]["path"]
+
+                            // If not url as been assigned
+                            if(dlLink == "") {
+                                const fileToFetch = "maven/" + library["downloads"]["artifact"]["path"]
+                                const destFile = `${librariesPath}/${library["downloads"]["artifact"]["path"]}`
+
+                                await extractSpecificFile(forgeInstallerPath, fileToFetch, destFile).catch((err) => reject(err))
+                            } else {
+                                await downloadAsync(dlLink, path.join(librariesPath, dlDest), undefined, {
+                                    retry: {
+                                        count: 3,
+                                        timeout: 2500
+                                    },
+                                    hash: hash
+                                }).catch((err) => reject(err))
+                            }
+                        }
+                        else if (library["name"].includes("net.minecraftforge:forge:") || library["name"].includes("net.minecraftforge:minecraftforge:")) {
+                            console.log("Skip " + library.name);
+                        }
+                        else if(library["url"]) {
+                            const forgeBaseUrl = "https://maven.minecraftforge.net/"
+                            await downloadAsync(`${forgeBaseUrl}${libraryPath}`, path.join(librariesPath, libraryPath), undefined, {
+                                retry: {
+                                    count: 3,
+                                    timeout: 2500
+                                },
+                                hash: library["url"].hasOwnProperty("checksums") ? library["url"]["checksums"][0] : undefined
+                            }).catch((err) => reject(err));
+                        }
+                        else if(!library["url"]) {
+                            await downloadAsync(`https://libraries.minecraft.net/${libraryPath}`, path.join(librariesPath, libraryPath)).catch((err) => reject(err));
+                        }
+                        else {
+                            console.error("Case not handled or just it won't work");
+                        }
                     }
 
-                    const jarPath = path.join(librariesPath, ...(mavenToArray(p.jar)))
-                    const args = p.args.map((arg: string) => replaceDataArg(arg))
-                        .map((arg: string) => formatPath(arg))
-                    const classPaths = p.classpath.map((cp: string) => `"${path.join(librariesPath, ...(mavenToArray(cp)))}"`)
+                    if(!skipForgeExtract) {
+                        const jarFilePathInInstaller = forgeInstallProfileData["path"] || (forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["filePath"])
+                        const jarFileDestPath = mavenToArray(forgeInstallProfileData["path"] || (forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["path"]))
 
-                    console.log(classPaths);
+                        const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/")
 
-                    const mainClass = await readJarMetaInf(jarPath, "Main-Class")
-                    console.log("Main class: " + mainClass);
+                        await fs.mkdir(path.join(librariesPath, forgeJarPathWithoutFile), {recursive: true})
+                        // Fetch the jar in the installer
+                        if(forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["filePath"]) {
+                            await extractSpecificFile(forgeInstallerPath, jarFilePathInInstaller, path.join(librariesPath, jarFileDestPath.join("/"))).catch((err) => reject(err))
+                        }
+                        // Search for the jar in maven folder in the installer
+                        else if(forgeInstallProfileData["path"]) {
+                            await extractSpecificFile(forgeInstallerPath, path.join("maven", jarFileDestPath.join("/")), path.join(librariesPath, jarFileDestPath.join("/"))).catch((err) => reject(err))
+                        }
+                    }
 
+                    if(forgeInstallProfileData["processors"].length > 0) {
+                        console.log("Patching Forge");
 
-                    await new Promise<void>((res) => {
-                        const proc = cp.spawn(`"${path.join(java17Path, "javaw")}"`, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path.delimiter), mainClass, ...args], {shell: true})
-                        console.log(proc.spawnargs);
+                        const universalJarPath = forgeInstallProfileData["libraries"].find((lib: {name: string}) => lib.name.startsWith("net.minecraftforge:forge"))["downloads"]["artifact"]["path"]
 
-                        proc.stdout.on("data", data => console.log(data.toString()))
-                        proc.stderr.on("data", err => console.error(err.toString()))
-                        proc.on("close", code => {console.log("Exited with code " + code); res()})
-                    })
-                }
-            }
-        }
+                        // Getting client.lzma from installer
+                        await extractSpecificFile(forgeInstallerPath,
+                            "data/client.lzma", path.join(librariesPath, forgeInstallProfileData["path"] ?
+                                (mavenToArray(forgeInstallProfileData["path"], "-universal-clientdata", "lzma")).join("/") :
+                                universalJarPath.slice(0, -4) + "-clientdata.lzma"))
+                            .catch((err) => reject(err))
 
-        //await updateInstanceDlState(instanceId, InstanceState.Playable)
+                        const { processors } = forgeInstallProfileData
 
-        resolve()
+                        for(const key in processors) {
+                            const p = processors[key]
+
+                            console.log("Patching with " + p["jar"]);
+
+                            if(!p["sides"] || p["sides"].includes("client")) {
+                                const replaceDataArg = (arg: string) => {
+                                    const finalArg = arg.replace("{", "").replace("}", "")
+                                    if(forgeInstallProfileData["data"][finalArg]) {
+                                        if(finalArg == "BINPATCH") {
+                                            return path.join(librariesPath, universalJarPath || mavenToArray(forgeInstallProfileData["path"]).join("/")).slice(0, -4) + "-clientdata.lzma"
+                                        }
+
+                                        let res: string = forgeInstallProfileData["data"][finalArg]["client"]
+
+                                        return res
+                                    }
+
+                                    return arg
+                                        .replace("{SIDE}", "client")
+                                        .replace("{ROOT}", `"${tempPath}"`)
+                                        .replace("{MINECRAFT_JAR}", `"${path.join(minecraftVersionPath, forgeInstallProfileData["minecraft"], forgeInstallProfileData["minecraft"] + ".jar")}"`)
+                                        .replace("{MINECRAFT_VERSION}", `"${path.join(minecraftVersionPath, forgeInstallProfileData["minecraft"], forgeInstallProfileData["minecraft"] + ".json")}"`)
+                                        .replace("{INSTALLER}", `"${path.join(tempPath, forgeInstallProfileData["version"] + ".jar")}"`)
+                                        .replace("{LIBRARY_DIR}", `"${librariesPath}"`)
+                                }
+
+                                const formatPath = (pathToFormat: string) => {
+                                    if(pathToFormat.startsWith("[")) {
+                                        pathToFormat = pathToFormat.replace("[", "").replace("]", "")
+                                        pathToFormat = (mavenToArray(pathToFormat)).join("/")
+
+                                        return `"${path.join(librariesPath, pathToFormat)}"`
+                                    }
+
+                                    return pathToFormat
+                                }
+
+                                const jarPath = path.join(librariesPath, ...(mavenToArray(p["jar"])))
+                                const args = p.args.map((arg: string) => replaceDataArg(arg))
+                                    .map((arg: string) => formatPath(arg))
+                                const classPaths = p["classpath"].map((cp: string) => `"${path.join(librariesPath, ...(mavenToArray(cp)))}"`)
+
+                                console.log(classPaths);
+
+                                await readJarMetaInf(jarPath, "Main-Class").then(async (mainClass) => {
+                                    await new Promise<void>((resolve, reject) => {
+                                        const proc = cp.spawn(`"${path.join(java17Path, "javaw")}"`, ['-classpath', [`"${jarPath}"`, ...classPaths].join(path.delimiter), mainClass, ...args], {shell: true})
+
+                                        proc.stdout.on("data", data => console.log(data.toString()))
+                                        proc.stderr.on("data", err => reject(err))
+                                        proc.on("close", () => resolve())
+                                    }).catch((err) => reject(err))
+                                }).catch((err) => reject(err))
+                            }
+                        }
+                    }
+
+                    resolve()
+                }).catch((err) => reject(err))
+            }).catch((err) => reject(err))
+        }).catch((err) => reject(err))
     })
 }
 
@@ -359,6 +363,12 @@ async function downloadMinecraftLibrary(data: any, i: number) {
                 await downloadAsync(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path.join(librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
                     console.log(`Progression: ${progress}% du téléchargement`);
                     fetchedByte += byteSent
+                }, {
+                    retry: {
+                        count: 3,
+                        timeout: 2500
+                    },
+                    hash: data["libraries"][i]["downloads"]["classifiers"][e]["url"]
                 })
             }
         }
@@ -378,19 +388,19 @@ function minecraftLibraryTotalSize(data: any) {
         }
 
         if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
-            totalSize += data.libraries[i].downloads.artifact.size
+            totalSize += data["libraries"][i]["downloads"]["artifact"]["size"]
         }
 
         if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
             for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
                 if (e.includes("win") && os.platform() == "win32") {
-                    totalSize += data.libraries[i].downloads.classifiers[e].size
+                    totalSize += data.libraries[i]["downloads"]["classifiers"][e]["size"]
                 }
                 else if ((e.includes("mac") || e.includes("osx")) && os.platform() == "darwin") {
-                    totalSize += data.libraries[i].downloads.classifiers[e].size
+                    totalSize += data.libraries[i]["downloads"]["classifiers"][e]["size"]
                 }
                 else if (e.includes("linux") && os.platform() == "linux") {
-                    totalSize += data.libraries[i].downloads.classifiers[e].size
+                    totalSize += data.libraries[i]["downloads"]["classifiers"][e]["size"]
                 }
             }
         }
@@ -436,38 +446,22 @@ export function parseRule(rules: any) {
     for (let i = 0; i < rules.length; i++) {
         if (rules[i].hasOwnProperty("os")) {
             if (rules[i]["os"]["name"] == "windows" && os.platform() == "win32") {
-                if (rules[i]["action"] == "allow") {
-                    condition = true
-                } else {
-                    condition = false
-                }
+                condition = rules[i]["action"] == "allow";
             }
             else if (rules[i]["os"]["name"] == "osx" && os.platform() == "darwin") {
-                if (rules[i]["action"] == "allow") {
-                    condition = true
-                } else {
-                    condition = false
-                }
+                condition = rules[i]["action"] == "allow";
             }
             else if (rules[i]["os"]["name"] == "linux" && os.platform() == "linux") {
-                if (rules[i]["action"] == "allow") {
-                    condition = true
-                } else {
-                    condition = false
-                }
+                condition = rules[i]["action"] == "allow";
             }
         } else {
-            if (rules[i]["action"] == "allow") {
-                condition = true
-            } else {
-                condition = false
-            }
+            condition = rules[i]["action"] == "allow";
         }
     }
     return condition
 }
 
-function downloadLoggingXmlConfFile(data: any) {
+/*function downloadLoggingXmlConfFile(data: any) {
     return new Promise(async (resolve, reject) => {
 
         console.log(data);
@@ -484,7 +478,7 @@ function downloadLoggingXmlConfFile(data: any) {
         })
         resolve("Log4j file downloaded")
     })
-}
+}*/
 
 export enum JavaVersions {
     JDK8,
