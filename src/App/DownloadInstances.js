@@ -58,12 +58,11 @@ function refreshInstanceList() {
                     const element = yield (0, HInstance_1.addInstanceElement)({
                         name: instanceName,
                         thumbnailPath: profiles[instanceName]["thumbnailPath"],
-                        coverPath: profiles[instanceName]["coverUrl"],
+                        logoPath: profiles[instanceName]["coverUrl"],
                         version: profiles[instanceName]["thumbnailPath"]
                     }, instancesDiv);
                     element.addEventListener("click", () => {
                         exports.currentInstanceOpened = instanceName;
-                        console.log(exports.currentInstanceOpened);
                         setContentTo(instanceName);
                         openPopup("download-instance-info");
                     });
@@ -86,13 +85,13 @@ function updateInstanceState(name, newState) {
             dlBtn.style.backgroundColor = "#05E400";
             iconBtn.setAttribute("src", "./resources/svg/download.svg");
             break;
-        case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
+        case InstanceState.Loading:
             dlBtn.style.backgroundColor = "#5C5C5C";
             iconBtn.setAttribute("src", "./resources/svg/loading.svg");
             break;
         case InstanceState.Owned:
             dlBtn.style.backgroundColor = "#05E400";
-            iconBtn.setAttribute("src", "./resources/svg/play.svg");
+            iconBtn.setAttribute("src", "./resources/svg/checkmark.svg");
             break;
     }
 }

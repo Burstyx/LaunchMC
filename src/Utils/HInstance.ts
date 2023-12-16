@@ -20,7 +20,7 @@ export interface InstanceOpts {
 export interface ServerInstanceOpts{
     name: string,
     thumbnailPath: string,
-    coverPath: string,
+    logoPath: string,
     version: string,
 }
 

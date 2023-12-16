@@ -50,8 +50,6 @@ exports.getForgeInstallProfileIfExist = getForgeInstallProfileIfExist;
 function getForgeVersionIfExist(forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            if (!forgeId)
-                return;
             const versionPath = path_1.default.join(const_1.minecraftVersionPath, forgeId);
             yield promises_1.default.mkdir(versionPath, { recursive: true }).catch((err) => reject(err));
             if (!(0, fs_1.existsSync)(path_1.default.join(versionPath, `${forgeId}.json`))) {

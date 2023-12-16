@@ -37,22 +37,23 @@ exports.minecraftManifest = minecraftManifest;
 function minecraftManifestForVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
         // Create directory if it doesn't exist
-        //const versionPath = await makeDir(path.join(minecraftVersionPath, version))
-        if (!(0, fs_1.existsSync)(path_1.default.join("versionPath", `${version}.json`))) {
+        yield promises_1.default.mkdir(path_1.default.join(const_1.minecraftVersionPath, version), { recursive: true });
+        const versionPath = path_1.default.join(const_1.minecraftVersionPath, version);
+        if (!(0, fs_1.existsSync)(path_1.default.join(versionPath, `${version}.json`))) {
             // Get manifest containing all versions informations
             yield minecraftManifest().then((data) => __awaiter(this, void 0, void 0, function* () {
                 // Retrieve data for the wanted version
                 for (var i = 0; i < data["versions"].length; i++) {
                     if (data["versions"][i]["id"] == version) {
                         // Download manifest of wanted version
-                        yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join("versionPath", `${version}.json`), (progress) => {
+                        yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
                             console.log(`Progression: ${progress}% du téléchargement du manifest`);
                         });
                     }
                 }
             }));
         }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("versionPath", `${version}.json`), "utf-8"));
+        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8"));
     });
 }
 exports.minecraftManifestForVersion = minecraftManifestForVersion;

@@ -57,7 +57,7 @@ export async function refreshInstanceList() {
                 const element = await addInstanceElement({
                         name: instanceName,
                         thumbnailPath: profiles[instanceName]["thumbnailPath"],
-                        coverPath: profiles[instanceName]["coverUrl"],
+                        logoPath: profiles[instanceName]["coverUrl"],
                         version: profiles[instanceName]["thumbnailPath"]
                     },
                     instancesDiv
@@ -65,7 +65,6 @@ export async function refreshInstanceList() {
 
                 element.addEventListener("click", () => {
                     currentInstanceOpened = instanceName
-                    console.log(currentInstanceOpened)
 
                     setContentTo(instanceName)
                     openPopup("download-instance-info")

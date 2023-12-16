@@ -36,11 +36,8 @@ export async function getForgeInstallProfileIfExist(forgeId: string) {
     })
 }
 
-export async function getForgeVersionIfExist(forgeId: string | undefined) {
+export async function getForgeVersionIfExist(forgeId: string) {
     return new Promise<any>(async (resolve, reject) => {
-        if(!forgeId)
-            return
-
         const versionPath = path.join(minecraftVersionPath, forgeId)
         await fs.mkdir(versionPath, {recursive: true}).catch((err) => reject(err))
 

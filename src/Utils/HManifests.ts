@@ -22,16 +22,17 @@ export async function minecraftManifest() {
 // Download manifest for a specific Minecraft versions
 export async function minecraftManifestForVersion(version: string) {
     // Create directory if it doesn't exist
-    //const versionPath = await makeDir(path.join(minecraftVersionPath, version))
+    await fs.mkdir(path.join(minecraftVersionPath, version), {recursive: true})
+    const versionPath = path.join(minecraftVersionPath, version)
 
-    if(!existsSync(path.join("versionPath", `${version}.json`))){
+    if(!existsSync(path.join(versionPath, `${version}.json`))){
         // Get manifest containing all versions informations
         await minecraftManifest().then(async (data) => {
             // Retrieve data for the wanted version
             for(var i = 0; i < data["versions"].length; i++){
                 if(data["versions"][i]["id"] == version){
                     // Download manifest of wanted version
-                    await downloadAsync(data["versions"][i]["url"], path.join("versionPath", `${version}.json`), (progress: number) => {
+                    await downloadAsync(data["versions"][i]["url"], path.join(versionPath, `${version}.json`), (progress: number) => {
                         console.log(`Progression: ${progress}% du téléchargement du manifest`);
                     })
                 }
@@ -39,7 +40,7 @@ export async function minecraftManifestForVersion(version: string) {
         })
     }
 
-    return JSON.parse(await fs.readFile(path.join("versionPath", `${version}.json`), "utf-8"))
+    return JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8"))
 }
 
 // Download manifest containing all versions informations

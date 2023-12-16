@@ -1,277 +1,281 @@
 import { minecraftManifestForVersion } from "../Utils/HManifests"
 import cp from "child_process"
 import path from "path"
-import { instancesPath, assetsPath, librariesPath, minecraftVersionPath, javaPath, java17Version, java17Name } from "../Utils/const"
+import {
+    instancesPath,
+    assetsPath,
+    librariesPath,
+    minecraftVersionPath,
+    javaPath,
+    java17Version,
+    java17Name,
+    serversInstancesPath
+} from "../Utils/const"
 import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList, parseRule } from "./DownloadGame"
 import { mavenToArray } from "../Utils/HFileManagement"
 import { DiscordRPCState, switchDiscordRPCState } from "./DIscordRPC"
 import { getForgeVersionIfExist } from "../Utils/HForge"
 import { removeDuplicates, replaceAll } from "../Utils/Utils"
 import semver from "semver"
+import fs from "fs/promises";
 
 interface MinecraftArgsOpt {
+    version: string,
     username: string,
     uuid: string,
-    accesstoken: string,
-    usertype: string,
-    versiontype: string,
-    isdemouser?: boolean,
-    resolutions?: {
+    accessToken: string,
+    isDemoUser?: boolean,
+    resolution?: {
         width: number,
         height: number
     }
 }
 
-interface ForgeArgsOpt {
-    id: string
-}
+let mcProc: any = {}
 
-let mcProcs: any = {}
+export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, forgeId?: string) {
+    return new Promise<void>(async (resolve, reject) => {
+        await minecraftManifestForVersion(mcOpts.version).then(async (mcData) => {
+            const isForgeVersion = forgeId != undefined
 
-export async function startMinecraft(version: string, instanceId: string, opt: MinecraftArgsOpt, forgeOpt?: ForgeArgsOpt) { // TODO: Get game libraries
-    // Get Minecraft version manifest
-    const mcData = await minecraftManifestForVersion(version)
-    //await updateInstanceDlState(instanceId, InstanceState.Loading)
-
-    
-    // Get Forge version manifest
-    const isForgeVersion = forgeOpt != undefined
-    console.log(isForgeVersion);
-    
-
-    const forgeData = isForgeVersion ? await getForgeVersionIfExist(forgeOpt?.id) : undefined
-    console.log(forgeData);
-    console.log(forgeOpt);
-    
-    
-
-    // Get all Minecraft arguments
-    var mcArgs = mcData["minecraftArguments"]
-    if (mcArgs == null) {
-        mcArgs = ""
-        for (let i = 0; i < mcData["arguments"]["game"].length; i++) {
-            if (typeof mcData["arguments"]["game"][i] == "string") {
-                mcArgs += mcData["arguments"]["game"][i] + " "
+            let forgeData: any = null
+            if(isForgeVersion) {
+                await getForgeVersionIfExist(forgeId).then((data) => {
+                    forgeData = data;
+                })
             }
-        }
-    }
 
-    let forgeReplaceMcArgs = false
+            // Get all Minecraft arguments
+            let mcArgs = mcData["minecraftArguments"];
+            if (mcArgs == null) {
+                mcArgs = ""
+                for (let i = 0; i < mcData["arguments"]["game"].length; i++) {
+                    if (typeof mcData["arguments"]["game"][i] == "string") {
+                        mcArgs += mcData["arguments"]["game"][i] + " "
+                    }
+                }
+            }
 
-    // Get all Forge arguments
-    var forgeGameArgs
-    var forgeJvmArgs
-    if(forgeData != undefined) {
-        if(forgeData.arguments) {
-            forgeGameArgs = forgeData.arguments.game
-            forgeJvmArgs = forgeData.arguments.jvm
-        }
-        else if(forgeData.minecraftArguments) {
-            forgeReplaceMcArgs = true
-            forgeGameArgs = forgeData.minecraftArguments.split(" ")
-        }
-        else if(forgeData.versionInfo.minecraftArguments) {
-            forgeReplaceMcArgs = true
-            forgeGameArgs = forgeData.versionInfo.minecraftArguments.split(" ")
-        }
-    }
+            let forgeReplaceMcArgs = false
 
-    // Parse Minecraft arguments
-    let parsedMcArgs = forgeReplaceMcArgs ? forgeGameArgs : mcArgs.split(" ")
-    for (let i = 0; i < parsedMcArgs.length; i++) {
-        switch (parsedMcArgs[i]) {
-            case "${auth_player_name}":
-                parsedMcArgs[i] = opt.username
-                break;
-            case "${version_name}":
-                parsedMcArgs[i] = version
-                break;
-            case "${game_directory}":
-                parsedMcArgs[i] = path.join(instancesPath, instanceId)
-                break;
-            case "${assets_root}":
-                parsedMcArgs[i] = assetsPath
-                break;
-            case "${assets_index_name}":
-                parsedMcArgs[i] = mcData.assets
-                break;
-            case "${auth_uuid}":
-                parsedMcArgs[i] = opt.uuid
-                break;
-            case "${auth_access_token}":
-                parsedMcArgs[i] = opt.accesstoken
-                break;
-            case "${user_properties}":
-                parsedMcArgs[i] = "{}"
-                break;
-            case "${user_type}":
-                parsedMcArgs[i] = "msa"
-                break;
-            case "${version_type}":
-                parsedMcArgs[i] = opt.versiontype
-                break;
-            case "${game_assets}":
-                // if(!existsSync(legacyAssetsPath))
-                //     await fs.mkdir(legacyAssetsPath, {recursive: true}) // TODO: Assets don't work for pre-1.6 version
-                parsedMcArgs[i] = path.join(instancesPath, instanceId, "resources")
-                break;
-            case "${auth_session}":
-                parsedMcArgs[i] = "OFFLINE"
-                break;
-            default:
-                break;
-        }
-    }
+            // Get all Forge arguments
+            let forgeGameArgs;
+            let forgeJvmArgs;
+            if(forgeData != undefined) {
+                if(forgeData["arguments"]) {
+                    forgeGameArgs = forgeData["arguments"]["game"]
+                    forgeJvmArgs = forgeData["arguments"]["jvm"]
+                }
+                else if(forgeData["minecraftArguments"]) {
+                    forgeReplaceMcArgs = true
+                    forgeGameArgs = forgeData["minecraftArguments"].split(" ")
+                }
+                else if(forgeData["versionInfo"]["minecraftArguments"]) {
+                    forgeReplaceMcArgs = true
+                    forgeGameArgs = forgeData["versionInfo"]["minecraftArguments"].split(" ")
+                }
+            }
 
-    mcArgs = parsedMcArgs
+            // Parse Minecraft arguments
+            let parsedMcArgs = forgeReplaceMcArgs ? forgeGameArgs : mcArgs.split(" ")
+            for (let i = 0; i < parsedMcArgs.length; i++) {
+                switch (parsedMcArgs[i]) {
+                    case "${auth_player_name}":
+                        parsedMcArgs[i] = mcOpts.username
+                        break;
+                    case "${version_name}":
+                        parsedMcArgs[i] = mcOpts.version
+                        break;
+                    case "${game_directory}":
+                        parsedMcArgs[i] = path.join(serversInstancesPath, name)
+                        break;
+                    case "${assets_root}":
+                        parsedMcArgs[i] = assetsPath
+                        break;
+                    case "${assets_index_name}":
+                        parsedMcArgs[i] = mcData["assets"]
+                        break;
+                    case "${auth_uuid}":
+                        parsedMcArgs[i] = mcOpts.uuid
+                        break;
+                    case "${auth_access_token}":
+                        parsedMcArgs[i] = mcOpts.accessToken
+                        break;
+                    case "${user_properties}":
+                        parsedMcArgs[i] = "{}"
+                        break;
+                    case "${user_type}":
+                        parsedMcArgs[i] = "msa"
+                        break;
+                    case "${version_type}":
+                        parsedMcArgs[i] = "custom"
+                        break;
+                    case "${game_assets}":
+                        // if(!existsSync(legacyAssetsPath))
+                        //     await fs.mkdir(legacyAssetsPath, {recursive: true}) // TODO: Assets don't work for pre-1.6 version
+                        parsedMcArgs[i] = path.join(serversInstancesPath, name, "resources")
+                        break;
+                    case "${auth_session}":
+                        parsedMcArgs[i] = "OFFLINE"
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-    // Parse forge args
-    let parsedForgeGameArgsArray
-    let parsedForgeJvmArgsArray
-    if(forgeJvmArgs != undefined) {
-        // Parse forge jvm args
-        parsedForgeJvmArgsArray = forgeJvmArgs
-        
-        for (let i = 0; i < parsedForgeJvmArgsArray.length; i++) {            
-            parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${library_directory}", librariesPath)
-            parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${classpath_separator}", path.delimiter)
-            parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${version_name}", version)
-        }
+            mcArgs = parsedMcArgs
 
-        forgeJvmArgs = parsedForgeJvmArgsArray
-    }
+            // Parse forge args
+            let parsedForgeGameArgsArray
+            let parsedForgeJvmArgsArray
+            if(forgeJvmArgs != undefined) {
+                // Parse forge jvm args
+                parsedForgeJvmArgsArray = forgeJvmArgs
 
-    if(forgeGameArgs != undefined && !forgeReplaceMcArgs) {
-        // Parse forge game args
-        parsedForgeGameArgsArray = forgeGameArgs  
-        forgeGameArgs = parsedForgeGameArgsArray
-    }
+                for (let i = 0; i < parsedForgeJvmArgsArray.length; i++) {
+                    parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${library_directory}", librariesPath)
+                    parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${classpath_separator}", path.delimiter)
+                    parsedForgeJvmArgsArray[i] = replaceAll(parsedForgeJvmArgsArray[i], "${version_name}", mcOpts.version)
+                }
 
-    // Building jvm args
-    var jvmArgs = []
-    
-    // Set min and max allocated ram
-    jvmArgs.push("-Xms2048M")
-    jvmArgs.push("-Xmx4096M")
+                forgeJvmArgs = parsedForgeJvmArgsArray
+            }
 
-    // Intel optimization
-    jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
+            if(forgeGameArgs != undefined && !forgeReplaceMcArgs) {
+                // Parse forge game args
+                parsedForgeGameArgsArray = forgeGameArgs
+                forgeGameArgs = parsedForgeGameArgsArray
+            }
 
-    // Ignore Invalid Certificates Verification
-    jvmArgs.push("-Dfml.ignoreInvalidMinecraftCertificates=true")
+            // Building jvm args
+            let jvmArgs = [];
 
-    // Ignore FML check for jar injection
-    jvmArgs.push("-Dfml.ignorePatchDiscrepancies=true")
+            // Set min and max allocated ram
+            jvmArgs.push("-Xms2048M")
+            jvmArgs.push("-Xmx4096M")
 
-    // Set natives path
-    //jvmArgs.push("-Djava.library.path=" + await makeDir(path.join(instancesPath, instanceId, "natives")))
+            // Intel optimization
+            jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
 
-    // Set classpaths
-    let classPathes: string[] = []
+            // Ignore Invalid Certificates Verification
+            jvmArgs.push("-Dfml.ignoreInvalidMinecraftCertificates=true")
 
-    let mcLibrariesArray = minecraftLibraryList(mcData)
-    mcLibrariesArray.push(path.join(minecraftVersionPath, version, `${version}.jar`))
+            // Ignore FML check for jar injection
+            jvmArgs.push("-Dfml.ignorePatchDiscrepancies=true")
 
-    const librariesPathInJson = isForgeVersion ? forgeData.libraries ? forgeData.libraries : forgeData.versionInfo.libraries : undefined
-    const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.filter((lib: any) => {
-        if(lib.rules) {
-            return parseRule(lib.rules)
-        }
+            // Set natives path
+            jvmArgs.push("-Djava.library.path=" + await fs.mkdir(path.join(serversInstancesPath, name, "natives"), {recursive: true}))
 
-        return true
-    }).map((lib: any) => {
-        if(lib.downloads) {
-            return path.join(librariesPath, lib.downloads.artifact.path)
-        } else {
-            return path.join(librariesPath, mavenToArray(lib.name).join("/"))
-        }
-    }) : undefined
-    
-    classPathes = removeDuplicates(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray)
+            // Set classpaths
+            let classPaths: string[] = []
 
-    jvmArgs.push(`-cp`)
-    jvmArgs.push(`${classPathes.join(path.delimiter)}`)
+            let mcLibrariesArray = minecraftLibraryList(mcData)
+            mcLibrariesArray.push(path.join(minecraftVersionPath, mcOpts.version, `${mcOpts.version}.jar`))
 
-    console.log(classPathes);
+            const librariesPathInJson = isForgeVersion ? forgeData.libraries ? forgeData.libraries : forgeData["versionInfo"]["libraries"] : undefined
+            const forgeLibrariesArray = isForgeVersion ? librariesPathInJson.filter((lib: any) => {
+                if(lib.rules) {
+                    return parseRule(lib.rules)
+                }
 
-    jvmArgs = isForgeVersion && forgeJvmArgs != undefined ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
-    mcArgs = isForgeVersion && forgeGameArgs != undefined && !forgeReplaceMcArgs ? mcArgs.concat(...forgeGameArgs) : mcArgs
+                return true
+            }).map((lib: any) => {
+                if(lib["downloads"]) {
+                    return path.join(librariesPath, lib["downloads"]["artifact"]["path"])
+                } else {
+                    return path.join(librariesPath, mavenToArray(lib.name).join("/"))
+                }
+            }) : undefined
 
-    jvmArgs.push(isForgeVersion ? forgeData.mainClass ? forgeData.mainClass : forgeData.versionInfo.mainClass : mcData.mainClass)
-    
-    const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "")
+            classPaths = removeDuplicates(isForgeVersion ? forgeLibrariesArray.concat(mcLibrariesArray) : mcLibrariesArray)
 
-    console.log(fullMcArgs);
+            jvmArgs.push(`-cp`)
+            jvmArgs.push(`${classPaths.join(path.delimiter)}`)
 
-    // Find correct java executable
-    const java8Path = await downloadAndGetJavaVersion(JavaVersions.JDK8)
-    const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
+            console.log(classPaths);
 
-    const java8 = path.join(java8Path, "javaw")
-    const java17 = path.join(java17Path, "javaw")
+            jvmArgs = isForgeVersion && forgeJvmArgs != undefined ? jvmArgs.concat(...forgeJvmArgs) : jvmArgs
+            mcArgs = isForgeVersion && forgeGameArgs != undefined && !forgeReplaceMcArgs ? mcArgs.concat(...forgeGameArgs) : mcArgs
 
-    const semverVersionCompatibility = version.split(".").length == 2 ? version + ".0" : version
+            jvmArgs.push(isForgeVersion ? forgeData["mainClass"] ? forgeData["mainClass"] : forgeData["versionInfo"]["mainClass"] : mcData["mainClass"])
 
-    const below117 = semver.lt(semverVersionCompatibility, "1.17.0")
-    console.log("below117: " + below117);
-    
-    const javaVersionToUse = below117 ? java8 : java17
+            const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "")
 
-    console.log(javaVersionToUse);
-    
-    console.log("Extracting natives");
+            console.log(fullMcArgs);
 
-    await extractAllNatives(mcLibrariesArray.join(path.delimiter), path.join(instancesPath, instanceId, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
+            // Find correct java executable
+            const java8Path = await downloadAndGetJavaVersion(JavaVersions.JDK8)
+            const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
 
-    console.log("natives extracted");
+            const java8 = path.join(java8Path, "javaw")
+            const java17 = path.join(java17Path, "javaw")
 
-    console.log("here full args");
-    console.log(fullMcArgs.join(" "));
-    
-    const proc = cp.spawn(javaVersionToUse, fullMcArgs, {cwd: path.join(instancesPath, instanceId)})
-    
-    console.log(proc.spawnargs);
-    
-    //await updateInstanceDlState(instanceId, InstanceState.Playing)
-    await switchDiscordRPCState(DiscordRPCState.InGame)
+            const semverVersionCompatibility = mcOpts.version.split(".").length == 2 ? mcOpts.version + ".0" : mcOpts.version
 
-    mcProcs[instanceId] = proc
+            const below117 = semver.lt(semverVersionCompatibility, "1.17.0")
+            console.log("below117: " + below117);
 
-    proc.stdout.on("data", (data) => {
-        console.log(data.toString("utf-8"));
-    })
+            const javaVersionToUse = below117 ? java8 : java17
 
-    proc.stderr.on("data", (data) => {
-        console.error(data.toString("utf-8"));
-    })
+            console.log(javaVersionToUse);
 
-    proc.stdout.on("error", (err) => console.error(err))
+            console.log("Extracting natives");
 
-    proc.on("close", async (code) => {
-        switch (code) {
-            case 0:
-                console.log("Game stopped");
-                break;
-            case 1:
-                console.error("Game stopped with error");
-                break;
-            case null:
-                console.log("Game killed!");
-                break; 
-            default:
-                break;
-        }
+            await extractAllNatives(mcLibrariesArray.join(path.delimiter), path.join(serversInstancesPath, name, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
 
-        //await updateInstanceDlState(instanceId, InstanceState.Playable)
-        await switchDiscordRPCState(DiscordRPCState.InLauncher)
+            console.log("natives extracted");
 
-        delete mcProcs[instanceId]
+            console.log("here full args");
+            console.log(fullMcArgs.join(" "));
+
+            const proc = cp.spawn(javaVersionToUse, fullMcArgs, {cwd: path.join(serversInstancesPath, name)})
+
+            console.log(proc.spawnargs);
+
+            //await updateInstanceDlState(instanceId, InstanceState.Playing)
+            await switchDiscordRPCState(DiscordRPCState.InGame)
+
+            mcProc[name] = proc
+
+            proc.stdout.on("data", (data) => {
+                console.log(data.toString("utf-8"));
+            })
+
+            proc.stderr.on("data", (data) => {
+                console.error(data.toString("utf-8"));
+            })
+
+            proc.stdout.on("error", (err) => console.error(err))
+
+            proc.on("close", async (code) => {
+                switch (code) {
+                    case 0:
+                        console.log("Game stopped");
+                        break;
+                    case 1:
+                        console.error("Game stopped with error");
+                        break;
+                    case null:
+                        console.log("Game killed!");
+                        break;
+                    default:
+                        break;
+                }
+
+                //await updateInstanceDlState(instanceId, InstanceState.Playable)
+                await switchDiscordRPCState(DiscordRPCState.InLauncher)
+
+                delete mcProc[name]
+            })
+
+            resolve()
+        }).catch((err) => reject(err))
     })
 }
 
 export function killGame(associatedInstanceId: string) {    
-    if(mcProcs.hasOwnProperty(associatedInstanceId)) {
-        mcProcs[associatedInstanceId].kill()
+    if(mcProc.hasOwnProperty(associatedInstanceId)) {
+        mcProc[associatedInstanceId].kill()
     }
 }
 

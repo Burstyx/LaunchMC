@@ -18,7 +18,7 @@ const initializeModules = () => {
         require("./scripts/elements")
 
         console.log("[Initialize Modules] Server instance info elements module");
-        require("./scripts/serverInstanceInfo")
+        require("./scripts/serverLibraryWin")
 
         //console.log("[Initializing] Content section");
         /*require("./scripts/mainWin")*/

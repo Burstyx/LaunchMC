@@ -1,10 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
-import {instancesPath, localInstancesPath, serversInstancesPath} from "../Utils/const";
+import {serversInstancesPath} from "../Utils/const";
 import {concatJson, replaceAll} from "../Utils/Utils";
 import {
-    generateInstanceBtn,
-    InstanceOpts,
     LoaderOpts,
     ServerInstanceOpts
 } from "../Utils/HInstance";
@@ -13,8 +11,11 @@ import {addInstanceElement} from "../Utils/HInstance";
 import {getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
 import {downloadMinecraft, patchInstanceWithForge} from "./DownloadGame";
+const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
-let instancesStates : any = {};
+export let instancesStates : any = {};
+export let currentInstanceOpened: string | null = null
+
 
 async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: LoaderOpts){
     return new Promise<void>(async (resolve, reject)=> {
@@ -27,7 +28,7 @@ async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: Loa
             "instance": {
                 "name": instanceOpts.name,
                 "thumbnail_path": instanceOpts.thumbnailPath,
-                "cover_path": instanceOpts.coverPath,
+                "logo_path": instanceOpts.logoPath,
                 "play_time": 0,
             },
             "game": {
@@ -57,7 +58,7 @@ async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: Loa
     })
 }
 
-export async function setContentTo(name: string) { // TODO: Cleaning
+export function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
         await getInstanceData(name).then((instanceJson) => {
             const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable
@@ -67,12 +68,14 @@ export async function setContentTo(name: string) { // TODO: Cleaning
             const gameData = instanceJson["data"]["game"]
             const loaderData = instanceJson["data"].hasOwnProperty("loader") ? instanceJson["data"]["loader"] : null
 
-            const serverBrandLogo = document.getElementById("server-brand-logo")!
-            serverBrandLogo.setAttribute("src", `${replaceAll(instanceData["cover_path"], '\\', '/')}`)
+            const serverBrandLogo = document.getElementById("server-page-server-brand-logo")!
+            serverBrandLogo.setAttribute("src", `${replaceAll(instanceData["logo_path"], '\\', '/')}`)
 
             // Set version
             const widgetVersion = document.getElementById("server-version")
             if(widgetVersion) {
+                widgetVersion.innerHTML = ""
+
                 const widgetText = document.createElement("p")
                 widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`
                 widgetVersion.append(widgetText)
@@ -107,8 +110,13 @@ export async function refreshInstanceList() {
                         const data = await fs.readFile(path.join(serversInstancesPath, instance.name, "info.json"), "utf8")
                         const dataJson = JSON.parse(data)
 
-                        const element = await addInstanceElement({name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], coverPath: dataJson["instance"]["cover_path"], version: dataJson["game"]["version"]}, instancesDiv)
-                        element.addEventListener("click", async () => await setContentTo(instance.name))
+                        const element = await addInstanceElement({name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], logoPath: dataJson["instance"]["cover_path"], version: dataJson["game"]["version"]}, instancesDiv)
+                        element.addEventListener("click", () => {
+                            currentInstanceOpened = instance.name
+
+                            setContentTo(instance.name)
+                            openPopup("server-instance-info")
+                        })
                     }
                 }
 
@@ -169,7 +177,12 @@ export async function downloadServerInstance(instanceOpts: ServerInstanceOpts) {
         await getMetadataOf(instanceOpts.name).then(async (metadata) => {
             const isVanilla = !metadata.hasOwnProperty("loader")
 
-            await createInstance(instanceOpts,
+            await createInstance({
+                    name: instanceOpts.name,
+                    logoPath: instanceOpts.logoPath,
+                    thumbnailPath: instanceOpts.thumbnailPath,
+                    version: metadata["mcVersion"]
+                },
                 !isVanilla ? {
                 name: metadata["loader"]["name"],
                 id: metadata["loader"]["id"]

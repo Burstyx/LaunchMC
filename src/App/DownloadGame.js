@@ -416,26 +416,28 @@ var JavaVersions;
 })(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
 function downloadAndGetJavaVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        //await makeDir(javaPath)
-        if (version == JavaVersions.JDK8) {
-            if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"))) {
-                return path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin");
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.mkdir(const_1.javaPath, { recursive: true }).catch((err) => reject(err));
+            if (version == JavaVersions.JDK8) {
+                if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"))) {
+                    resolve(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"));
+                }
+                yield (0, HDownload_1.downloadAsync)(const_1.java8Url, path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
+                    console.log(`Progression: ${progress}% du téléchargement`);
+                }, { decompress: true }).catch((err) => reject(err));
+                resolve(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"));
             }
-            yield (0, HDownload_1.downloadAsync)(const_1.java8Url, path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-            }, { decompress: true });
-            return path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin");
-        }
-        if (version == JavaVersions.JDK17) {
-            if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"))) {
-                return path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin");
+            else if (version == JavaVersions.JDK17) {
+                if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"))) {
+                    resolve(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"));
+                }
+                yield (0, HDownload_1.downloadAsync)(const_1.java17Url, path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), (progress) => {
+                    console.log(`Progression: ${progress}% du téléchargement`);
+                }, { decompress: true }).catch((err) => reject(err));
+                resolve(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"));
             }
-            yield (0, HDownload_1.downloadAsync)(const_1.java17Url, path_1.default.join(const_1.javaPath, `${const_1.java17Version}.zip`), (progress) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-            }, { decompress: true });
-            return path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin");
-        }
-        return "";
+            reject(`${version} is not a valid Java version.`);
+        }));
     });
 }
 exports.downloadAndGetJavaVersion = downloadAndGetJavaVersion;

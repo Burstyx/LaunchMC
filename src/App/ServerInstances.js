@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
+exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.currentInstanceOpened = exports.instancesStates = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -22,7 +22,9 @@ const HInstance_1 = require("../Utils/HInstance");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HDownload_1 = require("../Utils/HDownload");
 const DownloadGame_1 = require("./DownloadGame");
-let instancesStates = {};
+const { openPopup } = require("../Interface/UIElements/scripts/window.js");
+exports.instancesStates = {};
+exports.currentInstanceOpened = null;
 function createInstance(instanceOpts, loaderOpts) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -33,7 +35,7 @@ function createInstance(instanceOpts, loaderOpts) {
                 "instance": {
                     "name": instanceOpts.name,
                     "thumbnail_path": instanceOpts.thumbnailPath,
-                    "cover_path": instanceOpts.coverPath,
+                    "logo_path": instanceOpts.logoPath,
                     "play_time": 0,
                 },
                 "game": {
@@ -57,36 +59,35 @@ function createInstance(instanceOpts, loaderOpts) {
     });
 }
 function setContentTo(name) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            yield getInstanceData(name).then((instanceJson) => {
-                const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable;
-                updateInstanceState(name, currentState);
-                const instanceData = instanceJson["data"]["instance"];
-                const gameData = instanceJson["data"]["game"];
-                const loaderData = instanceJson["data"].hasOwnProperty("loader") ? instanceJson["data"]["loader"] : null;
-                const serverBrandLogo = document.getElementById("server-brand-logo");
-                serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(instanceData["cover_path"], '\\', '/')}`);
-                // Set version
-                const widgetVersion = document.getElementById("server-version");
-                if (widgetVersion) {
-                    const widgetText = document.createElement("p");
-                    widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`;
-                    widgetVersion.append(widgetText);
-                }
-                //const timeInMiliseconds = instanceData.playtime
-                /*h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
-                m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
-    
-                m < 10 ? m = `0${m}` : m = `${m}`
-                h < 10 ? h = `0${h}` : h = `${h}`
-    
-                widgetPlaytime.innerText = `${h}h${m}`*/
-                const contentBackground = document.getElementById("local-instance-thumbnail");
-                contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
-            }).catch((err) => reject(err));
-        }));
-    });
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        yield getInstanceData(name).then((instanceJson) => {
+            const currentState = exports.instancesStates.hasOwnProperty(name) ? exports.instancesStates[name] : InstanceState.Playable;
+            updateInstanceState(name, currentState);
+            const instanceData = instanceJson["data"]["instance"];
+            const gameData = instanceJson["data"]["game"];
+            const loaderData = instanceJson["data"].hasOwnProperty("loader") ? instanceJson["data"]["loader"] : null;
+            const serverBrandLogo = document.getElementById("server-page-server-brand-logo");
+            serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(instanceData["logo_path"], '\\', '/')}`);
+            // Set version
+            const widgetVersion = document.getElementById("server-version");
+            if (widgetVersion) {
+                widgetVersion.innerHTML = "";
+                const widgetText = document.createElement("p");
+                widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`;
+                widgetVersion.append(widgetText);
+            }
+            //const timeInMiliseconds = instanceData.playtime
+            /*h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
+            m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
+
+            m < 10 ? m = `0${m}` : m = `${m}`
+            h < 10 ? h = `0${h}` : h = `${h}`
+
+            widgetPlaytime.innerText = `${h}h${m}`*/
+            const contentBackground = document.getElementById("local-instance-thumbnail");
+            contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
+        }).catch((err) => reject(err));
+    }));
 }
 exports.setContentTo = setContentTo;
 function refreshInstanceList() {
@@ -100,8 +101,12 @@ function refreshInstanceList() {
                         if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"))) {
                             const data = yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"), "utf8");
                             const dataJson = JSON.parse(data);
-                            const element = yield (0, HInstance_1.addInstanceElement)({ name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], coverPath: dataJson["instance"]["cover_path"], version: dataJson["game"]["version"] }, instancesDiv);
-                            element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () { return yield setContentTo(instance.name); }));
+                            const element = yield (0, HInstance_1.addInstanceElement)({ name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], logoPath: dataJson["instance"]["cover_path"], version: dataJson["game"]["version"] }, instancesDiv);
+                            element.addEventListener("click", () => {
+                                exports.currentInstanceOpened = instance.name;
+                                setContentTo(instance.name);
+                                openPopup("server-instance-info");
+                            });
                         }
                     }
                     resolve();
@@ -137,7 +142,7 @@ var InstanceState;
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceState(name, newState) {
     const instance = document.getElementById(name);
-    instancesStates[name] = newState;
+    exports.instancesStates[name] = newState;
     const launchBtn = document.getElementById("server-instance-action");
     const iconBtn = launchBtn.querySelector("img");
     switch (newState) {
@@ -165,7 +170,12 @@ function downloadServerInstance(instanceOpts) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield (0, HRemoteProfiles_1.getMetadataOf)(instanceOpts.name).then((metadata) => __awaiter(this, void 0, void 0, function* () {
                 const isVanilla = !metadata.hasOwnProperty("loader");
-                yield createInstance(instanceOpts, !isVanilla ? {
+                yield createInstance({
+                    name: instanceOpts.name,
+                    logoPath: instanceOpts.logoPath,
+                    thumbnailPath: instanceOpts.thumbnailPath,
+                    version: metadata["mcVersion"]
+                }, !isVanilla ? {
                     name: metadata["loader"]["name"],
                     id: metadata["loader"]["id"]
                 } : undefined).catch((err) => reject(err));
