@@ -54,7 +54,9 @@ function downloadAsync(url, dest, callback, opt) {
                                         if (opt.retry.count > 0) {
                                             yield promises_1.default.rm(dest).catch((err) => reject(err));
                                             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress });
+                                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
+                                                    .then((res) => resolve(res))
+                                                    .catch((err) => reject(err));
                                             }), opt.retry.timeout);
                                         }
                                         else {
@@ -76,9 +78,10 @@ function downloadAsync(url, dest, callback, opt) {
                 else {
                     if ((opt === null || opt === void 0 ? void 0 : opt.retry) != undefined) {
                         if (opt.retry.count > 0) {
-                            yield promises_1.default.rm(dest).catch((err) => reject(err));
                             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress });
+                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
+                                    .then((res) => resolve(res))
+                                    .catch((err) => reject(err));
                             }), opt.retry.timeout);
                         }
                         else {

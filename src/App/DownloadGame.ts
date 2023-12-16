@@ -491,26 +491,28 @@ export async function downloadAndGetJavaVersion(version: JavaVersions) {
 
         if (version == JavaVersions.JDK8) {
             if(existsSync(path.join(javaPath, java8Version, java8Name, "bin"))) {
+                console.log("tesetA")
                 resolve(path.join(javaPath, java8Version, java8Name, "bin"))
+                console.log("tesetB")
+            } else {
+                await downloadAsync(java8Url, path.join(javaPath, `${java8Version}.zip`), (progress: number) => {
+                    console.log(`Progression: ${progress}% du téléchargement`);
+                }, { decompress: true }).catch((err) => reject(err))
+
+                resolve(path.join(javaPath, java8Version, java8Name,  "bin"))
             }
-
-            await downloadAsync(java8Url, path.join(javaPath, `${java8Version}.zip`), (progress: number) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-            }, { decompress: true }).catch((err) => reject(err))
-
-            resolve(path.join(javaPath, java8Version, java8Name,  "bin"))
         }
 
         else if (version == JavaVersions.JDK17) {
             if(existsSync(path.join(javaPath, java17Version, java17Name, "bin"))) {
                 resolve(path.join(javaPath, java17Version, java17Name, "bin"))
+            } else {
+                await downloadAsync(java17Url, path.join(javaPath, `${java17Version}.zip`), (progress: number) => {
+                    console.log(`Progression: ${progress}% du téléchargement`);
+                }, { decompress: true }).catch((err) => reject(err))
+
+                resolve(path.join(javaPath, java17Version, java17Name, "bin"))
             }
-
-            await downloadAsync(java17Url, path.join(javaPath, `${java17Version}.zip`), (progress: number) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-            }, { decompress: true }).catch((err) => reject(err))
-
-            resolve(path.join(javaPath, java17Version, java17Name, "bin"))
         }
 
         reject(`${version} is not a valid Java version.`)

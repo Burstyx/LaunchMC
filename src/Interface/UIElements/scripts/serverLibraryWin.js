@@ -47,16 +47,16 @@ serverInstanceAction.onclick = async () => {
             return
     }
 
-    const data = await ServerInstances.getInstanceData(currentInstanceOpened)
+    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Loading)
 
-    await ServerInstances.updateInstanceState(data["data"]["instance"]["name"], ServerInstances.InstanceState.Loading)
+    const data = await ServerInstances.getInstanceData(currentInstanceOpened)
     const account = await getActiveAccount()
 
     await startMinecraft(data["data"]["instance"]["name"], {
         version: data["data"]["game"]["version"],
-        accessToken: account.accessToken,
-        username: account.username,
-        uuid: account.uuid
+        accessToken: account["access_token"],
+        username: account["username"],
+        uuid: account["uuid"]
     }, data["data"]["loader"]["id"])
 
     await ServerInstances.updateInstanceState(data["data"]["instance"]["name"], ServerInstances.InstanceState.Playing)

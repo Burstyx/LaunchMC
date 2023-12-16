@@ -59,6 +59,8 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                                             await fs.rm(dest).catch((err) => reject(err))
                                             setTimeout(async () => {
                                                 await downloadAsync(url,  dest, callback, {retry: {count: opt.retry!.count - 1, timeout: opt.retry!.timeout}, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
+                                                    .then((res) => resolve(res))
+                                                    .catch((err) => reject(err))
                                             }, opt.retry.timeout)
                                         } else {
                                             reject(`Can't download file from ${url}, the checksum cannot be verified: expected -> ${opt.hash} ; current -> ${hash}.`)
@@ -76,9 +78,10 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                 }else{
                     if(opt?.retry != undefined) {
                         if(opt.retry.count > 0) {
-                            await fs.rm(dest).catch((err) => reject(err))
                             setTimeout(async () => {
                                 await downloadAsync(url,  dest, callback, {retry: {count: opt.retry!.count - 1, timeout: opt.retry!.timeout}, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
+                                    .then((res) => resolve(res))
+                                    .catch((err) => reject(err))
                             }, opt.retry.timeout)
                         } else {
                             reject(`All attempt has be used to download file from ${url} without success. Error code: ${xhr.status}.`)

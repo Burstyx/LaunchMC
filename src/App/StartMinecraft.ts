@@ -164,7 +164,8 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
             jvmArgs.push("-Dfml.ignorePatchDiscrepancies=true")
 
             // Set natives path
-            jvmArgs.push("-Djava.library.path=" + await fs.mkdir(path.join(serversInstancesPath, name, "natives"), {recursive: true}))
+            await fs.mkdir(path.join(serversInstancesPath, name, "natives"), {recursive: true}).catch((err) => reject(err))
+            jvmArgs.push(`-Djava.library.path=${path.join(serversInstancesPath, name, "natives")}`)
 
             // Set classpaths
             let classPaths: string[] = []
