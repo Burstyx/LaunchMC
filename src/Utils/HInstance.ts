@@ -1,16 +1,3 @@
-import fs from "fs/promises"
-import path from "path"
-import {instancesPath, localInstancesPath, serversInstancesPath} from "./const"
-import {existsSync} from "fs"
-import {concatJson, replaceAll} from "./Utils"
-import {downloadMinecraft, patchInstanceWithForge} from "../App/DownloadGame";
-import {downloadAsync} from "./HDownload";
-import cp from "child_process";
-import {getMetadataOf, listProfiles} from "./HRemoteProfiles";
-import {setContentTo} from "../App/ServerInstances";
-const {openPopup} = require("../Interface/UIElements/scripts/window.js")
-
-
 export interface InstanceOpts {
     name: string,
     thumbnailPath: string,
@@ -29,7 +16,7 @@ export interface LoaderOpts {
     id: string
 }
 
-export async function generateInstanceBtn(opts: InstanceOpts | ServerInstanceOpts) {
+export function generateInstanceBtn(opts: InstanceOpts | ServerInstanceOpts) {
     const instanceElement = document.createElement("div")
 
     const textElement = document.createElement("p")
@@ -42,13 +29,10 @@ export async function generateInstanceBtn(opts: InstanceOpts | ServerInstanceOpt
     return instanceElement
 }
 
-export async function addInstanceElement(instanceOpts: InstanceOpts | ServerInstanceOpts, parentDiv: HTMLElement){
-    return new Promise<HTMLElement>(async (resolve, reject) => {
-        await generateInstanceBtn(instanceOpts).then((instanceElement) => {
-            parentDiv.appendChild(instanceElement)
-            resolve(instanceElement)
-        }).catch((err) => reject(err))
-    })
+export function addInstanceElement(instanceOpts: InstanceOpts | ServerInstanceOpts, parentDiv: HTMLElement){
+    const instanceElement = generateInstanceBtn(instanceOpts)
+    parentDiv.appendChild(instanceElement)
+    return instanceElement
 }
 
 /*export function updateInstanceDlProgress(instanceId: string, progress: number) {

@@ -9,3 +9,5 @@ export function info(msg: string | unknown) {
 export function warning(msg: string | unknown) {
     console.log(`%c[WARN] %c${msg}`, `font-weight: bold; color: orange`, `color: orange`)
 }
+
+export type CallbackEvent = (message: string, error: any, type: "warn" | "err") => void;

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.java17Name = exports.java8Name = exports.java17Version = exports.java8Version = exports.java17Url = exports.java8Url = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.forgeMaven = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.forgeVersionsStatuesManifest = exports.forgeVersionsManifest = exports.versionsManifest = exports.tempPath = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.serversInstancesPath = exports.localInstancesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
-const { app } = require("@electron/remote");
+const remote_1 = require("@electron/remote");
 // Path
-exports.gamePath = app.getPath("userData");
+exports.gamePath = remote_1.app.getPath("userData");
 exports.dataPath = exports.gamePath + "/Data";
 exports.minecraftVersionPath = exports.dataPath + "/versions";
 exports.assetsPath = exports.dataPath + "/assets";

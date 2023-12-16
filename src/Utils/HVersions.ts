@@ -9,12 +9,12 @@ interface MinecraftVersionsFiltering {
     }
 }
 
-// Get all Minecraft version with filtering options
 export async function filteredMinecraftVersions(opt: MinecraftVersionsFiltering){
-    var versions: any = []
-    await minecraftManifest().then((data) => {
-        
-        for(var i = 0; i < data["versions"].length; i++){
+    let versions: any = []
+    await minecraftManifest(() => {
+        // FIXME Handle errors
+    }).then((data) => {
+        for(let i = 0; i < data["versions"].length; i++){
             if((data["versions"][i]["type"] == "release" && opt["filterOptions"]["release"])
             || (data["versions"][i]["type"] == "snapshot" && opt["filterOptions"]["snapshot"])
             || (data["versions"][i]["type"] == "old_beta" && opt["filterOptions"]["beta"])
@@ -27,8 +27,6 @@ export async function filteredMinecraftVersions(opt: MinecraftVersionsFiltering)
                 })
             }
         }
-
-        
     })    
     
     return versions

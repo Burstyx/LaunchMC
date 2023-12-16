@@ -2,6 +2,7 @@ import fs from "fs/promises"
 import AdmZip from "adm-zip"
 import checksum from "checksum";
 import { createWriteStream } from "fs-extra";
+import {CallbackEvent} from "./Debug";
 
 interface DownloadOpt {
     decompress?: boolean,
@@ -16,10 +17,13 @@ interface DownloadOpt {
 type CallbackProgress = (progress: number, byteSent: number) => void;
 
 // Download url async
-export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
+export function downloadAsync(url: string, dest: string, event: CallbackEvent, callback?: CallbackProgress, opt?: DownloadOpt) {
     return new Promise<string>(async (resolve, reject) => {
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
-        await fs.mkdir(destDir, {recursive: true}).catch((err) => reject(err))
+        await fs.mkdir(destDir, {recursive: true}).catch((err) => {
+            event(`Impossible de créer le dossier ${destDir}.`, err, "err")
+            reject()
+        })
 
         const file = createWriteStream(dest)
         const xhr = new XMLHttpRequest();
@@ -38,36 +42,56 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                             try{
                                 zip.extractAllTo(destWithoutExt, true)
 
-                                await fs.rm(dest).catch((err) => reject(err))
+                                await fs.rm(dest).catch((err) => {
+                                    event(`Impossible de supprimer le fichier ${dest}.`, err, "warn")
+                                })
                             }catch (err) {
-                                reject(err)
+                                event(`Le fichier ${dest} n'a pas pu être extrait.`, err, "err")
+                                reject()
                             }
                         }
                     })
 
-                    file.write(buffer)
-                    file.close()
+                    file.write(buffer, (err) => {
+                        if(err) {
+                            event(`Impossible d'écrire dans le fichier ${dest}.`, err, "err")
+                            reject()
+                        }
+
+                    })
+
+                    file.close((err) => {
+                        if(err) {
+                            event(`Impossible de fermer le fichier ${dest}.`, err, "err")
+                            reject()
+                        }
+                    })
 
                     file.on("close", () => {
                         // Check file hash
                         if(opt?.hash != undefined) {
                             checksum.file(dest, async (err, hash) => {
                                 if(hash !== opt.hash) {
-                                    console.log(`${destDir} is not valid!`)
+                                    event(`La vérification de ${dest} ne s'est pas passé comme prévu.`, err, "err")
                                     if(opt.retry != undefined) {
                                         if(opt.retry.count > 0) {
-                                            await fs.rm(dest).catch((err) => reject(err))
+                                            await fs.rm(dest).catch((err) => {
+                                                event(`Impossible de supprimer le fichier ${dest}.`, err, "warn")
+                                            })
                                             setTimeout(async () => {
-                                                await downloadAsync(url,  dest, callback, {retry: {count: opt.retry!.count - 1, timeout: opt.retry!.timeout}, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
+                                                await downloadAsync(url, dest, event, callback, {retry: {count: opt.retry!.count - 1, timeout: opt.retry!.timeout}, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
                                                     .then((res) => resolve(res))
-                                                    .catch((err) => reject(err))
+                                                    .catch((err) => {
+                                                        event(`La tentative de téléchargement de ${url} a échoué.`, err, "err")
+                                                        reject()
+                                                    })
                                             }, opt.retry.timeout)
                                         } else {
-                                            reject(`Can't download file from ${url}, the checksum cannot be verified: expected -> ${opt.hash} ; current -> ${hash}.`)
+                                            event(`La vérification du fichier ${dest} a échoué, le checksum attendu (${opt.hash}) ne correspond pas au checksum obtenu (${hash}).`, err, "err")
+                                            reject()
                                         }
                                     }
                                 } else {
-                                    console.log(`${dest} validated successfully!`)
                                     resolve(dest)
                                 }
                             })
@@ -79,15 +103,19 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
                     if(opt?.retry != undefined) {
                         if(opt.retry.count > 0) {
                             setTimeout(async () => {
-                                await downloadAsync(url,  dest, callback, {retry: {count: opt.retry!.count - 1, timeout: opt.retry!.timeout}, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
+                                await downloadAsync(url,  dest, event, callback, {retry: {count: opt.retry!.count - 1, timeout: opt.retry!.timeout}, hash: opt.hash, headers: opt.headers, decompress: opt.decompress})
                                     .then((res) => resolve(res))
-                                    .catch((err) => reject(err))
+                                    .catch((err) => {
+                                        event(`La connexion avec ${url} n'a pas pu être établi (code ${xhr.status}), il reste ${opt.retry?.count} tentative(s).`, err, "warn")
+                                    })
                             }, opt.retry.timeout)
                         } else {
-                            reject(`All attempt has be used to download file from ${url} without success. Error code: ${xhr.status}.`)
+                            event(`La connexion avec ${url} n'a pas pu être établi (code ${xhr.status}), toutes les tentatives ont été utilisé.`, null, "err")
+                            reject()
                         }
                     } else {
-                        reject(`Can't download file from ${url}, code: ${xhr.status}.`)
+                        event(`La connexion avec ${url} n'a pas pu être établi (code ${xhr.status}).`, null, "err")
+                        reject()
                     }
                 }
             }

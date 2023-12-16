@@ -5,8 +5,9 @@ import cp from "child_process"
 import { tempPath } from "./const"
 import { downloadAndGetJavaVersion, JavaVersions } from "../App/DownloadGame"
 import { replaceAll } from "./Utils"
+import {CallbackEvent} from "./Debug";
 
-export async function getAllFile(pathDir: string) {
+export async function getAllFile(pathDir: string, event: CallbackEvent) {
     return new Promise<any>(async (resolve, reject) => {
         let files: any[] = []
         await fs.readdir(pathDir, {withFileTypes: true}).then(async (items) => {
@@ -16,7 +17,7 @@ export async function getAllFile(pathDir: string) {
                 if(item.isDirectory()){
                     files = [
                         ...files,
-                        ...(await getAllFile(path.join(pathDir, item.name)))
+                        ...(await getAllFile(path.join(pathDir, item.name), event))
                     ]
                 }else{
                     files.push(path.join(pathDir, item.name))
@@ -24,11 +25,14 @@ export async function getAllFile(pathDir: string) {
             }
 
             resolve(files)
-        }).catch((err) => reject(err))
+        }).catch((err) => {
+            event(`Impossible de lire le dossier ${pathDir}.`, err, "err")
+            reject()
+        })
     })
 }
 
-export async function extractSpecificFile(compressedDirPath: string, filePath: string, dest?: string) {
+export async function extractSpecificFile(compressedDirPath: string, filePath: string, event: CallbackEvent, dest?: string) {
     return new Promise<void>(async (resolve, reject) => {
         filePath = replaceAll(filePath, "\\", "/")
 
@@ -38,7 +42,8 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
             cp.exec(jar + ` --list --file ${compressedDirPath}`, async (err, stdout) => {
                 const files = stdout.split("\r\n")
                 if(err) {
-                    reject(err)
+                    event(`La récupération des fichiers de ${compressedDirPath} n'a pu aboutir.`, err, "err")
+                    reject()
                 }
 
                 for (const n of files) {
@@ -54,30 +59,44 @@ export async function extractSpecificFile(compressedDirPath: string, filePath: s
                         })
 
                         proc.on("error", (err) => {
-                            reject(err)
+                            event(`L'extraction de ${filePath} dans ${compressedDirPath} n'a pu aboutir.`, err, "err")
+                            reject()
                         })
                     }
                 }
             })
-        }).catch((err) => reject(err))
+        }).catch((err) => {
+            event(`Le JDK 17 n'a pas pu être récupéré, l'extraction du fichier ${compressedDirPath} n'a pu aboutir.`, err, "err")
+            reject()
+        })
     })
 }
 
-export async function readJarMetaInf(jar: string, attribute: string) {
+export async function readJarMetaInf(jar: string, attribute: string, event: CallbackEvent) {
     return new Promise<string>(async (resolve, reject) => {
-        await extractSpecificFile(jar, "META-INF/MANIFEST.MF", path.join(tempPath, "MANIFEST.MF"))
+        await extractSpecificFile(jar, "META-INF/MANIFEST.MF", () => {
+            // FIXME Handle errors
+        }, path.join(tempPath, "MANIFEST.MF"))
 
         await fs.readFile(path.join(tempPath, "MANIFEST.MF"), "utf-8").then(async (manifest) => {
-            await fs.unlink(path.join(tempPath, "MANIFEST.MF"))
+            await fs.rm(path.join(tempPath, "MANIFEST.MF")).catch((err) => {
+                event(`Impossible de supprimer le fichier manifest de ${jar} du dossier temporaire.`, err, "warn")
+            })
 
             const lines = manifest.split("\n")
             const mainClassLine = lines.find((line: string) => line.startsWith(`${attribute}: `))
 
-            if(mainClassLine === undefined) reject(Error(`Method returned undefined value while retrieving ${attribute} from ${jar}`))
+            if(mainClassLine === undefined) {
+                event(`La propriété MainClass du manifest de ${jar} renvoie une valeur undefined.`, null, "err")
+                reject()
+            }
 
             // @ts-ignore
             resolve(mainClassLine.substring(`${attribute}: `.length))
-        }).catch((err) => reject(err))
+        }).catch((err) => {
+            event(`Impossible de lire le fichier manifest de ${jar}.`, err, "err")
+            reject()
+        })
     })
 }
 
