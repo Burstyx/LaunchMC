@@ -6,71 +6,76 @@ const { closeWindow } = require("./window")
 
 // Fetch all saved account
 exports.refreshAccountList = async () => {
-    const accounts = await accountList()
+    await accountList((message, error, type) => {
+        // FIXME Handle errors
+    }).then(async (accounts) => {
+        const accountsList = document.getElementById("account-list")
+        accountsList.innerHTML = ""
 
-    if (accounts == null) {
-        console.log("Can't refresh account list, no account found");
-        return
-    }
+        for (const account of accounts) {
+            // Main checkbox
+            const selector = document.createElement("div")
+            selector.classList.add("selector")
 
-    const accountsList = document.getElementById("account-list")
-    accountsList.innerHTML = ""
+            if (account["active"]) {
+                selector.toggleAttribute("active", true)
+            }
 
-    for (const account of accounts) {
-        // Main checkbox
-        const selector = document.createElement("div")
-        selector.classList.add("selector")
+            selector.setAttribute("account-id", account["uuid"])
 
-        if (account["active"]) {
-            selector.toggleAttribute("active", true)
+            // Account profile image
+            const profileImg = document.createElement("img")
+            profileImg.src = `https://minotar.net/avatar/${account["uuid"]}`
+
+            selector.appendChild(profileImg)
+
+            const accountUsername = document.createElement("p")
+            accountUsername.innerText = account["username"]
+            selector.appendChild(accountUsername)
+
+            accountsList.appendChild(selector)
+
+            const selectorParent = selector.parentElement
+            registerSelectorGroup(selectorParent)
+
+            selector.addEventListener("click", async () => {
+                console.log(selector);
+
+                await getActiveAccount((message, error, type) => {
+                    // FIXME Handle errors
+                }).then(async (res) => {
+                    await changeAccountProperty(res.uuid, "active", !selector.hasAttribute("active"), (message, error, type) => {
+                        // FIXME HANDLE errors
+                    })
+                    await changeAccountProperty(selector.getAttribute("account-id"), "active", selector.hasAttribute("active"), (message, error, type) => {
+                        // FIXME Handle errors
+                    })
+
+                    refreshAccountBtnImg(selector.getAttribute("account-id"))
+                })
+            })
         }
 
-        selector.setAttribute("account-id", account["uuid"])
-
-        // Account profile image
-        const profileImg = document.createElement("img")
-        profileImg.src = `https://minotar.net/avatar/${account["uuid"]}`
-
-        selector.appendChild(profileImg)
-
-        const accountUsername = document.createElement("p")
-        accountUsername.innerText = account["username"]
-        selector.appendChild(accountUsername)
-
-        accountsList.appendChild(selector)
-
-        const selectorParent = selector.parentElement
-        registerSelectorGroup(selectorParent)
-
-        selector.addEventListener("click", async () => {
-            console.log(selector);
-
-            await changeAccountProperty((await getActiveAccount()).uuid, "active", !selector.hasAttribute("active"))
-            await changeAccountProperty(selector.getAttribute("account-id"), "active", selector.hasAttribute("active"))
-
-            refreshAccountBtnImg(selector.getAttribute("account-id"))
+        await getActiveAccount((message, error, type) => {
+            // FIXME Handle errors
+        }).then((activeAccount) => {
+            refreshAccountBtnImg(activeAccount.uuid)
         })
-    }
-
-    const activeAccount = await getActiveAccount()
-
-    refreshAccountBtnImg(activeAccount.uuid)
+    })
 }
 
-// Close window
 const closeBtn = document.getElementById("close-account-manager-win")
 closeBtn.addEventListener("click", (e) => {
     closeWindow("account-manager")
 })
 
-// Add account btn
 const addAccount = document.getElementById("create-account-btn")
 addAccount.addEventListener("click", async (e) => {
     const status = await msaLogin()
 
     console.log(status);
 
-    if (status == true) {
+    if (status === true) {
         await this.refreshAccountList()
     } else {
         console.error("Authentification to the microsoft account cannot be established. An error occured!");

@@ -5,6 +5,7 @@ export enum DiscordRPCState{
     InGame
 }
 
+
 let client: RPC.Client
 const clientId = "1116091725061046353"
 
