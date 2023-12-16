@@ -34,7 +34,7 @@ function startMinecraft(name, mcOpts, forgeId) {
                 if (isForgeVersion) {
                     yield (0, HForge_1.getForgeVersionIfExist)(forgeId).then((data) => {
                         forgeData = data;
-                    });
+                    }).catch((err) => reject(err));
                 }
                 // Get all Minecraft arguments
                 let mcArgs = mcData["minecraftArguments"];
@@ -133,7 +133,7 @@ function startMinecraft(name, mcOpts, forgeId) {
                 let jvmArgs = [];
                 // Set min and max allocated ram
                 jvmArgs.push("-Xms2048M");
-                jvmArgs.push("-Xmx4096M");
+                jvmArgs.push("-Xmx6144M");
                 // Intel optimization
                 jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
                 // Ignore Invalid Certificates Verification
@@ -171,30 +171,30 @@ function startMinecraft(name, mcOpts, forgeId) {
                 const fullMcArgs = [...jvmArgs, ...mcArgs].filter((val, i) => val != "");
                 console.log(fullMcArgs);
                 // Find correct java executable
-                const java8Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK8);
-                const java17Path = yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17);
+                let java8Path = "";
+                yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK8).then((res) => {
+                    java8Path = res;
+                }).catch((err) => reject(err));
+                let java17Path = "";
+                yield (0, DownloadGame_1.downloadAndGetJavaVersion)(DownloadGame_1.JavaVersions.JDK17).then((res) => {
+                    java17Path = res;
+                }).catch((err) => reject(err));
                 const java8 = path_1.default.join(java8Path, "javaw");
                 const java17 = path_1.default.join(java17Path, "javaw");
                 const semverVersionCompatibility = mcOpts.version.split(".").length == 2 ? mcOpts.version + ".0" : mcOpts.version;
                 const below117 = semver_1.default.lt(semverVersionCompatibility, "1.17.0");
-                console.log("below117: " + below117);
                 const javaVersionToUse = below117 ? java8 : java17;
-                console.log(javaVersionToUse);
-                console.log("Extracting natives");
                 yield extractAllNatives(mcLibrariesArray.join(path_1.default.delimiter), path_1.default.join(const_1.serversInstancesPath, name, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar"));
-                console.log("natives extracted");
-                console.log("here full args");
-                console.log(fullMcArgs.join(" "));
                 const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs, { cwd: path_1.default.join(const_1.serversInstancesPath, name) });
                 console.log(proc.spawnargs);
                 //await updateInstanceDlState(instanceId, InstanceState.Playing)
                 yield (0, DIscordRPC_1.switchDiscordRPCState)(DIscordRPC_1.DiscordRPCState.InGame);
                 mcProc[name] = proc;
                 proc.stdout.on("data", (data) => {
-                    console.log(data.toString("utf-8"));
+                    console.log(data.toString("utf8"));
                 });
                 proc.stderr.on("data", (data) => {
-                    console.error(data.toString("utf-8"));
+                    console.error(data.toString("utf8"));
                 });
                 proc.stdout.on("error", (err) => console.error(err));
                 proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {

@@ -1,6 +1,9 @@
 import {replaceAll} from "../Utils/Utils";
 import {getInstanceDataOf, getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
 import {addInstanceElement} from "../Utils/HInstance";
+import {existsSync} from "fs";
+import {serversInstancesPath} from "../Utils/const";
+import path from "path";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 export let instancesStates : any = {};
@@ -49,10 +52,13 @@ export async function refreshInstanceList() {
         if(instancesDiv){
             instancesDiv.innerHTML = ""
 
+            const loading= document.createElement("img")
+            loading.setAttribute("src", "./resources/svg/loading.svg")
+            instancesDiv.append(loading)
+
             const profiles = await listProfiles();
 
-            console.log(profiles)
-
+            instancesDiv.innerHTML = ""
             for(const instanceName in profiles){
                 const element = await addInstanceElement({
                         name: instanceName,
@@ -62,6 +68,10 @@ export async function refreshInstanceList() {
                     },
                     instancesDiv
                 )
+
+                if(existsSync(path.join(serversInstancesPath, instanceName, "info.json"))) {
+                    instancesStates[instanceName] = InstanceState.Owned
+                }
 
                 element.addEventListener("click", () => {
                     currentInstanceOpened = instanceName

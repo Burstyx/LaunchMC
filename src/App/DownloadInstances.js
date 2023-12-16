@@ -8,11 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateInstanceState = exports.refreshInstanceList = exports.setContentTo = exports.InstanceState = exports.currentInstanceOpened = exports.instancesStates = void 0;
 const Utils_1 = require("../Utils/Utils");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HInstance_1 = require("../Utils/HInstance");
+const fs_1 = require("fs");
+const const_1 = require("../Utils/const");
+const path_1 = __importDefault(require("path"));
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 exports.instancesStates = {};
 exports.currentInstanceOpened = null;
@@ -52,8 +58,11 @@ function refreshInstanceList() {
             const instancesDiv = document.getElementById("avail-servers");
             if (instancesDiv) {
                 instancesDiv.innerHTML = "";
+                const loading = document.createElement("img");
+                loading.setAttribute("src", "./resources/svg/loading.svg");
+                instancesDiv.append(loading);
                 const profiles = yield (0, HRemoteProfiles_1.listProfiles)();
-                console.log(profiles);
+                instancesDiv.innerHTML = "";
                 for (const instanceName in profiles) {
                     const element = yield (0, HInstance_1.addInstanceElement)({
                         name: instanceName,
@@ -61,6 +70,9 @@ function refreshInstanceList() {
                         logoPath: profiles[instanceName]["coverUrl"],
                         version: profiles[instanceName]["thumbnailPath"]
                     }, instancesDiv);
+                    if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instanceName, "info.json"))) {
+                        exports.instancesStates[instanceName] = InstanceState.Owned;
+                    }
                     element.addEventListener("click", () => {
                         exports.currentInstanceOpened = instanceName;
                         setContentTo(instanceName);

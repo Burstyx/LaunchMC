@@ -2,7 +2,7 @@ const {listProfiles, getInstanceDataOf} = require("../../../Utils/HRemoteProfile
 const {downloadServerInstance} = require("../../../App/ServerInstances");
 const DownloadInstances = require("../../../App/DownloadInstances");
 const ServerInstances = require("../../../App/ServerInstances");
-const {startMinecraft} = require("../../../App/StartMinecraft");
+const {startMinecraft, killGame} = require("../../../App/StartMinecraft");
 const {getActiveAccount} = require("../../../Utils/HMicrosoft");
 
 const downloadInstanceAction = document.getElementById("download-instance-action")
@@ -40,10 +40,14 @@ serverInstanceAction.onclick = async () => {
 
     switch (currentState) {
         case ServerInstances.InstanceState.NeedUpdate:
+            // Update
             return
         case ServerInstances.InstanceState.Playing:
+            killGame(currentInstanceOpened)
+            ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
             return
         case ServerInstances.InstanceState.Loading:
+            // Do nothing
             return
     }
 

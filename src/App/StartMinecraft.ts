@@ -42,7 +42,7 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
             if(isForgeVersion) {
                 await getForgeVersionIfExist(forgeId).then((data) => {
                     forgeData = data;
-                })
+                }).catch((err) => reject(err))
             }
 
             // Get all Minecraft arguments
@@ -152,7 +152,7 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
 
             // Set min and max allocated ram
             jvmArgs.push("-Xms2048M")
-            jvmArgs.push("-Xmx4096M")
+            jvmArgs.push("-Xmx6144M")
 
             // Intel optimization
             jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")
@@ -205,8 +205,15 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
             console.log(fullMcArgs);
 
             // Find correct java executable
-            const java8Path = await downloadAndGetJavaVersion(JavaVersions.JDK8)
-            const java17Path = await downloadAndGetJavaVersion(JavaVersions.JDK17)
+            let java8Path: string = ""
+            await downloadAndGetJavaVersion(JavaVersions.JDK8).then((res) => {
+                java8Path = res;
+            }).catch((err) => reject(err))
+
+            let java17Path: string = ""
+            await downloadAndGetJavaVersion(JavaVersions.JDK17).then((res) => {
+                java17Path = res
+            }).catch((err) => reject(err))
 
             const java8 = path.join(java8Path, "javaw")
             const java17 = path.join(java17Path, "javaw")
@@ -214,20 +221,10 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
             const semverVersionCompatibility = mcOpts.version.split(".").length == 2 ? mcOpts.version + ".0" : mcOpts.version
 
             const below117 = semver.lt(semverVersionCompatibility, "1.17.0")
-            console.log("below117: " + below117);
 
             const javaVersionToUse = below117 ? java8 : java17
 
-            console.log(javaVersionToUse);
-
-            console.log("Extracting natives");
-
             await extractAllNatives(mcLibrariesArray.join(path.delimiter), path.join(serversInstancesPath, name, "natives"), path.join(javaPath, java17Version, java17Name, "bin", "jar"))
-
-            console.log("natives extracted");
-
-            console.log("here full args");
-            console.log(fullMcArgs.join(" "));
 
             const proc = cp.spawn(javaVersionToUse, fullMcArgs, {cwd: path.join(serversInstancesPath, name)})
 
@@ -239,11 +236,11 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
             mcProc[name] = proc
 
             proc.stdout.on("data", (data) => {
-                console.log(data.toString("utf-8"));
+                console.log(data.toString("utf8"));
             })
 
             proc.stderr.on("data", (data) => {
-                console.error(data.toString("utf-8"));
+                console.error(data.toString("utf8"));
             })
 
             proc.stdout.on("error", (err) => console.error(err))
