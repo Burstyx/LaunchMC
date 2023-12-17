@@ -48,7 +48,7 @@ export async function addAccount(opt: AccountInfo){
         let activeAccount: any = undefined
         await getActiveAccount().then(async (res) => {
             activeAccount = res
-        }).catch((err) => {})
+        }).catch(() => {})
 
         data["accounts"].push({"access_token": opt.accessToken, "refresh_token": opt.refreshToken, "username": opt.username, "usertype": opt.usertype, "uuid": opt.uuid, "active": activeAccount === undefined})
 
