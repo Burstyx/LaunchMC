@@ -48,12 +48,15 @@ function addAccount(opt) {
                     reject(err);
                 });
             }
+            let activeAccount;
             yield getActiveAccount().then((res) => __awaiter(this, void 0, void 0, function* () {
-                data["accounts"].push({ "access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": res === null });
+                activeAccount = res;
+            })).catch((err) => reject(err)).finally(() => __awaiter(this, void 0, void 0, function* () {
+                data["accounts"].push({ "access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": activeAccount === null });
                 yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
                     reject(err);
                 }).catch((err) => reject(err));
-            })).catch((err) => reject(err));
+            }));
         }));
     });
 }

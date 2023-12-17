@@ -44,13 +44,18 @@ export async function addAccount(opt: AccountInfo){
             })
         }
 
+        // FIXME Rien qui marche et ca me met les nerfs
+
+        let activeAccount: any
         await getActiveAccount().then(async (res) => {
-            data["accounts"].push({"access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": res === null})
+            activeAccount = res
+        }).catch((err) => reject(err)).finally(async () => {
+            data["accounts"].push({"access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": activeAccount === null})
 
             await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
                 reject(err)
             }).catch((err) => reject(err))
-        }).catch((err) => reject(err))
+        })
     })
 }
 
