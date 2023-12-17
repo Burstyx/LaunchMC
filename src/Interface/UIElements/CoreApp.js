@@ -41,7 +41,9 @@ const initializeModules = async () => {
         await chooseVersionWindow.refreshVersionList()*/
 
         console.log("Refreshing Microsoft Account");
-        await refreshToken()
+        await refreshToken().catch((err) => {
+            console.error(`Une erreur est survenue lors du rafraichissement du token: ${err}`)
+        })
 
         setLoading(false)
 

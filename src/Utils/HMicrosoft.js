@@ -109,7 +109,6 @@ function getActiveAccount() {
                 const data = JSON.parse(res);
                 for (const e in data["accounts"]) {
                     if (data["accounts"][e]["active"] == true) {
-                        console.log(data["accounts"][e]);
                         resolve(data["accounts"][e]);
                     }
                 }

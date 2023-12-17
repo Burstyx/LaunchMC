@@ -107,8 +107,6 @@ export async function getActiveAccount(){
 
             for(const e in data["accounts"]){
                 if(data["accounts"][e]["active"] == true){
-                    console.log(data["accounts"][e]);
-
                     resolve(data["accounts"][e])
                 }
             }

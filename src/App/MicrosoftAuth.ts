@@ -76,27 +76,54 @@ async function connectWithCode(code: string){
 }
 
 export async function refreshToken() {
-    const activeAccount = await getActiveAccount()
+    return new Promise<void>(async (resolve, reject) => {
+        await getActiveAccount().then(async (activeAccount) => {
+            if(activeAccount === null) return;
 
-    if(activeAccount === null) return;
+            const uuid = activeAccount["uuid"]
+            const refreshToken = activeAccount["refresh_token"]
 
-    const uuid = activeAccount["uuid"]
-    const refreshToken = activeAccount["refresh_token"]
+            let refreshedData: any
+            await refreshAccessToken(refreshToken).then((res) => {
+                refreshedData = res
+            }).catch((err) => reject(err))
 
-    const refreshedData = await refreshAccessToken(refreshToken)
+            if(!refreshedData) reject()
 
-    const xbxLiveFetchedData = await getXbxLiveToken(refreshedData!["access_token"])
-    const uhs = xbxLiveFetchedData!["DisplayClaims"]["xui"][0]["uhs"]
-    const xbxToken = xbxLiveFetchedData!["Token"]
+            let xbxLiveFetchedData: any
+            await getXbxLiveToken(refreshedData!["access_token"]).then((res) => {
+                xbxLiveFetchedData = res
+            }).catch((err) => reject(err))
 
-    const xstsFetchedData = await getXstsToken(xbxToken)
-    const xstsToken = xstsFetchedData!["Token"]
+            if(!xbxLiveFetchedData) reject()
 
-    const minecraftFetchedData = await getMinecraftBearerToken(uhs, xstsToken)
-    const minecraftAccessToken = minecraftFetchedData!["access_token"]
+            const uhs = xbxLiveFetchedData!["DisplayClaims"]["xui"][0]["uhs"]
+            const xbxToken = xbxLiveFetchedData!["Token"]
 
-    await changeAccountProperty(uuid, "access_token", minecraftAccessToken)
-    await changeAccountProperty(uuid, "refresh_token", refreshedData!["refresh_token"])
+            let xstsFetchedData: any
+            await getXstsToken(xbxToken).then((res) => {
+                xstsFetchedData = res
+            }).catch((err) => reject(err))
+
+            if(!xstsFetchedData) reject()
+
+            const xstsToken = xstsFetchedData!["Token"]
+
+            let minecraftFetchedData: any
+            await getMinecraftBearerToken(uhs, xstsToken).then((res) => {
+                minecraftFetchedData = res
+            }).catch((err) => reject(err))
+
+            if(!minecraftFetchedData) reject()
+
+            const minecraftAccessToken = minecraftFetchedData!["access_token"]
+
+            await changeAccountProperty(uuid, "access_token", minecraftAccessToken)
+            await changeAccountProperty(uuid, "refresh_token", refreshedData!["refresh_token"])
+
+            resolve()
+        })
+    })
 }
 
 async function getMinecraftProfile(accessToken: string){
