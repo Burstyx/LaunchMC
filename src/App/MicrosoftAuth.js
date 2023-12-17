@@ -71,7 +71,7 @@ function connectWithCode(code) {
         const minecraftProfileData = yield getMinecraftProfile(minecraftAccessToken);
         const username = minecraftProfileData["name"];
         const uuid = minecraftProfileData["id"];
-        yield (0, HMicrosoft_js_1.addAccount)({ accesstoken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid });
+        yield (0, HMicrosoft_js_1.addAccount)({ accessToken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid });
     });
 }
 function getMinecraftProfile(accessToken) {

@@ -4,80 +4,64 @@ import path from "path"
 import fs from "fs/promises"
 import { downloadAsync } from "./HDownload";
 import { existsSync } from "fs";
-import {CallbackEvent} from "./Debug";
 
-export async function getForgeInstallerForVersion(forgeId: string, event: CallbackEvent) {
+export async function getForgeInstallerForVersion(forgeId: string) {
     return new Promise<string>(async (resolve, reject) => {
         const installerPath = path.join(tempPath, "forgeinstallers")
         await fs.mkdir(installerPath, {recursive: true}).catch((err) => {
-            event(`Impossible de créer le dossier ${installerPath} pour stocker l'installer de forge ${forgeId}.`, err, "err")
-            reject()
+            reject(err)
         })
 
         if(!existsSync(path.join(installerPath, `forge-${forgeId}-installer.jar`))) {
-            await downloadAsync(path.join(forgeMaven, "net", "minecraftforge", "forge", forgeId, `forge-${forgeId}-installer.jar`), path.join(installerPath, `forge-${forgeId}-installer.jar`), () => {
-                // FIXME Handle errors
-            })
+            await downloadAsync(path.join(forgeMaven, "net", "minecraftforge", "forge", forgeId, `forge-${forgeId}-installer.jar`), path.join(installerPath, `forge-${forgeId}-installer.jar`)).catch((err) => reject(err))
         }
 
         resolve(path.join(installerPath, `forge-${forgeId}-installer.jar`))
     })
 }
 
-export async function getForgeInstallProfileIfExist(forgeId: string, event: CallbackEvent) {
+export async function getForgeInstallProfileIfExist(forgeId: string) {
     return new Promise<any>(async (resolve, reject) => {
-        const forgeInstallerPath = await getForgeInstallerForVersion(forgeId, () => {
-            // FIXME Handle errors
-        })
+        await getForgeInstallerForVersion(forgeId).then(async (forgeInstallerPath) => {
+            await extractSpecificFile(forgeInstallerPath, "install_profile.json").catch((err) => reject(err))
 
-        await extractSpecificFile(forgeInstallerPath, "install_profile.json", () => {
-            // FIXME Handle errors
-        })
+            const installProfilePath = path.join(path.dirname(forgeInstallerPath), "install_profile.json")
 
-        const installProfilePath = path.join(path.dirname(forgeInstallerPath), "install_profile.json")
+            fs.readFile(installProfilePath, "utf8").then(async (file) => {
+                const data = JSON.parse(file)
 
-        fs.readFile(installProfilePath, "utf8").then(async (file) => {
-            const data = JSON.parse(file)
+                await fs.unlink(installProfilePath).catch((err) => reject(err))
 
-            await fs.unlink(installProfilePath).catch((err) => reject(err))
-
-            resolve(data)
-        }).catch((err) => {
-            event(`Impossible de lire le fichier ${installProfilePath}.`, err, "err")
-            reject()
-        })
+                resolve(data)
+            }).catch((err) => {
+                reject(err)
+            })
+        }).catch((err) => reject(err))
     })
 }
 
-export async function getForgeVersionIfExist(forgeId: string, event: CallbackEvent) {
+export async function getForgeVersionIfExist(forgeId: string) {
     return new Promise<any>(async (resolve, reject) => {
         const versionPath = path.join(minecraftVersionPath, forgeId)
         await fs.mkdir(versionPath, {recursive: true}).catch((err) => {
-            event(`Impossible de créer le dossier ${versionPath} pour récupérer le fichier de version de forge ${forgeId}.`, err, "err")
-            reject()
+            reject(err)
         })
 
         if(!existsSync(path.join(versionPath, `${forgeId}.json`))) {
-            await getForgeInstallerForVersion(forgeId, () => {
-                // FIXME Handle errors
-            }).then(async (forgeInstaller) => {
-                await getForgeInstallProfileIfExist(forgeId, () => {
-                    // FIXME Handle errors
-                }).then(async (forgeInstallProfile) => {
+            await getForgeInstallerForVersion(forgeId).then(async (forgeInstaller) => {
+                await getForgeInstallProfileIfExist(forgeId).then(async (forgeInstallProfile) => {
                     if(forgeInstallProfile.json) {
                         const versionJsonPath = forgeInstallProfile.json.startsWith("/") ? forgeInstallProfile.json.replace("/", "") : forgeInstallProfile.json
-                        await extractSpecificFile(forgeInstaller, versionJsonPath, () => {
-                            // FIXME Handle errors
-                        }, path.join(versionPath, `${forgeId}.json`))
+                        await extractSpecificFile(forgeInstaller, versionJsonPath, path.join(versionPath, `${forgeId}.json`)).catch((err) => reject(err))
                     } else {
-                        await extractSpecificFile(forgeInstaller, "install_profile.json", () => {
-                            // FIXME Handle errors
-                        }, path.join(versionPath, `${forgeId}.json`))
+                        await extractSpecificFile(forgeInstaller, "install_profile.json", path.join(versionPath, `${forgeId}.json`)).catch((err) => reject(err))
                     }
-                })
-            })
+                }).catch((err) => reject(err))
+            }).catch((err) => reject(err))
         }
 
-        resolve(JSON.parse(await fs.readFile(path.join(versionPath, `${forgeId}.json`), "utf-8")))
+        await fs.readFile(path.join(versionPath, `${forgeId}.json`), "utf-8").then((res) => {
+            resolve(JSON.parse(res))
+        }).catch((err) => reject(err))
     })
 }

@@ -2,7 +2,6 @@ import {gamePath} from "./const"
 import fs from "fs/promises"
 import { existsSync } from "fs"
 import path from "path"
-import {CallbackEvent} from "./Debug";
 
 interface AccountInfo {
     accessToken: any,
@@ -11,10 +10,9 @@ interface AccountInfo {
     usertype: string,
 }
 
-export async function accountList(event: CallbackEvent){
+export async function accountList(){
     return new Promise<any>(async (resolve, reject) => {
         if(!existsSync(path.join(gamePath, "microsoft_account.json"))) {
-            event(`Aucun compte microsoft enregistré.`, null, "err")
             reject()
         }
 
@@ -29,56 +27,50 @@ export async function accountList(event: CallbackEvent){
 
             resolve(accounts)
         }).catch((err) => {
-            event(`Impossible de lire le fichier des comptes microsoft.`, err, "err")
-            reject()
+            reject(err)
         })
     })
 }
 
-export async function addAccount(opt: AccountInfo, event: CallbackEvent){
+export async function addAccount(opt: AccountInfo){
     return new Promise<void>(async (resolve, reject) => {
         let data: any = {"accounts": []}
 
         if(existsSync(path.join(gamePath, "microsoft_account.json"))) {
-            await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8").then((data) => {
-                data = JSON.parse(data)
+            await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf-8").then((res) => {
+                data = JSON.parse(res)
             }).catch((err) => {
-                event(`Impossible d'ajouter le compte. Erreur lors de l'écriture.`, err, "err")
-                reject()
+                reject(err)
             })
         }
 
-        await getActiveAccount(() => {
-            // FIXME Handle errors
-        }).then(async (res) => {
+        await getActiveAccount().then(async (res) => {
             data["accounts"].push({"access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": res === null})
 
             await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
-                event(`Impossible d'ajouter le compte. Erreur lors de l'écriture.`, err, "err")
-                reject()
-            })
-        })
+                reject(err)
+            }).catch((err) => reject(err))
+        }).catch((err) => reject(err))
     })
 }
 
-export async function getAccount(uuid: string, event: CallbackEvent){
+export async function getAccount(uuid: string){
     return new Promise<void>(async (resolve, reject) => {
         await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf8").then((res) => {
             const data = JSON.parse(res)
 
             for(const e in data["accounts"]){
                 if(data["accounts"][e]["uuid"] == uuid){
-                    return data["accounts"][e]
+                    resolve(data["accounts"][e])
                 }
             }
         }).catch((err) => {
-            event(`Impossible de récupérer le compte ${uuid}. Erreur lors de la lecture.`, err, "err")
-            reject()
+            reject(err)
         })
     })
 }
 
-export async function changeAccountProperty(uuid: string, property: string, newValue: any, event: CallbackEvent) {
+export async function changeAccountProperty(uuid: string, property: string, newValue: any) {
     return new Promise<void>(async (resolve, reject) => {
         await fs.readFile(path.join(gamePath, "microsoft_account.json"), "utf8").then(async (res) => {
             const data = JSON.parse(res)
@@ -86,7 +78,6 @@ export async function changeAccountProperty(uuid: string, property: string, newV
             for (const e in data["accounts"]) {
                 if (data["accounts"][e]["uuid"] == uuid) {
                     if (!data["accounts"][e].hasOwnProperty(property)) {
-                        event(`Impossible de modifier la propriété ${property} car elle n'existe pas.`, null, "err")
                         reject()
                     }
 
@@ -95,22 +86,19 @@ export async function changeAccountProperty(uuid: string, property: string, newV
             }
 
             await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
-                event(`Impossible de modifier la propriété ${property} par ${newValue}, erreur lors de l'écriture.`, err, "err")
-                reject()
+                reject(err)
             })
 
             resolve()
         }).catch((err) => {
-            event(`Impossible de modifier la propriété ${property}, erreur lors de la lecture.`, err, "err")
-            reject()
+            reject(err)
         })
     })
 }
 
-export async function getActiveAccount(event: CallbackEvent){
+export async function getActiveAccount(){
     return new Promise<any>(async (resolve, reject) => {
         if(!existsSync(path.join(gamePath, "microsoft_account.json"))) {
-            event(`Il n'y a aucun compte actif.`, null, "err")
             reject()
         }
 
@@ -121,15 +109,13 @@ export async function getActiveAccount(event: CallbackEvent){
                 if(data["accounts"][e]["active"] == true){
                     console.log(data["accounts"][e]);
 
-                    return data["accounts"][e]
+                    resolve(data["accounts"][e])
                 }
             }
 
-            event(`Il n'y a aucun compte actif.`, null, "err")
             reject()
         }).catch((err) => {
-            event(`Impossible de récupérer le compte actif actuel, erreur lors de la lecture.`, err, "err")
-            reject()
+            reject(err)
         })
     })
 }

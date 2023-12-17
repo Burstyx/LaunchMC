@@ -27,18 +27,17 @@ const Utils_1 = require("../Utils/Utils");
 function downloadMinecraft(version, instanceName) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            // Préparation
             //updateInstanceDlProgress(instanceId, 0)
-            // Variables de tracking du dl
             let numberOfLibrariesToDownload = 0;
             let numberOfLibrariesDownloaded = 0;
             let numberOfAssetsToDownload = 0;
             let numberOfAssetsDownloaded = 0;
             let totalSizeToDl = 0; // TODO: Compute this to track dl efficiently
             let currentDownloadedSize = 0;
-            // Téléchargement/Récupération des manifests nécessaire
             yield (0, HManifests_1.minecraftManifestForVersion)(version).then((versionDataManifest) => __awaiter(this, void 0, void 0, function* () {
-                yield promises_1.default.mkdir(const_1.indexesPath, { recursive: true }).catch((err) => reject(err));
+                yield promises_1.default.mkdir(const_1.indexesPath, { recursive: true }).catch((err) => {
+                    reject(err);
+                });
                 yield (0, HDownload_1.downloadAsync)(versionDataManifest["assetIndex"]["url"], path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), (progress) => {
                     console.log(`Progression: ${progress}% du téléchargement du manifest des assets`);
                 }, {
@@ -48,23 +47,20 @@ function downloadMinecraft(version, instanceName) {
                     },
                     hash: versionDataManifest["assetIndex"]["sha1"]
                 }).catch((err) => reject(err));
-                const indexDataManifest = JSON.parse((yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"))).toString("utf-8"));
-                if (indexDataManifest == null)
+                let indexDataManifest;
+                yield promises_1.default.readFile(path_1.default.join(const_1.indexesPath, versionDataManifest["assetIndex"]["id"] + ".json"), "utf8").then((res) => {
+                    indexDataManifest = JSON.parse((res));
+                }).catch((err) => reject(err));
+                if (indexDataManifest === null)
                     return;
-                // Initialisation du traking du dl
                 numberOfLibrariesToDownload = versionDataManifest["libraries"].length;
-                for (const e in indexDataManifest.objects) {
+                for (const _ in indexDataManifest["objects"]) {
                     numberOfAssetsToDownload++;
                 }
-                // Calcul taille total
-                // Calcul taille client + assets + libraries
-                // client
                 const clientSize = versionDataManifest["downloads"]["client"]["size"];
                 const assetsSize = versionDataManifest["assetIndex"]["totalSize"];
                 const librariesSize = minecraftLibraryTotalSize(versionDataManifest);
                 totalSizeToDl = clientSize + assetsSize + librariesSize;
-                // Téléchargement du client
-                console.log("[INFO] Téléchargement du client");
                 yield promises_1.default.mkdir(const_1.minecraftVersionPath, { recursive: true }).catch((err) => reject(err));
                 yield (0, HDownload_1.downloadAsync)(versionDataManifest["downloads"]["client"]["url"], path_1.default.join(const_1.minecraftVersionPath, version, `${versionDataManifest.id}.jar`), (progress, byteSent) => {
                     console.log(`Progression: ${progress}% du téléchargement du client de jeu`);
@@ -77,9 +73,8 @@ function downloadMinecraft(version, instanceName) {
                     },
                     hash: versionDataManifest["downloads"]["client"]["sha1"]
                 }).catch((err) => reject(err));
-                // Téléchargement des librairies
                 console.log("[INFO] Téléchargement des librairies");
-                for (let i = 0; i < versionDataManifest.libraries.length; i++) {
+                for (let i = 0; i < versionDataManifest["libraries"].length; i++) {
                     yield downloadMinecraftLibrary(versionDataManifest, i).then((fetchedByte) => {
                         numberOfLibrariesDownloaded++;
                         console.log(`Progression: ${numberOfLibrariesDownloaded * 100 / numberOfLibrariesToDownload}% du téléchargement des libraries`);
@@ -87,17 +82,16 @@ function downloadMinecraft(version, instanceName) {
                         //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)
                     }).catch((err) => reject(err));
                 }
-                // Téléchargement des assets
-                console.log("[INFO] Téléchargement des assets");
                 for (const e in indexDataManifest["objects"]) {
                     console.log(`Progression: ${numberOfAssetsDownloaded * 100 / numberOfAssetsToDownload}`);
                     const hash = indexDataManifest["objects"][e]["hash"];
                     const subhash = hash.substring(0, 2);
                     yield promises_1.default.mkdir(path_1.default.join(const_1.objectPath, subhash), { recursive: true }).catch((err) => reject(err));
-                    const fullPath = path_1.default.join(const_1.serversInstancesPath, instanceName, "resources", e);
-                    const fileName = fullPath.split("\\").pop();
-                    const dirPath = fullPath.substring(0, fullPath.indexOf(fileName));
-                    yield promises_1.default.mkdir(dirPath, { recursive: true }).catch((err) => reject(err));
+                    /*const fullPath = path.join(serversInstancesPath, instanceName, "resources", e)
+                    const fileName = fullPath.split("\\").pop()
+                    const dirPath = fullPath.substring(0, fullPath.indexOf(fileName!))
+    
+                    await fs.mkdir(dirPath, {recursive: true}).catch((err) => reject(err))*/
                     yield (0, HDownload_1.downloadAsync)(path_1.default.join(const_1.resourcePackage, subhash, hash), path_1.default.join(const_1.objectPath, subhash, hash), (progress, byteSend) => {
                         currentDownloadedSize += byteSend;
                         //updateInstanceDlProgress(instanceId, (currentDownloadedSize * 100) / totalSizeToDl)

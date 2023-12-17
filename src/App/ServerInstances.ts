@@ -110,7 +110,12 @@ export async function refreshInstanceList() {
                         const data = await fs.readFile(path.join(serversInstancesPath, instance.name, "info.json"), "utf8")
                         const dataJson = JSON.parse(data)
 
-                        const element = await addInstanceElement({name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], logoPath: dataJson["instance"]["cover_path"], version: dataJson["game"]["version"]}, instancesDiv)
+                        const element = addInstanceElement({
+                            name: dataJson["instance"]["name"],
+                            thumbnailPath: dataJson["instance"]["thumbnail_path"],
+                            logoPath: dataJson["instance"]["cover_path"],
+                            version: dataJson["game"]["version"]
+                        }, instancesDiv)
                         element.addEventListener("click", () => {
                             currentInstanceOpened = instance.name
 

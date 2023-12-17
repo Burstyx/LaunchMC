@@ -55,6 +55,7 @@ exports.setContentTo = setContentTo;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            exports.instancesStates = {};
             const instancesDiv = document.getElementById("avail-servers");
             if (instancesDiv) {
                 instancesDiv.innerHTML = "";
@@ -64,7 +65,7 @@ function refreshInstanceList() {
                 const profiles = yield (0, HRemoteProfiles_1.listProfiles)();
                 instancesDiv.innerHTML = "";
                 for (const instanceName in profiles) {
-                    const element = yield (0, HInstance_1.addInstanceElement)({
+                    const element = (0, HInstance_1.addInstanceElement)({
                         name: instanceName,
                         thumbnailPath: profiles[instanceName]["thumbnailPath"],
                         logoPath: profiles[instanceName]["coverUrl"],

@@ -26,7 +26,7 @@ function getAllFile(pathDir) {
             let files = [];
             yield promises_1.default.readdir(pathDir, { withFileTypes: true }).then((items) => __awaiter(this, void 0, void 0, function* () {
                 if (items === null)
-                    return files;
+                    resolve(files);
                 for (const item of items) {
                     if (item.isDirectory()) {
                         files = [
@@ -39,7 +39,9 @@ function getAllFile(pathDir) {
                     }
                 }
                 resolve(files);
-            })).catch((err) => reject(err));
+            })).catch((err) => {
+                reject(err);
+            });
         }));
     });
 }
@@ -56,7 +58,7 @@ function extractSpecificFile(compressedDirPath, filePath, dest) {
                         reject(err);
                     }
                     for (const n of files) {
-                        if (n == filePath) {
+                        if (n === filePath) {
                             const proc = child_process_1.default.exec(`"${jar}" xf ${compressedDirPath} ${n}`, { cwd: path_1.default.dirname(compressedDirPath) });
                             proc.on("close", () => __awaiter(this, void 0, void 0, function* () {
                                 if (dest != undefined) {
@@ -70,7 +72,9 @@ function extractSpecificFile(compressedDirPath, filePath, dest) {
                         }
                     }
                 }));
-            }).catch((err) => reject(err));
+            }).catch((err) => {
+                reject(err);
+            });
         }));
     });
 }
@@ -80,14 +84,19 @@ function readJarMetaInf(jar, attribute) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield extractSpecificFile(jar, "META-INF/MANIFEST.MF", path_1.default.join(const_1.tempPath, "MANIFEST.MF"));
             yield promises_1.default.readFile(path_1.default.join(const_1.tempPath, "MANIFEST.MF"), "utf-8").then((manifest) => __awaiter(this, void 0, void 0, function* () {
-                yield promises_1.default.unlink(path_1.default.join(const_1.tempPath, "MANIFEST.MF"));
+                yield promises_1.default.rm(path_1.default.join(const_1.tempPath, "MANIFEST.MF")).catch((err) => {
+                    // Do nothing
+                });
                 const lines = manifest.split("\n");
                 const mainClassLine = lines.find((line) => line.startsWith(`${attribute}: `));
-                if (mainClassLine === undefined)
-                    reject(Error(`Method returned undefined value while retrieving ${attribute} from ${jar}`));
+                if (mainClassLine === undefined) {
+                    reject();
+                }
                 // @ts-ignore
                 resolve(mainClassLine.substring(`${attribute}: `.length));
-            })).catch((err) => reject(err));
+            })).catch((err) => {
+                reject(err);
+            });
         }));
     });
 }

@@ -19,72 +19,105 @@ const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 function accountList() {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
-            console.log("Microsoft accounts data file not found");
-            return null;
-        }
-        const file = yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8");
-        const data = JSON.parse(file);
-        let accounts = [];
-        for (const account of data["accounts"]) {
-            accounts.push(account);
-        }
-        return accounts;
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            if (!(0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
+                reject();
+            }
+            yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8").then((file) => {
+                const data = JSON.parse(file);
+                let accounts = [];
+                for (const account of data["accounts"]) {
+                    accounts.push(account);
+                }
+                resolve(accounts);
+            }).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 exports.accountList = accountList;
 function addAccount(opt) {
     return __awaiter(this, void 0, void 0, function* () {
-        let data = { "accounts": [] };
-        if ((0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
-            data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
-        }
-        const shouldBeActive = (yield getActiveAccount()) == null ? true : false;
-        data["accounts"].push({ "access_token": opt["accesstoken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": shouldBeActive });
-        yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data));
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            let data = { "accounts": [] };
+            if ((0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
+                yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8").then((res) => {
+                    data = JSON.parse(res);
+                }).catch((err) => {
+                    reject(err);
+                });
+            }
+            yield getActiveAccount().then((res) => __awaiter(this, void 0, void 0, function* () {
+                data["accounts"].push({ "access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": res === null });
+                yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
+                    reject(err);
+                }).catch((err) => reject(err));
+            })).catch((err) => reject(err));
+        }));
     });
 }
 exports.addAccount = addAccount;
 function getAccount(uuid) {
     return __awaiter(this, void 0, void 0, function* () {
-        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
-        for (const e in data["accounts"]) {
-            if (data["accounts"][e]["uuid"] == uuid) {
-                return data["accounts"][e];
-            }
-        }
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf8").then((res) => {
+                const data = JSON.parse(res);
+                for (const e in data["accounts"]) {
+                    if (data["accounts"][e]["uuid"] == uuid) {
+                        resolve(data["accounts"][e]);
+                    }
+                }
+            }).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 exports.getAccount = getAccount;
 function changeAccountProperty(uuid, property, newValue) {
     return __awaiter(this, void 0, void 0, function* () {
-        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
-        for (const e in data["accounts"]) {
-            if (data["accounts"][e]["uuid"] == uuid) {
-                if (!data["accounts"][e].hasOwnProperty(property)) {
-                    console.log("Property doesn't exist");
-                    return;
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf8").then((res) => __awaiter(this, void 0, void 0, function* () {
+                const data = JSON.parse(res);
+                for (const e in data["accounts"]) {
+                    if (data["accounts"][e]["uuid"] == uuid) {
+                        if (!data["accounts"][e].hasOwnProperty(property)) {
+                            reject();
+                        }
+                        data["accounts"][e][property] = newValue;
+                    }
                 }
-                data["accounts"][e][property] = newValue;
-            }
-        }
-        yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data));
+                yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
+                    reject(err);
+                });
+                resolve();
+            })).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 exports.changeAccountProperty = changeAccountProperty;
 function getActiveAccount() {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
-            return null;
-        }
-        const data = JSON.parse(yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf-8"));
-        for (const e in data["accounts"]) {
-            if (data["accounts"][e]["active"] == true) {
-                console.log(data["accounts"][e]);
-                return data["accounts"][e];
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            if (!(0, fs_1.existsSync)(path_1.default.join(const_1.gamePath, "microsoft_account.json"))) {
+                reject();
             }
-        }
-        return null;
+            yield promises_1.default.readFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), "utf8").then((res) => {
+                const data = JSON.parse(res);
+                for (const e in data["accounts"]) {
+                    if (data["accounts"][e]["active"] == true) {
+                        console.log(data["accounts"][e]);
+                        resolve(data["accounts"][e]);
+                    }
+                }
+                reject();
+            }).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 exports.getActiveAccount = getActiveAccount;

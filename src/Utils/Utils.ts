@@ -3,14 +3,8 @@ export function replaceAll(text: string, toReplace: string, replacer: string) {
 
     while(replacedText.includes(toReplace)) {
         const startIndex = replacedText.indexOf(toReplace);
-
-        // Extraire la partie avant ${library_directory}
         const partBefore = replacedText.substring(0, startIndex);
-
-        // Extraire la partie après ${library_directory}
         const partAfter = replacedText.substring(startIndex + toReplace.length);
-
-        // Concaténer les parties avec le bon dossier
         replacedText = partBefore + replacer + partAfter;
     }
 

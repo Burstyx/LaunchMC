@@ -22,7 +22,9 @@ function getLatestRelease() {
                 redirect: 'follow'
             })
                 .then((response) => __awaiter(this, void 0, void 0, function* () { return yield response.json().then((data) => resolve(data)); }))
-                .catch((err) => reject(err));
+                .catch((err) => {
+                reject(err);
+            });
         }));
     });
 }
@@ -39,20 +41,46 @@ function listProfiles() {
                 redirect: 'follow'
             })
                 .then((response) => __awaiter(this, void 0, void 0, function* () { return yield response.json().then((data) => resolve(data)); }))
-                .catch((err) => reject(err));
+                .catch((err) => {
+                reject(err);
+            });
         }));
     });
 }
 exports.listProfiles = listProfiles;
 function getMetadataOf(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield (yield fetch((yield listProfiles())[name]["metadataUrl"])).json();
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield listProfiles().then((res) => __awaiter(this, void 0, void 0, function* () {
+                yield fetch(res[name]["metadataUrl"]).then((res) => {
+                    res.json().then((json) => {
+                        resolve(json);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                }).catch((err) => {
+                    reject(err);
+                });
+            })).catch((err) => reject(err));
+        }));
     });
 }
 exports.getMetadataOf = getMetadataOf;
 function getInstanceDataOf(name) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield (yield fetch((yield listProfiles())[name]["instanceUrl"])).json();
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield listProfiles().then((res) => __awaiter(this, void 0, void 0, function* () {
+                yield fetch(res[name]["instanceUrl"]).then((res) => {
+                    res.json().then((json) => {
+                        resolve(json);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                }).catch((err) => {
+                    reject(err);
+                });
+            })).catch((err) => reject(err));
+        }));
     });
 }
 exports.getInstanceDataOf = getInstanceDataOf;

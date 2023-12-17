@@ -4,12 +4,9 @@ exports.osToMCFormat = exports.concatJson = exports.removeDuplicates = exports.r
 function replaceAll(text, toReplace, replacer) {
     let replacedText = text;
     while (replacedText.includes(toReplace)) {
-        var startIndex = replacedText.indexOf(toReplace);
-        // Extraire la partie avant ${library_directory}
-        var partBefore = replacedText.substring(0, startIndex);
-        // Extraire la partie après ${library_directory}
-        var partAfter = replacedText.substring(startIndex + toReplace.length);
-        // Concaténer les parties avec le bon dossier
+        const startIndex = replacedText.indexOf(toReplace);
+        const partBefore = replacedText.substring(0, startIndex);
+        const partAfter = replacedText.substring(startIndex + toReplace.length);
         replacedText = partBefore + replacer + partAfter;
     }
     return replacedText;

@@ -20,28 +20,28 @@ export async function setContentTo(name: string) { // TODO: Cleaning
         const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.ToDownload
         updateInstanceState(name, currentState)
 
-        const dlInfoData = (await listProfiles())[name]
-        const metadata = await getMetadataOf(name)
+        await listProfiles().then(async (profiles) => {
+            const serverBrandLogo = document.getElementById("dl-page-server-brand-logo")!
+            serverBrandLogo.setAttribute("src", `${replaceAll(profiles[name]["brandLogoUrl"], '\\', '/')}`)
 
-        const serverBrandLogo = document.getElementById("dl-page-server-brand-logo")!
-        serverBrandLogo.setAttribute("src", `${replaceAll(dlInfoData["brandLogoUrl"], '\\', '/')}`)
+            const widgetVersion = document.getElementById("dl-page-version")
+            if(widgetVersion) {
+                widgetVersion.innerHTML = "";
 
-        // Set version
-        const widgetVersion = document.getElementById("dl-page-version")
-        if(widgetVersion) {
-            widgetVersion.innerHTML = "";
+                const widgetText = document.createElement("p")
 
-            const widgetText = document.createElement("p")
-            widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`
-            widgetVersion.append(widgetText)
-        }
+                await getMetadataOf(name).then((metadata) => {
+                    widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`
+                }).catch((err) => reject(err))
 
+                widgetVersion.append(widgetText)
+            }
 
+            const contentBackground = document.getElementById("dl-page-thumbnail")!
+            contentBackground.style.backgroundImage = `url('${replaceAll(profiles[name]["thumbnailUrl"], '\\', '/')}')`
 
-        const contentBackground = document.getElementById("dl-page-thumbnail")!
-        contentBackground.style.backgroundImage = `url('${replaceAll(dlInfoData["thumbnailUrl"], '\\', '/')}')`
-
-        resolve()
+            resolve()
+        }).catch((err) => reject(err))
     })
 }
 
@@ -60,7 +60,7 @@ export async function refreshInstanceList() {
 
             instancesDiv.innerHTML = ""
             for(const instanceName in profiles){
-                const element = await addInstanceElement({
+                const element = addInstanceElement({
                         name: instanceName,
                         thumbnailPath: profiles[instanceName]["thumbnailPath"],
                         logoPath: profiles[instanceName]["coverUrl"],

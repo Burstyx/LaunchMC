@@ -101,7 +101,12 @@ function refreshInstanceList() {
                         if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"))) {
                             const data = yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"), "utf8");
                             const dataJson = JSON.parse(data);
-                            const element = yield (0, HInstance_1.addInstanceElement)({ name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], logoPath: dataJson["instance"]["cover_path"], version: dataJson["game"]["version"] }, instancesDiv);
+                            const element = (0, HInstance_1.addInstanceElement)({
+                                name: dataJson["instance"]["name"],
+                                thumbnailPath: dataJson["instance"]["thumbnail_path"],
+                                logoPath: dataJson["instance"]["cover_path"],
+                                version: dataJson["game"]["version"]
+                            }, instancesDiv);
                             element.addEventListener("click", () => {
                                 exports.currentInstanceOpened = instance.name;
                                 setContentTo(instance.name);

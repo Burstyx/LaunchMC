@@ -42,30 +42,40 @@ function downloadAsync(url, dest, callback, opt) {
                             }
                         }
                     }));
-                    file.write(buffer);
-                    file.close();
+                    file.write(buffer, (err) => {
+                        if (err) {
+                            reject(err);
+                        }
+                    });
+                    file.close((err) => {
+                        if (err) {
+                            reject(err);
+                        }
+                    });
                     file.on("close", () => {
                         // Check file hash
                         if ((opt === null || opt === void 0 ? void 0 : opt.hash) != undefined) {
                             checksum_1.default.file(dest, (err, hash) => __awaiter(this, void 0, void 0, function* () {
                                 if (hash !== opt.hash) {
-                                    console.log(`${destDir} is not valid!`);
                                     if (opt.retry != undefined) {
                                         if (opt.retry.count > 0) {
-                                            yield promises_1.default.rm(dest).catch((err) => reject(err));
+                                            yield promises_1.default.rm(dest).catch((err) => {
+                                                reject(err);
+                                            });
                                             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                                                 yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
                                                     .then((res) => resolve(res))
-                                                    .catch((err) => reject(err));
+                                                    .catch((err) => {
+                                                    reject(err);
+                                                });
                                             }), opt.retry.timeout);
                                         }
                                         else {
-                                            reject(`Can't download file from ${url}, the checksum cannot be verified: expected -> ${opt.hash} ; current -> ${hash}.`);
+                                            reject(err);
                                         }
                                     }
                                 }
                                 else {
-                                    console.log(`${dest} validated successfully!`);
                                     resolve(dest);
                                 }
                             }));
@@ -81,15 +91,17 @@ function downloadAsync(url, dest, callback, opt) {
                             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                                 yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
                                     .then((res) => resolve(res))
-                                    .catch((err) => reject(err));
+                                    .catch((err) => {
+                                    reject(err);
+                                });
                             }), opt.retry.timeout);
                         }
                         else {
-                            reject(`All attempt has be used to download file from ${url} without success. Error code: ${xhr.status}.`);
+                            reject();
                         }
                     }
                     else {
-                        reject(`Can't download file from ${url}, code: ${xhr.status}.`);
+                        reject();
                     }
                 }
             }

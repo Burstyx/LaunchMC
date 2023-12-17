@@ -18,72 +18,90 @@ const fs_1 = require("fs");
 const const_1 = require("./const");
 const path_1 = __importDefault(require("path"));
 const HDownload_1 = require("./HDownload");
-// Download manifest containing all versions informations
 function minecraftManifest() {
     return __awaiter(this, void 0, void 0, function* () {
-        // Create directory if doesn't exist
-        //const manifestPath = await makeDir(dataPath)
-        if (!(0, fs_1.existsSync)(path_1.default.join("manifestPath", "versions_manifest.json"))) {
-            // Download manifest and return data
-            yield (0, HDownload_1.downloadAsync)(const_1.versionsManifest, path_1.default.join("manifestPath", "versions_manifest.json"), (progress) => {
-                console.log(`Progression: ${progress}% du téléchargement du manifest`);
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.mkdir(const_1.dataPath, { recursive: true }).catch((err) => {
+                reject(err);
             });
-        }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("manifestPath", "versions_manifest.json"), "utf-8"));
+            if (!(0, fs_1.existsSync)(path_1.default.join(const_1.dataPath, "versions_manifest.json"))) {
+                yield (0, HDownload_1.downloadAsync)(const_1.versionsManifest, path_1.default.join(const_1.dataPath, "versions_manifest.json"), (progress) => {
+                    console.log(`Progression: ${progress}% du téléchargement du manifest`);
+                }).catch((err) => reject(err));
+            }
+            yield promises_1.default.readFile(path_1.default.join(const_1.dataPath, "versions_manifest.json"), "utf8").then((res) => {
+                resolve(JSON.parse(res));
+            }).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 exports.minecraftManifest = minecraftManifest;
-// Download manifest for a specific Minecraft versions
 function minecraftManifestForVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Create directory if it doesn't exist
-        yield promises_1.default.mkdir(path_1.default.join(const_1.minecraftVersionPath, version), { recursive: true });
-        const versionPath = path_1.default.join(const_1.minecraftVersionPath, version);
-        if (!(0, fs_1.existsSync)(path_1.default.join(versionPath, `${version}.json`))) {
-            // Get manifest containing all versions informations
-            yield minecraftManifest().then((data) => __awaiter(this, void 0, void 0, function* () {
-                // Retrieve data for the wanted version
-                for (var i = 0; i < data["versions"].length; i++) {
-                    if (data["versions"][i]["id"] == version) {
-                        // Download manifest of wanted version
-                        yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
-                            console.log(`Progression: ${progress}% du téléchargement du manifest`);
-                        });
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.mkdir(path_1.default.join(const_1.minecraftVersionPath, version), { recursive: true }).catch((err) => {
+                reject(err);
+            });
+            const versionPath = path_1.default.join(const_1.minecraftVersionPath, version);
+            if (!(0, fs_1.existsSync)(path_1.default.join(versionPath, `${version}.json`))) {
+                yield minecraftManifest().then((data) => __awaiter(this, void 0, void 0, function* () {
+                    for (let i = 0; i < data["versions"].length; i++) {
+                        if (data["versions"][i]["id"] == version) {
+                            yield (0, HDownload_1.downloadAsync)(data["versions"][i]["url"], path_1.default.join(versionPath, `${version}.json`), (progress) => {
+                                console.log(`Progression: ${progress}% du téléchargement du manifest`);
+                            }).catch((err) => reject(err));
+                        }
                     }
-                }
-            }));
-        }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8"));
+                })).catch((err) => reject(err));
+            }
+            yield promises_1.default.readFile(path_1.default.join(versionPath, `${version}.json`), "utf-8").then((res) => {
+                resolve(JSON.parse(res));
+            }).catch((err) => reject(err));
+        }));
     });
 }
 exports.minecraftManifestForVersion = minecraftManifestForVersion;
 // Download manifest containing all versions informations
 function forgeManifest() {
     return __awaiter(this, void 0, void 0, function* () {
-        // Create directory if doesn't exist
-        //const manifestPath = await makeDir(dataPath)
-        if (!(0, fs_1.existsSync)(path_1.default.join("manifestPath", "forge_manifest.json"))) {
-            // Download manifest and return data
-            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsManifest, path_1.default.join("manifestPath", "forge_manifest.json"), (progress) => {
-                console.log(`Progression: ${progress}% du téléchargement du manifest`);
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.mkdir(const_1.dataPath, { recursive: true }).catch((err) => {
+                reject(err);
             });
-        }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("manifestPath", "forge_manifest.json"), "utf-8"));
+            if (!(0, fs_1.existsSync)(path_1.default.join(const_1.dataPath, "forge_manifest.json"))) {
+                // Download manifest and return data
+                yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsManifest, path_1.default.join(const_1.dataPath, "forge_manifest.json"), (progress) => {
+                    console.log(`Progression: ${progress}% du téléchargement du manifest`);
+                }).catch((err) => reject(err));
+            }
+            yield promises_1.default.readFile(path_1.default.join(const_1.dataPath, "forge_manifest.json"), "utf-8").then((res) => {
+                resolve(JSON.parse(res));
+            }).catch((err) => reject(err));
+        }));
     });
 }
 exports.forgeManifest = forgeManifest;
 // Download manifest containing the states of all forge versions (which is latest and which is recommended)
 function forgeVerStateManifest() {
     return __awaiter(this, void 0, void 0, function* () {
-        // Create directory if doesn't exist
-        //const manifestPath = await makeDir(dataPath)
-        if (!(0, fs_1.existsSync)(path_1.default.join("manifestPath", "forge_manifest_promos.json"))) {
-            // Download manifest and return data
-            yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsStatuesManifest, path_1.default.join("manifestPath", "forge_manifest_promos.json"), (progress) => {
-                console.log(`Progression: ${progress}% du téléchargement du manifest`);
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield promises_1.default.mkdir(const_1.dataPath, { recursive: true }).catch((err) => {
+                reject(err);
             });
-        }
-        return JSON.parse(yield promises_1.default.readFile(path_1.default.join("manifestPath", "forge_manifest_promos.json"), "utf-8"));
+            if (!(0, fs_1.existsSync)(path_1.default.join(const_1.dataPath, "forge_manifest_promos.json"))) {
+                // Download manifest and return data
+                yield (0, HDownload_1.downloadAsync)(const_1.forgeVersionsStatuesManifest, path_1.default.join(const_1.dataPath, "forge_manifest_promos.json"), (progress) => {
+                    console.log(`Progression: ${progress}% du téléchargement du manifest`);
+                }).catch((err) => reject(err));
+            }
+            yield promises_1.default.readFile(path_1.default.join(const_1.dataPath, "forge_manifest_promos.json"), "utf-8").then((res) => {
+                resolve(JSON.parse(res));
+            }).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 exports.forgeVerStateManifest = forgeVerStateManifest;

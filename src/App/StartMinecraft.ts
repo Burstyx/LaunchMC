@@ -243,7 +243,7 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
                 console.error(data.toString("utf8"));
             })
 
-            proc.stdout.on("error", (err) => console.error(err))
+            proc.on("error", (err) => console.error(err))
 
             proc.on("close", async (code) => {
                 switch (code) {

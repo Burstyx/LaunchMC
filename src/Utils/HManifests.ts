@@ -9,93 +9,90 @@ import {
 } from "./const"
 import path from "path"
 import { downloadAsync } from "./HDownload"
-import {CallbackEvent} from "./Debug";
 
-export async function minecraftManifest(event: CallbackEvent) {
+export async function minecraftManifest() {
     return new Promise<any>(async (resolve, reject) => {
-        const manifestPath = await fs.mkdir(dataPath, {recursive: true}).catch((err) => {
-            event(`Impossible de créer le dossier ${dataPath}.`, err, "err")
-            reject()
+        await fs.mkdir(dataPath, {recursive: true}).catch((err) => {
+            reject(err)
         })
 
-        if(!existsSync(path.join("manifestPath", "versions_manifest.json"))){
-            await downloadAsync(versionsManifest, path.join("manifestPath", "versions_manifest.json"), () => {
-                // FIXME Handle errors
-            }, (progress: number) => {
+        if(!existsSync(path.join(dataPath, "versions_manifest.json"))){
+            await downloadAsync(versionsManifest, path.join(dataPath, "versions_manifest.json"), (progress: number) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest`);
-            })
+            }).catch((err) => reject(err))
         }
 
-        resolve(JSON.parse(await fs.readFile(path.join("manifestPath", "versions_manifest.json"), "utf-8")))
+        await fs.readFile(path.join(dataPath, "versions_manifest.json"), "utf8").then((res) => {
+            resolve(JSON.parse(res))
+        }).catch((err) => {
+            reject(err)
+        })
     })
 }
 
-export async function minecraftManifestForVersion(version: string, event: CallbackEvent) {
+export async function minecraftManifestForVersion(version: string) {
     return new Promise<any>(async (resolve, reject) => {
         await fs.mkdir(path.join(minecraftVersionPath, version), {recursive: true}).catch((err) => {
-            event(`Impossible de créer le dossier ${minecraftVersionPath}.`, err, "err")
-            reject()
+            reject(err)
         })
         const versionPath = path.join(minecraftVersionPath, version)
 
         if(!existsSync(path.join(versionPath, `${version}.json`))){
-            await minecraftManifest(() => {
-                // FIXME Handle errors
-            }).then(async (data) => {
+            await minecraftManifest().then(async (data) => {
                 for(let i = 0; i < data["versions"].length; i++){
                     if(data["versions"][i]["id"] == version){
-                        await downloadAsync(data["versions"][i]["url"], path.join(versionPath, `${version}.json`), () => {
-                            // FIXME Handle errors
-                        }, (progress: number) => {
+                        await downloadAsync(data["versions"][i]["url"], path.join(versionPath, `${version}.json`),(progress: number) => {
                             console.log(`Progression: ${progress}% du téléchargement du manifest`);
-                        })
+                        }).catch((err) => reject(err))
                     }
                 }
-            })
+            }).catch((err) => reject(err))
         }
 
-        resolve(JSON.parse(await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8")))
+        await fs.readFile(path.join(versionPath, `${version}.json`), "utf-8").then((res) => {
+            resolve(JSON.parse(res))
+        }).catch((err) => reject(err))
     })
 }
 
 // Download manifest containing all versions informations
-export async function forgeManifest(event: CallbackEvent) {
+export async function forgeManifest() {
     return new Promise<any>(async (resolve, reject) => {
         await fs.mkdir(dataPath, {recursive: true}).catch((err) => {
-            event(`Impossible de créer le dossier ${dataPath}.`, err, "err")
-            reject()
+            reject(err)
         })
 
         if(!existsSync(path.join(dataPath, "forge_manifest.json"))){
             // Download manifest and return data
-            await downloadAsync(forgeVersionsManifest, path.join(dataPath, "forge_manifest.json"), () => {
-                // FIXME Handle errors
-            }, (progress: number) => {
+            await downloadAsync(forgeVersionsManifest, path.join(dataPath, "forge_manifest.json"),(progress: number) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest`);
-            })
+            }).catch((err) => reject(err))
         }
 
-        resolve(JSON.parse(await fs.readFile(path.join("manifestPath", "forge_manifest.json"), "utf-8")))
+        await fs.readFile(path.join(dataPath, "forge_manifest.json"), "utf-8").then((res) => {
+            resolve(JSON.parse(res))
+        }).catch((err) => reject(err))
     })
 }
 
 // Download manifest containing the states of all forge versions (which is latest and which is recommended)
-export async function forgeVerStateManifest(event: CallbackEvent) {
+export async function forgeVerStateManifest() {
     return new Promise<any>(async (resolve, reject) => {
         await fs.mkdir(dataPath, {recursive: true}).catch((err) => {
-            event(`Impossible de créer le dossier ${dataPath}.`, err, "err")
-            reject()
+            reject(err)
         })
 
         if(!existsSync(path.join(dataPath, "forge_manifest_promos.json"))){
             // Download manifest and return data
-            await downloadAsync(forgeVersionsStatuesManifest, path.join(dataPath, "forge_manifest_promos.json"), () => {
-                // FIXME Handle errors
-            }, (progress: number) => {
+            await downloadAsync(forgeVersionsStatuesManifest, path.join(dataPath, "forge_manifest_promos.json"),(progress: number) => {
                 console.log(`Progression: ${progress}% du téléchargement du manifest`);
-            })
+            }).catch((err) => reject(err))
         }
 
-        resolve(JSON.parse(await fs.readFile(path.join("manifestPath", "forge_manifest_promos.json"), "utf-8")))
+        await fs.readFile(path.join(dataPath, "forge_manifest_promos.json"), "utf-8").then((res) => {
+            resolve(JSON.parse(res))
+        }).catch((err) => {
+            reject(err)
+        })
     })
 }
