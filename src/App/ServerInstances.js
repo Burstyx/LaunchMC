@@ -84,7 +84,7 @@ function setContentTo(name) {
             h < 10 ? h = `0${h}` : h = `${h}`
 
             widgetPlaytime.innerText = `${h}h${m}`*/
-            const contentBackground = document.getElementById("local-instance-thumbnail");
+            const contentBackground = document.getElementById("server-instance-thumbnail");
             if (contentBackground)
                 contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
         }).catch((err) => reject(err));

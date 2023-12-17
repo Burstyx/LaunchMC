@@ -91,7 +91,7 @@ export function setContentTo(name: string) { // TODO: Cleaning
 
             widgetPlaytime.innerText = `${h}h${m}`*/
 
-            const contentBackground = document.getElementById("local-instance-thumbnail")
+            const contentBackground = document.getElementById("server-instance-thumbnail")
             if(contentBackground) contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
         }).catch((err) => reject(err))
     })

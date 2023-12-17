@@ -10,9 +10,9 @@
         <div id="topBar">
             <div id="menu-buttons">
                 <div class="button themed toggle" id="home"><img src="./resources/svg/discover.svg" width="55%"></div>
-                <div class="button themed toggle" id="library"><img src="./resources/svg/library.svg" width="55%"></div>
+                <div class="button themed toggle" active id="library"><img src="./resources/svg/library.svg" width="55%"></div>
                 <div class="button themed toggle" id="servers"><img src="./resources/svg/servers.svg" width="55%"></div>
-                <div class="button themed toggle" badge active id="settings"><img src="./resources/svg/settings.svg" width="60%"></div>
+                <div class="button themed toggle" id="settings"><img src="./resources/svg/settings.svg" width="60%"></div>
             </div>
             <div id="window-buttons">
                 <div class="button" id="reduce" style="z-index: 999"><img src="./resources/svg/reduce.svg" width="55%"></div>
@@ -26,7 +26,7 @@
 
             </div>
 
-            <div class="elements-group" id="gr-library" style="display: none">
+            <div class="elements-group" id="gr-library">
                 <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
                 <div id="instances">
                 </div>
@@ -72,7 +72,7 @@
 
                 <div class="popup instance-info-popup" popup-id="server-instance-info" style="display: none">
                     <div>
-                        <div class="instance-thumbnail">
+                        <div class="instance-thumbnail" id="server-instance-thumbnail">
                             <img src="" class="server-brand-logo" id="server-page-server-brand-logo">
                             <div class="button green instance-action" id="server-instance-action"><img src="./resources/svg/play.svg" width="40%"></div>
                         </div>
@@ -85,7 +85,7 @@
                 </div>
             </div>
 
-            <div class="elements-group" id="gr-settings">
+            <div class="elements-group" id="gr-settings" style="display: none">
                 <div id="settings-accounts">
                     <p>Comptes</p>
                     <div id="ms-accounts-list">
