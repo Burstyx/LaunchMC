@@ -77,6 +77,7 @@ export function downloadAsync(url: string, dest: string, callback?: CallbackProg
         }
 
         xhr.open("GET", url)
+        xhr.setRequestHeader("Cache-Control", "no-cache")
 
         if(opt?.headers != undefined) {
             for (const header of opt.headers) {
