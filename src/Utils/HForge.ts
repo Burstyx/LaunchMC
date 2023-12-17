@@ -30,7 +30,7 @@ export async function getForgeInstallProfileIfExist(forgeId: string) {
             fs.readFile(installProfilePath, "utf8").then(async (file) => {
                 const data = JSON.parse(file)
 
-                await fs.unlink(installProfilePath).catch((err) => reject(err))
+                await fs.rm(installProfilePath).catch((err) => reject(err))
 
                 resolve(data)
             }).catch((err) => {

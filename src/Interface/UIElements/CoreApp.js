@@ -1,4 +1,4 @@
-const { initDiscordRPC } = require("../../App/DIscordRPC");
+const { initDiscordRPC } = require("../../App/DiscordRPC");
 const {checkForUpdate} = require("../../App/Updater");
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const LocalInstances= require("../../App/LocalInstances");

@@ -1,5 +1,5 @@
 import {replaceAll} from "../Utils/Utils";
-import {getInstanceDataOf, getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
+import {getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
 import {addInstanceElement} from "../Utils/HInstance";
 import {existsSync} from "fs";
 import {serversInstancesPath} from "../Utils/const";
@@ -21,8 +21,9 @@ export async function setContentTo(name: string) { // TODO: Cleaning
         updateInstanceState(name, currentState)
 
         await listProfiles().then(async (profiles) => {
-            const serverBrandLogo = document.getElementById("dl-page-server-brand-logo")!
-            serverBrandLogo.setAttribute("src", `${replaceAll(profiles[name]["brandLogoUrl"], '\\', '/')}`)
+            const serverBrandLogo = document.getElementById("dl-page-server-brand-logo")
+            if(serverBrandLogo)
+                serverBrandLogo.setAttribute("src", `${replaceAll(profiles[name]["brandLogoUrl"], '\\', '/')}`)
 
             const widgetVersion = document.getElementById("dl-page-version")
             if(widgetVersion) {
@@ -37,8 +38,8 @@ export async function setContentTo(name: string) { // TODO: Cleaning
                 widgetVersion.append(widgetText)
             }
 
-            const contentBackground = document.getElementById("dl-page-thumbnail")!
-            contentBackground.style.backgroundImage = `url('${replaceAll(profiles[name]["thumbnailUrl"], '\\', '/')}')`
+            const contentBackground = document.getElementById("dl-page-thumbnail")
+            if(contentBackground) contentBackground.style.backgroundImage = `url('${replaceAll(profiles[name]["thumbnailUrl"], '\\', '/')}')`
 
             resolve()
         }).catch((err) => reject(err))
@@ -56,56 +57,58 @@ export async function refreshInstanceList() {
             loading.setAttribute("src", "./resources/svg/loading.svg")
             instancesDiv.append(loading)
 
-            const profiles = await listProfiles();
+            await listProfiles().then((profiles) => {
+                instancesDiv.innerHTML = ""
 
-            instancesDiv.innerHTML = ""
-            for(const instanceName in profiles){
-                const element = addInstanceElement({
-                        name: instanceName,
-                        thumbnailPath: profiles[instanceName]["thumbnailPath"],
-                        logoPath: profiles[instanceName]["coverUrl"],
-                        version: profiles[instanceName]["thumbnailPath"]
-                    },
-                    instancesDiv
-                )
+                for(const instanceName in profiles){
+                    const element = addInstanceElement({
+                            name: instanceName,
+                            thumbnailPath: profiles[instanceName]["thumbnailPath"],
+                            logoPath: profiles[instanceName]["coverUrl"],
+                            version: profiles[instanceName]["thumbnailPath"]
+                        },
+                        instancesDiv
+                    )
 
-                if(existsSync(path.join(serversInstancesPath, instanceName, "info.json"))) {
-                    instancesStates[instanceName] = InstanceState.Owned
+                    if(existsSync(path.join(serversInstancesPath, instanceName, "info.json"))) {
+                        instancesStates[instanceName] = InstanceState.Owned
+                    }
+
+                    element.addEventListener("click", () => {
+                        currentInstanceOpened = instanceName
+
+                        setContentTo(instanceName)
+                        openPopup("download-instance-info")
+                    })
                 }
-
-                element.addEventListener("click", () => {
-                    currentInstanceOpened = instanceName
-
-                    setContentTo(instanceName)
-                    openPopup("download-instance-info")
-                })
-            }
+            }).catch((err) => reject(err))
 
             resolve()
-        } else reject(`Unexpected error when refreshing instance list.`)
+        } else reject()
     })
 }
 
 export function updateInstanceState(name: string, newState: InstanceState) {
-    const instance = document.getElementById(name)
-
     instancesStates[name] = newState
 
-    const dlBtn= document.getElementById("download-instance-action")!
-    const iconBtn= dlBtn.querySelector("img")!
-
-    switch (newState) {
-        case InstanceState.ToDownload:
-            dlBtn.style.backgroundColor = "#05E400"
-            iconBtn.setAttribute("src", "./resources/svg/download.svg")
-            break;
-        case InstanceState.Loading:
-            dlBtn.style.backgroundColor = "#5C5C5C"
-            iconBtn.setAttribute("src", "./resources/svg/loading.svg")
-            break;
-        case InstanceState.Owned:
-            dlBtn.style.backgroundColor = "#05E400"
-            iconBtn.setAttribute("src", "./resources/svg/checkmark.svg")
-            break;
+    const dlBtn= document.getElementById("download-instance-action")
+    if(dlBtn) {
+        const iconBtn= dlBtn.querySelector("img")
+        if(iconBtn) {
+            switch (newState) {
+                case InstanceState.ToDownload:
+                    dlBtn.style.backgroundColor = "#05E400"
+                    iconBtn.setAttribute("src", "./resources/svg/download.svg")
+                    break;
+                case InstanceState.Loading:
+                    dlBtn.style.backgroundColor = "#5C5C5C"
+                    iconBtn.setAttribute("src", "./resources/svg/loading.svg")
+                    break;
+                case InstanceState.Owned:
+                    dlBtn.style.backgroundColor = "#05E400"
+                    iconBtn.setAttribute("src", "./resources/svg/checkmark.svg")
+                    break;
+            }
+        }
     }
 }

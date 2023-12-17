@@ -42,7 +42,7 @@ function getForgeInstallProfileIfExist(forgeId) {
                 const installProfilePath = path_1.default.join(path_1.default.dirname(forgeInstallerPath), "install_profile.json");
                 promises_1.default.readFile(installProfilePath, "utf8").then((file) => __awaiter(this, void 0, void 0, function* () {
                     const data = JSON.parse(file);
-                    yield promises_1.default.unlink(installProfilePath).catch((err) => reject(err));
+                    yield promises_1.default.rm(installProfilePath).catch((err) => reject(err));
                     resolve(data);
                 })).catch((err) => {
                     reject(err);

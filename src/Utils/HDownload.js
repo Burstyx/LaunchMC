@@ -24,6 +24,10 @@ function downloadAsync(url, dest, callback, opt) {
         yield promises_1.default.mkdir(destDir, { recursive: true }).catch((err) => reject(err));
         const file = (0, fs_extra_1.createWriteStream)(dest);
         const xhr = new XMLHttpRequest();
+        file.on("error", (err) => {
+            file.close();
+            reject(err);
+        });
         xhr.onreadystatechange = () => __awaiter(this, void 0, void 0, function* () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200) {
@@ -33,17 +37,16 @@ function downloadAsync(url, dest, callback, opt) {
                         if (opt && opt["decompress"] == true) {
                             const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
                             const zip = new adm_zip_1.default(dest);
-                            try {
-                                zip.extractAllTo(destWithoutExt, true);
-                                yield promises_1.default.rm(dest).catch((err) => reject(err));
-                            }
-                            catch (err) {
+                            zip.extractAllTo(destWithoutExt, true);
+                            yield promises_1.default.rm(dest).catch((err) => {
+                                file.close();
                                 reject(err);
-                            }
+                            });
                         }
                     }));
                     file.write(buffer, (err) => {
                         if (err) {
+                            file.close();
                             reject(err);
                         }
                     });
@@ -51,37 +54,38 @@ function downloadAsync(url, dest, callback, opt) {
                         if (err) {
                             reject(err);
                         }
-                    });
-                    file.on("close", () => {
-                        // Check file hash
-                        if ((opt === null || opt === void 0 ? void 0 : opt.hash) != undefined) {
-                            checksum_1.default.file(dest, (err, hash) => __awaiter(this, void 0, void 0, function* () {
-                                if (hash !== opt.hash) {
-                                    if (opt.retry != undefined) {
-                                        if (opt.retry.count > 0) {
-                                            yield promises_1.default.rm(dest).catch((err) => {
-                                                reject(err);
-                                            });
-                                            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                                                yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
-                                                    .then((res) => resolve(res))
-                                                    .catch((err) => {
+                        else {
+                            // Check file hash
+                            if ((opt === null || opt === void 0 ? void 0 : opt.hash) != undefined) {
+                                checksum_1.default.file(dest, (err, hash) => __awaiter(this, void 0, void 0, function* () {
+                                    console.log(hash + " is a valid hash!");
+                                    if (hash !== opt.hash) {
+                                        if (opt.retry != undefined) {
+                                            if (opt.retry.count > 0) {
+                                                yield promises_1.default.rm(dest).catch((err) => {
                                                     reject(err);
                                                 });
-                                            }), opt.retry.timeout);
-                                        }
-                                        else {
-                                            reject(err);
+                                                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                                                    yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
+                                                        .then((res) => resolve(res))
+                                                        .catch((err) => {
+                                                        reject(err);
+                                                    });
+                                                }), opt.retry.timeout);
+                                            }
+                                            else {
+                                                reject(err);
+                                            }
                                         }
                                     }
-                                }
-                                else {
-                                    resolve(dest);
-                                }
-                            }));
-                        }
-                        else {
-                            resolve(dest);
+                                    else {
+                                        resolve(dest);
+                                    }
+                                }));
+                            }
+                            else {
+                                resolve(dest);
+                            }
                         }
                     });
                 }
@@ -89,6 +93,7 @@ function downloadAsync(url, dest, callback, opt) {
                     if ((opt === null || opt === void 0 ? void 0 : opt.retry) != undefined) {
                         if (opt.retry.count > 0) {
                             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                                file.close();
                                 yield downloadAsync(url, dest, callback, { retry: { count: opt.retry.count - 1, timeout: opt.retry.timeout }, hash: opt.hash, headers: opt.headers, decompress: opt.decompress })
                                     .then((res) => resolve(res))
                                     .catch((err) => {
@@ -97,10 +102,12 @@ function downloadAsync(url, dest, callback, opt) {
                             }), opt.retry.timeout);
                         }
                         else {
+                            file.close();
                             reject();
                         }
                     }
                     else {
+                        file.close();
                         reject();
                     }
                 }
@@ -117,6 +124,7 @@ function downloadAsync(url, dest, callback, opt) {
         };
         try {
             xhr.open("GET", url);
+            xhr.setRequestHeader("Cache-Control", "no-cache");
             if ((opt === null || opt === void 0 ? void 0 : opt.headers) != undefined) {
                 for (const header of opt.headers) {
                     xhr.setRequestHeader(header.name, header.value);
@@ -126,6 +134,7 @@ function downloadAsync(url, dest, callback, opt) {
             xhr.send();
         }
         catch (err) {
+            file.close();
             reject(err);
         }
     }));

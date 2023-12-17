@@ -1,6 +1,6 @@
 import {getLatestRelease} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
-import {app} from "@electron/remote";
+import {app} from "electron";
 import path from "path";
 import cp from "child_process"
 import fs from "fs/promises";
@@ -9,41 +9,38 @@ const window = require("../Interface/UIElements/scripts/window.js")
 let githubReleaseData: any = null;
 
 export async function checkForUpdate() {
-    githubReleaseData = await getLatestRelease()
+    return new Promise<boolean>(async (resolve, reject) => {
+        await getLatestRelease().then((res) => {
+            const currentVersion = require("../../package.json").version;
+            const latestVersion = res["tag_name"];
 
-    const currentVersion = require("../../package.json").version;
-    const latestVersion = githubReleaseData!["tag_name"];
+            if(currentVersion !== latestVersion) {
+                const settings = document.getElementById("settings")
+                settings!.setAttribute("badge", "");
 
-    if(currentVersion !== latestVersion) {
-        console.log("Need to be updated!")
+                resolve(true)
+            }
 
-        const settings = document.getElementById("settings")
-        settings!.setAttribute("badge", "");
-
-        return
-    }
-
-    console.log("Latest version already installed!")
+            resolve(false)
+        }).catch((err) => reject(err))
+    })
 }
 
 export async function updateCli() {
-    const loading = document.getElementById("loading-startup-launcher")
-    window.setLoading(true)
+    return new Promise<void>(async (resolve, reject) => {
+        const dlUrl = githubReleaseData["assets"][0]["browser_download_url"]
+        const name = githubReleaseData["assets"][0]["name"]
 
-    const dlUrl = githubReleaseData.assets[0].browser_download_url
-    const name = githubReleaseData.assets[0].name
+        await downloadAsync(dlUrl, path.join(app.getPath("temp"), name)).then((installerPath) => {
+            const child = cp.exec(`${installerPath} /S /LAUNCH`)
 
-    console.log(app.getPath("exe"))
+            child.on("error", (err) => {
+                reject(err)
+            })
 
-    await downloadAsync(dlUrl, path.join(app.getPath("temp"), name)).then((installerPath) => {
-        const child = cp.exec(`${installerPath} /S /LAUNCH`)
-        child.on("spawn", () => console.log("starting updating"))
-        child.stdout?.on("data", (data) => console.log(data))
-        child.stderr?.on("data", (data) => console.error(data))
-        child.on("exit", async () => {
-            console.log("finish updating")
-            await fs.rm(installerPath)
-            app.quit()
-        })
+            child.on("exit", async () => {
+                await fs.rm(installerPath).finally(() => app.quit())
+            })
+        }).catch((err) => reject(err))
     })
 }

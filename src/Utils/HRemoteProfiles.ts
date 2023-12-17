@@ -9,7 +9,8 @@ export async function getLatestRelease() {
             headers: myHeaders,
             redirect: 'follow'
         })
-            .then(async response => await response.json().then((data) => resolve(data)))
+            .then(async response => await response.json().then((data) => resolve(data))
+                .catch((err) => reject(err)))
             .catch((err) => {
                 reject(err)
             });
@@ -27,7 +28,8 @@ export async function listProfiles() {
             headers: myHeaders,
             redirect: 'follow'
         })
-            .then(async response => await response.json().then((data) => resolve(data)))
+            .then(async response => await response.json().then((data) => resolve(data))
+                .catch((err) => reject(err)))
             .catch((err) => {
                 reject(err)
             });

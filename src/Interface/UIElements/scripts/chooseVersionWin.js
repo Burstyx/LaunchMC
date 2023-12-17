@@ -1,5 +1,5 @@
 const { minecraftManifest, forgeManifest, forgeVerStateManifest } = require("../../../Utils/HManifests")
-const { closeWindow } = require("./window")
+const { closePopup } = require("./window")
 
 // Inputs
 const filterRelease = document.getElementById("vanilla-version-filter-release")

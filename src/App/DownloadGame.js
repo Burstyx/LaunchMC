@@ -153,7 +153,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                                 const dlDest = library["downloads"]["artifact"]["path"];
                                 // If not url as been assigned
                                 if (dlLink == "") {
-                                    const fileToFetch = "maven/" + library["downloads"]["artifact"]["path"];
+                                    const fileToFetch = `maven/${library["downloads"]["artifact"]["path"]}`;
                                     const destFile = `${const_1.librariesPath}/${library["downloads"]["artifact"]["path"]}`;
                                     yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, fileToFetch, destFile).catch((err) => reject(err));
                                 }
@@ -191,7 +191,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                             const jarFilePathInInstaller = forgeInstallProfileData["path"] || (forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["filePath"]);
                             const jarFileDestPath = (0, HFileManagement_1.mavenToArray)(forgeInstallProfileData["path"] || (forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["path"]));
                             const forgeJarPathWithoutFile = jarFileDestPath.slice(0, jarFileDestPath.length - 1).join("/");
-                            yield promises_1.default.mkdir(path_1.default.join(const_1.librariesPath, forgeJarPathWithoutFile), { recursive: true });
+                            yield promises_1.default.mkdir(path_1.default.join(const_1.librariesPath, forgeJarPathWithoutFile), { recursive: true }).catch((err) => reject(err));
                             // Fetch the jar in the installer
                             if (forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["filePath"]) {
                                 yield (0, HFileManagement_1.extractSpecificFile)(forgeInstallerPath, jarFilePathInInstaller, path_1.default.join(const_1.librariesPath, jarFileDestPath.join("/"))).catch((err) => reject(err));
@@ -240,7 +240,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                                         return pathToFormat;
                                     };
                                     const jarPath = path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(p["jar"])));
-                                    const args = p.args.map((arg) => replaceDataArg(arg))
+                                    const args = p["args"].map((arg) => replaceDataArg(arg))
                                         .map((arg) => formatPath(arg));
                                     const classPaths = p["classpath"].map((cp) => `"${path_1.default.join(const_1.librariesPath, ...((0, HFileManagement_1.mavenToArray)(cp)))}"`);
                                     console.log(classPaths);
@@ -266,47 +266,61 @@ exports.patchInstanceWithForge = patchInstanceWithForge;
 // Download Minecraft libraries
 function downloadMinecraftLibrary(data, i) {
     return __awaiter(this, void 0, void 0, function* () {
-        var fetchedByte = 0;
-        if (data["libraries"][i].hasOwnProperty("rules")) {
-            if (!parseRule(data["libraries"][i]["rules"])) {
-                return 0;
-            }
-        }
-        if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
-            yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["artifact"]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]), (progress, byteSent) => {
-                console.log(`Progression: ${progress}% du téléchargement`);
-                fetchedByte += byteSent;
-            });
-        }
-        if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
-            for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
-                if (e.includes("win") && os_1.default.platform() == "win32") {
-                    yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
-                        console.log(`Progression: ${progress}% du téléchargement`);
-                        fetchedByte += byteSent;
-                    });
-                }
-                else if ((e.includes("mac") || e.includes("osx")) && os_1.default.platform() == "darwin") {
-                    yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
-                        console.log(`Progression: ${progress}% du téléchargement`);
-                        fetchedByte += byteSent;
-                    });
-                }
-                else if (e.includes("linux") && os_1.default.platform() == "linux") {
-                    yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
-                        console.log(`Progression: ${progress}% du téléchargement`);
-                        fetchedByte += byteSent;
-                    }, {
-                        retry: {
-                            count: 3,
-                            timeout: 2500
-                        },
-                        hash: data["libraries"][i]["downloads"]["classifiers"][e]["url"]
-                    });
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            let fetchedByte = 0;
+            if (data["libraries"][i].hasOwnProperty("rules")) {
+                if (!parseRule(data["libraries"][i]["rules"])) {
+                    resolve(0);
                 }
             }
-        }
-        return fetchedByte;
+            if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
+                yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["artifact"]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["artifact"]["path"]), (progress, byteSent) => {
+                    console.log(`Progression: ${progress}% du téléchargement`);
+                    fetchedByte += byteSent;
+                }).catch((err) => reject(err));
+            }
+            if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
+                for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
+                    if (e.includes("win") && os_1.default.platform() == "win32") {
+                        yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
+                            console.log(`Progression: ${progress}% du téléchargement`);
+                            fetchedByte += byteSent;
+                        }, {
+                            retry: {
+                                count: 3,
+                                timeout: 2500
+                            },
+                            hash: data["libraries"][i]["downloads"]["classifiers"][e]["sha1"]
+                        });
+                    }
+                    else if ((e.includes("mac") || e.includes("osx")) && os_1.default.platform() == "darwin") {
+                        yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
+                            console.log(`Progression: ${progress}% du téléchargement`);
+                            fetchedByte += byteSent;
+                        }, {
+                            retry: {
+                                count: 3,
+                                timeout: 2500
+                            },
+                            hash: data["libraries"][i]["downloads"]["classifiers"][e]["sha1"]
+                        });
+                    }
+                    else if (e.includes("linux") && os_1.default.platform() == "linux") {
+                        yield (0, HDownload_1.downloadAsync)(data["libraries"][i]["downloads"]["classifiers"][e]["url"], path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]), (progress, byteSent) => {
+                            console.log(`Progression: ${progress}% du téléchargement`);
+                            fetchedByte += byteSent;
+                        }, {
+                            retry: {
+                                count: 3,
+                                timeout: 2500
+                            },
+                            hash: data["libraries"][i]["downloads"]["classifiers"][e]["sha1"]
+                        });
+                    }
+                }
+            }
+            resolve(fetchedByte);
+        }));
     });
 }
 function minecraftLibraryTotalSize(data) {
@@ -345,18 +359,18 @@ function minecraftLibraryList(data) {
             }
         }
         if (data["libraries"][i]["downloads"].hasOwnProperty("artifact")) {
-            libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.artifact.path));
+            libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i]["downloads"]["artifact"]["path"]));
         }
         if (data["libraries"][i]["downloads"].hasOwnProperty("classifiers")) {
             for (const e in data["libraries"][i]["downloads"]["classifiers"]) {
                 if (e.includes("win") && os_1.default.platform() == "win32") {
-                    libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.classifiers[e].path));
+                    libraryList.push(path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
                 }
                 else if ((e.includes("mac") || e.includes("osx")) && os_1.default.platform() == "darwin") {
-                    libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.classifiers[e].path));
+                    libraryList.push(path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
                 }
                 else if (e.includes("linux") && os_1.default.platform() == "linux") {
-                    libraryList.push(path_1.default.join(const_1.librariesPath, data.libraries[i].downloads.classifiers[e].path));
+                    libraryList.push(path_1.default.join(const_1.librariesPath, data["libraries"][i]["downloads"]["classifiers"][e]["path"]));
                 }
             }
         }
@@ -412,11 +426,9 @@ function downloadAndGetJavaVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield promises_1.default.mkdir(const_1.javaPath, { recursive: true }).catch((err) => reject(err));
-            if (version == JavaVersions.JDK8) {
+            if (version === JavaVersions.JDK8) {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"))) {
-                    console.log("tesetA");
                     resolve(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"));
-                    console.log("tesetB");
                 }
                 else {
                     yield (0, HDownload_1.downloadAsync)(const_1.java8Url, path_1.default.join(const_1.javaPath, `${const_1.java8Version}.zip`), (progress) => {
@@ -425,7 +437,7 @@ function downloadAndGetJavaVersion(version) {
                     resolve(path_1.default.join(const_1.javaPath, const_1.java8Version, const_1.java8Name, "bin"));
                 }
             }
-            else if (version == JavaVersions.JDK17) {
+            else if (version === JavaVersions.JDK17) {
                 if ((0, original_fs_1.existsSync)(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"))) {
                     resolve(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"));
                 }
@@ -436,7 +448,8 @@ function downloadAndGetJavaVersion(version) {
                     resolve(path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin"));
                 }
             }
-            reject(`${version} is not a valid Java version.`);
+            else
+                reject();
         }));
     });
 }

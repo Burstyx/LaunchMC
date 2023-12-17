@@ -1,7 +1,6 @@
 const { dialog, getCurrentWindow } = require("@electron/remote")
 const { closeWindow, openWindow } = require("./window")
-const { createInstance, setContentTo } = require("../../../Utils/HInstance")
-const { v4 } = require("uuid")
+const { createInstance } = require("../../../Utils/HInstance")
 const { downloadMinecraft, patchInstanceWithForge } = require("../../../App/DownloadGame")
 const { getActiveAccount } = require("../../../Utils/HMicrosoft")
 
@@ -29,7 +28,7 @@ createInstanceBtn.addEventListener("click", async (e) => {
     const mcVersion = version.split("-")[0]
 
     // Create instance
-    await createInstance(mcVersion, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader == "forge" ? { name: "forge", id: version } : undefined)
+    await createInstance(mcVersion, { accentColor: "#2596be", author: (await getActiveAccount()).uuid, id: instanceName, imagePath: imgPath, name: instanceName, versionType: versionType }, modloader === "forge" ? { name: "forge", id: version } : undefined)
 
     // Download Game and patch game with correct modloader
     await downloadMinecraft(mcVersion, instanceName)

@@ -15,7 +15,6 @@ import {
     minecraftVersionPath,
     objectPath,
     resourcePackage,
-    serversInstancesPath,
     tempPath
 } from "../Utils/const"
 import path from "path"

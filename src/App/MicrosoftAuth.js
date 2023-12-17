@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.msaLogin = exports.createOAuthLink = void 0;
-const remote_1 = require("@electron/remote");
+exports.msaLogin = void 0;
+const electron_1 = require("electron");
 const const_js_1 = require("../Utils/const.js");
 const HMicrosoft_js_1 = require("../Utils/HMicrosoft.js");
 function createOAuthLink() {
@@ -22,37 +22,38 @@ function createOAuthLink() {
     url += "&cobrandid=8058f65d-ce06-4c30-9559-473c9275a65d";
     return url;
 }
-exports.createOAuthLink = createOAuthLink;
 function msaLogin() {
     return __awaiter(this, void 0, void 0, function* () {
-        const loginWindow = new remote_1.BrowserWindow({
-            backgroundColor: "white",
-            center: true,
-            fullscreenable: false,
-            resizable: false,
-        });
-        loginWindow.setMenu(null);
-        yield loginWindow.webContents.session.clearStorageData();
-        loginWindow.loadURL(createOAuthLink());
-        yield new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const loginWindow = new electron_1.BrowserWindow({
+                backgroundColor: "white",
+                center: true,
+                fullscreenable: false,
+                resizable: false,
+            });
+            loginWindow.setMenu(null);
+            yield loginWindow.webContents.session.clearStorageData().catch((err) => reject(err));
+            yield loginWindow.loadURL(createOAuthLink()).catch((err) => reject(err));
             loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
                 console.log(loginWindow.webContents.getURL());
                 if (loginWindow.webContents.getURL().includes("code=")) {
-                    console.log("Code retrieved");
-                    try {
-                        const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
-                        loginWindow.close();
-                        yield connectWithCode(code);
+                    const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
+                    loginWindow.close();
+                    if (code) {
+                        yield connectWithCode(code).then(() => {
+                            resolve();
+                        }).catch((err) => reject(err));
                     }
-                    catch (err) {
-                        console.error(err);
-                        reject(null);
+                    else {
+                        reject();
                     }
-                    resolve(null);
                 }
             }));
-        }).catch(() => { return false; });
-        return true;
+            loginWindow.on("close", () => {
+                reject();
+            });
+            resolve();
+        }));
     });
 }
 exports.msaLogin = msaLogin;
@@ -114,75 +115,81 @@ function refreshAccessToken(refreshToken) {
 }
 function getAccessToken(code) {
     return __awaiter(this, void 0, void 0, function* () {
-        var header = new Headers();
-        header.append("Content-Type", "application/x-www-form-urlencoded");
-        var urlencoded = new URLSearchParams();
-        urlencoded.append("client_id", const_js_1.clientId);
-        urlencoded.append("code", code);
-        urlencoded.append("grant_type", "authorization_code");
-        urlencoded.append("redirect_uri", const_js_1.redirectUrl);
-        var response = undefined;
-        yield fetch(const_js_1.msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
-            yield res.json().then((val) => {
-                response = val;
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const header = new Headers();
+            header.append("Content-Type", "application/x-www-form-urlencoded");
+            const urlencoded = new URLSearchParams();
+            urlencoded.append("client_id", const_js_1.clientId);
+            urlencoded.append("code", code);
+            urlencoded.append("grant_type", "authorization_code");
+            urlencoded.append("redirect_uri", const_js_1.redirectUrl);
+            yield fetch(const_js_1.msAccessToken, { method: "POST", headers: header, body: urlencoded, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+                yield res.json().then((res) => {
+                    resolve(res);
+                }).catch((err) => reject(err));
+            })).catch((err) => {
+                reject(err);
             });
-        })).catch((err) => {
-            console.log("Error occured when attempting to fetch the MSA access token related to the account!");
-            console.error(err);
-        });
-        return response;
+        }));
     });
 }
 function getXbxLiveToken(accessToken) {
     return __awaiter(this, void 0, void 0, function* () {
-        var header = new Headers();
-        header.append("Content-Type", "application/json");
-        header.append("Accept", "application/json");
-        var bodyParam = JSON.stringify({ "Properties": { "AuthMethod": "RPS", "SiteName": "user.auth.xboxlive.com", "RpsTicket": `d=${accessToken}` }, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT" });
-        var response = undefined;
-        yield fetch(const_js_1.xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
-            yield res.json().then((val) => {
-                response = val;
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const header = new Headers();
+            header.append("Content-Type", "application/json");
+            header.append("Accept", "application/json");
+            const bodyParam = JSON.stringify({
+                "Properties": {
+                    "AuthMethod": "RPS",
+                    "SiteName": "user.auth.xboxlive.com",
+                    "RpsTicket": `d=${accessToken}`
+                }, "RelyingParty": "https://auth.xboxlive.com", "TokenType": "JWT"
             });
-        })).catch((err) => {
-            console.log("Error occured when attempting to fetch the XBL token related to the account!");
-            console.error(err);
-        });
-        return response;
+            yield fetch(const_js_1.xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+                yield res.json().then((res) => {
+                    resolve(res);
+                }).catch((err) => reject(err));
+            })).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 function getXstsToken(token) {
     return __awaiter(this, void 0, void 0, function* () {
-        var header = new Headers();
-        header.append("Content-Type", "application/json");
-        header.append("Accept", "application/json");
-        var bodyParam = JSON.stringify({ "Properties": { "SandboxId": "RETAIL", "UserTokens": [token] }, "RelyingParty": "rp://api.minecraftservices.com/", "TokenType": "JWT" });
-        var response = undefined;
-        yield fetch(const_js_1.xstsAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
-            yield res.json().then((val) => {
-                response = val;
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const header = new Headers();
+            header.append("Content-Type", "application/json");
+            header.append("Accept", "application/json");
+            const bodyParam = JSON.stringify({
+                "Properties": { "SandboxId": "RETAIL", "UserTokens": [token] },
+                "RelyingParty": "rp://api.minecraftservices.com/",
+                "TokenType": "JWT"
             });
-        })).catch((err) => {
-            console.log("Error occured when attempting to fetch the XSTS token related to the account!");
-            console.error(err);
-        });
-        return response;
+            yield fetch(const_js_1.xstsAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+                yield res.json().then((res) => {
+                    resolve(res);
+                }).catch((err) => reject(err));
+            })).catch((err) => {
+                reject(err);
+            });
+        }));
     });
 }
 function getMinecraftBearerToken(uhs, token) {
     return __awaiter(this, void 0, void 0, function* () {
-        var header = new Headers();
-        header.append("Content-Type", "application/json");
-        var bodyParam = JSON.stringify({ "identityToken": `XBL3.0 x=${uhs};${token}`, "ensureLegacyEnabled": true });
-        var response = undefined;
-        yield fetch(const_js_1.minecraftBearerToken, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
-            yield res.json().then((val) => {
-                response = val;
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const header = new Headers();
+            header.append("Content-Type", "application/json");
+            const bodyParam = JSON.stringify({ "identityToken": `XBL3.0 x=${uhs};${token}`, "ensureLegacyEnabled": true });
+            yield fetch(const_js_1.minecraftBearerToken, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
+                yield res.json().then((res) => {
+                    resolve(res);
+                }).catch((err) => reject(err));
+            })).catch((err) => {
+                reject(err);
             });
-        })).catch((err) => {
-            console.log("Error occured when attempting to fetch the Minecraft informations related to the account!");
-            console.error(err);
-        });
-        return response;
+        }));
     });
 }

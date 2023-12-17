@@ -33,21 +33,24 @@ function setContentTo(name) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const currentState = exports.instancesStates.hasOwnProperty(name) ? exports.instancesStates[name] : InstanceState.ToDownload;
             updateInstanceState(name, currentState);
-            const dlInfoData = (yield (0, HRemoteProfiles_1.listProfiles)())[name];
-            const metadata = yield (0, HRemoteProfiles_1.getMetadataOf)(name);
-            const serverBrandLogo = document.getElementById("dl-page-server-brand-logo");
-            serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(dlInfoData["brandLogoUrl"], '\\', '/')}`);
-            // Set version
-            const widgetVersion = document.getElementById("dl-page-version");
-            if (widgetVersion) {
-                widgetVersion.innerHTML = "";
-                const widgetText = document.createElement("p");
-                widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`;
-                widgetVersion.append(widgetText);
-            }
-            const contentBackground = document.getElementById("dl-page-thumbnail");
-            contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(dlInfoData["thumbnailUrl"], '\\', '/')}')`;
-            resolve();
+            yield (0, HRemoteProfiles_1.listProfiles)().then((profiles) => __awaiter(this, void 0, void 0, function* () {
+                const serverBrandLogo = document.getElementById("dl-page-server-brand-logo");
+                if (serverBrandLogo)
+                    serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(profiles[name]["brandLogoUrl"], '\\', '/')}`);
+                const widgetVersion = document.getElementById("dl-page-version");
+                if (widgetVersion) {
+                    widgetVersion.innerHTML = "";
+                    const widgetText = document.createElement("p");
+                    yield (0, HRemoteProfiles_1.getMetadataOf)(name).then((metadata) => {
+                        widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`;
+                    }).catch((err) => reject(err));
+                    widgetVersion.append(widgetText);
+                }
+                const contentBackground = document.getElementById("dl-page-thumbnail");
+                if (contentBackground)
+                    contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(profiles[name]["thumbnailUrl"], '\\', '/')}')`;
+                resolve();
+            })).catch((err) => reject(err));
         }));
     });
 }
@@ -55,57 +58,60 @@ exports.setContentTo = setContentTo;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            exports.instancesStates = {};
             const instancesDiv = document.getElementById("avail-servers");
             if (instancesDiv) {
                 instancesDiv.innerHTML = "";
                 const loading = document.createElement("img");
                 loading.setAttribute("src", "./resources/svg/loading.svg");
                 instancesDiv.append(loading);
-                const profiles = yield (0, HRemoteProfiles_1.listProfiles)();
-                instancesDiv.innerHTML = "";
-                for (const instanceName in profiles) {
-                    const element = (0, HInstance_1.addInstanceElement)({
-                        name: instanceName,
-                        thumbnailPath: profiles[instanceName]["thumbnailPath"],
-                        logoPath: profiles[instanceName]["coverUrl"],
-                        version: profiles[instanceName]["thumbnailPath"]
-                    }, instancesDiv);
-                    if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instanceName, "info.json"))) {
-                        exports.instancesStates[instanceName] = InstanceState.Owned;
+                yield (0, HRemoteProfiles_1.listProfiles)().then((profiles) => {
+                    instancesDiv.innerHTML = "";
+                    for (const instanceName in profiles) {
+                        const element = (0, HInstance_1.addInstanceElement)({
+                            name: instanceName,
+                            thumbnailPath: profiles[instanceName]["thumbnailPath"],
+                            logoPath: profiles[instanceName]["coverUrl"],
+                            version: profiles[instanceName]["thumbnailPath"]
+                        }, instancesDiv);
+                        if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instanceName, "info.json"))) {
+                            exports.instancesStates[instanceName] = InstanceState.Owned;
+                        }
+                        element.addEventListener("click", () => {
+                            exports.currentInstanceOpened = instanceName;
+                            setContentTo(instanceName);
+                            openPopup("download-instance-info");
+                        });
                     }
-                    element.addEventListener("click", () => {
-                        exports.currentInstanceOpened = instanceName;
-                        setContentTo(instanceName);
-                        openPopup("download-instance-info");
-                    });
-                }
+                }).catch((err) => reject(err));
                 resolve();
             }
             else
-                reject(`Unexpected error when refreshing instance list.`);
+                reject();
         }));
     });
 }
 exports.refreshInstanceList = refreshInstanceList;
 function updateInstanceState(name, newState) {
-    const instance = document.getElementById(name);
     exports.instancesStates[name] = newState;
     const dlBtn = document.getElementById("download-instance-action");
-    const iconBtn = dlBtn.querySelector("img");
-    switch (newState) {
-        case InstanceState.ToDownload:
-            dlBtn.style.backgroundColor = "#05E400";
-            iconBtn.setAttribute("src", "./resources/svg/download.svg");
-            break;
-        case InstanceState.Loading:
-            dlBtn.style.backgroundColor = "#5C5C5C";
-            iconBtn.setAttribute("src", "./resources/svg/loading.svg");
-            break;
-        case InstanceState.Owned:
-            dlBtn.style.backgroundColor = "#05E400";
-            iconBtn.setAttribute("src", "./resources/svg/checkmark.svg");
-            break;
+    if (dlBtn) {
+        const iconBtn = dlBtn.querySelector("img");
+        if (iconBtn) {
+            switch (newState) {
+                case InstanceState.ToDownload:
+                    dlBtn.style.backgroundColor = "#05E400";
+                    iconBtn.setAttribute("src", "./resources/svg/download.svg");
+                    break;
+                case InstanceState.Loading:
+                    dlBtn.style.backgroundColor = "#5C5C5C";
+                    iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+                    break;
+                case InstanceState.Owned:
+                    dlBtn.style.backgroundColor = "#05E400";
+                    iconBtn.setAttribute("src", "./resources/svg/checkmark.svg");
+                    break;
+            }
+        }
     }
 }
 exports.updateInstanceState = updateInstanceState;

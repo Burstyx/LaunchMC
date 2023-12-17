@@ -1,4 +1,4 @@
-const {listProfiles, getInstanceDataOf} = require("../../../Utils/HRemoteProfiles");
+const {listProfiles} = require("../../../Utils/HRemoteProfiles");
 const {downloadServerInstance} = require("../../../App/ServerInstances");
 const DownloadInstances = require("../../../App/DownloadInstances");
 const ServerInstances = require("../../../App/ServerInstances");

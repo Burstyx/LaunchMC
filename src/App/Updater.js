@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateCli = exports.checkForUpdate = void 0;
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HDownload_1 = require("../Utils/HDownload");
-const remote_1 = require("@electron/remote");
+const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
 const promises_1 = __importDefault(require("fs/promises"));
@@ -23,38 +23,36 @@ const window = require("../Interface/UIElements/scripts/window.js");
 let githubReleaseData = null;
 function checkForUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
-        githubReleaseData = yield (0, HRemoteProfiles_1.getLatestRelease)();
-        const currentVersion = require("../../package.json").version;
-        const latestVersion = githubReleaseData["tag_name"];
-        if (currentVersion !== latestVersion) {
-            console.log("Need to be updated!");
-            const settings = document.getElementById("settings");
-            settings.setAttribute("badge", "");
-            return;
-        }
-        console.log("Latest version already installed!");
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield (0, HRemoteProfiles_1.getLatestRelease)().then((res) => {
+                const currentVersion = require("../../package.json").version;
+                const latestVersion = res["tag_name"];
+                if (currentVersion !== latestVersion) {
+                    const settings = document.getElementById("settings");
+                    settings.setAttribute("badge", "");
+                    resolve(true);
+                }
+                resolve(false);
+            }).catch((err) => reject(err));
+        }));
     });
 }
 exports.checkForUpdate = checkForUpdate;
 function updateCli() {
     return __awaiter(this, void 0, void 0, function* () {
-        const loading = document.getElementById("loading-startup-launcher");
-        window.setLoading(true);
-        const dlUrl = githubReleaseData.assets[0].browser_download_url;
-        const name = githubReleaseData.assets[0].name;
-        console.log(remote_1.app.getPath("exe"));
-        yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => {
-            var _a, _b;
-            const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH`);
-            child.on("spawn", () => console.log("starting updating"));
-            (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on("data", (data) => console.log(data));
-            (_b = child.stderr) === null || _b === void 0 ? void 0 : _b.on("data", (data) => console.error(data));
-            child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
-                console.log("finish updating");
-                yield promises_1.default.rm(installerPath);
-                remote_1.app.quit();
-            }));
-        });
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const dlUrl = githubReleaseData["assets"][0]["browser_download_url"];
+            const name = githubReleaseData["assets"][0]["name"];
+            yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(electron_1.app.getPath("temp"), name)).then((installerPath) => {
+                const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH`);
+                child.on("error", (err) => {
+                    reject(err);
+                });
+                child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
+                    yield promises_1.default.rm(installerPath).finally(() => electron_1.app.quit());
+                }));
+            }).catch((err) => reject(err));
+        }));
     });
 }
 exports.updateCli = updateCli;

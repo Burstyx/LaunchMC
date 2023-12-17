@@ -21,7 +21,10 @@ function getLatestRelease() {
                 headers: myHeaders,
                 redirect: 'follow'
             })
-                .then((response) => __awaiter(this, void 0, void 0, function* () { return yield response.json().then((data) => resolve(data)); }))
+                .then((response) => __awaiter(this, void 0, void 0, function* () {
+                return yield response.json().then((data) => resolve(data))
+                    .catch((err) => reject(err));
+            }))
                 .catch((err) => {
                 reject(err);
             });
@@ -40,7 +43,10 @@ function listProfiles() {
                 headers: myHeaders,
                 redirect: 'follow'
             })
-                .then((response) => __awaiter(this, void 0, void 0, function* () { return yield response.json().then((data) => resolve(data)); }))
+                .then((response) => __awaiter(this, void 0, void 0, function* () {
+                return yield response.json().then((data) => resolve(data))
+                    .catch((err) => reject(err));
+            }))
                 .catch((err) => {
                 reject(err);
             });

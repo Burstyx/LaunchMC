@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceDlState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
+exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -56,6 +56,7 @@ function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable;
+            updateInstanceState(name, currentState);
             yield getInstanceData(name).then((instanceJson) => {
                 const instanceData = instanceJson["data"]["instance"];
                 const gameData = instanceJson["data"]["game"];
@@ -79,24 +80,9 @@ function setContentTo(name) {
                 h < 10 ? h = `0${h}` : h = `${h}`
     
                 widgetPlaytime.innerText = `${h}h${m}`*/
-                const launchBtn = document.getElementById("instance-action");
-                const iconBtn = launchBtn.querySelector("img");
-                switch (currentState) {
-                    case InstanceState.Playing:
-                        launchBtn.style.backgroundColor = "#FF0000";
-                        iconBtn.setAttribute("src", "./resources/svg/stop.svg");
-                        break;
-                    case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
-                        launchBtn.style.backgroundColor = "#5C5C5C";
-                        iconBtn.setAttribute("src", "./resources/svg/loading.svg");
-                        break;
-                    case InstanceState.Playable:
-                        launchBtn.style.backgroundColor = "#05E400";
-                        iconBtn.setAttribute("src", "./resources/svg/play.svg");
-                        break;
-                }
                 const contentBackground = document.getElementById("local-instance-thumbnail");
-                contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
+                if (contentBackground)
+                    contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
             }).then(() => resolve()).catch((err) => reject(err));
         }));
     });
@@ -113,7 +99,7 @@ function refreshInstanceList() {
                         if ((0, fs_1.existsSync)(path_1.default.join(const_1.localInstancesPath, instance.name, "info.json"))) {
                             const data = yield promises_1.default.readFile(path_1.default.join(const_1.localInstancesPath, instance.name, "info.json"), "utf8");
                             const dataJson = JSON.parse(data);
-                            yield (0, HInstance_1.addInstanceElement)({ name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], version: dataJson["game"]["version"] }, instancesDiv);
+                            (0, HInstance_1.addInstanceElement)({ name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], version: dataJson["game"]["version"] }, instancesDiv);
                         }
                     }
                 })).then(() => resolve()).catch((err) => reject(err));
@@ -148,11 +134,27 @@ var InstanceState;
     InstanceState[InstanceState["Playable"] = 4] = "Playable";
     InstanceState[InstanceState["Playing"] = 5] = "Playing";
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
-function updateInstanceDlState(name, newState) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const instance = document.getElementById(name);
-        instancesStates[name] = newState;
-        yield setContentTo(name);
-    });
+function updateInstanceState(name, newState) {
+    instancesStates[name] = newState;
+    const launchBtn = document.getElementById("instance-action");
+    if (launchBtn) {
+        const iconBtn = launchBtn.querySelector("img");
+        if (iconBtn) {
+            switch (newState) {
+                case InstanceState.Playing:
+                    launchBtn.style.backgroundColor = "#FF0000";
+                    iconBtn.setAttribute("src", "./resources/svg/stop.svg");
+                    break;
+                case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
+                    launchBtn.style.backgroundColor = "#5C5C5C";
+                    iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+                    break;
+                case InstanceState.Playable:
+                    launchBtn.style.backgroundColor = "#05E400";
+                    iconBtn.setAttribute("src", "./resources/svg/play.svg");
+                    break;
+            }
+        }
+    }
 }
-exports.updateInstanceDlState = updateInstanceDlState;
+exports.updateInstanceState = updateInstanceState;

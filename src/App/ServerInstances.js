@@ -85,7 +85,8 @@ function setContentTo(name) {
 
             widgetPlaytime.innerText = `${h}h${m}`*/
             const contentBackground = document.getElementById("local-instance-thumbnail");
-            contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
+            if (contentBackground)
+                contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
         }).catch((err) => reject(err));
     }));
 }
@@ -99,19 +100,20 @@ function refreshInstanceList() {
                 yield promises_1.default.readdir(const_1.serversInstancesPath, { withFileTypes: true }).then((instances) => __awaiter(this, void 0, void 0, function* () {
                     for (const instance of instances) {
                         if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"))) {
-                            const data = yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"), "utf8");
-                            const dataJson = JSON.parse(data);
-                            const element = (0, HInstance_1.addInstanceElement)({
-                                name: dataJson["instance"]["name"],
-                                thumbnailPath: dataJson["instance"]["thumbnail_path"],
-                                logoPath: dataJson["instance"]["cover_path"],
-                                version: dataJson["game"]["version"]
-                            }, instancesDiv);
-                            element.addEventListener("click", () => {
-                                exports.currentInstanceOpened = instance.name;
-                                setContentTo(instance.name);
-                                openPopup("server-instance-info");
-                            });
+                            yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"), "utf8").then((data) => {
+                                const dataJson = JSON.parse(data);
+                                const element = (0, HInstance_1.addInstanceElement)({
+                                    name: dataJson["instance"]["name"],
+                                    thumbnailPath: dataJson["instance"]["thumbnail_path"],
+                                    logoPath: dataJson["instance"]["cover_path"],
+                                    version: dataJson["game"]["version"]
+                                }, instancesDiv);
+                                element.addEventListener("click", () => {
+                                    exports.currentInstanceOpened = instance.name;
+                                    setContentTo(instance.name);
+                                    openPopup("server-instance-info");
+                                });
+                            }).catch((err) => reject(err));
                         }
                     }
                     resolve();
@@ -146,27 +148,30 @@ var InstanceState;
     InstanceState[InstanceState["NeedUpdate"] = 3] = "NeedUpdate";
 })(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceState(name, newState) {
-    const instance = document.getElementById(name);
     exports.instancesStates[name] = newState;
     const launchBtn = document.getElementById("server-instance-action");
-    const iconBtn = launchBtn.querySelector("img");
-    switch (newState) {
-        case InstanceState.Playing:
-            launchBtn.style.backgroundColor = "#FF0000";
-            iconBtn.setAttribute("src", "./resources/svg/stop.svg");
-            break;
-        case InstanceState.NeedUpdate:
-            launchBtn.style.backgroundColor = "#D73600";
-            iconBtn.setAttribute("src", "./resources/svg/update.svg");
-            break;
-        case InstanceState.Loading:
-            launchBtn.style.backgroundColor = "#5C5C5C";
-            iconBtn.setAttribute("src", "./resources/svg/loading.svg");
-            break;
-        case InstanceState.Playable:
-            launchBtn.style.backgroundColor = "#05E400";
-            iconBtn.setAttribute("src", "./resources/svg/play.svg");
-            break;
+    if (launchBtn) {
+        const iconBtn = launchBtn.querySelector("img");
+        if (iconBtn) {
+            switch (newState) {
+                case InstanceState.Playing:
+                    launchBtn.style.backgroundColor = "#FF0000";
+                    iconBtn.setAttribute("src", "./resources/svg/stop.svg");
+                    break;
+                case InstanceState.NeedUpdate:
+                    launchBtn.style.backgroundColor = "#D73600";
+                    iconBtn.setAttribute("src", "./resources/svg/update.svg");
+                    break;
+                case InstanceState.Loading:
+                    launchBtn.style.backgroundColor = "#5C5C5C";
+                    iconBtn.setAttribute("src", "./resources/svg/loading.svg");
+                    break;
+                case InstanceState.Playable:
+                    launchBtn.style.backgroundColor = "#05E400";
+                    iconBtn.setAttribute("src", "./resources/svg/play.svg");
+                    break;
+            }
+        }
     }
 }
 exports.updateInstanceState = updateInstanceState;
@@ -175,6 +180,15 @@ function downloadServerInstance(instanceOpts) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield (0, HRemoteProfiles_1.getMetadataOf)(instanceOpts.name).then((metadata) => __awaiter(this, void 0, void 0, function* () {
                 const isVanilla = !metadata.hasOwnProperty("loader");
+                yield (0, DownloadGame_1.downloadMinecraft)(metadata["mcVersion"], instanceOpts.name).catch((err) => reject(err));
+                if (!isVanilla) {
+                    yield (0, DownloadGame_1.patchInstanceWithForge)(instanceOpts.name, metadata["mcVersion"], metadata["loader"]["id"]).catch((err) => reject(err));
+                }
+                // Download files
+                for (const fileData of metadata["files"]) {
+                    const ext = path_1.default.extname(fileData.path);
+                    yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.serversInstancesPath, instanceOpts.name, fileData.path), undefined, { decompress: ext === ".zip" }).catch((err) => reject(err));
+                }
                 yield createInstance({
                     name: instanceOpts.name,
                     logoPath: instanceOpts.logoPath,
@@ -184,19 +198,6 @@ function downloadServerInstance(instanceOpts) {
                     name: metadata["loader"]["name"],
                     id: metadata["loader"]["id"]
                 } : undefined).catch((err) => reject(err));
-                console.log("instance created downloading mc");
-                yield (0, DownloadGame_1.downloadMinecraft)(metadata["mcVersion"], instanceOpts.name).catch((err) => reject(err));
-                if (!isVanilla) {
-                    console.log("miencraft downloaded, dl forge");
-                    yield (0, DownloadGame_1.patchInstanceWithForge)(instanceOpts.name, metadata["mcVersion"], metadata["loader"]["id"]).catch((err) => reject(err));
-                }
-                console.log("forge downloaded updating instance");
-                // Download files
-                for (const fileData of metadata["files"]) {
-                    const ext = path_1.default.extname(fileData.path);
-                    ext === ".zip" ? console.log("zip file detected") : null;
-                    yield (0, HDownload_1.downloadAsync)(fileData.url, path_1.default.join(const_1.serversInstancesPath, instanceOpts.name, fileData.path), undefined, { decompress: ext === ".zip" }).catch((err) => reject(err));
-                }
                 resolve();
             })).catch((err) => reject(err));
         }));

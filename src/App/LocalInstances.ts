@@ -1,13 +1,11 @@
 import fs from "fs/promises";
 import path from "path";
-import {localInstancesPath, serversInstancesPath} from "../Utils/const";
+import {localInstancesPath} from "../Utils/const";
 import {concatJson, replaceAll} from "../Utils/Utils";
 import {
     addInstanceElement,
-    generateInstanceBtn,
     InstanceOpts,
     LoaderOpts,
-    ServerInstanceOpts
 } from "../Utils/HInstance";
 import {existsSync} from "fs";
 
@@ -56,6 +54,7 @@ async function createInstance(instanceOpts: InstanceOpts, loaderOpts?: LoaderOpt
 export async function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
         const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable
+        updateInstanceState(name, currentState)
 
         await getInstanceData(name).then((instanceJson) => {
             const instanceData = instanceJson["data"]["instance"]
@@ -85,26 +84,8 @@ export async function setContentTo(name: string) { // TODO: Cleaning
 
             widgetPlaytime.innerText = `${h}h${m}`*/
 
-            const launchBtn = document.getElementById("instance-action")!
-            const iconBtn = launchBtn.querySelector("img")!
-
-            switch (currentState) {
-                case InstanceState.Playing:
-                    launchBtn.style.backgroundColor = "#FF0000"
-                    iconBtn.setAttribute("src", "./resources/svg/stop.svg")
-                    break;
-                case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
-                    launchBtn.style.backgroundColor = "#5C5C5C"
-                    iconBtn.setAttribute("src", "./resources/svg/loading.svg")
-                    break;
-                case InstanceState.Playable:
-                    launchBtn.style.backgroundColor = "#05E400"
-                    iconBtn.setAttribute("src", "./resources/svg/play.svg")
-                    break;
-            }
-
-            const contentBackground = document.getElementById("local-instance-thumbnail")!
-            contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
+            const contentBackground = document.getElementById("local-instance-thumbnail")
+            if(contentBackground) contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
         }).then(() => resolve()).catch((err) => reject(err))
     })
 }
@@ -122,7 +103,7 @@ export async function refreshInstanceList() {
                         const data = await fs.readFile(path.join(localInstancesPath, instance.name, "info.json"), "utf8")
                         const dataJson = JSON.parse(data)
 
-                        await addInstanceElement({name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], version: dataJson["game"]["version"]}, instancesDiv)
+                        addInstanceElement({name: dataJson["instance"]["name"], thumbnailPath: dataJson["instance"]["thumbnail_path"], version: dataJson["game"]["version"]}, instancesDiv)
                     }
                 }
             }).then(() => resolve()).catch((err) => reject(err))
@@ -150,10 +131,27 @@ export enum InstanceState {
     Playing
 }
 
-export async function updateInstanceDlState(name: string, newState: InstanceState) {
-    const instance = document.getElementById(name)
-
+export function updateInstanceState(name: string, newState: InstanceState) {
     instancesStates[name] = newState
 
-    await setContentTo(name)
+    const launchBtn = document.getElementById("instance-action")
+    if(launchBtn) {
+        const iconBtn = launchBtn.querySelector("img")
+        if(iconBtn) {
+            switch (newState) {
+                case InstanceState.Playing:
+                    launchBtn.style.backgroundColor = "#FF0000"
+                    iconBtn.setAttribute("src", "./resources/svg/stop.svg")
+                    break;
+                case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
+                    launchBtn.style.backgroundColor = "#5C5C5C"
+                    iconBtn.setAttribute("src", "./resources/svg/loading.svg")
+                    break;
+                case InstanceState.Playable:
+                    launchBtn.style.backgroundColor = "#05E400"
+                    iconBtn.setAttribute("src", "./resources/svg/play.svg")
+                    break;
+            }
+        }
+    }
 }
