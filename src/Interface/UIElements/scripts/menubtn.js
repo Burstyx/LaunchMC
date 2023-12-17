@@ -64,7 +64,7 @@ settings.addEventListener("click", async () => {
     activeGroup.style.display = "none";
     grSettings.style.display = "block";
 
-    initSettings()
+    await initSettings()
 
     activeGroup = grSettings;
 

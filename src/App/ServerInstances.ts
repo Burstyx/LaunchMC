@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import {serversInstancesPath} from "../Utils/const";
+import {instancesPath, serversInstancesPath} from "../Utils/const";
 import {concatJson, replaceAll} from "../Utils/Utils";
 import {
     LoaderOpts,
@@ -8,7 +8,7 @@ import {
 } from "../Utils/HInstance";
 import {existsSync} from "fs";
 import {addInstanceElement} from "../Utils/HInstance";
-import {getMetadataOf} from "../Utils/HRemoteProfiles";
+import {getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
 import {downloadMinecraft, patchInstanceWithForge} from "./DownloadGame";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
@@ -206,6 +206,35 @@ export async function downloadServerInstance(instanceOpts: ServerInstanceOpts) {
                     name: metadata["loader"]["name"],
                     id: metadata["loader"]["id"]
                 } : undefined).catch((err) => reject(err))
+
+            resolve()
+        }).catch((err) => reject(err))
+    })
+}
+
+export async function verifyInstanceFromRemote(name: string) {
+    return new Promise<void>(async(resolve, reject) => {
+        await listProfiles().then(async (profiles) => {
+            if(!profiles.hasOwnProperty(name)) reject();
+
+            let metadata: any
+            await getMetadataOf(name).then((res) => {
+                metadata = res
+            })
+
+            if(!metadata) reject()
+
+            const folders = metadata!["folders"]
+            for (const folder of folders) {
+                await fs.rmdir(path.join(serversInstancesPath, name, folder), {recursive: true}).catch((err) => reject(err))
+            }
+
+            for (const fileData of metadata!["files"]) {
+                if(!existsSync(path.join(serversInstancesPath, name, fileData["path"]))) {
+                    await downloadAsync(fileData["url"], path.join(serversInstancesPath, name, fileData["path"])).catch((err) => reject(err))
+                    console.log("downloaded: " + fileData["path"] + " from " + fileData["url"])
+                }
+            }
 
             resolve()
         }).catch((err) => reject(err))

@@ -118,11 +118,11 @@ export async function refreshToken() {
 
             const minecraftAccessToken = minecraftFetchedData!["access_token"]
 
-            await changeAccountProperty(uuid, "access_token", minecraftAccessToken)
-            await changeAccountProperty(uuid, "refresh_token", refreshedData!["refresh_token"])
+            await changeAccountProperty(uuid, "access_token", minecraftAccessToken).catch((err) => reject(err))
+            await changeAccountProperty(uuid, "refresh_token", refreshedData!["refresh_token"]).catch((err) => reject(err))
 
             resolve()
-        })
+        }).catch((err) => reject(err))
     })
 }
 

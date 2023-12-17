@@ -113,10 +113,10 @@ function refreshToken() {
                 if (!minecraftFetchedData)
                     reject();
                 const minecraftAccessToken = minecraftFetchedData["access_token"];
-                yield (0, HMicrosoft_js_1.changeAccountProperty)(uuid, "access_token", minecraftAccessToken);
-                yield (0, HMicrosoft_js_1.changeAccountProperty)(uuid, "refresh_token", refreshedData["refresh_token"]);
+                yield (0, HMicrosoft_js_1.changeAccountProperty)(uuid, "access_token", minecraftAccessToken).catch((err) => reject(err));
+                yield (0, HMicrosoft_js_1.changeAccountProperty)(uuid, "refresh_token", refreshedData["refresh_token"]).catch((err) => reject(err));
                 resolve();
-            }));
+            })).catch((err) => reject(err));
         }));
     });
 }

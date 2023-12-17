@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.currentInstanceOpened = exports.instancesStates = void 0;
+exports.verifyInstanceFromRemote = exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.currentInstanceOpened = exports.instancesStates = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -204,3 +204,31 @@ function downloadServerInstance(instanceOpts) {
     });
 }
 exports.downloadServerInstance = downloadServerInstance;
+function verifyInstanceFromRemote(name) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            yield (0, HRemoteProfiles_1.listProfiles)().then((profiles) => __awaiter(this, void 0, void 0, function* () {
+                if (!profiles.hasOwnProperty(name))
+                    reject();
+                let metadata;
+                yield (0, HRemoteProfiles_1.getMetadataOf)(name).then((res) => {
+                    metadata = res;
+                });
+                if (!metadata)
+                    reject();
+                const folders = metadata["folders"];
+                for (const folder of folders) {
+                    yield promises_1.default.rmdir(path_1.default.join(const_1.serversInstancesPath, name, folder), { recursive: true }).catch((err) => reject(err));
+                }
+                for (const fileData of metadata["files"]) {
+                    if (!(0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, name, fileData["path"]))) {
+                        yield (0, HDownload_1.downloadAsync)(fileData["url"], path_1.default.join(const_1.serversInstancesPath, name, fileData["path"])).catch((err) => reject(err));
+                        console.log("downloaded: " + fileData["path"] + " from " + fileData["url"]);
+                    }
+                }
+                resolve();
+            })).catch((err) => reject(err));
+        }));
+    });
+}
+exports.verifyInstanceFromRemote = verifyInstanceFromRemote;

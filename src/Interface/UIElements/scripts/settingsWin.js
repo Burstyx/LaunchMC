@@ -49,13 +49,12 @@ exports.initSettings = async () => {
 }
 
 async function refreshAccountList() {
+    msAccountList.innerHTML = ""
     await accountList().then(async (accounts) => {
-        msAccountList.innerHTML = ""
-
         let activeAccountUuid;
         await getActiveAccount().then((acc) => {
             activeAccountUuid = acc["uuid"]
-        })
+        }).catch((err) => console.error(`Une erreur est survenue lors de la récupération du compte microsoft actif`))
 
         for(const account of accounts) {
             const accBtn = document.createElement("div")

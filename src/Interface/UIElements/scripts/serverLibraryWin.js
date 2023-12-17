@@ -1,5 +1,5 @@
 const {listProfiles} = require("../../../Utils/HRemoteProfiles");
-const {downloadServerInstance} = require("../../../App/ServerInstances");
+const {downloadServerInstance, verifyInstanceFromRemote} = require("../../../App/ServerInstances");
 const DownloadInstances = require("../../../App/DownloadInstances");
 const ServerInstances = require("../../../App/ServerInstances");
 const {startMinecraft, killGame} = require("../../../App/StartMinecraft");
@@ -64,19 +64,24 @@ serverInstanceAction.onclick = async () => {
 
     await getActiveAccount().then(async (acc) => {
         await ServerInstances.getInstanceData(currentInstanceOpened).then(async (data) => {
-            await startMinecraft(currentInstanceOpened, {
-                version: data["data"]["game"]["version"],
-                accessToken: acc["access_token"],
-                username: acc["username"],
-                uuid: acc["uuid"]
-            }, (err) => {
-                ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-                console.log(`Le jeu de l'instance ${currentInstanceOpened} a été/s'est arrêté en renvoyant le message suivant: ${err}`)
-            }, data["data"]["loader"]["id"]).then(() => {
-                ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playing)
+            await verifyInstanceFromRemote(currentInstanceOpened).then(async () => {
+                await startMinecraft(currentInstanceOpened, {
+                    version: data["data"]["game"]["version"],
+                    accessToken: acc["access_token"],
+                    username: acc["username"],
+                    uuid: acc["uuid"]
+                }, (err) => {
+                    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
+                    console.log(`Le jeu de l'instance ${currentInstanceOpened} a été/s'est arrêté en renvoyant le message suivant: ${err}`)
+                }, data["data"]["loader"]["id"]).then(() => {
+                    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playing)
+                }).catch((err) => {
+                    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
+                    console.error(`Impossible de lancer le jeu pour ${currentInstanceOpened}: ${err}`)
+                })
             }).catch((err) => {
                 ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-                console.error(`Impossible de lancer le jeu pour ${currentInstanceOpened}: ${err}`)
+                console.error(`Impossible de mettre à jour l'instance: ${err}`)
             })
         }).catch((err) => {
             ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
