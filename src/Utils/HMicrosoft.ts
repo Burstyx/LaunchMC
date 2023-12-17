@@ -4,7 +4,8 @@ import { existsSync } from "fs"
 import path from "path"
 
 interface AccountInfo {
-    accessToken: any,
+    accessToken: string,
+    refreshToken: string
     username: string,
     uuid: string,
     usertype: string,
@@ -44,18 +45,16 @@ export async function addAccount(opt: AccountInfo){
             })
         }
 
-        // FIXME Rien qui marche et ca me met les nerfs
-
-        let activeAccount: any
+        let activeAccount: any = undefined
         await getActiveAccount().then(async (res) => {
             activeAccount = res
-        }).catch((err) => reject(err)).finally(async () => {
-            data["accounts"].push({"access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": activeAccount === null})
+        }).catch((err) => {})
 
-            await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
-                reject(err)
-            }).catch((err) => reject(err))
-        })
+        data["accounts"].push({"access_token": opt.accessToken, "refresh_token": opt.refreshToken, "username": opt.username, "usertype": opt.usertype, "uuid": opt.uuid, "active": activeAccount === undefined})
+
+        await fs.writeFile(path.join(gamePath, "microsoft_account.json"), JSON.stringify(data)).then(() => {
+            resolve()
+        }).catch((err) => reject(err))
     })
 }
 

@@ -48,15 +48,17 @@ function addAccount(opt) {
                     reject(err);
                 });
             }
-            let activeAccount;
+            console.log("la");
+            let activeAccount = undefined;
             yield getActiveAccount().then((res) => __awaiter(this, void 0, void 0, function* () {
                 activeAccount = res;
-            })).catch((err) => reject(err)).finally(() => __awaiter(this, void 0, void 0, function* () {
-                data["accounts"].push({ "access_token": opt["accessToken"], "username": opt["username"], "usertype": opt["usertype"], "uuid": opt["uuid"], "active": activeAccount === null });
-                yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data)).catch((err) => {
-                    reject(err);
-                }).catch((err) => reject(err));
-            }));
+            })).catch((err) => { });
+            console.log("la");
+            data["accounts"].push({ "access_token": opt.accessToken, "refresh_token": opt.refreshToken, "username": opt.username, "usertype": opt.usertype, "uuid": opt.uuid, "active": activeAccount === undefined });
+            yield promises_1.default.writeFile(path_1.default.join(const_1.gamePath, "microsoft_account.json"), JSON.stringify(data)).then(() => {
+                console.log("la");
+                resolve();
+            }).catch((err) => reject(err));
         }));
     });
 }

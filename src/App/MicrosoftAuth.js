@@ -46,13 +46,13 @@ function msaLogin() {
                         }).catch((err) => reject(err));
                     }
                     else {
-                        reject();
+                        reject(`Aucun code trouvé`);
                     }
                 }
             }));
             loginWindow.on("close", () => {
                 if (!workingOnConnection)
-                    reject();
+                    reject("La fenêtre a été fermé");
             });
         }));
     });
@@ -70,11 +70,10 @@ function connectWithCode(code) {
         const xstsToken = xstsFetchedData["Token"];
         const minecraftFetchedData = yield getMinecraftBearerToken(uhs, xstsToken);
         const minecraftAccessToken = minecraftFetchedData["access_token"];
-        const expires_in = minecraftFetchedData["expires_in"];
         const minecraftProfileData = yield getMinecraftProfile(minecraftAccessToken);
         const username = minecraftProfileData["name"];
         const uuid = minecraftProfileData["id"];
-        yield (0, HMicrosoft_js_1.addAccount)({ accessToken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid });
+        yield (0, HMicrosoft_js_1.addAccount)({ accessToken: minecraftAccessToken, refreshToken: refreshToken, username: username, usertype: "msa", uuid: uuid });
     });
 }
 function refreshToken() {

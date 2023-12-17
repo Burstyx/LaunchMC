@@ -41,13 +41,13 @@ export async function msaLogin(){ // TODO: Return profile data
                         resolve()
                     }).catch((err) => reject(err))
                 }else{
-                    reject()
+                    reject(`Aucun code trouvé`)
                 }
             }
         })
 
         loginWindow.on("close", () => {
-            if(!workingOnConnection) reject()
+            if(!workingOnConnection) reject("La fenêtre a été fermé")
         })
     })
 }
@@ -66,13 +66,12 @@ async function connectWithCode(code: string){
 
     const minecraftFetchedData = await getMinecraftBearerToken(uhs, xstsToken)
     const minecraftAccessToken = minecraftFetchedData!["access_token"]
-    const expires_in = minecraftFetchedData!["expires_in"]
 
     const minecraftProfileData = await getMinecraftProfile(minecraftAccessToken)
     const username = minecraftProfileData!["name"]
     const uuid = minecraftProfileData!["id"]   
         
-    await addAccount({accessToken: minecraftAccessToken, username: username, usertype: "msa", uuid: uuid})
+    await addAccount({accessToken: minecraftAccessToken, refreshToken: refreshToken, username: username, usertype: "msa", uuid: uuid})
 }
 
 export async function refreshToken() {
