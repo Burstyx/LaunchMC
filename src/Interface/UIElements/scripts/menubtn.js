@@ -64,8 +64,6 @@ settings.addEventListener("click", async () => {
     activeGroup.style.display = "none";
     grSettings.style.display = "block";
 
-    // Refresh account list
-    // Check if update was found
     initSettings()
 
     activeGroup = grSettings;

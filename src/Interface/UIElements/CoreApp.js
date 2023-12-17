@@ -37,10 +37,6 @@ const initializeModules = async () => {
         /*const chooseVersionWindow = require("./scripts/chooseVersionWin")
         await chooseVersionWindow.refreshVersionList()*/
 
-        //console.log("[Initialize Modules] Account manager window module");
-        /*const accountManagerWindow = require("./scripts/accountManagerWin")
-        await accountManagerWindow.refreshAccountList()*/
-
         setLoading(false)
 
         console.log("Update Local Instance List");

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.msaLogin = void 0;
-const electron_1 = require("electron");
+const remote_1 = require("@electron/remote");
 const const_js_1 = require("../Utils/const.js");
 const HMicrosoft_js_1 = require("../Utils/HMicrosoft.js");
 function createOAuthLink() {
@@ -25,7 +25,7 @@ function createOAuthLink() {
 function msaLogin() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const loginWindow = new electron_1.BrowserWindow({
+            const loginWindow = new remote_1.BrowserWindow({
                 backgroundColor: "white",
                 center: true,
                 fullscreenable: false,
@@ -34,10 +34,11 @@ function msaLogin() {
             loginWindow.setMenu(null);
             yield loginWindow.webContents.session.clearStorageData().catch((err) => reject(err));
             yield loginWindow.loadURL(createOAuthLink()).catch((err) => reject(err));
+            let workingOnConnection = false;
             loginWindow.webContents.on("update-target-url", (evt) => __awaiter(this, void 0, void 0, function* () {
-                console.log(loginWindow.webContents.getURL());
                 if (loginWindow.webContents.getURL().includes("code=")) {
                     const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code");
+                    workingOnConnection = true;
                     loginWindow.close();
                     if (code) {
                         yield connectWithCode(code).then(() => {
@@ -50,9 +51,9 @@ function msaLogin() {
                 }
             }));
             loginWindow.on("close", () => {
-                reject();
+                if (!workingOnConnection)
+                    reject();
             });
-            resolve();
         }));
     });
 }
@@ -83,7 +84,6 @@ function getMinecraftProfile(accessToken) {
         yield fetch(const_js_1.playerMojangProfile, { method: "GET", headers: header, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
             yield res.json().then((val) => {
                 response = val;
-                console.log(val);
             });
         })).catch((err) => {
             console.log("Error occured when attempting to get the profile attached to the account!");
@@ -144,7 +144,7 @@ function getXbxLiveToken(accessToken) {
                     "AuthMethod": "RPS",
                     "SiteName": "user.auth.xboxlive.com",
                     "RpsTicket": `d=${accessToken}`
-                }, "RelyingParty": "https://auth.xboxlive.com", "TokenType": "JWT"
+                }, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT"
             });
             yield fetch(const_js_1.xbxLiveAuth, { method: "POST", headers: header, body: bodyParam, redirect: "follow" }).then((res) => __awaiter(this, void 0, void 0, function* () {
                 yield res.json().then((res) => {

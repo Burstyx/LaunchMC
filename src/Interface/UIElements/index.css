@@ -137,10 +137,13 @@ body {
 
     border-radius: 20px;
 
+    padding: 0 12px;
+
     display: flex;
     justify-content: center;
+    align-items: center;
 
-    transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s;
+    transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s, color .15s;
 }
 
 .text-button:hover {
@@ -156,8 +159,16 @@ body {
     background-color: var(--color-theme);
 }
 
+.text-button[active] {
+    background-color: white;
+}
+
+.text-button[active] > p{
+    color: black
+}
+
 .text-button > p{
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
 .popup {
@@ -500,6 +511,26 @@ body {
 
 #settings-about > p {
     margin: 0;
+}
+
+#ms-accounts-list {
+    display: flex;
+
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin-bottom: 8px;
+}
+
+#ms-accounts-list > div {
+    width: 150px;
+    height: 65px;
+
+}
+
+#ms-accounts-list > div > img {
+    border-radius: 12px;
+    width: 40px
 }
 /*endregion*/
 

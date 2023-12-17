@@ -1,4 +1,4 @@
-import { BrowserWindow } from "electron"
+import { BrowserWindow } from "@electron/remote"
 import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Utils/const.js"
 import { addAccount } from "../Utils/HMicrosoft.js"
 
@@ -27,12 +27,13 @@ export async function msaLogin(){ // TODO: Return profile data
         await loginWindow.webContents.session.clearStorageData().catch((err) => reject(err))
         await loginWindow.loadURL(createOAuthLink()).catch((err) => reject(err))
 
-        loginWindow.webContents.on("update-target-url", async (evt) => {
-            console.log(loginWindow.webContents.getURL());
+        let workingOnConnection = false
 
+        loginWindow.webContents.on("update-target-url", async (evt) => {
             if(loginWindow.webContents.getURL().includes("code=")){
                 const code = new URL(loginWindow.webContents.getURL()).searchParams.get("code")
 
+                workingOnConnection = true
                 loginWindow.close()
 
                 if(code) {
@@ -46,10 +47,8 @@ export async function msaLogin(){ // TODO: Return profile data
         })
 
         loginWindow.on("close", () => {
-            reject()
+            if(!workingOnConnection) reject()
         })
-
-        resolve()
     })
 }
 
@@ -84,7 +83,6 @@ async function getMinecraftProfile(accessToken: string){
     await fetch(playerMojangProfile, {method: "GET", headers: header, redirect: "follow"}).then(async (res) => {
         await res.json().then((val) => {
             response = val
-            console.log(val);
         })
     }).catch((err) => {
         console.log("Error occured when attempting to get the profile attached to the account!");
@@ -152,7 +150,7 @@ async function getXbxLiveToken(accessToken: string){
                 "AuthMethod": "RPS",
                 "SiteName": "user.auth.xboxlive.com",
                 "RpsTicket": `d=${accessToken}`
-            }, "RelyingParty": "https://auth.xboxlive.com", "TokenType": "JWT"
+            }, "RelyingParty": "http://auth.xboxlive.com", "TokenType": "JWT"
         });
 
         await fetch(xbxLiveAuth, {method: "POST", headers: header, body: bodyParam, redirect: "follow"}).then(async (res) => {
