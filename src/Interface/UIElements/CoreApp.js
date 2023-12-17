@@ -1,5 +1,8 @@
 const { initDiscordRPC } = require("../../App/DiscordRPC");
 const {checkForUpdate} = require("../../App/Updater");
+const {refreshToken} = require("../../App/MicrosoftAuth")
+
+
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const LocalInstances= require("../../App/LocalInstances");
 
@@ -36,6 +39,9 @@ const initializeModules = async () => {
         //console.log("[Initialize Modules] Choose version window module");
         /*const chooseVersionWindow = require("./scripts/chooseVersionWin")
         await chooseVersionWindow.refreshVersionList()*/
+
+        console.log("Refreshing Microsoft Account");
+        await refreshToken()
 
         setLoading(false)
 
