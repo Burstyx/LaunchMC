@@ -12,27 +12,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCli = exports.checkForUpdate = void 0;
+exports.updateCli = exports.checkForUpdate = exports.newVersion = exports.updateAvailable = void 0;
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HDownload_1 = require("../Utils/HDownload");
-const electron_1 = require("electron");
+const remote_1 = require("@electron/remote");
 const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
 const promises_1 = __importDefault(require("fs/promises"));
 const window = require("../Interface/UIElements/scripts/window.js");
 let githubReleaseData = null;
+exports.updateAvailable = false;
 function checkForUpdate() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield (0, HRemoteProfiles_1.getLatestRelease)().then((res) => {
                 const currentVersion = require("../../package.json").version;
                 const latestVersion = res["tag_name"];
-                if (currentVersion !== latestVersion) {
-                    const settings = document.getElementById("settings");
-                    settings.setAttribute("badge", "");
-                    resolve(true);
-                }
-                resolve(false);
+                githubReleaseData = res;
+                exports.updateAvailable = currentVersion !== latestVersion;
+                exports.newVersion = latestVersion;
+                resolve(exports.updateAvailable);
             }).catch((err) => reject(err));
         }));
     });
@@ -41,17 +40,22 @@ exports.checkForUpdate = checkForUpdate;
 function updateCli() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const dlUrl = githubReleaseData["assets"][0]["browser_download_url"];
-            const name = githubReleaseData["assets"][0]["name"];
-            yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(electron_1.app.getPath("temp"), name)).then((installerPath) => {
-                const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH`);
-                child.on("error", (err) => {
-                    reject(err);
-                });
-                child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
-                    yield promises_1.default.rm(installerPath).finally(() => electron_1.app.quit());
-                }));
-            }).catch((err) => reject(err));
+            if (githubReleaseData) {
+                const dlUrl = githubReleaseData["assets"][0]["browser_download_url"];
+                const name = githubReleaseData["assets"][0]["name"];
+                yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => {
+                    const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH`);
+                    child.on("error", (err) => {
+                        reject(err);
+                    });
+                    child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
+                        yield promises_1.default.rm(installerPath).finally(() => remote_1.app.quit());
+                    }));
+                }).catch((err) => reject(err));
+            }
+            else {
+                console.error(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une`);
+            }
         }));
     });
 }

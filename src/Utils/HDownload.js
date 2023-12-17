@@ -37,7 +37,7 @@ function downloadAsync(url, dest, callback, opt) {
                         if (opt && opt["decompress"] == true) {
                             const destWithoutExt = dest.substring(0, dest.lastIndexOf("."));
                             const zip = new adm_zip_1.default(dest);
-                            zip.extractAllTo(destWithoutExt, true);
+                            zip.extractAllTo(destWithoutExt, true); // FIXME: launcher freeze during decompressing
                             yield promises_1.default.rm(dest).catch((err) => {
                                 file.close();
                                 reject(err);

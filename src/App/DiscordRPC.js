@@ -17,7 +17,8 @@ const discord_rpc_1 = __importDefault(require("discord-rpc"));
 var DiscordRPCState;
 (function (DiscordRPCState) {
     DiscordRPCState[DiscordRPCState["InLauncher"] = 0] = "InLauncher";
-    DiscordRPCState[DiscordRPCState["InGame"] = 1] = "InGame";
+    DiscordRPCState[DiscordRPCState["InGameLocal"] = 1] = "InGameLocal";
+    DiscordRPCState[DiscordRPCState["InGameServer"] = 2] = "InGameServer";
 })(DiscordRPCState = exports.DiscordRPCState || (exports.DiscordRPCState = {}));
 let client;
 const clientId = "1116091725061046353";
@@ -29,26 +30,35 @@ function initDiscordRPC() {
     client.login({ clientId }).catch((err) => err);
 }
 exports.initDiscordRPC = initDiscordRPC;
-function switchDiscordRPCState(newState) {
+function switchDiscordRPCState(newState, name) {
     return __awaiter(this, void 0, void 0, function* () {
-        switch (newState) {
-            case DiscordRPCState.InLauncher:
-                yield client.setActivity({
-                    details: "In Launcher",
-                    largeImageKey: "icon"
-                });
-                return;
-            case DiscordRPCState.InGame:
-                yield client.setActivity({
-                    details: "In Minecraft",
-                    largeImageKey: "icon",
-                    startTimestamp: Date.now()
-                });
-                return;
-            default:
-                console.log("State doesn't exist");
-                return;
-        }
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            switch (newState) {
+                case DiscordRPCState.InLauncher:
+                    yield client.setActivity({
+                        details: "In the launcher",
+                        largeImageKey: "icon"
+                    }).catch((err) => reject(err));
+                    return;
+                case DiscordRPCState.InGameLocal:
+                    yield client.setActivity({
+                        details: "Playing Minecraft",
+                        largeImageKey: "icon",
+                        startTimestamp: Date.now()
+                    }).catch((err) => reject(err));
+                    return;
+                case DiscordRPCState.InGameServer:
+                    yield client.setActivity({
+                        details: `Playing ${name}`,
+                        largeImageKey: "icon",
+                        startTimestamp: Date.now()
+                    }).catch((err) => reject(err));
+                    return;
+                default:
+                    console.log("State doesn't exist");
+                    return;
+            }
+        }));
     });
 }
 exports.switchDiscordRPCState = switchDiscordRPCState;

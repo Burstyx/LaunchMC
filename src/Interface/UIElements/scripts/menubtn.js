@@ -1,13 +1,17 @@
 const DownloadInstances = require("../../../App/DownloadInstances");
 const ServerInstances = require("../../../App/ServerInstances");
+const {checkForUpdate, updateAvailable} = require("../../../App/Updater");
+const {initSettings} = require("./settingsWin");
 
 const home = document.getElementById("home")
 const library = document.getElementById("library")
 const servers = document.getElementById("servers")
+const settings = document.getElementById("settings")
 
 const grHome = document.getElementById("gr-discover")
 const grLibrary = document.getElementById("gr-library")
 const grServers = document.getElementById("gr-servers")
+const grSettings = document.getElementById("gr-settings")
 
 let activeBtn = library
 let activeGroup = grLibrary;
@@ -51,6 +55,23 @@ servers.addEventListener("click", async () => {
 
     activeBtn = servers
 
-    await ServerInstances.refreshInstanceList().catch((err) => console.error(err))
-    await DownloadInstances.refreshInstanceList().catch((err) => console.error(err))
+    await ServerInstances.refreshInstanceList().catch((err) => console.error(`Une erreur est survenue lors d l'actualisation des instances de serveur: ${err}` ))
+    await DownloadInstances.refreshInstanceList().catch((err) => console.error(`Une erreur est survenue lors d l'actualisation des instances locaux: ${err}` ))
+})
+
+const checkUpdateBtn = document.getElementById("settings-check-update")
+settings.addEventListener("click", async () => {
+    activeGroup.style.display = "none";
+    grSettings.style.display = "block";
+
+    // Refresh account list
+    // Check if update was found
+    initSettings()
+
+    activeGroup = grSettings;
+
+    activeBtn.toggleAttribute("active", false)
+    settings.toggleAttribute("active", true)
+
+    activeBtn = settings
 })

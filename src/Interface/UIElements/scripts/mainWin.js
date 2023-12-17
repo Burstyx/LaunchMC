@@ -5,7 +5,8 @@ const fs = require("fs/promises")
 const { gamePath } = require("../../../Utils/const")
 const { getActiveAccount } = require("../../../Utils/HMicrosoft")
 const {dialog} = require("@electron/remote")
-const {updateCliFrom, updateCli} = require("../../../App/Updater");
+const {updateCli} = require("../../../App/Updater");
+const {downloadServerInstance} = require("../../../App/ServerInstances");
 
 // Open new instance window
 const openCreateInstanceWinBtn = document.getElementById("open-create-instance-window")
@@ -13,13 +14,21 @@ openCreateInstanceWinBtn.addEventListener("click", (e) => {
     openWindow("new-instance")
 })
 
-// Import json profile file
+/*// Import json profile file
 const openImportProfileCtxDialog = document.getElementById("open-import-profile-ctxdialog")
 
 openImportProfileCtxDialog.addEventListener("click", async (e) => {
-    const result = await dialog.showOpenDialog({properties: ['openFile'], filters: [{name: "Ruby Profile File", extensions: ["json"]}]})
-    if(result !== undefined) await convertProfileToInstance(result.filePaths[0])
-})
+    await dialog.showOpenDialog({properties: ['openFile'], filters: [{name: "JSON Files", extensions: ["json"]}]}).then(async (result) => {
+        if(result !== undefined) {
+            const data = JSON.parse(result.filePaths[0])
+            await downloadServerInstance({
+
+            }).catch((err) => {
+                console.error(`Une erreur `)
+            })
+        }
+    })
+})*/
 
 const updateBtn = document.getElementById("update-btn")
 updateBtn.addEventListener("click", async (e) => await updateCli())
@@ -55,8 +64,6 @@ launchBtn.addEventListener("click", async () => {
             console.log("Verifying installation, wait");
             return;
     }
-
-    console.log("sdfsdfsdfsdf: " + instanceId)
 
     await updateInstanceDlState(instanceId, InstanceState.Verification)
     await verifyInstanceFromRemote(instanceId)

@@ -132,6 +132,34 @@ body {
     background-color: #3D2222;
 }
 
+.text-button {
+    background-color: #2E2E2E;
+
+    border-radius: 20px;
+
+    display: flex;
+    justify-content: center;
+
+    transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s;
+}
+
+.text-button:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    filter: brightness(.85);
+}
+
+.text-button:active {
+    transform: scale(0.95);
+}
+
+.text-button.themed {
+    background-color: var(--color-theme);
+}
+
+.text-button > p{
+    padding: 0 20px;
+}
+
 .popup {
     position: absolute;
     width: 100%;
@@ -348,7 +376,7 @@ body {
 
 /*region Servers*/
 #own-servers{
-    padding: 8px;
+    margin-left: 15px;
 
     display: flex;
     flex-wrap: wrap;
@@ -356,7 +384,7 @@ body {
 }
 
 #avail-servers{
-    padding: 8px;
+    margin-left: 15px;
 
     display: flex;
     flex-wrap: wrap;
@@ -364,8 +392,8 @@ body {
 }
 
 #gr-servers > p {
-    margin: 0;
-    padding: 8px;
+    margin: 15px;
+    font-size: 25px;
 }
 
 /*region Server Info Popup*/
@@ -438,6 +466,41 @@ body {
     margin: 8px;
 }
 /*endregion*/
+/*endregion*/
+
+/*region Settings*/
+#gr-settings {
+    margin: 15px;
+    width: fit-content;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+
+    gap: 20px;
+}
+
+#gr-settings > * > .text-button {
+    width: fit-content;
+}
+
+#settings-about {
+    display: flex;
+    flex-direction: column;
+
+}
+
+#gr-settings > div > p:first-of-type {
+    font-size: 25px;
+}
+
+#gr-settings > div > p {
+    margin: 0 0 10px 0;
+}
+
+#settings-about > p {
+    margin: 0;
+}
 /*endregion*/
 
 img[src="./resources/svg/loading.svg"] {

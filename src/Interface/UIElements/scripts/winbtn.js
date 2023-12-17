@@ -1,22 +1,22 @@
-const { BrowserWindow } = require("@electron/remote")
+const { getCurrentWindow } = require("@electron/remote")
 
 const close = document.getElementById("close")
 const minmax = document.getElementById("minmax")
 const reduce = document.getElementById("reduce")
 
 close.addEventListener("click", () => {
-    BrowserWindow.getFocusedWindow().close()
+    getCurrentWindow().close()
 })
 
 minmax.addEventListener("click", () => {
-    if (BrowserWindow.getFocusedWindow().isMaximized()) {
-        BrowserWindow.getFocusedWindow().restore()
+    if (getCurrentWindow().isMaximized()) {
+        getCurrentWindow().restore()
     }
     else {
-        BrowserWindow.getFocusedWindow().maximize()
+        getCurrentWindow().maximize()
     }
 })
 
 reduce.addEventListener("click", () => {
-    BrowserWindow.getFocusedWindow().minimize()
+    getCurrentWindow().minimize()
 })

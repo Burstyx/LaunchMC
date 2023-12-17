@@ -19,14 +19,13 @@ const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const DownloadGame_1 = require("./DownloadGame");
 const HFileManagement_1 = require("../Utils/HFileManagement");
-const DiscordRPC_1 = require("./DiscordRPC");
 const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
 const semver_1 = __importDefault(require("semver"));
 const promises_1 = __importDefault(require("fs/promises"));
 let mcProc = {};
 let logs = {};
-function startMinecraft(name, mcOpts, forgeId) {
+function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield (0, HManifests_1.minecraftManifestForVersion)(mcOpts.version).then((mcData) => __awaiter(this, void 0, void 0, function* () {
@@ -176,8 +175,6 @@ function startMinecraft(name, mcOpts, forgeId) {
                 yield extractAllNatives(mcLibrariesArray.join(path_1.default.delimiter), path_1.default.join(const_1.serversInstancesPath, name, "natives"), path_1.default.join(const_1.javaPath, const_1.java17Version, const_1.java17Name, "bin", "jar")).catch((err) => reject(err));
                 const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs, { cwd: path_1.default.join(const_1.serversInstancesPath, name) });
                 console.log(proc.spawnargs);
-                //await updateInstanceDlState(instanceId, InstanceState.Playing)
-                yield (0, DiscordRPC_1.switchDiscordRPCState)(DiscordRPC_1.DiscordRPCState.InGame);
                 mcProc[name] = proc;
                 logs[name] = [];
                 proc.stdout.on("data", (data) => {
@@ -186,13 +183,15 @@ function startMinecraft(name, mcOpts, forgeId) {
                 proc.stderr.on("data", (data) => {
                     logs[name].push({ "message": data, "type": "err" });
                 });
-                proc.on("error", (err) => reject(err));
-                proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
-                    //await updateInstanceDlState(instanceId, InstanceState.Playable)
-                    yield (0, DiscordRPC_1.switchDiscordRPCState)(DiscordRPC_1.DiscordRPCState.InLauncher);
+                proc.on("error", (err) => {
                     delete mcProc[name];
                     delete logs[name];
-                    resolve();
+                    gameStoppedCallback(err);
+                });
+                proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
+                    delete mcProc[name];
+                    delete logs[name];
+                    gameStoppedCallback(code);
                 }));
                 resolve();
             })).catch((err) => reject(err));
@@ -205,7 +204,9 @@ function killGame(name) {
         mcProc[name].kill();
         delete mcProc[name];
         delete logs[name];
+        return true;
     }
+    return false;
 }
 exports.killGame = killGame;
 function extractAllNatives(libraries, nativeFolder, javaLocation) {

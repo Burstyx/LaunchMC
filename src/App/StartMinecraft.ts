@@ -33,7 +33,9 @@ interface MinecraftArgsOpt {
 let mcProc: any = {}
 let logs: any = {}
 
-export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, forgeId?: string) {
+type CallbackGameStopped = (code: any) => void;
+
+export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, gameStoppedCallback: CallbackGameStopped, forgeId?: string) {
     return new Promise<void>(async (resolve, reject) => {
         await minecraftManifestForVersion(mcOpts.version).then(async (mcData) => {
             const isForgeVersion = forgeId != undefined
@@ -216,9 +218,6 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
 
             console.log(proc.spawnargs);
 
-            //await updateInstanceDlState(instanceId, InstanceState.Playing)
-            await switchDiscordRPCState(DiscordRPCState.InGame)
-
             mcProc[name] = proc
             logs[name] = []
 
@@ -230,16 +229,18 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, for
                 logs[name].push({"message": data, "type": "err"})
             })
 
-            proc.on("error", (err) => reject(err))
-
-            proc.on("close", async (code) => {
-                //await updateInstanceDlState(instanceId, InstanceState.Playable)
-                await switchDiscordRPCState(DiscordRPCState.InLauncher)
-
+            proc.on("error", (err) => {
                 delete mcProc[name]
                 delete logs[name]
 
-                resolve()
+                gameStoppedCallback(err)
+            })
+
+            proc.on("close", async (code) => {
+                delete mcProc[name]
+                delete logs[name]
+
+                gameStoppedCallback(code)
             })
 
             resolve()
@@ -253,7 +254,10 @@ export function killGame(name: string) {
 
         delete mcProc[name]
         delete logs[name]
+
+        return true;
     }
+    return false;
 }
 
 export function extractAllNatives(libraries: string, nativeFolder: string, javaLocation: string) {

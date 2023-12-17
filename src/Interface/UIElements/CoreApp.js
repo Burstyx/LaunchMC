@@ -3,11 +3,15 @@ const {checkForUpdate} = require("../../App/Updater");
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const LocalInstances= require("../../App/LocalInstances");
 
-const initializeModules = () => {
+const initializeModules = async () => {
     setLoading(true)
 
-    console.log("Checking for updates")
-    checkForUpdate().then(() => {
+    await checkForUpdate().then((updateAvailable) => {
+        const settings = document.getElementById("settings")
+        settings.toggleAttribute("badge", updateAvailable)
+    }).catch((err) => {
+        console.error(`Une erreur est survenue lors de la vérification des mises à jour: ${err}`)
+    }).finally(async () => {
         console.log("[Initializing] Window buttons");
         require("./scripts/winbtn")
 
@@ -19,6 +23,9 @@ const initializeModules = () => {
 
         console.log("[Initialize Modules] Server instance info elements module");
         require("./scripts/serverLibraryWin")
+
+        console.log("[Initialize Modules] Settings module");
+        require("./scripts/settingsWin")
 
         //console.log("[Initializing] Content section");
         /*require("./scripts/mainWin")*/
@@ -34,15 +41,18 @@ const initializeModules = () => {
         /*const accountManagerWindow = require("./scripts/accountManagerWin")
         await accountManagerWindow.refreshAccountList()*/
 
-        console.log("Initialisation effectuée sans erreur !")
         setLoading(false)
 
         console.log("Update Local Instance List");
-        LocalInstances.refreshInstanceList()
+        await LocalInstances.refreshInstanceList().catch((err) => console.error(`Une erreur est survenue lors de l'actualisation des instances locaux: ${err}`))
 
         console.log("Initialize Discord RPC");
         initDiscordRPC()
     })
 }
 
-initializeModules()
+initializeModules().then(() => {
+    console.log("Initialisation effectuée sans erreur !")
+}).catch((err) => {
+    console.error(`Une erreur est survenue lors de l'initialisation: ${err}`)
+})
