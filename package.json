@@ -1,7 +1,7 @@
 {
-  "name": "rubycli",
+  "name": "LaunchMC",
   "version": "0.1.0-A",
-  "description": "Ruby Client, Minecraft launcher for all your vanilla/modded versions",
+  "description": "Join your favorite Minecraft server or just play Minecraft.",
   "main": "src/electron.js",
   "scripts": {
     "build-js": "npx tsc",
@@ -64,7 +64,8 @@
       "installerIcon": "",
       "uninstallerIcon": "",
       "artifactName": "${productName}-${version}-installer.${ext}",
-      "deleteAppDataOnUninstall": true
+      "deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": false
     }
   }
 }
