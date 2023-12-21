@@ -12,7 +12,6 @@ import {
 } from "../Utils/const"
 import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList, parseRule } from "./DownloadGame"
 import { mavenToArray } from "../Utils/HFileManagement"
-import { DiscordRPCState, switchDiscordRPCState } from "./DiscordRPC"
 import { getForgeVersionIfExist } from "../Utils/HForge"
 import { removeDuplicates, replaceAll } from "../Utils/Utils"
 import semver from "semver"
@@ -31,7 +30,7 @@ interface MinecraftArgsOpt {
 }
 
 let mcProc: any = {}
-let logs: any = {}
+export let logs: any = {}
 
 type CallbackGameStopped = (code: any) => void;
 
