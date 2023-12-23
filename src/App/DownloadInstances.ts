@@ -75,7 +75,7 @@ export async function refreshInstanceList() {
                         element.addEventListener("click", async () => {
                             updateOpenedInstance(instanceName)
 
-                            await setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`))
+                            await setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`))
                         })
                     }
                 }

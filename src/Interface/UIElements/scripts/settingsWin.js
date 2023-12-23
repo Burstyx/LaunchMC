@@ -1,6 +1,7 @@
 const {checkForUpdate, updateCli, updateAvailable, newVersion} = require("../../../App/Updater");
 const {accountList, getActiveAccount} = require("../../../Utils/HMicrosoft");
 const {msaLogin} = require("../../../App/MicrosoftAuth");
+const {addNotification} = require("./notification");
 
 const checkUpdateBtn = document.getElementById("settings-check-update")
 
@@ -16,7 +17,7 @@ checkUpdateBtn.addEventListener("click", async () => {
         isWorking = true
         if(updateFound) {
             await updateCli().catch((err) => {
-                console.error(`Une erreur est survenue lors de la mise à jour: ${err}`)
+                addNotification(`Une erreur est survenue lors de la mise à jour.`, "error", err)
             }).finally(() => isWorking = false)
         } else {
             await checkForUpdate().then((shouldBeUpdated) => {
@@ -26,7 +27,7 @@ checkUpdateBtn.addEventListener("click", async () => {
                     checkUpdateBtn.classList.add("themed")
                 }
             }).catch((err) => {
-                console.error(`Une erreur est survenue lors de la vérification des mises à jour: ${err}`)
+                addNotification(`Une erreur est survenue lors de la vérification des mises à jour.`, "error", err)
             }).finally(() => {
                 checkUpdateBtn.lastChild.remove()
                 isWorking = false
@@ -54,7 +55,7 @@ async function refreshAccountList() {
         let activeAccountUuid;
         await getActiveAccount().then((acc) => {
             activeAccountUuid = acc["uuid"]
-        }).catch((err) => console.error(`Une erreur est survenue lors de la récupération du compte microsoft actif`))
+        }).catch((err) => addNotification(`Une erreur est survenue lors de la récupération du compte microsoft actif.<`, "error", err))
 
         for(const account of accounts) {
             const accBtn = document.createElement("div")
@@ -72,7 +73,7 @@ async function refreshAccountList() {
             msAccountList.append(accBtn)
         }
     }).catch((err) => {
-        console.error(`Une erreur est survenue lors de la récupération des comptes: ${err}`)
+        addNotification(`Une erreur est survenue lors de la récupération des comptes: ${err}`)
     })
 }
 
@@ -82,7 +83,7 @@ addAccount.addEventListener("click", async () => {
         console.log(`Un compte Microsoft a été ajouté`)
         await refreshAccountList()
     }).catch((err) => {
-        console.error(`Une erreur est survenue lors de la connexion à un compte Microsoft: ${err}`)
+        addNotification(`Une erreur est survenue lors de la connexion à un compte Microsoft: ${err}`)
     })
 
 

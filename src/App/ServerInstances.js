@@ -116,7 +116,7 @@ function refreshInstanceList() {
                                 }, instancesDiv);
                                 element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
                                     (0, HInstance_1.updateOpenedInstance)(dataJson["instance"]["name"]);
-                                    yield setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}: ${err}`));
+                                    yield setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}: ${err}`));
                                 }));
                             }).catch((err) => reject(err));
                         }

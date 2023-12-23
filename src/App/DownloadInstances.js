@@ -73,7 +73,7 @@ function refreshInstanceList() {
                             }, instancesDiv);
                             element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
                                 (0, HInstance_1.updateOpenedInstance)(instanceName);
-                                yield setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`));
+                                yield setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`));
                             }));
                         }
                     }

@@ -184,7 +184,7 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                                 yield (0, HDownload_1.downloadAsync)(`https://libraries.minecraft.net/${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath)).catch((err) => reject(err));
                             }
                             else {
-                                console.error("Case not handled or just it won't work");
+                                addNotification("Case not handled or just it won't work");
                             }
                         }
                         if (!skipForgeExtract) {

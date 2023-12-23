@@ -6,6 +6,7 @@ const {startMinecraft, killGame} = require("../../../App/StartMinecraft");
 const {getActiveAccount} = require("../../../Utils/HMicrosoft");
 const {InstanceState, instancesStates, currentOpenedInstance} = require("../../../Utils/HInstance");
 const {clearConsole, copyConsoleToClipboard} = require("../../../App/GameConsole");
+const {addNotification} = require("./notification");
 
 const instanceAction = document.getElementById("instance-action")
 
@@ -21,7 +22,7 @@ instanceAction.onclick = async () => {
             if(killGame(currentOpenedInstance)) {
                 ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
             } else {
-                console.error(`Impossible de forcer l'arrêt du jeu`)
+                addNotification(`Impossible de forcer l'arrêt du jeu.`, "error", undefined)
             }
             return;
         case InstanceState.ToDownload:
@@ -35,16 +36,16 @@ instanceAction.onclick = async () => {
                     logoPath: profile[currentOpenedInstance]["brandLogoUrl"],
                     version: profile[currentOpenedInstance]["version"]
                 }).then(async () => {
-                    await ServerInstances.refreshInstanceList().catch((err) => console.error(`Impossible de mettre à jour la liste des instances de serveurs : ${err}`))
-                    await DownloadInstances.refreshInstanceList().catch((err) => console.error(`Impossible de mettre à jour la liste des instances disponible au téléchargement : ${err}`))
+                    await ServerInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances possédées.`, "error", err))
+                    await DownloadInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances disponible.`, "error", err))
 
                     DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.Owned)
                 }).catch((err) => {
-                    console.error(`Une erreur est survenue lors du téléchargement de l'instance pour ${currentOpenedInstance}: ${err}`)
+                    addNotification(`Une erreur est survenue lors du téléchargement de l'instance ${currentOpenedInstance}.`, "error", err)
                     DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.ToDownload)
                 })
             }).catch((err) => {
-                console.error(`Une erreur est survenue lors de la récupération des profiles sur les serveurs de Github: ${err}`)
+                addNotification(`Une erreur est survenue lors de la récupération des profiles sur les serveurs de Github.`, "error", err)
             })
             return;
         case InstanceState.Playable:
@@ -60,25 +61,25 @@ instanceAction.onclick = async () => {
                             uuid: acc["uuid"]
                         }, (err) => {
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
-                            console.log(`Le jeu de l'instance ${currentOpenedInstance} a été/s'est arrêté en renvoyant le message suivant: ${err}`)
                         }, data["data"]["loader"]["id"]).then(() => {
                             clearConsole(currentOpenedInstance)
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playing)
+                            addNotification(`Une instance de Minecraft vient d'être lancé.`, "info")
                         }).catch((err) => {
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
-                            console.error(`Impossible de lancer le jeu pour ${currentOpenedInstance}: ${err}`)
+                            addNotification(`Impossible de lancer le jeu pour ${currentOpenedInstance}.`, "error", err)
                         })
                     }).catch((err) => {
                         ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
-                        console.error(`Impossible de mettre à jour l'instance: ${err}`)
+                        addNotification(`Impossible de mettre à jour l'instance.`, "error", err)
                     })
                 }).catch((err) => {
                     ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
-                    console.error(`Une erreur est survenue lors de la récupération des informations de l'instance ${currentOpenedInstance}: ${err}`)
+                    addNotification(`Une erreur est survenue lors de la récupération des informations de l'instance ${currentOpenedInstance}.`, "error", err)
                 })
             }).catch((err) => {
                 ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
-                console.error(`Aucun compte actif trouvé, connectez vous à votre compte Microsoft pour jouer: ${err}`)
+                addNotification(`Aucun compte actif trouvé, connectez-vous à votre compte Microsoft pour jouer.`, "error", err)
             })
             return;
     }
@@ -89,7 +90,7 @@ copyConsoleElement.addEventListener("click", async () => {
     await copyConsoleToClipboard(currentOpenedInstance).then(() => {
         console.log(`Contenu de la console copié avec succès!`)
     }).catch((err) => {
-        console.error(`Une erreur est survenue en copiant le contenu de la console dans le presse papier: ${err}`)
+        addNotification(`Une erreur est survenue en copiant le contenu de la console dans le presse papier.`, "error", err)
     })
 })
 

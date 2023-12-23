@@ -138,7 +138,7 @@ async function getMinecraftProfile(accessToken: string){
     }).catch((err) => {
         console.log("Error occured when attempting to get the profile attached to the account!");
         
-        console.error(err);
+        addNotification(err);
     })
 
     return response
@@ -163,7 +163,7 @@ async function refreshAccessToken(refreshToken: string){
     }).catch((err) => {
         console.log("Error occured when attempting to refresh the MSA access token related to the account!");
         
-        console.error(err);
+        addNotification(err);
     })
 
     return response

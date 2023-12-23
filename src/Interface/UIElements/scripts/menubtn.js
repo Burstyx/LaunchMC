@@ -2,6 +2,7 @@ const DownloadInstances = require("../../../App/DownloadInstances");
 const ServerInstances = require("../../../App/ServerInstances");
 const {checkForUpdate, updateAvailable} = require("../../../App/Updater");
 const {initSettings} = require("./settingsWin");
+const {addNotification} = require("./notification");
 
 const home = document.getElementById("home")
 const library = document.getElementById("library")
@@ -55,8 +56,8 @@ servers.addEventListener("click", async () => {
 
     activeBtn = servers
 
-    await ServerInstances.refreshInstanceList().catch((err) => console.error(`Une erreur est survenue lors d l'actualisation des instances de serveur: ${err}` ))
-    await DownloadInstances.refreshInstanceList().catch((err) => console.error(`Une erreur est survenue lors d l'actualisation des instances locaux: ${err}` ))
+    await ServerInstances.refreshInstanceList().catch((err) => addNotification(`Une erreur est survenue lors d l'actualisation des instances de serveur: ${err}`, "error"))
+    await DownloadInstances.refreshInstanceList().catch((err) => addNotification(`Une erreur est survenue lors d l'actualisation des instances locaux: ${err}`, "error"))
 })
 
 const checkUpdateBtn = document.getElementById("settings-check-update")

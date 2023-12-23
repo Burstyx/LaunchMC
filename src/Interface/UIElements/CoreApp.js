@@ -13,7 +13,7 @@ const initializeModules = async () => {
         const settings = document.getElementById("settings")
         settings.toggleAttribute("badge", updateAvailable)
     }).catch((err) => {
-        console.error(`Une erreur est survenue lors de la vérification des mises à jour: ${err}`)
+        addNotification(`Une erreur est survenue lors de la vérification des mises à jour: ${err}`)
     }).finally(async () => {
         console.log("[Initializing] Window buttons");
         require("./scripts/winbtn")
@@ -32,13 +32,13 @@ const initializeModules = async () => {
 
         console.log("Refreshing Microsoft Account");
         await refreshToken().catch((err) => {
-            console.error(`Une erreur est survenue lors du rafraichissement du token: ${err}`)
+            addNotification(`Une erreur est survenue lors du rafraichissement du token: ${err}`)
         })
 
         setLoading(false)
 
         console.log("Update Local Instance List");
-        await LocalInstances.refreshInstanceList().catch((err) => console.error(`Une erreur est survenue lors de l'actualisation des instances locaux: ${err}`))
+        await LocalInstances.refreshInstanceList().catch((err) => addNotification(`Une erreur est survenue lors de l'actualisation des instances locaux: ${err}`))
 
         console.log("Initialize Discord RPC");
         initDiscordRPC()
@@ -48,5 +48,5 @@ const initializeModules = async () => {
 initializeModules().then(() => {
     console.log("Initialisation effectuée sans erreur !")
 }).catch((err) => {
-    console.error(`Une erreur est survenue lors de l'initialisation: ${err}`)
+    addNotification(`Une erreur est survenue lors de l'initialisation: ${err}`)
 })

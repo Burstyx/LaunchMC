@@ -45,7 +45,7 @@ export async function updateCli() {
                 })
             }).catch((err) => reject(err))
         } else {
-            console.error(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une`)
+            addNotification(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une`)
         }
     })
 }

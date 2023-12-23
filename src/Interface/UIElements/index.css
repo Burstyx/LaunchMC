@@ -599,3 +599,42 @@ img[src="./resources/svg/loading.svg"] {
 
     overflow-y: overlay;
 }
+
+#floating-notification{
+    position: absolute;
+    z-index: 999;
+    top: 10px;
+    right: 10px;
+
+    padding: 15px 50px;
+    border-radius: 20px;
+    box-shadow: 0px 3px 10px black;
+}
+
+#floating-notification.error {
+    background-color: red;
+}
+
+#floating-notification {
+    background-color: #1b1b1b;
+    width: 300px;
+    max-height: 150px;
+
+    overflow: overlay;
+}
+
+#floating-notification > p:first-of-type{
+    font-size: 16px;
+    font-weight: 400;
+}
+
+#floating-notification > p{
+    margin: 0;
+
+    font-size: 14px;
+
+    text-align: center;
+    line-break: anywhere;
+
+    user-select: text;
+}
