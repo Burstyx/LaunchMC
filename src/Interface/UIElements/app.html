@@ -26,7 +26,7 @@
 
             </div>
 
-            <div class="elements-group" id="gr-library">
+            <div class="elements-group" id="gr-library" style="display: none">
                 <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
                 <div id="instances">
                 </div>
@@ -46,15 +46,13 @@
                 </div>
             </div>
 
-            <div class="elements-group" id="gr-servers"  style="display: none">
+            <div class="elements-group" id="gr-servers">
                 <p>Téléchargé</p>
                 <div id="own-servers">
-                    <div class="instance"></div>
                 </div>
 
                 <p>Disponible</p>
                 <div id="avail-servers">
-                    <div class="instance"></div>
                 </div>
 
                 <div class="popup instance-info-popup" popup-id="download-instance-info" style="display: none">
@@ -64,22 +62,34 @@
                             <div class="button green instance-action" id="download-instance-action"><img src="./resources/svg/download.svg" width="40%"></div>
                         </div>
                         <div class="instance-details">
-                            <div class="widget" id="dl-page-version"><p>Forge 1.12.2</p></div>
+                            <div class="instance-btn">
+                                <div class="widget" id="dl-page-version"><p>Forge 1.12.2</p></div>
+                            </div>
                         </div>
                         <p>aa</p>
                     </div>
                 </div>
 
-                <div class="popup instance-info-popup" popup-id="server-instance-info" style="display: none">
-                    <div>
+                <div class="popup instance-info-popup" popup-id="server-instance-info" >
+                    <div style="overflow: overlay">
                         <div class="instance-thumbnail" id="server-instance-thumbnail">
                             <img src="" class="server-brand-logo" id="server-page-server-brand-logo">
                             <div class="button green instance-action" id="server-instance-action"><img src="./resources/svg/play.svg" width="40%"></div>
                         </div>
                         <div class="instance-details">
-                            <div class="widget" id="server-version"><p>Forge 1.12.2</p></div>
-                            <div class="widget"><p>Console</p></div>
-                            <div class="widget"><p>Paramètres</p></div>
+                            <div class="instance-btn">
+                                <div class="widget" id="server-version"><p>Forge 1.12.2</p></div>
+                                <div class="widget" id="server-instance-console-btn"><p>Console</p></div>
+                                <div class="widget"><p>Paramètres</p></div>
+                            </div>
+                            <div id="server-instance-subpage">
+                                <div style="display: flex; gap: 8px">
+                                    <div class="text-button" style="width: 120px; height: 45px">Copy</div>
+                                    <div class="text-button" style="width: 120px; height: 45px">Clear</div>
+                                </div>
+                                <div class="instance-console" id="server-instance-console">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractAllNatives = exports.killGame = exports.startMinecraft = void 0;
+exports.extractAllNatives = exports.killGame = exports.startMinecraft = exports.logs = void 0;
 const HManifests_1 = require("../Utils/HManifests");
 const child_process_1 = __importDefault(require("child_process"));
 const path_1 = __importDefault(require("path"));
@@ -23,8 +23,9 @@ const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
 const semver_1 = __importDefault(require("semver"));
 const promises_1 = __importDefault(require("fs/promises"));
+const ServerInstances_1 = require("./ServerInstances");
 let mcProc = {};
-let logs = {};
+exports.logs = {};
 function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -176,21 +177,23 @@ function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
                 const proc = child_process_1.default.spawn(javaVersionToUse, fullMcArgs, { cwd: path_1.default.join(const_1.serversInstancesPath, name) });
                 console.log(proc.spawnargs);
                 mcProc[name] = proc;
-                logs[name] = [];
+                exports.logs[name] = [];
                 proc.stdout.on("data", (data) => {
-                    logs[name].push({ "message": data, "type": "info" });
+                    exports.logs[name].push({ "message": data.toString(), "type": "info" });
+                    (0, ServerInstances_1.makeConsoleDirty)();
                 });
                 proc.stderr.on("data", (data) => {
-                    logs[name].push({ "message": data, "type": "err" });
+                    exports.logs[name].push({ "message": data.toString(), "type": "err" });
+                    (0, ServerInstances_1.makeConsoleDirty)();
                 });
                 proc.on("error", (err) => {
                     delete mcProc[name];
-                    delete logs[name];
+                    delete exports.logs[name];
                     gameStoppedCallback(err);
                 });
                 proc.on("close", (code) => __awaiter(this, void 0, void 0, function* () {
                     delete mcProc[name];
-                    delete logs[name];
+                    delete exports.logs[name];
                     gameStoppedCallback(code);
                 }));
                 resolve();
@@ -203,7 +206,7 @@ function killGame(name) {
     if (mcProc.hasOwnProperty(name)) {
         mcProc[name].kill();
         delete mcProc[name];
-        delete logs[name];
+        delete exports.logs[name];
         return true;
     }
     return false;

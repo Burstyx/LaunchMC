@@ -89,6 +89,10 @@ serverInstanceAction.onclick = async () => {
         })
     }).catch((err) => {
         ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-        console.error(`Aucun compte actif trouvé, connectez vous à votre compte Microsoft pour jouer.`)
+        console.error(`Aucun compte actif trouvé, connectez vous à votre compte Microsoft pour jouer: ${err}`)
     })
+}
+
+exports.refreshConsole = () => {
+
 }

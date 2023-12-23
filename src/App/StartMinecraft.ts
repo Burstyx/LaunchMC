@@ -16,6 +16,7 @@ import { getForgeVersionIfExist } from "../Utils/HForge"
 import { removeDuplicates, replaceAll } from "../Utils/Utils"
 import semver from "semver"
 import fs from "fs/promises";
+import {makeConsoleDirty} from "./ServerInstances";
 
 interface MinecraftArgsOpt {
     version: string,
@@ -221,11 +222,13 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, gam
             logs[name] = []
 
             proc.stdout.on("data", (data) => {
-                logs[name].push({"message": data, "type": "info"})
+                logs[name].push({"message": data.toString(), "type": "info"})
+                makeConsoleDirty()
             })
 
             proc.stderr.on("data", (data) => {
-                logs[name].push({"message": data, "type": "err"})
+                logs[name].push({"message": data.toString(), "type": "err"})
+                makeConsoleDirty()
             })
 
             proc.on("error", (err) => {

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyInstanceFromRemote = exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = exports.currentInstanceOpened = exports.instancesStates = void 0;
+exports.verifyInstanceFromRemote = exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.makeConsoleDirty = exports.setContentTo = exports.currentInstanceOpened = exports.instancesStates = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -22,6 +22,7 @@ const HInstance_1 = require("../Utils/HInstance");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HDownload_1 = require("../Utils/HDownload");
 const DownloadGame_1 = require("./DownloadGame");
+const StartMinecraft_1 = require("./StartMinecraft");
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
 exports.instancesStates = {};
 exports.currentInstanceOpened = null;
@@ -58,6 +59,7 @@ function createInstance(instanceOpts, loaderOpts) {
         }));
     });
 }
+const gameConsole = document.getElementById("server-instance-console");
 function setContentTo(name) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         yield getInstanceData(name).then((instanceJson) => {
@@ -76,6 +78,16 @@ function setContentTo(name) {
                 widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`;
                 widgetVersion.append(widgetText);
             }
+            // Init console
+            if (gameConsole && exports.currentInstanceOpened) {
+                gameConsole.innerHTML = "";
+                for (const index in StartMinecraft_1.logs[exports.currentInstanceOpened]) {
+                    const text = document.createElement("p");
+                    text.innerText = StartMinecraft_1.logs[exports.currentInstanceOpened][index]["message"];
+                    text.classList.add(StartMinecraft_1.logs[exports.currentInstanceOpened][index]["err"] ? "error" : "info");
+                    gameConsole.append(text);
+                }
+            }
             //const timeInMiliseconds = instanceData.playtime
             /*h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
             m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
@@ -91,6 +103,17 @@ function setContentTo(name) {
     }));
 }
 exports.setContentTo = setContentTo;
+function makeConsoleDirty() {
+    if (gameConsole && exports.currentInstanceOpened) {
+        const lastLog = StartMinecraft_1.logs[exports.currentInstanceOpened][StartMinecraft_1.logs[exports.currentInstanceOpened].length - 1];
+        const text = document.createElement("p");
+        text.innerText = lastLog["message"];
+        text.classList.add(lastLog["type"] === "err" ? "error" : "info");
+        gameConsole.append(text);
+        gameConsole.scrollTo(0, gameConsole.scrollHeight);
+    }
+}
+exports.makeConsoleDirty = makeConsoleDirty;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {

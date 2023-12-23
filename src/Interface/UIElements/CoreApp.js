@@ -30,16 +30,6 @@ const initializeModules = async () => {
         console.log("[Initialize Modules] Settings module");
         require("./scripts/settingsWin")
 
-        //console.log("[Initializing] Content section");
-        /*require("./scripts/mainWin")*/
-
-        //console.log("[Initialize Modules] New instance window module");
-        /*require("./scripts/newInstanceWin")*/
-
-        //console.log("[Initialize Modules] Choose version window module");
-        /*const chooseVersionWindow = require("./scripts/chooseVersionWin")
-        await chooseVersionWindow.refreshVersionList()*/
-
         console.log("Refreshing Microsoft Account");
         await refreshToken().catch((err) => {
             console.error(`Une erreur est survenue lors du rafraichissement du token: ${err}`)

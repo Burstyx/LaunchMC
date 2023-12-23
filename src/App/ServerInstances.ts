@@ -11,6 +11,7 @@ import {addInstanceElement} from "../Utils/HInstance";
 import {getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
 import {downloadMinecraft, patchInstanceWithForge} from "./DownloadGame";
+import {logs} from "./StartMinecraft";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
 
 export let instancesStates : any = {};
@@ -58,6 +59,8 @@ async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: Loa
     })
 }
 
+const gameConsole = document.getElementById("server-instance-console")
+
 export function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
         await getInstanceData(name).then((instanceJson) => {
@@ -81,6 +84,19 @@ export function setContentTo(name: string) { // TODO: Cleaning
                 widgetVersion.append(widgetText)
             }
 
+            // Init console
+            if(gameConsole && currentInstanceOpened) {
+                gameConsole.innerHTML = ""
+                for(const index in logs[currentInstanceOpened]) {
+                    const text = document.createElement("p")
+                    text.innerText = logs[currentInstanceOpened][index]["message"];
+                    text.classList.add(logs[currentInstanceOpened][index]["err"] ? "error" : "info")
+
+                    gameConsole.append(text)
+                }
+            }
+
+
             //const timeInMiliseconds = instanceData.playtime
 
             /*h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
@@ -95,6 +111,19 @@ export function setContentTo(name: string) { // TODO: Cleaning
             if(contentBackground) contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
         }).catch((err) => reject(err))
     })
+}
+
+export function makeConsoleDirty() {
+    if(gameConsole && currentInstanceOpened) {
+        const lastLog = logs[currentInstanceOpened][logs[currentInstanceOpened].length - 1]
+
+        const text = document.createElement("p")
+        text.innerText = lastLog["message"];
+        text.classList.add(lastLog["type"] === "err" ? "error" : "info")
+
+        gameConsole.append(text)
+        gameConsole.scrollTo(0, gameConsole.scrollHeight)
+    }
 }
 
 export async function refreshInstanceList() {

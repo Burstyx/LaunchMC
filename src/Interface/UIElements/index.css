@@ -40,6 +40,11 @@
     font-weight: 700;
 }
 
+@font-face {
+    font-family: roboto mono;
+    src: url(./resources/fonts/RobotoMono.ttf);
+}
+
 * {
     -webkit-user-drag: none;
     -webkit-user-select: none;
@@ -135,7 +140,7 @@ body {
 .text-button {
     background-color: #2E2E2E;
 
-    border-radius: 20px;
+    border-radius: 15px;
 
     padding: 0 12px;
 
@@ -240,6 +245,11 @@ body {
     padding: 2px;
 
     transition: box-shadow .15s, transform .15s, filter .15s;
+}
+
+.widget[active] {
+    filter: brightness(.85);
+    transform: scale(.95);
 }
 
 .widget:hover {
@@ -414,14 +424,10 @@ body {
 }
 
 .instance-info-popup > div {
-    margin: 8px 25%;
+    margin: 8px 15%;
     width: 100%;
 
     max-width: 800px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .instance-thumbnail {
@@ -429,12 +435,11 @@ body {
     background-size: cover;
     background-position: center;
 
+    min-height: 150px;
     height: 45%;
     max-height: 400px;
 
     width: 100%;
-
-    aspect-ratio: 3 / 1;
 
     border-radius: 20px;
 
@@ -460,20 +465,69 @@ body {
 }
 
 .instance-details {
-    margin-top: calc(15px + 8px);
-
     display: flex;
-    flex-direction: column;
-    width: 100%;
+    justify-content: space-between;
 
     gap: 8px;
 }
 
-.instance-details > .widget {
-    width: 200px;
+.instance-console {
+    background-color: black;
+
+    border-radius: 15px;
+
+    aspect-ratio: 2;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    padding: 15px;
+
+    overflow-y: overlay;
 }
 
-.instance-details > .widget > p {
+.instance-console p {
+    margin: 0;
+    font-size: 12px;
+
+    user-select: text;
+
+    font-family: "roboto mono";
+    line-break: anywhere;
+    font-weight: 500;
+}
+
+.instance-console .error {
+    background-color: #e10000;
+
+    border-radius: 5px;
+
+    padding: 3px 8px;
+}
+
+.instance-console .warn {
+    background-color: #e86800;
+
+    border-radius: 5px;
+
+    padding: 3px 8px;
+}
+
+.instance-details > .instance-btn {
+    margin-top: calc(15px + 8px);
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.instance-details > * > .widget {
+    width: 175px;
+}
+
+.instance-details > * > .widget > p {
     margin: 8px;
 }
 /*endregion*/
@@ -541,4 +595,16 @@ img[src="./resources/svg/loading.svg"] {
 @keyframes spinning {
     from { transform: rotate(0deg) }
     to { transform: rotate(360deg) }
+}
+
+#server-instance-subpage {
+    margin-top: 23px;
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+
+    overflow-y: overlay;
 }
