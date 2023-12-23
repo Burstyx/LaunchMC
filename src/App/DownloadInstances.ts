@@ -20,8 +20,8 @@ export async function setContentTo(name: string) { // TODO: Cleaning
         updateInstanceState(name, currentState)
 
         await listProfiles().then(async (profiles) => {
-            const console = document.getElementById("instance-console")!
-            console.style.display = "none"
+            const consoleElement = document.getElementById("instance-console")!
+            consoleElement.style.display = "none"
 
             const brandLogo = document.querySelector(".brand-logo")!
             if(brandLogo)

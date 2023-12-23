@@ -27,8 +27,8 @@ function setContentTo(name) {
             const currentState = HInstance_1.instancesStates.hasOwnProperty(name) ? HInstance_1.instancesStates[name] : HInstance_1.InstanceState.ToDownload;
             updateInstanceState(name, currentState);
             yield (0, HRemoteProfiles_1.listProfiles)().then((profiles) => __awaiter(this, void 0, void 0, function* () {
-                const console = document.getElementById("instance-console");
-                console.style.display = "none";
+                const consoleElement = document.getElementById("instance-console");
+                consoleElement.style.display = "none";
                 const brandLogo = document.querySelector(".brand-logo");
                 if (brandLogo)
                     brandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(profiles[name]["brandLogoUrl"], '\\', '/')}`);

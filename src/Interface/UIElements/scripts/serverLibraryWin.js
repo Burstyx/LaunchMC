@@ -36,11 +36,13 @@ instanceAction.onclick = async () => {
                     logoPath: profile[currentOpenedInstance]["brandLogoUrl"],
                     version: profile[currentOpenedInstance]["version"]
                 }).then(async () => {
-                    await ServerInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances possédées.`, "error", err))
-                    await DownloadInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances disponible.`, "error", err))
-
                     addNotification(`L'instance ${currentOpenedInstance} a été installée.`, "info", undefined)
                     DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.Owned)
+
+                    delete instancesStates[currentOpenedInstance]
+
+                    await DownloadInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances disponible.`, "error", err))
+                    await ServerInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances possédées.`, "error", err))
                 }).catch((err) => {
                     addNotification(`Une erreur est survenue lors du téléchargement de l'instance ${currentOpenedInstance}.`, "error", err)
                     DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.ToDownload)
@@ -89,7 +91,7 @@ instanceAction.onclick = async () => {
 const copyConsoleElement = document.getElementById("console-copy")
 copyConsoleElement.addEventListener("click", async () => {
     await copyConsoleToClipboard(currentOpenedInstance).then(() => {
-        console.log(`Contenu de la console copié avec succès!`)
+        addNotification(`La console a été copié dans le presse papier.`, "info", undefined)
     }).catch((err) => {
         addNotification(`Une erreur est survenue en copiant le contenu de la console dans le presse papier.`, "error", err)
     })

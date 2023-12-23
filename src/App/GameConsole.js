@@ -14,7 +14,7 @@ const StartMinecraft_1 = require("./StartMinecraft");
 const HInstance_1 = require("../Utils/HInstance");
 const gameConsole = document.getElementById("console-logs");
 let autoScroll = true;
-gameConsole.addEventListener("wheel", () => console.log("gege"));
+//gameConsole.addEventListener("wheel", () => )
 function makeConsoleDirty(name) {
     if (gameConsole && HInstance_1.currentOpenedInstance === name) {
         const lastLog = StartMinecraft_1.logs[name][StartMinecraft_1.logs[name].length - 1];

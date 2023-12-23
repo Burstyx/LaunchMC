@@ -63,11 +63,13 @@ export function setContentTo(name: string) { // TODO: Cleaning
         await getInstanceData(name).then((instanceJson) => {
             const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable
 
-            const console = document.getElementById("instance-console")!
-            console.style.display = "flex"
+            const consoleElement = document.getElementById("instance-console")!
+            consoleElement.style.display = "flex"
 
             updateInstanceState(name, currentState)
             updateOpenedInstance(name)
+
+            console.log(currentState)
 
             const instanceData = instanceJson["data"]["instance"]
             const gameData = instanceJson["data"]["game"]
@@ -133,10 +135,9 @@ export async function refreshInstanceList() {
                         }).catch((err) => reject(err))
                     }
                 }
-
                 resolve()
             }).catch((err) => reject(err))
-        } else reject(`Unexpected error when refreshing instance list.`)
+        }
     })
 }
 
@@ -226,7 +227,7 @@ export async function verifyInstanceFromRemote(name: string) {
 
             const folders = metadata!["folders"]
             for (const folder of folders) {
-                await fs.rmdir(path.join(serversInstancesPath, name, folder), {recursive: true}).catch((err) => reject(err))
+                await fs.rm(path.join(serversInstancesPath, name, folder), {recursive: true}).catch((err) => reject(err))
             }
 
             for (const fileData of metadata!["files"]) {

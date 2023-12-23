@@ -4,7 +4,7 @@ import {currentOpenedInstance} from "../Utils/HInstance";
 const gameConsole = document.getElementById("console-logs")!
 let autoScroll = true;
 
-gameConsole.addEventListener("wheel", () => console.log("gege"))
+//gameConsole.addEventListener("wheel", () => )
 
 export function makeConsoleDirty(name: string) {
     if(gameConsole && currentOpenedInstance === name) {
