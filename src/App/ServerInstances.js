@@ -25,6 +25,7 @@ const HDownload_1 = require("../Utils/HDownload");
 const DownloadGame_1 = require("./DownloadGame");
 const GameConsole_1 = require("./GameConsole");
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
+const { addNotification } = require("../Interface/UIElements/scripts/notification.js");
 function createInstance(instanceOpts, loaderOpts) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -116,7 +117,7 @@ function refreshInstanceList() {
                                 }, instancesDiv);
                                 element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
                                     (0, HInstance_1.updateOpenedInstance)(dataJson["instance"]["name"]);
-                                    yield setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}: ${err}`));
+                                    yield setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}.`, "error", err));
                                 }));
                             }).catch((err) => reject(err));
                         }

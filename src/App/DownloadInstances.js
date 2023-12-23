@@ -20,6 +20,7 @@ const fs_1 = require("fs");
 const const_1 = require("../Utils/const");
 const path_1 = __importDefault(require("path"));
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
+const { addNotification } = require("../Interface/UIElements/scripts/notification.js");
 function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -73,7 +74,7 @@ function refreshInstanceList() {
                             }, instancesDiv);
                             element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
                                 (0, HInstance_1.updateOpenedInstance)(instanceName);
-                                yield setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`));
+                                yield setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${instanceName}.`, "error", err));
                             }));
                         }
                     }

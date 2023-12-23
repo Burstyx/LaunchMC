@@ -20,6 +20,7 @@ const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
 const promises_1 = __importDefault(require("fs/promises"));
 const window = require("../Interface/UIElements/scripts/window.js");
+const { addNotification } = require("../Interface/UIElements/scripts/notification.js");
 let githubReleaseData = null;
 exports.updateAvailable = false;
 function checkForUpdate() {
@@ -54,7 +55,7 @@ function updateCli() {
                 }).catch((err) => reject(err));
             }
             else {
-                addNotification(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une`);
+                addNotification(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une.`, "error", undefined);
             }
         }));
     });

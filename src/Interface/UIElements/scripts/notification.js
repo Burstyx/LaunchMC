@@ -8,6 +8,7 @@ let isEnqueuing = false;
 exports.addNotification = (message, type, err) => {
     queue.push({"message": message, "type": type})
     if(!isEnqueuing) enqueuingNotification()
+    if(err) console.error(err)
 }
 
 async function enqueuingNotification() {

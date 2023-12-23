@@ -73,7 +73,7 @@ async function refreshAccountList() {
             msAccountList.append(accBtn)
         }
     }).catch((err) => {
-        addNotification(`Une erreur est survenue lors de la récupération des comptes: ${err}`)
+        addNotification(`Une erreur est survenue lors de la récupération des comptes.`, "error", err)
     })
 }
 
@@ -83,7 +83,7 @@ addAccount.addEventListener("click", async () => {
         console.log(`Un compte Microsoft a été ajouté`)
         await refreshAccountList()
     }).catch((err) => {
-        addNotification(`Une erreur est survenue lors de la connexion à un compte Microsoft: ${err}`)
+        addNotification(`Une erreur est survenue lors de la connexion à un compte Microsoft.`, "error", err)
     })
 
 

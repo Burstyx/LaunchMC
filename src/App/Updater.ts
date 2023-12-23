@@ -5,6 +5,7 @@ import path from "path";
 import cp from "child_process"
 import fs from "fs/promises";
 const window = require("../Interface/UIElements/scripts/window.js")
+const {addNotification} = require("../Interface/UIElements/scripts/notification.js")
 
 let githubReleaseData: any = null;
 export let updateAvailable = false;
@@ -45,7 +46,7 @@ export async function updateCli() {
                 })
             }).catch((err) => reject(err))
         } else {
-            addNotification(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une`)
+            addNotification(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une.`, "error", undefined)
         }
     })
 }

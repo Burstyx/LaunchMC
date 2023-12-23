@@ -1,6 +1,7 @@
 import { BrowserWindow } from "@electron/remote"
 import { clientId, redirectUrl, msAuth, msAccessToken, xstsAuth, xbxLiveAuth, minecraftBearerToken, playerMojangProfile } from "../Utils/const.js"
 import {addAccount, changeAccountProperty, getAccount, getActiveAccount} from "../Utils/HMicrosoft.js"
+const {addNotification} = require("../Interface/UIElements/scripts/notification.js")
 
 function createOAuthLink(){
     let url = msAuth
@@ -136,9 +137,7 @@ async function getMinecraftProfile(accessToken: string){
             response = val
         })
     }).catch((err) => {
-        console.log("Error occured when attempting to get the profile attached to the account!");
-        
-        addNotification(err);
+        addNotification(`Une erreur est survenue en récupérant le profile du compte Minecraft.`, "error", err);
     })
 
     return response
@@ -161,9 +160,7 @@ async function refreshAccessToken(refreshToken: string){
             response = val
         })
     }).catch((err) => {
-        console.log("Error occured when attempting to refresh the MSA access token related to the account!");
-        
-        addNotification(err);
+        addNotification(`Une erreur est survenue en tentant de raffraichir le compte Microsoft lié au compte Minecraft`, "error", err);
     })
 
     return response

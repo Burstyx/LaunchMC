@@ -12,6 +12,7 @@ import {serversInstancesPath} from "../Utils/const";
 import path from "path";
 import {error} from "../Utils/Debug";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
+const {addNotification} = require("../Interface/UIElements/scripts/notification.js")
 
 export async function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
@@ -75,7 +76,7 @@ export async function refreshInstanceList() {
                         element.addEventListener("click", async () => {
                             updateOpenedInstance(instanceName)
 
-                            await setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`))
+                            await setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${instanceName}.`, "error", err))
                         })
                     }
                 }

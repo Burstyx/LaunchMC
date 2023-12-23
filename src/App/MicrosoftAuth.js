@@ -13,6 +13,7 @@ exports.refreshToken = exports.msaLogin = void 0;
 const remote_1 = require("@electron/remote");
 const const_js_1 = require("../Utils/const.js");
 const HMicrosoft_js_1 = require("../Utils/HMicrosoft.js");
+const { addNotification } = require("../Interface/UIElements/scripts/notification.js");
 function createOAuthLink() {
     let url = const_js_1.msAuth;
     url += "?client_id=" + const_js_1.clientId;
@@ -130,8 +131,7 @@ function getMinecraftProfile(accessToken) {
                 response = val;
             });
         })).catch((err) => {
-            console.log("Error occured when attempting to get the profile attached to the account!");
-            addNotification(err);
+            addNotification(`Une erreur est survenue en récupérant le profile du compte Minecraft.`, "error", err);
         });
         return response;
     });
@@ -151,8 +151,7 @@ function refreshAccessToken(refreshToken) {
                 response = val;
             });
         })).catch((err) => {
-            console.log("Error occured when attempting to refresh the MSA access token related to the account!");
-            addNotification(err);
+            addNotification(`Une erreur est survenue en tentant de raffraichir le compte Microsoft lié au compte Minecraft`, "error", err);
         });
         return response;
     });

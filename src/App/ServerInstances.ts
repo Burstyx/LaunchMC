@@ -15,6 +15,7 @@ import {downloadMinecraft, patchInstanceWithForge} from "./DownloadGame";
 import {logs} from "./StartMinecraft";
 import {initConsole} from "./GameConsole";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
+const {addNotification} = require("../Interface/UIElements/scripts/notification.js")
 
 async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: LoaderOpts){
     return new Promise<void>(async (resolve, reject)=> {
@@ -127,7 +128,7 @@ export async function refreshInstanceList() {
                             element.addEventListener("click", async () => {
                                 updateOpenedInstance(dataJson["instance"]["name"])
 
-                                await setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}: ${err}`))
+                                await setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => addNotification(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}.`, "error", err))
                             })
                         }).catch((err) => reject(err))
                     }

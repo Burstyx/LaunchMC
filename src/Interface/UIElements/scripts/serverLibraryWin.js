@@ -39,6 +39,7 @@ instanceAction.onclick = async () => {
                     await ServerInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances possédées.`, "error", err))
                     await DownloadInstances.refreshInstanceList().catch((err) => addNotification(`Impossible de mettre à jour la liste des instances disponible.`, "error", err))
 
+                    addNotification(`L'instance ${currentOpenedInstance} a été installée.`, "info", undefined)
                     DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.Owned)
                 }).catch((err) => {
                     addNotification(`Une erreur est survenue lors du téléchargement de l'instance ${currentOpenedInstance}.`, "error", err)
@@ -64,7 +65,7 @@ instanceAction.onclick = async () => {
                         }, data["data"]["loader"]["id"]).then(() => {
                             clearConsole(currentOpenedInstance)
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playing)
-                            addNotification(`Une instance de Minecraft vient d'être lancé.`, "info")
+                            addNotification(`Une instance de Minecraft vient d'être lancé.`, "info", undefined)
                         }).catch((err) => {
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
                             addNotification(`Impossible de lancer le jeu pour ${currentOpenedInstance}.`, "error", err)

@@ -183,9 +183,6 @@ function patchInstanceWithForge(instanceId, mcVersion, forgeId) {
                             else if (!library["url"]) {
                                 yield (0, HDownload_1.downloadAsync)(`https://libraries.minecraft.net/${libraryPath}`, path_1.default.join(const_1.librariesPath, libraryPath)).catch((err) => reject(err));
                             }
-                            else {
-                                addNotification("Case not handled or just it won't work");
-                            }
                         }
                         if (!skipForgeExtract) {
                             const jarFilePathInInstaller = forgeInstallProfileData["path"] || (forgeInstallProfileData["install"] && forgeInstallProfileData["install"]["filePath"]);

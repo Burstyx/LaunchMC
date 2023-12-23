@@ -1,6 +1,7 @@
 const { initDiscordRPC } = require("../../App/DiscordRPC");
 const {checkForUpdate} = require("../../App/Updater");
 const {refreshToken} = require("../../App/MicrosoftAuth")
+const {addNotification} = require("../UIElements/scripts/notification")
 
 
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
@@ -13,7 +14,7 @@ const initializeModules = async () => {
         const settings = document.getElementById("settings")
         settings.toggleAttribute("badge", updateAvailable)
     }).catch((err) => {
-        addNotification(`Une erreur est survenue lors de la vérification des mises à jour: ${err}`)
+        addNotification(`Une erreur est survenue lors de la vérification des mises à jour.`, 'error', err)
     }).finally(async () => {
         console.log("[Initializing] Window buttons");
         require("./scripts/winbtn")
@@ -32,13 +33,13 @@ const initializeModules = async () => {
 
         console.log("Refreshing Microsoft Account");
         await refreshToken().catch((err) => {
-            addNotification(`Une erreur est survenue lors du rafraichissement du token: ${err}`)
+            addNotification(`Une erreur est survenue lors du rafraichissement du token.`, 'error', err)
         })
 
         setLoading(false)
 
         console.log("Update Local Instance List");
-        await LocalInstances.refreshInstanceList().catch((err) => addNotification(`Une erreur est survenue lors de l'actualisation des instances locaux: ${err}`))
+        await LocalInstances.refreshInstanceList().catch((err) => addNotification(`Une erreur est survenue lors de l'actualisation des instances locaux.`, "error", err))
 
         console.log("Initialize Discord RPC");
         initDiscordRPC()
@@ -48,5 +49,5 @@ const initializeModules = async () => {
 initializeModules().then(() => {
     console.log("Initialisation effectuée sans erreur !")
 }).catch((err) => {
-    addNotification(`Une erreur est survenue lors de l'initialisation: ${err}`)
+    addNotification(`Une erreur est survenue lors de l'initialisation.`, "error", err)
 })

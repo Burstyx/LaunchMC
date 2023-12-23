@@ -214,9 +214,6 @@ export async function patchInstanceWithForge(instanceId: string, mcVersion: stri
                         else if(!library["url"]) {
                             await downloadAsync(`https://libraries.minecraft.net/${libraryPath}`, path.join(librariesPath, libraryPath)).catch((err) => reject(err));
                         }
-                        else {
-                            addNotification("Case not handled or just it won't work");
-                        }
                     }
 
                     if(!skipForgeExtract) {
