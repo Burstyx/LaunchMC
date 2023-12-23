@@ -16,6 +16,22 @@ export interface LoaderOpts {
     id: string
 }
 
+export enum InstanceState {
+    ToDownload,
+    Owned,
+    Loading,
+    Playable,
+    Playing,
+    NeedUpdate
+}
+
+export let currentOpenedInstance : string | null = null;
+export let instancesStates : any = {};
+
+export function updateOpenedInstance(name: string) {
+    currentOpenedInstance = name;
+}
+
 export function generateInstanceBtn(opts: InstanceOpts | ServerInstanceOpts) {
     const instanceElement = document.createElement("div")
 

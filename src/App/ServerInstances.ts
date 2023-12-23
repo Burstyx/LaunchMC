@@ -3,8 +3,9 @@ import path from "path";
 import {instancesPath, serversInstancesPath} from "../Utils/const";
 import {concatJson, replaceAll} from "../Utils/Utils";
 import {
+    currentOpenedInstance, instancesStates, InstanceState,
     LoaderOpts,
-    ServerInstanceOpts
+    ServerInstanceOpts, updateOpenedInstance
 } from "../Utils/HInstance";
 import {existsSync} from "fs";
 import {addInstanceElement} from "../Utils/HInstance";
@@ -12,11 +13,8 @@ import {getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
 import {downloadMinecraft, patchInstanceWithForge} from "./DownloadGame";
 import {logs} from "./StartMinecraft";
+import {initConsole} from "./GameConsole";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
-
-export let instancesStates : any = {};
-export let currentInstanceOpened: string | null = null
-
 
 async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: LoaderOpts){
     return new Promise<void>(async (resolve, reject)=> {
@@ -59,43 +57,35 @@ async function createInstance(instanceOpts: ServerInstanceOpts, loaderOpts?: Loa
     })
 }
 
-const gameConsole = document.getElementById("server-instance-console")
-
 export function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
         await getInstanceData(name).then((instanceJson) => {
             const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable
+
+            const console = document.getElementById("instance-console")!
+            console.style.display = "flex"
+
             updateInstanceState(name, currentState)
+            updateOpenedInstance(name)
 
             const instanceData = instanceJson["data"]["instance"]
             const gameData = instanceJson["data"]["game"]
             const loaderData = instanceJson["data"].hasOwnProperty("loader") ? instanceJson["data"]["loader"] : null
 
-            const serverBrandLogo = document.getElementById("server-page-server-brand-logo")!
+            const serverBrandLogo = document.querySelector(".brand-logo")!
             serverBrandLogo.setAttribute("src", `${replaceAll(instanceData["logo_path"], '\\', '/')}`)
 
             // Set version
-            const widgetVersion = document.getElementById("server-version")
+            /*const widgetVersion = document.getElementById("server-version")
             if(widgetVersion) {
                 widgetVersion.innerHTML = ""
 
                 const widgetText = document.createElement("p")
                 widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`
                 widgetVersion.append(widgetText)
-            }
+            }*/
 
-            // Init console
-            if(gameConsole && currentInstanceOpened) {
-                gameConsole.innerHTML = ""
-                for(const index in logs[currentInstanceOpened]) {
-                    const text = document.createElement("p")
-                    text.innerText = logs[currentInstanceOpened][index]["message"];
-                    text.classList.add(logs[currentInstanceOpened][index]["err"] ? "error" : "info")
-
-                    gameConsole.append(text)
-                }
-            }
-
+            initConsole(name)
 
             //const timeInMiliseconds = instanceData.playtime
 
@@ -107,23 +97,12 @@ export function setContentTo(name: string) { // TODO: Cleaning
 
             widgetPlaytime.innerText = `${h}h${m}`*/
 
-            const contentBackground = document.getElementById("server-instance-thumbnail")
+            const contentBackground = document.querySelector(".instance-thumbnail") as HTMLElement
             if(contentBackground) contentBackground.style.backgroundImage = `url('${replaceAll(instanceData["thumbnail_path"], '\\', '/')}')`
+
+            resolve()
         }).catch((err) => reject(err))
     })
-}
-
-export function makeConsoleDirty() {
-    if(gameConsole && currentInstanceOpened) {
-        const lastLog = logs[currentInstanceOpened][logs[currentInstanceOpened].length - 1]
-
-        const text = document.createElement("p")
-        text.innerText = lastLog["message"];
-        text.classList.add(lastLog["type"] === "err" ? "error" : "info")
-
-        gameConsole.append(text)
-        gameConsole.scrollTo(0, gameConsole.scrollHeight)
-    }
 }
 
 export async function refreshInstanceList() {
@@ -145,11 +124,10 @@ export async function refreshInstanceList() {
                                 logoPath: dataJson["instance"]["cover_path"],
                                 version: dataJson["game"]["version"]
                             }, instancesDiv)
-                            element.addEventListener("click", () => {
-                                currentInstanceOpened = instance.name
+                            element.addEventListener("click", async () => {
+                                updateOpenedInstance(dataJson["instance"]["name"])
 
-                                setContentTo(instance.name)
-                                openPopup("server-instance-info")
+                                await setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}: ${err}`))
                             })
                         }).catch((err) => reject(err))
                     }
@@ -172,17 +150,9 @@ export async function getInstanceData(name: string){
     })
 }
 
-export enum InstanceState {
-    Playable,
-    Loading,
-    Playing,
-    NeedUpdate
-}
-
 export function updateInstanceState(name: string, newState: InstanceState) {
     instancesStates[name] = newState
-
-    const launchBtn = document.getElementById("server-instance-action")
+    const launchBtn = document.getElementById("instance-action")
 
     if(launchBtn) {
         const iconBtn = launchBtn.querySelector("img")

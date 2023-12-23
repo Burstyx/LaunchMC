@@ -4,95 +4,96 @@ const DownloadInstances = require("../../../App/DownloadInstances");
 const ServerInstances = require("../../../App/ServerInstances");
 const {startMinecraft, killGame} = require("../../../App/StartMinecraft");
 const {getActiveAccount} = require("../../../Utils/HMicrosoft");
+const {InstanceState, instancesStates, currentOpenedInstance} = require("../../../Utils/HInstance");
+const {clearConsole, copyConsoleToClipboard} = require("../../../App/GameConsole");
 
-const downloadInstanceAction = document.getElementById("download-instance-action")
+const instanceAction = document.getElementById("instance-action")
 
-downloadInstanceAction.onclick = async () => {
-    const currentInstanceOpened = DownloadInstances.currentInstanceOpened
-    const currentState = DownloadInstances.instancesStates[currentInstanceOpened]
-
-    switch (currentState) {
-        case DownloadInstances.InstanceState.Owned:
-            return
-        case DownloadInstances.InstanceState.Loading:
-            return
-    }
-
-    await listProfiles().then(async (profile) => {
-
-        DownloadInstances.updateInstanceState(currentInstanceOpened, DownloadInstances.InstanceState.Loading)
-
-        await downloadServerInstance({
-            name: currentInstanceOpened,
-            thumbnailPath: profile[currentInstanceOpened]["thumbnailUrl"],
-            logoPath: profile[currentInstanceOpened]["brandLogoUrl"],
-            version: profile[currentInstanceOpened]["version"]
-        }).then(() => {
-            DownloadInstances.updateInstanceState(currentInstanceOpened, DownloadInstances.InstanceState.Owned)
-        }).catch((err) => {
-            console.error(`Une erreur est survenue lors du téléchargement de l'instance pour ${currentInstanceOpened}: ${err}`)
-            DownloadInstances.updateInstanceState(currentInstanceOpened, DownloadInstances.InstanceState.ToDownload)
-        })
-    }).catch((err) => {
-        console.error(`Une erreur est survenue lors de la récupération des profiles sur les serveurs de Github: ${err}`)
-    })
-}
-
-const serverInstanceAction = document.getElementById("server-instance-action")
-
-serverInstanceAction.onclick = async () => {
-    const currentInstanceOpened = ServerInstances.currentInstanceOpened
-    const currentState = ServerInstances.instancesStates[currentInstanceOpened]
+instanceAction.onclick = async () => {
+    const currentOpenedInstance = require("../../../Utils/HInstance").currentOpenedInstance
+    const currentState = instancesStates[currentOpenedInstance]
 
     switch (currentState) {
-        case ServerInstances.InstanceState.NeedUpdate:
+        case InstanceState.NeedUpdate:
             // Update
             return;
-        case ServerInstances.InstanceState.Playing:
-            if(killGame(currentInstanceOpened)) {
-                ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
+        case InstanceState.Playing:
+            if(killGame(currentOpenedInstance)) {
+                ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
             } else {
                 console.error(`Impossible de forcer l'arrêt du jeu`)
             }
             return;
-        case ServerInstances.InstanceState.Loading:
-            // Do nothing
-            return
-    }
+        case InstanceState.ToDownload:
+            await listProfiles().then(async (profile) => {
 
-    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Loading)
+                DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.Loading)
 
-    await getActiveAccount().then(async (acc) => {
-        await ServerInstances.getInstanceData(currentInstanceOpened).then(async (data) => {
-            await verifyInstanceFromRemote(currentInstanceOpened).then(async () => {
-                await startMinecraft(currentInstanceOpened, {
-                    version: data["data"]["game"]["version"],
-                    accessToken: acc["access_token"],
-                    username: acc["username"],
-                    uuid: acc["uuid"]
-                }, (err) => {
-                    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-                    console.log(`Le jeu de l'instance ${currentInstanceOpened} a été/s'est arrêté en renvoyant le message suivant: ${err}`)
-                }, data["data"]["loader"]["id"]).then(() => {
-                    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playing)
+                await downloadServerInstance({
+                    name: currentOpenedInstance,
+                    thumbnailPath: profile[currentOpenedInstance]["thumbnailUrl"],
+                    logoPath: profile[currentOpenedInstance]["brandLogoUrl"],
+                    version: profile[currentOpenedInstance]["version"]
+                }).then(async () => {
+                    await ServerInstances.refreshInstanceList().catch((err) => console.error(`Impossible de mettre à jour la liste des instances de serveurs : ${err}`))
+                    await DownloadInstances.refreshInstanceList().catch((err) => console.error(`Impossible de mettre à jour la liste des instances disponible au téléchargement : ${err}`))
+
+                    DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.Owned)
                 }).catch((err) => {
-                    ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-                    console.error(`Impossible de lancer le jeu pour ${currentInstanceOpened}: ${err}`)
+                    console.error(`Une erreur est survenue lors du téléchargement de l'instance pour ${currentOpenedInstance}: ${err}`)
+                    DownloadInstances.updateInstanceState(currentOpenedInstance, InstanceState.ToDownload)
                 })
             }).catch((err) => {
-                ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-                console.error(`Impossible de mettre à jour l'instance: ${err}`)
+                console.error(`Une erreur est survenue lors de la récupération des profiles sur les serveurs de Github: ${err}`)
             })
-        }).catch((err) => {
-            ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-            console.error(`Une erreur est survenue lors de la récupération des informations de l'instance ${currentInstanceOpened}: ${err}`)
-        })
+            return;
+        case InstanceState.Playable:
+            ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Loading)
+
+            await getActiveAccount().then(async (acc) => {
+                await ServerInstances.getInstanceData(currentOpenedInstance).then(async (data) => {
+                    await verifyInstanceFromRemote(currentOpenedInstance).then(async () => {
+                        await startMinecraft(currentOpenedInstance, {
+                            version: data["data"]["game"]["version"],
+                            accessToken: acc["access_token"],
+                            username: acc["username"],
+                            uuid: acc["uuid"]
+                        }, (err) => {
+                            ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
+                            console.log(`Le jeu de l'instance ${currentOpenedInstance} a été/s'est arrêté en renvoyant le message suivant: ${err}`)
+                        }, data["data"]["loader"]["id"]).then(() => {
+                            clearConsole(currentOpenedInstance)
+                            ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playing)
+                        }).catch((err) => {
+                            ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
+                            console.error(`Impossible de lancer le jeu pour ${currentOpenedInstance}: ${err}`)
+                        })
+                    }).catch((err) => {
+                        ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
+                        console.error(`Impossible de mettre à jour l'instance: ${err}`)
+                    })
+                }).catch((err) => {
+                    ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
+                    console.error(`Une erreur est survenue lors de la récupération des informations de l'instance ${currentOpenedInstance}: ${err}`)
+                })
+            }).catch((err) => {
+                ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
+                console.error(`Aucun compte actif trouvé, connectez vous à votre compte Microsoft pour jouer: ${err}`)
+            })
+            return;
+    }
+}
+
+const copyConsoleElement = document.getElementById("console-copy")
+copyConsoleElement.addEventListener("click", async () => {
+    await copyConsoleToClipboard(currentOpenedInstance).then(() => {
+        console.log(`Contenu de la console copié avec succès!`)
     }).catch((err) => {
-        ServerInstances.updateInstanceState(currentInstanceOpened, ServerInstances.InstanceState.Playable)
-        console.error(`Aucun compte actif trouvé, connectez vous à votre compte Microsoft pour jouer: ${err}`)
+        console.error(`Une erreur est survenue en copiant le contenu de la console dans le presse papier: ${err}`)
     })
-}
+})
 
-exports.refreshConsole = () => {
-
-}
+const clearConsoleElement = document.getElementById("console-clear")
+clearConsoleElement.addEventListener("click", () => {
+    clearConsole(currentOpenedInstance)
+})

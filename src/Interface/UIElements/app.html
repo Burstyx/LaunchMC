@@ -22,79 +22,28 @@
         </div>
         <div id="startup-loading" style="display: none"><img src="./resources/svg/loading.svg" width="100px"></div>
         <div id="content">
+
+            <!--------------------------------- Windows ----------------------------------->
             <div class="elements-group" id="gr-discover" style="display: none">
 
             </div>
-
-            <div class="elements-group" id="gr-library" style="display: none">
+            <div class="elements-group" id="gr-library">
                 <div class="button themed" id="new-instance"><img src="./resources/svg/add.svg" width="60%"></div>
                 <div id="instances">
-                </div>
-                <div class="popup instance-info-popup" popup-id="instance-info" style="display: none">
-                    <div>
-                        <div class="instance-thumbnail" id="local-instance-thumbnail">
-                            <p id="instance-title">Ma survie Minecraft 1.12.2</p>
-                            <div class="button green instance-action" id="instance-action"><img src="./resources/svg/play.svg" width="40%"></div>
-                        </div>
-                        <div class="instance-details">
-                            <div class="widget" id="instance-version"><p>Forge 1.12.2</p></div>
-                            <div class="widget"><p>Fichiers</p></div>
-                            <div class="widget"><p>Console</p></div>
-                            <div class="widget"><p>Paramètres</p></div>
-                        </div>
-                    </div>
+                    <!-- Local instance here -->
                 </div>
             </div>
-
-            <div class="elements-group" id="gr-servers">
+            <div class="elements-group" id="gr-servers" style="display: none">
                 <p>Téléchargé</p>
                 <div id="own-servers">
+                    <!--Owned servers here -->
                 </div>
 
                 <p>Disponible</p>
                 <div id="avail-servers">
-                </div>
-
-                <div class="popup instance-info-popup" popup-id="download-instance-info" style="display: none">
-                    <div>
-                        <div class="instance-thumbnail" id="dl-page-thumbnail">
-                            <img src="" class="server-brand-logo" id="dl-page-server-brand-logo">
-                            <div class="button green instance-action" id="download-instance-action"><img src="./resources/svg/download.svg" width="40%"></div>
-                        </div>
-                        <div class="instance-details">
-                            <div class="instance-btn">
-                                <div class="widget" id="dl-page-version"><p>Forge 1.12.2</p></div>
-                            </div>
-                        </div>
-                        <p>aa</p>
-                    </div>
-                </div>
-
-                <div class="popup instance-info-popup" popup-id="server-instance-info" >
-                    <div style="overflow: overlay">
-                        <div class="instance-thumbnail" id="server-instance-thumbnail">
-                            <img src="" class="server-brand-logo" id="server-page-server-brand-logo">
-                            <div class="button green instance-action" id="server-instance-action"><img src="./resources/svg/play.svg" width="40%"></div>
-                        </div>
-                        <div class="instance-details">
-                            <div class="instance-btn">
-                                <div class="widget" id="server-version"><p>Forge 1.12.2</p></div>
-                                <div class="widget" id="server-instance-console-btn"><p>Console</p></div>
-                                <div class="widget"><p>Paramètres</p></div>
-                            </div>
-                            <div id="server-instance-subpage">
-                                <div style="display: flex; gap: 8px">
-                                    <div class="text-button" style="width: 120px; height: 45px">Copy</div>
-                                    <div class="text-button" style="width: 120px; height: 45px">Clear</div>
-                                </div>
-                                <div class="instance-console" id="server-instance-console">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Available servers here -->
                 </div>
             </div>
-
             <div class="elements-group" id="gr-settings" style="display: none">
                 <div id="settings-accounts">
                     <p>Comptes</p>
@@ -108,6 +57,23 @@
                     <p>A propos</p>
                     <p>Version <span id="launcher-version">N/A</span></p>
                     <div class="text-button" id="settings-check-update"><p>Vérifier les mises à jour</p></div>
+                </div>
+            </div>
+
+            <!--------------------------------- Popups ------------------------------------>
+            <div class="popup" popup-id="popup-instance-details" style="overflow: overlay; display: none">
+                <div class="instance-thumbnail">
+                    <img src="" class="brand-logo">
+                    <div class="button green" id="instance-action"><img src="./resources/svg/play.svg" width="40%"></div>
+                </div>
+                <div id="instance-console">
+                    <div style="display: flex; gap: 8px;">
+                        <div class="button" id="console-copy" style="width: 35px"><img src="./resources/svg/copy.svg" width="55%"></div>
+                        <div class="button danger" id="console-clear" style="width: 35px"><img src="./resources/svg/delete.svg" width="45%"></div>
+                    </div>
+                    <div id="console-logs" style="display: flex; flex-direction: column; gap: 2px; overflow-y: overlay;">
+                        <!-- Logs elements here -->
+                    </div>
                 </div>
             </div>
         </div>

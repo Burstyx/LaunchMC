@@ -12,20 +12,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyInstanceFromRemote = exports.downloadServerInstance = exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.makeConsoleDirty = exports.setContentTo = exports.currentInstanceOpened = exports.instancesStates = void 0;
+exports.verifyInstanceFromRemote = exports.downloadServerInstance = exports.updateInstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
 const Utils_1 = require("../Utils/Utils");
-const fs_1 = require("fs");
 const HInstance_1 = require("../Utils/HInstance");
+const fs_1 = require("fs");
+const HInstance_2 = require("../Utils/HInstance");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HDownload_1 = require("../Utils/HDownload");
 const DownloadGame_1 = require("./DownloadGame");
-const StartMinecraft_1 = require("./StartMinecraft");
+const GameConsole_1 = require("./GameConsole");
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
-exports.instancesStates = {};
-exports.currentInstanceOpened = null;
 function createInstance(instanceOpts, loaderOpts) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -59,35 +58,29 @@ function createInstance(instanceOpts, loaderOpts) {
         }));
     });
 }
-const gameConsole = document.getElementById("server-instance-console");
 function setContentTo(name) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         yield getInstanceData(name).then((instanceJson) => {
-            const currentState = exports.instancesStates.hasOwnProperty(name) ? exports.instancesStates[name] : InstanceState.Playable;
+            const currentState = HInstance_1.instancesStates.hasOwnProperty(name) ? HInstance_1.instancesStates[name] : HInstance_1.InstanceState.Playable;
+            const console = document.getElementById("instance-console");
+            console.style.display = "flex";
             updateInstanceState(name, currentState);
+            (0, HInstance_1.updateOpenedInstance)(name);
             const instanceData = instanceJson["data"]["instance"];
             const gameData = instanceJson["data"]["game"];
             const loaderData = instanceJson["data"].hasOwnProperty("loader") ? instanceJson["data"]["loader"] : null;
-            const serverBrandLogo = document.getElementById("server-page-server-brand-logo");
+            const serverBrandLogo = document.querySelector(".brand-logo");
             serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(instanceData["logo_path"], '\\', '/')}`);
             // Set version
-            const widgetVersion = document.getElementById("server-version");
-            if (widgetVersion) {
-                widgetVersion.innerHTML = "";
-                const widgetText = document.createElement("p");
-                widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`;
-                widgetVersion.append(widgetText);
-            }
-            // Init console
-            if (gameConsole && exports.currentInstanceOpened) {
-                gameConsole.innerHTML = "";
-                for (const index in StartMinecraft_1.logs[exports.currentInstanceOpened]) {
-                    const text = document.createElement("p");
-                    text.innerText = StartMinecraft_1.logs[exports.currentInstanceOpened][index]["message"];
-                    text.classList.add(StartMinecraft_1.logs[exports.currentInstanceOpened][index]["err"] ? "error" : "info");
-                    gameConsole.append(text);
-                }
-            }
+            /*const widgetVersion = document.getElementById("server-version")
+            if(widgetVersion) {
+                widgetVersion.innerHTML = ""
+
+                const widgetText = document.createElement("p")
+                widgetText.innerText = `${loaderData ? loaderData["name"] : "Vanilla"} ${gameData["version"]}`
+                widgetVersion.append(widgetText)
+            }*/
+            (0, GameConsole_1.initConsole)(name);
             //const timeInMiliseconds = instanceData.playtime
             /*h = Math.floor(timeInMiliseconds / 1000 / 60 / 60);
             m = Math.floor((timeInMiliseconds / 1000 / 60 / 60 - h) * 60);
@@ -96,24 +89,14 @@ function setContentTo(name) {
             h < 10 ? h = `0${h}` : h = `${h}`
 
             widgetPlaytime.innerText = `${h}h${m}`*/
-            const contentBackground = document.getElementById("server-instance-thumbnail");
+            const contentBackground = document.querySelector(".instance-thumbnail");
             if (contentBackground)
                 contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(instanceData["thumbnail_path"], '\\', '/')}')`;
+            resolve();
         }).catch((err) => reject(err));
     }));
 }
 exports.setContentTo = setContentTo;
-function makeConsoleDirty() {
-    if (gameConsole && exports.currentInstanceOpened) {
-        const lastLog = StartMinecraft_1.logs[exports.currentInstanceOpened][StartMinecraft_1.logs[exports.currentInstanceOpened].length - 1];
-        const text = document.createElement("p");
-        text.innerText = lastLog["message"];
-        text.classList.add(lastLog["type"] === "err" ? "error" : "info");
-        gameConsole.append(text);
-        gameConsole.scrollTo(0, gameConsole.scrollHeight);
-    }
-}
-exports.makeConsoleDirty = makeConsoleDirty;
 function refreshInstanceList() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -125,17 +108,16 @@ function refreshInstanceList() {
                         if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"))) {
                             yield promises_1.default.readFile(path_1.default.join(const_1.serversInstancesPath, instance.name, "info.json"), "utf8").then((data) => {
                                 const dataJson = JSON.parse(data);
-                                const element = (0, HInstance_1.addInstanceElement)({
+                                const element = (0, HInstance_2.addInstanceElement)({
                                     name: dataJson["instance"]["name"],
                                     thumbnailPath: dataJson["instance"]["thumbnail_path"],
                                     logoPath: dataJson["instance"]["cover_path"],
                                     version: dataJson["game"]["version"]
                                 }, instancesDiv);
-                                element.addEventListener("click", () => {
-                                    exports.currentInstanceOpened = instance.name;
-                                    setContentTo(instance.name);
-                                    openPopup("server-instance-info");
-                                });
+                                element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                                    (0, HInstance_1.updateOpenedInstance)(dataJson["instance"]["name"]);
+                                    yield setContentTo(dataJson["instance"]["name"]).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${dataJson["instance"]["name"]}: ${err}`));
+                                }));
                             }).catch((err) => reject(err));
                         }
                     }
@@ -163,33 +145,26 @@ function getInstanceData(name) {
     });
 }
 exports.getInstanceData = getInstanceData;
-var InstanceState;
-(function (InstanceState) {
-    InstanceState[InstanceState["Playable"] = 0] = "Playable";
-    InstanceState[InstanceState["Loading"] = 1] = "Loading";
-    InstanceState[InstanceState["Playing"] = 2] = "Playing";
-    InstanceState[InstanceState["NeedUpdate"] = 3] = "NeedUpdate";
-})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceState(name, newState) {
-    exports.instancesStates[name] = newState;
-    const launchBtn = document.getElementById("server-instance-action");
+    HInstance_1.instancesStates[name] = newState;
+    const launchBtn = document.getElementById("instance-action");
     if (launchBtn) {
         const iconBtn = launchBtn.querySelector("img");
         if (iconBtn) {
             switch (newState) {
-                case InstanceState.Playing:
+                case HInstance_1.InstanceState.Playing:
                     launchBtn.style.backgroundColor = "#FF0000";
                     iconBtn.setAttribute("src", "./resources/svg/stop.svg");
                     break;
-                case InstanceState.NeedUpdate:
+                case HInstance_1.InstanceState.NeedUpdate:
                     launchBtn.style.backgroundColor = "#D73600";
                     iconBtn.setAttribute("src", "./resources/svg/update.svg");
                     break;
-                case InstanceState.Loading:
+                case HInstance_1.InstanceState.Loading:
                     launchBtn.style.backgroundColor = "#5C5C5C";
                     iconBtn.setAttribute("src", "./resources/svg/loading.svg");
                     break;
-                case InstanceState.Playable:
+                case HInstance_1.InstanceState.Playable:
                     launchBtn.style.backgroundColor = "#05E400";
                     iconBtn.setAttribute("src", "./resources/svg/play.svg");
                     break;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceState = exports.InstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
+exports.updateInstanceState = exports.getInstanceData = exports.refreshInstanceList = exports.setContentTo = void 0;
 const promises_1 = __importDefault(require("fs/promises"));
 const path_1 = __importDefault(require("path"));
 const const_1 = require("../Utils/const");
@@ -55,7 +55,7 @@ function createInstance(instanceOpts, loaderOpts) {
 function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : InstanceState.Playable;
+            const currentState = instancesStates.hasOwnProperty(name) ? instancesStates[name] : HInstance_1.InstanceState.Playable;
             updateInstanceState(name, currentState);
             yield getInstanceData(name).then((instanceJson) => {
                 const instanceData = instanceJson["data"]["instance"];
@@ -125,15 +125,6 @@ function getInstanceData(name) {
     });
 }
 exports.getInstanceData = getInstanceData;
-var InstanceState;
-(function (InstanceState) {
-    InstanceState[InstanceState["Loading"] = 0] = "Loading";
-    InstanceState[InstanceState["Downloading"] = 1] = "Downloading";
-    InstanceState[InstanceState["Verification"] = 2] = "Verification";
-    InstanceState[InstanceState["Patching"] = 3] = "Patching";
-    InstanceState[InstanceState["Playable"] = 4] = "Playable";
-    InstanceState[InstanceState["Playing"] = 5] = "Playing";
-})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function updateInstanceState(name, newState) {
     instancesStates[name] = newState;
     const launchBtn = document.getElementById("instance-action");
@@ -141,15 +132,15 @@ function updateInstanceState(name, newState) {
         const iconBtn = launchBtn.querySelector("img");
         if (iconBtn) {
             switch (newState) {
-                case InstanceState.Playing:
+                case HInstance_1.InstanceState.Playing:
                     launchBtn.style.backgroundColor = "#FF0000";
                     iconBtn.setAttribute("src", "./resources/svg/stop.svg");
                     break;
-                case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
+                case HInstance_1.InstanceState.Loading:
                     launchBtn.style.backgroundColor = "#5C5C5C";
                     iconBtn.setAttribute("src", "./resources/svg/loading.svg");
                     break;
-                case InstanceState.Playable:
+                case HInstance_1.InstanceState.Playable:
                     launchBtn.style.backgroundColor = "#05E400";
                     iconBtn.setAttribute("src", "./resources/svg/play.svg");
                     break;

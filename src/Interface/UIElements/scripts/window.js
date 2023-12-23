@@ -1,3 +1,4 @@
+const {currentOpenedInstance, updateOpenedInstance} = require("../../../Utils/HInstance");
 const popups = document.querySelectorAll(".popup")
 
 popups.forEach((popup) => {
@@ -19,6 +20,10 @@ exports.openPopup = (popupId) => {
 exports.closePopup = (popupId) => {
     if(currentPopup != null) {
         currentPopup.style.display = "none"
+
+        if(currentOpenedInstance != null) {
+            updateOpenedInstance(null)
+        }
 
         currentPopup = null;
     }

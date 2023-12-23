@@ -4,7 +4,7 @@ import {localInstancesPath} from "../Utils/const";
 import {concatJson, replaceAll} from "../Utils/Utils";
 import {
     addInstanceElement,
-    InstanceOpts,
+    InstanceOpts, InstanceState,
     LoaderOpts,
 } from "../Utils/HInstance";
 import {existsSync} from "fs";
@@ -122,15 +122,6 @@ export async function getInstanceData(name: string){
     })
 }
 
-export enum InstanceState {
-    Loading,
-    Downloading,
-    Verification,
-    Patching,
-    Playable,
-    Playing
-}
-
 export function updateInstanceState(name: string, newState: InstanceState) {
     instancesStates[name] = newState
 
@@ -143,7 +134,7 @@ export function updateInstanceState(name: string, newState: InstanceState) {
                     launchBtn.style.backgroundColor = "#FF0000"
                     iconBtn.setAttribute("src", "./resources/svg/stop.svg")
                     break;
-                case InstanceState.Loading || InstanceState.Patching || InstanceState.Downloading || InstanceState.Verification:
+                case InstanceState.Loading:
                     launchBtn.style.backgroundColor = "#5C5C5C"
                     iconBtn.setAttribute("src", "./resources/svg/loading.svg")
                     break;

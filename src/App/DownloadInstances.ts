@@ -1,19 +1,17 @@
 import {replaceAll} from "../Utils/Utils";
 import {getMetadataOf, listProfiles} from "../Utils/HRemoteProfiles";
-import {addInstanceElement} from "../Utils/HInstance";
+import {
+    addInstanceElement,
+    currentOpenedInstance,
+    instancesStates,
+    InstanceState,
+    updateOpenedInstance
+} from "../Utils/HInstance";
 import {existsSync} from "fs";
 import {serversInstancesPath} from "../Utils/const";
 import path from "path";
+import {error} from "../Utils/Debug";
 const {openPopup} = require("../Interface/UIElements/scripts/window.js")
-
-export let instancesStates : any = {};
-export let currentInstanceOpened: string | null = null
-
-export enum InstanceState {
-    ToDownload,
-    Owned,
-    Loading,
-}
 
 export async function setContentTo(name: string) { // TODO: Cleaning
     return new Promise<void>(async (resolve, reject) => {
@@ -21,11 +19,14 @@ export async function setContentTo(name: string) { // TODO: Cleaning
         updateInstanceState(name, currentState)
 
         await listProfiles().then(async (profiles) => {
-            const serverBrandLogo = document.getElementById("dl-page-server-brand-logo")
-            if(serverBrandLogo)
-                serverBrandLogo.setAttribute("src", `${replaceAll(profiles[name]["brandLogoUrl"], '\\', '/')}`)
+            const console = document.getElementById("instance-console")!
+            console.style.display = "none"
 
-            const widgetVersion = document.getElementById("dl-page-version")
+            const brandLogo = document.querySelector(".brand-logo")!
+            if(brandLogo)
+                brandLogo.setAttribute("src", `${replaceAll(profiles[name]["brandLogoUrl"], '\\', '/')}`)
+
+            /*const widgetVersion = document.getElementById("dl-page-version")
             if(widgetVersion) {
                 widgetVersion.innerHTML = "";
 
@@ -36,9 +37,9 @@ export async function setContentTo(name: string) { // TODO: Cleaning
                 }).catch((err) => reject(err))
 
                 widgetVersion.append(widgetText)
-            }
+            }*/
 
-            const contentBackground = document.getElementById("dl-page-thumbnail")
+            const contentBackground = document.querySelector(".instance-thumbnail") as HTMLElement
             if(contentBackground) contentBackground.style.backgroundImage = `url('${replaceAll(profiles[name]["thumbnailUrl"], '\\', '/')}')`
 
             resolve()
@@ -61,25 +62,22 @@ export async function refreshInstanceList() {
                 instancesDiv.innerHTML = ""
 
                 for(const instanceName in profiles){
-                    const element = addInstanceElement({
-                            name: instanceName,
-                            thumbnailPath: profiles[instanceName]["thumbnailPath"],
-                            logoPath: profiles[instanceName]["coverUrl"],
-                            version: profiles[instanceName]["thumbnailPath"]
-                        },
-                        instancesDiv
-                    )
+                    if(!existsSync(path.join(serversInstancesPath, instanceName, "info.json"))) {
+                        const element = addInstanceElement({
+                                name: profiles[instanceName]["name"],
+                                thumbnailPath: profiles[instanceName]["thumbnailPath"],
+                                logoPath: profiles[instanceName]["coverUrl"],
+                                version: profiles[instanceName]["thumbnailPath"]
+                            },
+                            instancesDiv
+                        )
 
-                    if(existsSync(path.join(serversInstancesPath, instanceName, "info.json"))) {
-                        instancesStates[instanceName] = InstanceState.Owned
+                        element.addEventListener("click", async () => {
+                            updateOpenedInstance(instanceName)
+
+                            await setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`))
+                        })
                     }
-
-                    element.addEventListener("click", () => {
-                        currentInstanceOpened = instanceName
-
-                        setContentTo(instanceName)
-                        openPopup("download-instance-info")
-                    })
                 }
             }).catch((err) => reject(err))
 
@@ -91,7 +89,7 @@ export async function refreshInstanceList() {
 export function updateInstanceState(name: string, newState: InstanceState) {
     instancesStates[name] = newState
 
-    const dlBtn= document.getElementById("download-instance-action")
+    const dlBtn= document.getElementById("instance-action")
     if(dlBtn) {
         const iconBtn= dlBtn.querySelector("img")
         if(iconBtn) {

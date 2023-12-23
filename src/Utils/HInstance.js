@@ -1,6 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addInstanceElement = exports.generateInstanceBtn = void 0;
+exports.addInstanceElement = exports.generateInstanceBtn = exports.updateOpenedInstance = exports.instancesStates = exports.currentOpenedInstance = exports.InstanceState = void 0;
+var InstanceState;
+(function (InstanceState) {
+    InstanceState[InstanceState["ToDownload"] = 0] = "ToDownload";
+    InstanceState[InstanceState["Owned"] = 1] = "Owned";
+    InstanceState[InstanceState["Loading"] = 2] = "Loading";
+    InstanceState[InstanceState["Playable"] = 3] = "Playable";
+    InstanceState[InstanceState["Playing"] = 4] = "Playing";
+    InstanceState[InstanceState["NeedUpdate"] = 5] = "NeedUpdate";
+})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
+exports.currentOpenedInstance = null;
+exports.instancesStates = {};
+function updateOpenedInstance(name) {
+    exports.currentOpenedInstance = name;
+}
+exports.updateOpenedInstance = updateOpenedInstance;
 function generateInstanceBtn(opts) {
     const instanceElement = document.createElement("div");
     const textElement = document.createElement("p");

@@ -23,7 +23,7 @@ const HForge_1 = require("../Utils/HForge");
 const Utils_1 = require("../Utils/Utils");
 const semver_1 = __importDefault(require("semver"));
 const promises_1 = __importDefault(require("fs/promises"));
-const ServerInstances_1 = require("./ServerInstances");
+const GameConsole_1 = require("./GameConsole");
 let mcProc = {};
 exports.logs = {};
 function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
@@ -179,12 +179,12 @@ function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
                 mcProc[name] = proc;
                 exports.logs[name] = [];
                 proc.stdout.on("data", (data) => {
-                    exports.logs[name].push({ "message": data.toString(), "type": "info" });
-                    (0, ServerInstances_1.makeConsoleDirty)();
+                    exports.logs[name].push({ "message": data.toString("utf8"), "type": "info" });
+                    (0, GameConsole_1.makeConsoleDirty)(name);
                 });
                 proc.stderr.on("data", (data) => {
-                    exports.logs[name].push({ "message": data.toString(), "type": "err" });
-                    (0, ServerInstances_1.makeConsoleDirty)();
+                    exports.logs[name].push({ "message": data.toString("utf8"), "type": "err" });
+                    (0, GameConsole_1.makeConsoleDirty)(name);
                 });
                 proc.on("error", (err) => {
                     delete mcProc[name];

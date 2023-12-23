@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateInstanceState = exports.refreshInstanceList = exports.setContentTo = exports.InstanceState = exports.currentInstanceOpened = exports.instancesStates = void 0;
+exports.updateInstanceState = exports.refreshInstanceList = exports.setContentTo = void 0;
 const Utils_1 = require("../Utils/Utils");
 const HRemoteProfiles_1 = require("../Utils/HRemoteProfiles");
 const HInstance_1 = require("../Utils/HInstance");
@@ -20,33 +20,30 @@ const fs_1 = require("fs");
 const const_1 = require("../Utils/const");
 const path_1 = __importDefault(require("path"));
 const { openPopup } = require("../Interface/UIElements/scripts/window.js");
-exports.instancesStates = {};
-exports.currentInstanceOpened = null;
-var InstanceState;
-(function (InstanceState) {
-    InstanceState[InstanceState["ToDownload"] = 0] = "ToDownload";
-    InstanceState[InstanceState["Owned"] = 1] = "Owned";
-    InstanceState[InstanceState["Loading"] = 2] = "Loading";
-})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
 function setContentTo(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const currentState = exports.instancesStates.hasOwnProperty(name) ? exports.instancesStates[name] : InstanceState.ToDownload;
+            const currentState = HInstance_1.instancesStates.hasOwnProperty(name) ? HInstance_1.instancesStates[name] : HInstance_1.InstanceState.ToDownload;
             updateInstanceState(name, currentState);
             yield (0, HRemoteProfiles_1.listProfiles)().then((profiles) => __awaiter(this, void 0, void 0, function* () {
-                const serverBrandLogo = document.getElementById("dl-page-server-brand-logo");
-                if (serverBrandLogo)
-                    serverBrandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(profiles[name]["brandLogoUrl"], '\\', '/')}`);
-                const widgetVersion = document.getElementById("dl-page-version");
-                if (widgetVersion) {
+                const console = document.getElementById("instance-console");
+                console.style.display = "none";
+                const brandLogo = document.querySelector(".brand-logo");
+                if (brandLogo)
+                    brandLogo.setAttribute("src", `${(0, Utils_1.replaceAll)(profiles[name]["brandLogoUrl"], '\\', '/')}`);
+                /*const widgetVersion = document.getElementById("dl-page-version")
+                if(widgetVersion) {
                     widgetVersion.innerHTML = "";
-                    const widgetText = document.createElement("p");
-                    yield (0, HRemoteProfiles_1.getMetadataOf)(name).then((metadata) => {
-                        widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`;
-                    }).catch((err) => reject(err));
-                    widgetVersion.append(widgetText);
-                }
-                const contentBackground = document.getElementById("dl-page-thumbnail");
+    
+                    const widgetText = document.createElement("p")
+    
+                    await getMetadataOf(name).then((metadata) => {
+                        widgetText.innerText = `${metadata["type"]} ${metadata["mcVersion"]}`
+                    }).catch((err) => reject(err))
+    
+                    widgetVersion.append(widgetText)
+                }*/
+                const contentBackground = document.querySelector(".instance-thumbnail");
                 if (contentBackground)
                     contentBackground.style.backgroundImage = `url('${(0, Utils_1.replaceAll)(profiles[name]["thumbnailUrl"], '\\', '/')}')`;
                 resolve();
@@ -67,20 +64,18 @@ function refreshInstanceList() {
                 yield (0, HRemoteProfiles_1.listProfiles)().then((profiles) => {
                     instancesDiv.innerHTML = "";
                     for (const instanceName in profiles) {
-                        const element = (0, HInstance_1.addInstanceElement)({
-                            name: instanceName,
-                            thumbnailPath: profiles[instanceName]["thumbnailPath"],
-                            logoPath: profiles[instanceName]["coverUrl"],
-                            version: profiles[instanceName]["thumbnailPath"]
-                        }, instancesDiv);
-                        if ((0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instanceName, "info.json"))) {
-                            exports.instancesStates[instanceName] = InstanceState.Owned;
+                        if (!(0, fs_1.existsSync)(path_1.default.join(const_1.serversInstancesPath, instanceName, "info.json"))) {
+                            const element = (0, HInstance_1.addInstanceElement)({
+                                name: profiles[instanceName]["name"],
+                                thumbnailPath: profiles[instanceName]["thumbnailPath"],
+                                logoPath: profiles[instanceName]["coverUrl"],
+                                version: profiles[instanceName]["thumbnailPath"]
+                            }, instancesDiv);
+                            element.addEventListener("click", () => __awaiter(this, void 0, void 0, function* () {
+                                (0, HInstance_1.updateOpenedInstance)(instanceName);
+                                yield setContentTo(instanceName).then(() => openPopup("popup-instance-details")).catch((err) => console.error(`Impossible d'afficher le contenu de l'instance ${instanceName}: ${err}`));
+                            }));
                         }
-                        element.addEventListener("click", () => {
-                            exports.currentInstanceOpened = instanceName;
-                            setContentTo(instanceName);
-                            openPopup("download-instance-info");
-                        });
                     }
                 }).catch((err) => reject(err));
                 resolve();
@@ -92,21 +87,21 @@ function refreshInstanceList() {
 }
 exports.refreshInstanceList = refreshInstanceList;
 function updateInstanceState(name, newState) {
-    exports.instancesStates[name] = newState;
-    const dlBtn = document.getElementById("download-instance-action");
+    HInstance_1.instancesStates[name] = newState;
+    const dlBtn = document.getElementById("instance-action");
     if (dlBtn) {
         const iconBtn = dlBtn.querySelector("img");
         if (iconBtn) {
             switch (newState) {
-                case InstanceState.ToDownload:
+                case HInstance_1.InstanceState.ToDownload:
                     dlBtn.style.backgroundColor = "#05E400";
                     iconBtn.setAttribute("src", "./resources/svg/download.svg");
                     break;
-                case InstanceState.Loading:
+                case HInstance_1.InstanceState.Loading:
                     dlBtn.style.backgroundColor = "#5C5C5C";
                     iconBtn.setAttribute("src", "./resources/svg/loading.svg");
                     break;
-                case InstanceState.Owned:
+                case HInstance_1.InstanceState.Owned:
                     dlBtn.style.backgroundColor = "#05E400";
                     iconBtn.setAttribute("src", "./resources/svg/checkmark.svg");
                     break;
