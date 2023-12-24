@@ -23,8 +23,6 @@ function createAppWindow() {
         }
     })
 
-    mainWindow.webContents.openDevTools({mode: "undocked"})
-
     initialize()
     enable(mainWindow.webContents)
     mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))

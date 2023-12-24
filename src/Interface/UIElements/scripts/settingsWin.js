@@ -2,6 +2,7 @@ const {checkForUpdate, updateCli, updateAvailable, newVersion} = require("../../
 const {accountList, getActiveAccount} = require("../../../Utils/HMicrosoft");
 const {msaLogin} = require("../../../App/MicrosoftAuth");
 const {addNotification} = require("./notification");
+const {getCurrentWindow} = require("@electron/remote");
 
 const checkUpdateBtn = document.getElementById("settings-check-update")
 
@@ -85,6 +86,9 @@ addAccount.addEventListener("click", async () => {
     }).catch((err) => {
         addNotification(`Une erreur est survenue lors de la connexion à un compte Microsoft.`, "error", err)
     })
+})
 
-
+const openDevTool = document.getElementById("open-devtools")
+openDevTool.addEventListener("click", () => {
+    getCurrentWindow().webContents.openDevTools({mode: "undocked"})
 })
