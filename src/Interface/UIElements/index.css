@@ -166,11 +166,31 @@ body {
     background-color: var(--color-theme);
 }
 
-.text-button[active] {
+.checkbox {
+    position: relative;
+    width: fit-content;
+
+    background-color: red;;
+}
+
+.checkbox::after {
+    content: '';
+    background-color: #2E2E2E;
+    border-radius: 20%;
+
+    position: absolute;
+    top: 0;
+    right: -100px;
+
+    height: 100%;
+    aspect-ratio: 1;
+}
+
+.checkbox[active] {
     background-color: white;
 }
 
-.text-button[active] > p{
+.checkbox[active] > p{
     color: black
 }
 
@@ -533,7 +553,7 @@ body {
     flex-direction: column;
     justify-content: end;
 
-    gap: 20px;
+    gap: 8px;
 }
 
 #gr-settings > * > .text-button {
@@ -543,7 +563,6 @@ body {
 #settings-about {
     display: flex;
     flex-direction: column;
-
 }
 
 #gr-settings > div > p:first-of-type {
@@ -551,11 +570,7 @@ body {
 }
 
 #gr-settings > div > p {
-    margin: 0 0 10px 0;
-}
-
-#settings-about > p {
-    margin: 0;
+    margin: 5px;
 }
 
 #ms-accounts-list {
