@@ -1,3 +1,4 @@
+const {wait} = require("../../../Utils/Utils");
 const notification = document.getElementById("floating-notification")
 const notificationTitle = document.getElementById("notification-title")
 const notificationMessage = document.getElementById("notification-message")
@@ -26,14 +27,6 @@ async function enqueuingNotification() {
     }
 
     isEnqueuing = false
-}
-
-async function wait(time) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve()
-        }, time)
-    })
 }
 
 function showNotification(data) {
