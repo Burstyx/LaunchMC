@@ -4,12 +4,16 @@ const {checkForUpdate, updateAvailable} = require("../../../App/Updater");
 const {initSettings} = require("./settingsWin");
 const {addNotification} = require("./notification");
 
+/*
 const home = document.getElementById("home")
+*/
 const library = document.getElementById("library")
 const servers = document.getElementById("servers")
 const settings = document.getElementById("settings")
 
+/*
 const grHome = document.getElementById("gr-discover")
+*/
 const grLibrary = document.getElementById("gr-library")
 const grServers = document.getElementById("gr-servers")
 const grSettings = document.getElementById("gr-settings")
@@ -17,7 +21,7 @@ const grSettings = document.getElementById("gr-settings")
 let activeBtn = library
 let activeGroup = grLibrary;
 
-home.addEventListener("click", () => {
+/*home.addEventListener("click", () => {
     activeGroup.style.display = "none";
     grHome.style.display = "block";
 
@@ -27,7 +31,7 @@ home.addEventListener("click", () => {
     home.toggleAttribute("active", true)
 
     activeBtn = home
-})
+})*/
 
 library.addEventListener("click", () => {
     activeGroup.style.display = "none";
@@ -63,7 +67,7 @@ servers.addEventListener("click", async () => {
 const checkUpdateBtn = document.getElementById("settings-check-update")
 settings.addEventListener("click", async () => {
     activeGroup.style.display = "none";
-    grSettings.style.display = "block";
+    grSettings.style.display = "flex";
 
     await initSettings()
 

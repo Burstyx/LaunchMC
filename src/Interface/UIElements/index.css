@@ -144,11 +144,13 @@ body {
 
     border-radius: 15px;
 
-    padding: 0 12px;
+    padding: 15px 20px;
 
     display: flex;
     justify-content: center;
     align-items: center;
+
+    gap: 8px;
 
     transition: background-color .15s, box-shadow .15s, transform .15s, filter .15s, color .15s;
 }
@@ -166,32 +168,81 @@ body {
     background-color: var(--color-theme);
 }
 
-.checkbox {
-    position: relative;
-    width: fit-content;
-
-    background-color: red;;
-}
-
-.checkbox::after {
-    content: '';
-    background-color: #2E2E2E;
-    border-radius: 20%;
-
-    position: absolute;
-    top: 0;
-    right: -100px;
-
-    height: 100%;
-    aspect-ratio: 1;
-}
-
-.checkbox[active] {
+.text-button[active] {
     background-color: white;
 }
 
-.checkbox[active] > p{
-    color: black
+.text-button[active] {
+    color: black;
+}
+
+
+input[type=checkbox] {
+    all: unset;
+    position: relative;
+
+    box-shadow: inset 0 0 0 0 white;
+    width: 18px;
+    aspect-ratio: 1;
+    background-color: #2E2E2E;
+
+    transition: box-shadow .15s;
+
+    border-radius: 30%;
+}
+
+input[type=checkbox]:checked {
+    box-shadow: inset 0 0 0 10px white;
+}
+
+input[type=checkbox]:checked:after {
+    content: '';
+    width: 100%;
+    height: 100%;
+
+    position: absolute;
+    top: 25%;
+    left: 15%;
+
+    background-image: url("./resources/svg/checkmark.svg");
+    background-repeat: no-repeat;
+    background-size: 75%;
+}
+
+input[type=range] {
+    all: unset;
+
+    height: 3px;
+    border-radius: 20px;
+
+    transition: height .15s;
+}
+
+input[type=range]:hover {
+    height: 10px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    all: unset;
+}
+
+input[type=number] {
+    all: unset;
+
+    background-color: #2e2e2e;
+    padding: 8px 16px;
+    border-radius: 14px;
+
+    border: none;
+    transition: transform .15s;
+}
+
+input[type=number]:active {
+    transform: scale(.95);
+}
+
+input[type=number]::-webkit-inner-spin-button {
+    all: unset;
 }
 
 .text-button > p{
@@ -547,17 +598,34 @@ body {
 /*region Settings*/
 #gr-settings {
     margin: 15px;
-    width: fit-content;
 
     display: flex;
     flex-direction: column;
     justify-content: end;
 
-    gap: 8px;
+    gap: 30px;
 }
 
 #gr-settings > * > .text-button {
     width: fit-content;
+}
+
+#gr-settings > div {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#gr-settings > div > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#gr-settings > div > div > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 #settings-about {
@@ -567,10 +635,11 @@ body {
 
 #gr-settings > div > p:first-of-type {
     font-size: 25px;
+    font-weight: 300;
 }
 
-#gr-settings > div > p {
-    margin: 5px;
+#gr-settings p {
+    margin: 0;
 }
 
 #ms-accounts-list {

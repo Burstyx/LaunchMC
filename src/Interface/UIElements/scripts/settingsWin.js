@@ -11,7 +11,7 @@ let isWorking = false
 checkUpdateBtn.addEventListener("click", async () => {
     const loadingImg = document.createElement("img")
     loadingImg.setAttribute("src", "./resources/svg/loading.svg")
-    loadingImg.setAttribute("width", "25px")
+    loadingImg.setAttribute("width", "20px")
 
     if(!isWorking) {
         checkUpdateBtn.append(loadingImg)
@@ -30,7 +30,6 @@ checkUpdateBtn.addEventListener("click", async () => {
             }).catch((err) => {
                 addNotification(`Une erreur est survenue lors de la vérification des mises à jour.`, "error", err)
             }).finally(() => {
-                checkUpdateBtn.lastChild.remove()
                 isWorking = false
             })
         }
@@ -61,15 +60,13 @@ async function refreshAccountList() {
         for(const account of accounts) {
             const accBtn = document.createElement("div")
             const accImg = document.createElement("img")
-            const username = document.createElement("p")
 
             accBtn.classList.add("text-button")
             accBtn.toggleAttribute("active", activeAccountUuid === account["uuid"])
 
             accImg.setAttribute("src", `https://minotar.net/avatar/${account["username"]}`)
-            username.innerText = account["username"]
 
-            accBtn.append(accImg, username)
+            accBtn.append(accImg, account["username"])
 
             msAccountList.append(accBtn)
         }

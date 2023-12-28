@@ -6,6 +6,7 @@ const {addNotification} = require("../UIElements/scripts/notification")
 
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const LocalInstances= require("../../App/LocalInstances");
+const {getCurrentWindow} = require("@electron/remote");
 
 const initializeModules = async () => {
     setLoading(true)
@@ -49,5 +50,6 @@ const initializeModules = async () => {
 initializeModules().then(() => {
     console.log("Initialisation effectuée sans erreur !")
 }).catch((err) => {
-    addNotification(`Une erreur est survenue lors de l'initialisation.`, "error", err)
+    addNotification(`${err}`, "error", err)
+    getCurrentWindow().webContents.openDevTools({mode: "undocked"})
 })

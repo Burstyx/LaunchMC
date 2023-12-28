@@ -9,7 +9,6 @@
     <div id="window">
         <div id="topBar">
             <div id="menu-buttons">
-                <div class="button themed toggle" id="home"><img src="./resources/svg/discover.svg" width="55%"></div>
                 <div class="button themed toggle" active id="library"><img src="./resources/svg/library.svg" width="55%"></div>
                 <div class="button themed toggle" id="servers"><img src="./resources/svg/servers.svg" width="55%"></div>
                 <div class="button themed toggle" id="settings"><img src="./resources/svg/settings.svg" width="60%"></div>
@@ -52,24 +51,53 @@
             <div class="elements-group" id="gr-settings">
                 <div id="settings-accounts">
                     <p>Comptes</p>
-                    <div id="ms-accounts-list">
-                        <div class="checkbox" active><img src="https://mc-heads.net/avatar/MHF_Steve"><p>ItsBursty</p></div>
-                        <div class="checkbox"><img src="https://mc-heads.net/avatar/MHF_Steve" width="35px"><p>ItsBursty</p></div>
+                    <div>
+                        <div id="ms-accounts-list">
+                            <div class="text-button" active><img src="https://mc-heads.net/avatar/MHF_Steve">ItsBursty</div>
+                            <div class="text-button"><img src="https://mc-heads.net/avatar/MHF_Steve" width="35px">ItsBursty</div>
+                        </div>
+                        <div class="text-button" id="ms-add-account">Ajouter un compte</div>
                     </div>
-                    <div class="text-button" id="ms-add-account"><p>Ajouter un compte</p></div>
                 </div>
                 <div id="settings-client">
                     <p>Client</p>
-                    <div class="checkbox" id=""><p>Discord RPC</p></div>
+                    <div>
+                        <p>Intégration Discord</p>
+                        <input type="checkbox" id="cb-discordrpc">
+                    </div>
+                </div>
+                <div id="settings-minecraft">
+                    <p>Minecraft</p>
+                    <div>
+                        <p>Lancer en plein écran</p>
+                        <input type="checkbox" id="cb-game-fullscreen">
+                    </div>
+                    <div>
+                        <p>RAM allouée</p>
+                        <div>
+                            <input type="range" id="range-allocated-ram" min="1" step="1" max="6">
+                            <input type="number" with="range-allocated-ram">
+                        </div>
+                    </div>
+                    <div>
+                        <p>Largeur de la fenêtre</p>
+                        <input type="number">
+                    </div>
+                    <div>
+                        <p>Hauteur de la fenêtre</p>
+                        <input type="number">
+                    </div>
                 </div>
                 <div id="settings-about">
                     <p>A propos</p>
-                    <p>Version <span id="launcher-version">N/A</span></p>
-                    <div class="text-button" id="settings-check-update"><p>Vérifier les mises à jour</p></div>
+                    <div>
+                        <p>Version <span id="launcher-version">N/A</span></p>
+                        <div class="text-button" id="settings-check-update">Vérifier les mises à jour</div>
+                    </div>
                 </div>
                 <div id="setting-dev">
                     <p>Developpement</p>
-                    <div class="text-button" id="open-devtools"><p>Ouvrir Console</p></div>
+                    <div class="text-button" id="open-devtools">Ouvrir Console</div>
                 </div>
             </div>
 
@@ -92,8 +120,39 @@
         </div>
     </div>
     <script>
-        require("./CoreApp")
+        /* --- Sliders ---*/
+        const sliders = document.querySelectorAll("input[type=range]")
+        sliders.forEach((slider) => {
+            let val = (slider.value - slider.min) / (slider.max - slider.min)
+            slider.setAttribute("style", `background-image: linear-gradient(90deg, white ${val * 100}%, #2e2e2e ${val * 100}%)`)
 
+            const numberInput = document.querySelector(`input[type=number][with=${slider.id}]`)
+            if(numberInput) {
+                numberInput.onchange = () => {
+                    slider.value = numberInput.value
+                    numberInput.value = slider.value
+                    val = (slider.value - slider.min) / (slider.max - slider.min)
+                    slider.setAttribute("style", `background-image: linear-gradient(90deg, white ${val * 100}%, #2e2e2e ${val * 100}%)`)
+                }
+
+                numberInput.min = slider.min
+                numberInput.max = slider.max
+                numberInput.step = slider.step
+                numberInput.value = slider.value
+            }
+
+            slider.oninput = () => {
+                let val = (slider.value - slider.min) / (slider.max - slider.min)
+                slider.setAttribute("style", `background-image: linear-gradient(90deg, white ${val * 100}%, #2e2e2e ${val * 100}%)`)
+
+                const numberInput = document.querySelector(`input[type=number][with=${slider.id}]`)
+                if(numberInput) {
+                    numberInput.value = slider.value
+                }
+            }
+        })
+
+        require("./CoreApp")
         const version = require("../../../package.json").version
         document.getElementById("launcher-version").innerText = version
     </script>
