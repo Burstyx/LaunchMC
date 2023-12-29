@@ -39,7 +39,7 @@ export async function listProfiles() {
 export async function getMetadataOf(name: string): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
         await listProfiles().then(async (res) => {
-            await fetch(res[name]["metadataUrl"]).then((res) => {
+            await fetch(res[name]["metadataUrl"], {headers: {"Cache-Control": "no-cache"}}).then((res) => {
                 res.json().then((json) => {
                     resolve(json)
                 }).catch((err) => {

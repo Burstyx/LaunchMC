@@ -223,6 +223,8 @@ export async function verifyInstanceFromRemote(name: string) {
                 metadata = res
             })
 
+            console.log(metadata)
+
             if(!metadata) reject()
 
             const folders = metadata!["folders"]
