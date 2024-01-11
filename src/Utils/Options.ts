@@ -1,4 +1,4 @@
-import {readFile} from "fs-extra";
+import {readFile, writeFile} from "fs-extra";
 import path from "path";
 import {gamePath} from "./const";
 import {existsSync} from "fs";
@@ -15,6 +15,7 @@ async function setSetting(property: string, value: string) {
         }
 
         data[property] = value
+        await writeFile(path.join(gamePath, "settings.json"), "utf8").catch((err) => reject(err))
 
         resolve()
     })
