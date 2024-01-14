@@ -125,6 +125,12 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, gam
 
             mcArgs = parsedMcArgs
 
+            const gameWidth = await getSetting("game_window_width", undefined)
+            if(gameWidth) mcArgs.push("--width", gameWidth)
+
+            const gameHeight = await getSetting("game_window_height", undefined)
+            if(gameHeight) mcArgs.push("--height", gameHeight)
+
             let parsedForgeGameArgsArray
             let parsedForgeJvmArgsArray
             if(forgeJvmArgs != undefined) {

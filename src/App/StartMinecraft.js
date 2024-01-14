@@ -110,6 +110,12 @@ function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
                     }
                 }
                 mcArgs = parsedMcArgs;
+                const gameWidth = yield (0, Options_1.getSetting)("game_window_width", undefined);
+                if (gameWidth)
+                    mcArgs.push("--width", gameWidth);
+                const gameHeight = yield (0, Options_1.getSetting)("game_window_height", undefined);
+                if (gameHeight)
+                    mcArgs.push("--height", gameHeight);
                 let parsedForgeGameArgsArray;
                 let parsedForgeJvmArgsArray;
                 if (forgeJvmArgs != undefined) {

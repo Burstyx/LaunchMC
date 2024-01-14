@@ -4,6 +4,9 @@ const {msaLogin} = require("../../../App/MicrosoftAuth");
 const {addNotification} = require("./notification");
 const {getCurrentWindow} = require("@electron/remote");
 const {totalmem, freemem} = require("os")
+const {setSetting, getSetting} = require("../../../Utils/Options");
+const {mcFullscreen, discordRpcSetting, gameRam, mcWidth, mcHeight} = require("../../../Utils/const");
+const {logs} = require("../../../App/StartMinecraft");
 
 const checkUpdateBtn = document.getElementById("settings-check-update")
 
@@ -27,6 +30,8 @@ checkUpdateBtn.addEventListener("click", async () => {
                     updateFound = true
                     checkUpdateBtn.querySelector("p").innerText = `Mettre à jour vers ${newVersion}`
                     checkUpdateBtn.classList.add("themed")
+                } else {
+                    addNotification(`Aucune mise à jour trouvée.`, "info", undefined)
                 }
             }).catch((err) => {
                 addNotification(`Une erreur est survenue lors de la vérification des mises à jour.`, "error", err)
@@ -36,6 +41,16 @@ checkUpdateBtn.addEventListener("click", async () => {
         }
     }
 })
+
+const discordRpc = document.getElementById("cb-discordrpc")
+const gameWidth = document.getElementById("game-width")
+const gameHeight = document.getElementById("game-height")
+const allocatedRam = document.getElementById("range-allocated-ram")
+
+discordRpc.addEventListener("change", async () => await setSetting("discord_rpc", discordRpc.checked))
+allocatedRam.addEventListener("change", async () => await setSetting("game_allocated_ram", allocatedRam.value))
+gameWidth.addEventListener("change",async () => await setSetting("game_window_width", gameWidth.value))
+gameHeight.addEventListener("change", async () => await setSetting("game_window_height", gameHeight.value))
 
 const msAccountList = document.getElementById("ms-accounts-list")
 const rangeAllocatedRam = document.getElementById("range-allocated-ram")
@@ -53,9 +68,12 @@ exports.initSettings = async () => {
     // Set how many ram can be allocated
     const totalGo = Math.round(totalmem() / 1_073_741_824) * 1024
     rangeAllocatedRam.max = `${totalGo}`
+    rangeAllocatedRam.value = await getSetting("game_allocated_ram", gameRam).catch((err) => console.log("ram"))
     rangeAllocatedRam.dispatchEvent(new Event("input"))
-    console.log(totalGo)
 
+    discordRpc.checked = await getSetting("discord_rpc", discordRpcSetting).catch((err) => console.log("discord rpc"))
+    gameWidth.value = await getSetting("game_window_width", mcWidth).catch((err) => console.log("window width"))
+    gameHeight.value = await getSetting("game_window_height", mcHeight).catch((err) => console.log("window height"))
 }
 
 async function refreshAccountList() {

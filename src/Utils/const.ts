@@ -44,4 +44,8 @@ export const java8Name = "jdk8u382-b05"
 export const java17Name = "jdk-17.0.8+7"
 
 // Default settings value
-export const gameRam = 6144
+export const gameRam = "6144"
+export const discordRpcSetting = false
+export const mcFullscreen = false
+export const mcWidth = "854"
+export const mcHeight = "480"

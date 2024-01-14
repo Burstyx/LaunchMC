@@ -20,16 +20,16 @@ const fs_1 = require("fs");
 function setSetting(property, value) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            console.log(`call: ${property} with ${value}`);
             const settingsPath = path_1.default.join(const_1.gamePath, "settings.json");
             let data = {};
             if ((0, fs_1.existsSync)(settingsPath)) {
-                yield (0, fs_extra_1.readFile)(path_1.default.join(const_1.gamePath, "settings.json"), "utf8").then((val) => {
+                yield (0, fs_extra_1.readFile)(settingsPath, "utf8").then((val) => {
                     data = JSON.parse(val);
                 }).catch((err) => reject(err));
             }
             data[property] = value;
-            yield (0, fs_extra_1.writeFile)(path_1.default.join(const_1.gamePath, "settings.json"), "utf8").catch((err) => reject(err));
-            resolve();
+            yield (0, fs_extra_1.writeFile)(path_1.default.join(const_1.gamePath, "settings.json"), JSON.stringify(data)).then(() => resolve()).catch((err) => reject(err));
         }));
     });
 }
@@ -39,7 +39,7 @@ function getSetting(property, propertyNullVal) {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const settingsPath = path_1.default.join(const_1.gamePath, "settings.json");
             if ((0, fs_1.existsSync)(settingsPath)) {
-                yield (0, fs_extra_1.readFile)(path_1.default.join(const_1.gamePath, "settings.json"), "utf8").then((val) => {
+                yield (0, fs_extra_1.readFile)(settingsPath, "utf8").then((val) => {
                     const data = JSON.parse(val);
                     if (data.hasOwnProperty(property)) {
                         resolve(data[property]);

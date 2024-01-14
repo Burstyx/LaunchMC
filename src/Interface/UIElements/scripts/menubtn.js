@@ -48,7 +48,7 @@ settings.addEventListener("click", async () => {
     activeGroup.style.display = "none";
     grSettings.style.display = "flex";
 
-    await initSettings()
+    await initSettings().catch((err) => addNotification(`Une erreur est survenue lors de l'initialisation des paramètres.`, "error", err))
 
     activeGroup = grSettings;
 

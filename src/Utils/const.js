@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.gameRam = exports.java17Name = exports.java8Name = exports.java17Version = exports.java8Version = exports.java17Url = exports.java8Url = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.forgeMaven = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.forgeVersionsStatuesManifest = exports.forgeVersionsManifest = exports.versionsManifest = exports.tempPath = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.serversInstancesPath = exports.localInstancesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
+exports.mcHeight = exports.mcWidth = exports.mcFullscreen = exports.discordRpcSetting = exports.gameRam = exports.java17Name = exports.java8Name = exports.java17Version = exports.java8Version = exports.java17Url = exports.java8Url = exports.clientSecret = exports.clientId = exports.redirectUrl = exports.forgeMaven = exports.playerMojangProfile = exports.minecraftHeadProfilePicture = exports.minecraftBearerToken = exports.xstsAuth = exports.xbxLiveAuth = exports.msAccessToken = exports.msAuth = exports.resourcePackage = exports.forgeVersionsStatuesManifest = exports.forgeVersionsManifest = exports.versionsManifest = exports.tempPath = exports.javaPath = exports.legacyAssetsPath = exports.loggingConfPath = exports.librariesPath = exports.serversInstancesPath = exports.localInstancesPath = exports.instancesPath = exports.objectPath = exports.indexesPath = exports.assetsPath = exports.minecraftVersionPath = exports.dataPath = exports.gamePath = void 0;
 const remote_1 = require("@electron/remote");
 // Path
 exports.gamePath = remote_1.app.getPath("userData");
@@ -42,4 +42,8 @@ exports.java17Version = "OpenJDK17U-jdk_x64_windows_hotspot_17.0.8_7";
 exports.java8Name = "jdk8u382-b05";
 exports.java17Name = "jdk-17.0.8+7";
 // Default settings value
-exports.gameRam = 6144;
+exports.gameRam = "6144";
+exports.discordRpcSetting = false;
+exports.mcFullscreen = false;
+exports.mcWidth = "854";
+exports.mcHeight = "480";
