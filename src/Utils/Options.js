@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getSetting = exports.setSetting = void 0;
 const fs_extra_1 = require("fs-extra");
 const path_1 = __importDefault(require("path"));
 const const_1 = require("./const");
@@ -27,11 +28,13 @@ function setSetting(property, value) {
                 }).catch((err) => reject(err));
             }
             data[property] = value;
+            yield (0, fs_extra_1.writeFile)(path_1.default.join(const_1.gamePath, "settings.json"), "utf8").catch((err) => reject(err));
             resolve();
         }));
     });
 }
-function getSetting(property) {
+exports.setSetting = setSetting;
+function getSetting(property, propertyNullVal) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const settingsPath = path_1.default.join(const_1.gamePath, "settings.json");
@@ -42,13 +45,14 @@ function getSetting(property) {
                         resolve(data[property]);
                     }
                     else {
-                        reject();
+                        resolve(propertyNullVal);
                     }
                 }).catch((err) => reject(err));
             }
             else {
-                reject();
+                resolve(propertyNullVal);
             }
         }));
     });
 }
+exports.getSetting = getSetting;

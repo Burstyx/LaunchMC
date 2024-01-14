@@ -24,6 +24,7 @@ const Utils_1 = require("../Utils/Utils");
 const semver_1 = __importDefault(require("semver"));
 const promises_1 = __importDefault(require("fs/promises"));
 const GameConsole_1 = require("./GameConsole");
+const Options_1 = require("../Utils/Options");
 let mcProc = {};
 exports.logs = {};
 function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
@@ -125,8 +126,8 @@ function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
                     forgeGameArgs = parsedForgeGameArgsArray;
                 }
                 let jvmArgs = [];
-                jvmArgs.push("-Xms2048M");
-                jvmArgs.push("-Xmx6144M");
+                const ram = yield (0, Options_1.getSetting)("gameRam", const_1.gameRam);
+                jvmArgs.push(`-Xmx${ram}M`);
                 // Intel optimization
                 jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
                 // Ignore Invalid Certificates Verification

@@ -1,10 +1,13 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path"
 import {initialize, enable} from "@electron/remote/main"
+import {getSetting} from "./Utils/Options";
 
 let mainWindow: BrowserWindow;
 
 function createAppWindow() {
+
+
     mainWindow = new BrowserWindow({
         backgroundColor: "black",
         center: true,
@@ -25,6 +28,7 @@ function createAppWindow() {
 
     initialize()
     enable(mainWindow.webContents)
+
     mainWindow.loadFile(path.join(__dirname, "./Interface/UIElements/app.html"))
 }
 

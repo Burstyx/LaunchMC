@@ -8,7 +8,7 @@ import {
     javaPath,
     java17Version,
     java17Name,
-    serversInstancesPath
+    serversInstancesPath, gameRam
 } from "../Utils/const"
 import { downloadAndGetJavaVersion, JavaVersions, minecraftLibraryList, parseRule } from "./DownloadGame"
 import { mavenToArray } from "../Utils/HFileManagement"
@@ -17,6 +17,7 @@ import { removeDuplicates, replaceAll } from "../Utils/Utils"
 import semver from "semver"
 import fs from "fs/promises";
 import {makeConsoleDirty} from "./GameConsole";
+import {getSetting} from "../Utils/Options";
 
 interface MinecraftArgsOpt {
     version: string,
@@ -145,8 +146,8 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, gam
 
             let jvmArgs = [];
 
-            jvmArgs.push("-Xms2048M")
-            jvmArgs.push("-Xmx6144M")
+            const ram = await getSetting("gameRam", gameRam)
+            jvmArgs.push(`-Xmx${ram}M`)
 
             // Intel optimization
             jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump")

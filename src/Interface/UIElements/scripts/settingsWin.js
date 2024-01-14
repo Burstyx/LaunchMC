@@ -3,6 +3,7 @@ const {accountList, getActiveAccount} = require("../../../Utils/HMicrosoft");
 const {msaLogin} = require("../../../App/MicrosoftAuth");
 const {addNotification} = require("./notification");
 const {getCurrentWindow} = require("@electron/remote");
+const {totalmem, freemem} = require("os")
 
 const checkUpdateBtn = document.getElementById("settings-check-update")
 
@@ -37,16 +38,24 @@ checkUpdateBtn.addEventListener("click", async () => {
 })
 
 const msAccountList = document.getElementById("ms-accounts-list")
+const rangeAllocatedRam = document.getElementById("range-allocated-ram")
 exports.initSettings = async () => {
     // Check for accounts
     await refreshAccountList()
 
     // Check for update
     if(updateAvailable) {
-        checkUpdateBtn.querySelector("p").innerText = `Mettre à jour vers ${newVersion}`
+        checkUpdateBtn.innerText = `Mettre à jour vers ${newVersion}`
         checkUpdateBtn.classList.add("themed")
         updateFound = true
     }
+
+    // Set how many ram can be allocated
+    const totalGo = Math.round(totalmem() / 1_073_741_824) * 1024
+    rangeAllocatedRam.max = `${totalGo}`
+    rangeAllocatedRam.dispatchEvent(new Event("input"))
+    console.log(totalGo)
+
 }
 
 async function refreshAccountList() {

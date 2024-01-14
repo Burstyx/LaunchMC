@@ -3,7 +3,7 @@ import path from "path";
 import {gamePath} from "./const";
 import {existsSync} from "fs";
 
-async function setSetting(property: string, value: string) {
+export async function setSetting(property: string, value: string) {
     return new Promise<void>(async (resolve, reject) => {
         const settingsPath = path.join(gamePath, "settings.json")
         let data: any = {}
@@ -21,8 +21,8 @@ async function setSetting(property: string, value: string) {
     })
 }
 
-async function getSetting(property: string) {
-    return new Promise<void>(async (resolve, reject) => {
+export async function getSetting(property: string, propertyNullVal: any) {
+    return new Promise<any>(async (resolve, reject) => {
         const settingsPath = path.join(gamePath, "settings.json")
 
         if(existsSync(settingsPath)) {
@@ -31,11 +31,11 @@ async function getSetting(property: string) {
                 if(data.hasOwnProperty(property)) {
                     resolve(data[property])
                 }else {
-                    reject()
+                    resolve(propertyNullVal)
                 }
             }).catch((err) => reject(err))
         } else {
-            reject()
+            resolve(propertyNullVal)
         }
     })
 }

@@ -42,3 +42,6 @@ export const java8Version = "OpenJDK8U-jdk_x64_windows_hotspot_8u382b05"
 export const java17Version = "OpenJDK17U-jdk_x64_windows_hotspot_17.0.8_7"
 export const java8Name = "jdk8u382-b05"
 export const java17Name = "jdk-17.0.8+7"
+
+// Default settings value
+export const gameRam = 6144
