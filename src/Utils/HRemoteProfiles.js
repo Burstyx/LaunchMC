@@ -58,7 +58,7 @@ function getMetadataOf(name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             yield listProfiles().then((res) => __awaiter(this, void 0, void 0, function* () {
-                yield fetch(res[name]["metadataUrl"]).then((res) => {
+                yield fetch(res[name]["metadataUrl"], { headers: { "Cache-Control": "no-cache" } }).then((res) => {
                     res.json().then((json) => {
                         resolve(json);
                     }).catch((err) => {

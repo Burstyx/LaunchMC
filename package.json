@@ -1,6 +1,6 @@
 {
   "name": "launchmc",
-  "version": "0.1.1-A",
+  "version": "0.1.2-A",
   "description": "Join your favorite Minecraft server or just play Minecraft.",
   "main": "src/electron.js",
   "scripts": {

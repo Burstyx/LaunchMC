@@ -212,6 +212,7 @@ function verifyInstanceFromRemote(name) {
                 yield (0, HRemoteProfiles_1.getMetadataOf)(name).then((res) => {
                     metadata = res;
                 });
+                console.log(metadata);
                 if (!metadata)
                     reject();
                 const folders = metadata["folders"];
