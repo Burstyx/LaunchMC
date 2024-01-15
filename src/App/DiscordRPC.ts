@@ -10,14 +10,20 @@ export enum DiscordRPCState{
 let client: RPC.Client
 const clientId = "1116091725061046353"
 
-export function initDiscordRPC(){
-    client = new RPC.Client({transport: "ipc"})
+export async function initDiscordRPC(){
+    return new Promise<void>(async (resolve, reject) => {
+        client = new RPC.Client({transport: "ipc"})
 
-    client.on("ready", async () => {
-        await switchDiscordRPCState(DiscordRPCState.InLauncher)
+        client.on("ready", async () => {
+            await switchDiscordRPCState(DiscordRPCState.InLauncher)
+        })
+
+        await client.login({clientId}).then(() => resolve()).catch((err) => reject(err))
     })
+}
 
-    client.login({clientId}).catch((err) => err)
+export async function stopDiscordRPC() {
+    return new Promise<void>(async (resolve, reject) => await client.destroy().then(() => resolve()).catch((err) => reject(err)))
 }
 
 export async function switchDiscordRPCState(newState: DiscordRPCState, name?: string){

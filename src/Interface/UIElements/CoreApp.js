@@ -1,4 +1,4 @@
-const { initDiscordRPC } = require("../../App/DiscordRPC");
+const { initDiscordRPC, stopDiscordRPC} = require("../../App/DiscordRPC");
 const {checkForUpdate} = require("../../App/Updater");
 const {refreshToken} = require("../../App/MicrosoftAuth")
 const {addNotification} = require("../UIElements/scripts/notification")
@@ -7,6 +7,8 @@ const {addNotification} = require("../UIElements/scripts/notification")
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const LocalInstances= require("../../App/LocalInstances");
 const {getCurrentWindow} = require("@electron/remote");
+const {getSetting} = require("../../Utils/Options");
+const {discordRpcSetting} = require("../../Utils/const");
 
 const initializeModules = async () => {
     setLoading(true)
@@ -40,7 +42,9 @@ const initializeModules = async () => {
         await LocalInstances.refreshInstanceList().catch((err) => addNotification(`Une erreur est survenue lors de l'actualisation des instances locaux.`, "error", err))
 
         console.log("Initialize Discord RPC");
-        initDiscordRPC()
+        const rpcEnabled = getSetting("discord_rpc", discordRpcSetting).then((res) => {
+            if(res) initDiscordRPC()
+        }).catch((err) => addNotification(`Impossible de récupérer la valeur du paramètre Discord RPC.`, "error", err))
     })
 }
 

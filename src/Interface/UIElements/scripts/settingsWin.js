@@ -7,6 +7,7 @@ const {totalmem, freemem} = require("os")
 const {setSetting, getSetting} = require("../../../Utils/Options");
 const {mcFullscreen, discordRpcSetting, gameRam, mcWidth, mcHeight} = require("../../../Utils/const");
 const {logs} = require("../../../App/StartMinecraft");
+const {initDiscordRPC, stopDiscordRPC} = require("../../../App/DiscordRPC");
 
 const checkUpdateBtn = document.getElementById("settings-check-update")
 
@@ -47,7 +48,7 @@ const gameWidth = document.getElementById("game-width")
 const gameHeight = document.getElementById("game-height")
 const allocatedRam = document.getElementById("range-allocated-ram")
 
-discordRpc.addEventListener("change", async () => await setSetting("discord_rpc", discordRpc.checked))
+discordRpc.addEventListener("change", async () => await setSetting("discord_rpc", discordRpc.checked).then(() => discordRpc.checked ? initDiscordRPC() : stopDiscordRPC()))
 allocatedRam.addEventListener("change", async () => await setSetting("game_allocated_ram", allocatedRam.value))
 gameWidth.addEventListener("change",async () => await setSetting("game_window_width", gameWidth.value))
 gameHeight.addEventListener("change", async () => await setSetting("game_window_height", gameHeight.value))

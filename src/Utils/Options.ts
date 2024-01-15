@@ -5,7 +5,6 @@ import {existsSync} from "fs";
 
 export async function setSetting(property: string, value: any) {
     return new Promise<void>(async (resolve, reject) => {
-        console.log(`call: ${property} with ${value}`)
         const settingsPath = path.join(gamePath, "settings.json")
         let data: any = {}
 

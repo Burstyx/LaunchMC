@@ -152,7 +152,7 @@ export async function startMinecraft(name: string, mcOpts: MinecraftArgsOpt, gam
 
             let jvmArgs = [];
 
-            const ram = await getSetting("gameRam", gameRam)
+            const ram = await getSetting("game_allocated_ram", gameRam)
             jvmArgs.push(`-Xmx${ram}M`)
 
             // Intel optimization

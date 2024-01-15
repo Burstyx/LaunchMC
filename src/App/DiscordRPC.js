@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.switchDiscordRPCState = exports.initDiscordRPC = exports.DiscordRPCState = void 0;
+exports.switchDiscordRPCState = exports.stopDiscordRPC = exports.initDiscordRPC = exports.DiscordRPCState = void 0;
 const discord_rpc_1 = __importDefault(require("discord-rpc"));
 var DiscordRPCState;
 (function (DiscordRPCState) {
@@ -23,13 +23,23 @@ var DiscordRPCState;
 let client;
 const clientId = "1116091725061046353";
 function initDiscordRPC() {
-    client = new discord_rpc_1.default.Client({ transport: "ipc" });
-    client.on("ready", () => __awaiter(this, void 0, void 0, function* () {
-        yield switchDiscordRPCState(DiscordRPCState.InLauncher);
-    }));
-    client.login({ clientId }).catch((err) => err);
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            client = new discord_rpc_1.default.Client({ transport: "ipc" });
+            client.on("ready", () => __awaiter(this, void 0, void 0, function* () {
+                yield switchDiscordRPCState(DiscordRPCState.InLauncher);
+            }));
+            yield client.login({ clientId }).then(() => resolve()).catch((err) => reject(err));
+        }));
+    });
 }
 exports.initDiscordRPC = initDiscordRPC;
+function stopDiscordRPC() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () { return yield client.destroy().then(() => resolve()).catch((err) => reject(err)); }));
+    });
+}
+exports.stopDiscordRPC = stopDiscordRPC;
 function switchDiscordRPCState(newState, name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {

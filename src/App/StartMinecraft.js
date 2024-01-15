@@ -132,7 +132,7 @@ function startMinecraft(name, mcOpts, gameStoppedCallback, forgeId) {
                     forgeGameArgs = parsedForgeGameArgsArray;
                 }
                 let jvmArgs = [];
-                const ram = yield (0, Options_1.getSetting)("gameRam", const_1.gameRam);
+                const ram = yield (0, Options_1.getSetting)("game_allocated_ram", const_1.gameRam);
                 jvmArgs.push(`-Xmx${ram}M`);
                 // Intel optimization
                 jvmArgs.push("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");

@@ -20,7 +20,6 @@ const fs_1 = require("fs");
 function setSetting(property, value) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            console.log(`call: ${property} with ${value}`);
             const settingsPath = path_1.default.join(const_1.gamePath, "settings.json");
             let data = {};
             if ((0, fs_1.existsSync)(settingsPath)) {
