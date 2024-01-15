@@ -29,7 +29,7 @@ checkUpdateBtn.addEventListener("click", async () => {
             await checkForUpdate().then((shouldBeUpdated) => {
                 if(shouldBeUpdated) {
                     updateFound = true
-                    checkUpdateBtn.querySelector("p").innerText = `Mettre à jour vers ${newVersion}`
+                    checkUpdateBtn.innerText = `Mettre à jour vers ${newVersion}`
                     checkUpdateBtn.classList.add("themed")
                 } else {
                     addNotification(`Aucune mise à jour trouvée.`, "info", undefined)
@@ -37,6 +37,7 @@ checkUpdateBtn.addEventListener("click", async () => {
             }).catch((err) => {
                 addNotification(`Une erreur est survenue lors de la vérification des mises à jour.`, "error", err)
             }).finally(() => {
+                checkUpdateBtn.removeChild(loadingImg)
                 isWorking = false
             })
         }
