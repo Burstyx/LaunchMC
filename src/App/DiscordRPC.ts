@@ -9,49 +9,64 @@ export enum DiscordRPCState{
 
 let client: RPC.Client
 const clientId = "1116091725061046353"
+let rpcEnable = false;
 
 export async function initDiscordRPC(){
     return new Promise<void>(async (resolve, reject) => {
         client = new RPC.Client({transport: "ipc"})
 
         client.on("ready", async () => {
+            rpcEnable = true
             await switchDiscordRPCState(DiscordRPCState.InLauncher)
         })
 
-        await client.login({clientId}).then(() => resolve()).catch((err) => reject(err))
+        await client.login({clientId}).then(() => {
+            resolve()
+        }).catch((err) => reject(err))
     })
 }
 
 export async function stopDiscordRPC() {
-    return new Promise<void>(async (resolve, reject) => await client.destroy().then(() => resolve()).catch((err) => reject(err)))
+    return new Promise<void>(async (resolve, reject) => await client.destroy().then(() => {
+        rpcEnable = false
+        resolve()
+    }).catch((err) => reject(err)))
 }
 
 export async function switchDiscordRPCState(newState: DiscordRPCState, name?: string){
-    return new Promise<any>(async (resolve, reject) => {
-        switch(newState){
-            case DiscordRPCState.InLauncher:
-                await client.setActivity({
-                    details: "In the launcher",
-                    largeImageKey: "icon"
-                }).catch((err) => reject(err))
-                return
-            case DiscordRPCState.InGameLocal:
-                await client.setActivity({
-                    details: "Playing Minecraft",
-                    largeImageKey: "icon",
-                    startTimestamp: Date.now()
-                }).catch((err) => reject(err))
-                return
-            case DiscordRPCState.InGameServer:
-                await client.setActivity({
-                    details: `Playing ${name}`,
-                    largeImageKey: "icon",
-                    startTimestamp: Date.now()
-                }).catch((err) => reject(err))
-                return
-            default:
-                console.log("State doesn't exist");
-                return
+    return new Promise<void>(async (resolve, reject) => {
+        console.log(rpcEnable)
+        if(rpcEnable) {
+            switch(newState){
+                case DiscordRPCState.InLauncher:
+                    await client.setActivity({
+                        details: "In the launcher",
+                        largeImageKey: "icon"
+                    }).catch((err) => reject(err))
+                    resolve()
+                    break
+                case DiscordRPCState.InGameLocal:
+                    await client.setActivity({
+                        details: "Playing Minecraft",
+                        largeImageKey: "icon",
+                        startTimestamp: Date.now()
+                    }).catch((err) => reject(err))
+                    resolve()
+                    break
+                case DiscordRPCState.InGameServer:
+                    await client.setActivity({
+                        details: `Playing ${name}`,
+                        largeImageKey: "icon",
+                        startTimestamp: Date.now()
+                    }).catch((err) => reject(err))
+                    resolve()
+                    break
+                default:
+                    console.log("State doesn't exist");
+                    resolve()
+            }
+        } else {
+            resolve()
         }
     })
 }

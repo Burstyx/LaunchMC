@@ -7,6 +7,7 @@ const {getActiveAccount} = require("../../../Utils/HMicrosoft");
 const {InstanceState, instancesStates, currentOpenedInstance} = require("../../../Utils/HInstance");
 const {clearConsole, copyConsoleToClipboard} = require("../../../App/GameConsole");
 const {addNotification} = require("./notification");
+const {switchDiscordRPCState, DiscordRPCState} = require("../../../App/DiscordRPC");
 
 const instanceAction = document.getElementById("instance-action")
 
@@ -64,10 +65,12 @@ instanceAction.onclick = async () => {
                             uuid: acc["uuid"]
                         }, (err) => {
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
+                            switchDiscordRPCState(DiscordRPCState.InLauncher)
                         }, data["data"]["loader"]["id"]).then(() => {
                             clearConsole(currentOpenedInstance)
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playing)
                             addNotification(`Une instance de Minecraft vient d'être lancé.`, "info", undefined)
+                            switchDiscordRPCState(DiscordRPCState.InGameServer, currentOpenedInstance)
                         }).catch((err) => {
                             ServerInstances.updateInstanceState(currentOpenedInstance, InstanceState.Playable)
                             addNotification(`Impossible de lancer le jeu pour ${currentOpenedInstance}.`, "error", err)

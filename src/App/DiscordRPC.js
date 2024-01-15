@@ -22,51 +22,69 @@ var DiscordRPCState;
 })(DiscordRPCState = exports.DiscordRPCState || (exports.DiscordRPCState = {}));
 let client;
 const clientId = "1116091725061046353";
+let rpcEnable = false;
 function initDiscordRPC() {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             client = new discord_rpc_1.default.Client({ transport: "ipc" });
             client.on("ready", () => __awaiter(this, void 0, void 0, function* () {
+                rpcEnable = true;
                 yield switchDiscordRPCState(DiscordRPCState.InLauncher);
             }));
-            yield client.login({ clientId }).then(() => resolve()).catch((err) => reject(err));
+            yield client.login({ clientId }).then(() => {
+                resolve();
+            }).catch((err) => reject(err));
         }));
     });
 }
 exports.initDiscordRPC = initDiscordRPC;
 function stopDiscordRPC() {
     return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () { return yield client.destroy().then(() => resolve()).catch((err) => reject(err)); }));
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            return yield client.destroy().then(() => {
+                rpcEnable = false;
+                resolve();
+            }).catch((err) => reject(err));
+        }));
     });
 }
 exports.stopDiscordRPC = stopDiscordRPC;
 function switchDiscordRPCState(newState, name) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            switch (newState) {
-                case DiscordRPCState.InLauncher:
-                    yield client.setActivity({
-                        details: "In the launcher",
-                        largeImageKey: "icon"
-                    }).catch((err) => reject(err));
-                    return;
-                case DiscordRPCState.InGameLocal:
-                    yield client.setActivity({
-                        details: "Playing Minecraft",
-                        largeImageKey: "icon",
-                        startTimestamp: Date.now()
-                    }).catch((err) => reject(err));
-                    return;
-                case DiscordRPCState.InGameServer:
-                    yield client.setActivity({
-                        details: `Playing ${name}`,
-                        largeImageKey: "icon",
-                        startTimestamp: Date.now()
-                    }).catch((err) => reject(err));
-                    return;
-                default:
-                    console.log("State doesn't exist");
-                    return;
+            console.log(rpcEnable);
+            if (rpcEnable) {
+                switch (newState) {
+                    case DiscordRPCState.InLauncher:
+                        yield client.setActivity({
+                            details: "In the launcher",
+                            largeImageKey: "icon"
+                        }).catch((err) => reject(err));
+                        resolve();
+                        break;
+                    case DiscordRPCState.InGameLocal:
+                        yield client.setActivity({
+                            details: "Playing Minecraft",
+                            largeImageKey: "icon",
+                            startTimestamp: Date.now()
+                        }).catch((err) => reject(err));
+                        resolve();
+                        break;
+                    case DiscordRPCState.InGameServer:
+                        yield client.setActivity({
+                            details: `Playing ${name}`,
+                            largeImageKey: "icon",
+                            startTimestamp: Date.now()
+                        }).catch((err) => reject(err));
+                        resolve();
+                        break;
+                    default:
+                        console.log("State doesn't exist");
+                        resolve();
+                }
+            }
+            else {
+                resolve();
             }
         }));
     });
