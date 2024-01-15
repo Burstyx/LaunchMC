@@ -6,7 +6,7 @@ const {addNotification} = require("../UIElements/scripts/notification")
 
 const {setLoading, openWindow, openPopup} = require("./scripts/window");
 const LocalInstances= require("../../App/LocalInstances");
-const {getCurrentWindow} = require("@electron/remote");
+const {getCurrentWindow, app} = require("@electron/remote");
 const {getSetting} = require("../../Utils/Options");
 const {discordRpcSetting} = require("../../Utils/const");
 

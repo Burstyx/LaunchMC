@@ -9,7 +9,7 @@ var InstanceState;
     InstanceState[InstanceState["Playable"] = 3] = "Playable";
     InstanceState[InstanceState["Playing"] = 4] = "Playing";
     InstanceState[InstanceState["NeedUpdate"] = 5] = "NeedUpdate";
-})(InstanceState = exports.InstanceState || (exports.InstanceState = {}));
+})(InstanceState || (exports.InstanceState = InstanceState = {}));
 exports.currentOpenedInstance = null;
 exports.instancesStates = {};
 function updateOpenedInstance(name) {

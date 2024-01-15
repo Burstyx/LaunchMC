@@ -418,7 +418,7 @@ var JavaVersions;
 (function (JavaVersions) {
     JavaVersions[JavaVersions["JDK8"] = 0] = "JDK8";
     JavaVersions[JavaVersions["JDK17"] = 1] = "JDK17";
-})(JavaVersions = exports.JavaVersions || (exports.JavaVersions = {}));
+})(JavaVersions || (exports.JavaVersions = JavaVersions = {}));
 function downloadAndGetJavaVersion(version) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {

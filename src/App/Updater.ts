@@ -1,6 +1,6 @@
 import {getLatestRelease} from "../Utils/HRemoteProfiles";
 import {downloadAsync} from "../Utils/HDownload";
-import {app} from "@electron/remote";
+import {app, process} from "@electron/remote";
 import path from "path";
 import cp from "child_process"
 import fs from "fs/promises";
@@ -11,7 +11,6 @@ let githubReleaseData: any = null;
 export let updateAvailable = false;
 export let newVersion: string
 
-
 export async function checkForUpdate() {
     return new Promise<boolean>(async (resolve, reject) => {
         await getLatestRelease().then((res) => {
@@ -20,7 +19,7 @@ export async function checkForUpdate() {
 
             githubReleaseData = res
 
-            updateAvailable = currentVersion !== latestVersion;
+            updateAvailable = currentVersion === latestVersion;
 
             newVersion = latestVersion
             resolve(updateAvailable)
@@ -33,16 +32,20 @@ export async function updateCli() {
         if(githubReleaseData) {
             const dlUrl = githubReleaseData["assets"][0]["browser_download_url"]
             const name = githubReleaseData["assets"][0]["name"]
+            console.log(app.getPath("exe"))
 
-            await downloadAsync(dlUrl, path.join(app.getPath("temp"), name)).then((installerPath) => {
-                const child = cp.exec(`${installerPath} /S /LAUNCH`)
-
-                child.on("error", (err) => {
-                    reject(err)
-                })
-
-                child.on("exit", async () => {
-                    await fs.rm(installerPath).finally(() => app.quit())
+            await downloadAsync(dlUrl, path.join(app.getPath("temp"), name)).then(async (installerPath) => {
+                const child = cp.exec(`${installerPath} /S /LAUNCH /wait`)
+                child.stdout?.on("end", async () => {
+                    console.log("finito")
+                    await fs.rm(installerPath).finally(async () => {
+                        const program = cp.spawn(`${app.getPath("exe")}`, {detached: true})
+                        program.on("spawn", () => {
+                            program.unref()
+                            console.log("spawned")
+                            app.quit()
+                        })
+                    })
                 })
             }).catch((err) => reject(err))
         } else {

@@ -30,7 +30,7 @@ function checkForUpdate() {
                 const currentVersion = require("../../package.json").version;
                 const latestVersion = res["tag_name"];
                 githubReleaseData = res;
-                exports.updateAvailable = currentVersion !== latestVersion;
+                exports.updateAvailable = currentVersion === latestVersion;
                 exports.newVersion = latestVersion;
                 resolve(exports.updateAvailable);
             }).catch((err) => reject(err));
@@ -44,15 +44,22 @@ function updateCli() {
             if (githubReleaseData) {
                 const dlUrl = githubReleaseData["assets"][0]["browser_download_url"];
                 const name = githubReleaseData["assets"][0]["name"];
-                yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => {
-                    const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH`);
-                    child.on("error", (err) => {
-                        reject(err);
-                    });
-                    child.on("exit", () => __awaiter(this, void 0, void 0, function* () {
-                        yield promises_1.default.rm(installerPath).finally(() => remote_1.app.quit());
+                console.log(remote_1.app.getPath("exe"));
+                yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => __awaiter(this, void 0, void 0, function* () {
+                    var _a;
+                    const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH /wait`);
+                    (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on("end", () => __awaiter(this, void 0, void 0, function* () {
+                        console.log("finito");
+                        yield promises_1.default.rm(installerPath).finally(() => __awaiter(this, void 0, void 0, function* () {
+                            const program = child_process_1.default.spawn(`${remote_1.app.getPath("exe")}`, { detached: true });
+                            program.on("spawn", () => {
+                                program.unref();
+                                console.log("spawned");
+                                remote_1.app.quit();
+                            });
+                        }));
                     }));
-                }).catch((err) => reject(err));
+                })).catch((err) => reject(err));
             }
             else {
                 addNotification(`Impossible de mettre à jour le client, effectuez une vérification de mise à jour avant d'en lancer une.`, "error", undefined);

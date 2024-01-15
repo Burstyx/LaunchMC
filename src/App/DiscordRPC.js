@@ -19,7 +19,7 @@ var DiscordRPCState;
     DiscordRPCState[DiscordRPCState["InLauncher"] = 0] = "InLauncher";
     DiscordRPCState[DiscordRPCState["InGameLocal"] = 1] = "InGameLocal";
     DiscordRPCState[DiscordRPCState["InGameServer"] = 2] = "InGameServer";
-})(DiscordRPCState = exports.DiscordRPCState || (exports.DiscordRPCState = {}));
+})(DiscordRPCState || (exports.DiscordRPCState = DiscordRPCState = {}));
 let client;
 const clientId = "1116091725061046353";
 let rpcEnable = false;
