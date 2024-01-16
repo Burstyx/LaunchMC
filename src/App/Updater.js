@@ -18,7 +18,6 @@ const HDownload_1 = require("../Utils/HDownload");
 const remote_1 = require("@electron/remote");
 const path_1 = __importDefault(require("path"));
 const child_process_1 = __importDefault(require("child_process"));
-const promises_1 = __importDefault(require("fs/promises"));
 const window = require("../Interface/UIElements/scripts/window.js");
 const { addNotification } = require("../Interface/UIElements/scripts/notification.js");
 let githubReleaseData = null;
@@ -44,21 +43,11 @@ function updateCli() {
             if (githubReleaseData) {
                 const dlUrl = githubReleaseData["assets"][0]["browser_download_url"];
                 const name = githubReleaseData["assets"][0]["name"];
-                console.log(remote_1.app.getPath("exe"));
                 yield (0, HDownload_1.downloadAsync)(dlUrl, path_1.default.join(remote_1.app.getPath("temp"), name)).then((installerPath) => __awaiter(this, void 0, void 0, function* () {
-                    var _a;
-                    const child = child_process_1.default.exec(`${installerPath} /S /LAUNCH /wait`);
-                    (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on("end", () => __awaiter(this, void 0, void 0, function* () {
-                        console.log("finito");
-                        yield promises_1.default.rm(installerPath).finally(() => __awaiter(this, void 0, void 0, function* () {
-                            const program = child_process_1.default.spawn(`${remote_1.app.getPath("exe")}`, { detached: true });
-                            program.on("spawn", () => {
-                                program.unref();
-                                console.log("spawned");
-                                remote_1.app.quit();
-                            });
-                        }));
-                    }));
+                    const child = child_process_1.default.spawn(`${installerPath}`, { detached: true });
+                    child.on("spawn", () => {
+                        remote_1.app.quit();
+                    });
                 })).catch((err) => reject(err));
             }
             else {

@@ -58,13 +58,11 @@
       "icon": "./src/icon.ico"
     },
     "nsis": {
-      "oneClick": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "runAfterFinish": true,
       "installerIcon": "",
       "uninstallerIcon": "",
       "artifactName": "${productName}-${version}-installer.${ext}",
-      "deleteAppDataOnUninstall": true,
       "createDesktopShortcut": false
     }
   }

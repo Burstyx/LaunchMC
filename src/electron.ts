@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path"
 import {initialize, enable} from "@electron/remote/main"
-import {getSetting} from "./Utils/Options";
 
 let mainWindow: BrowserWindow;
 
