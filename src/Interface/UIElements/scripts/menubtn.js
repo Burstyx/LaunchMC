@@ -3,6 +3,7 @@ const ServerInstances = require("../../../App/ServerInstances");
 const {checkForUpdate, updateAvailable} = require("../../../App/Updater");
 const {initSettings} = require("./settingsWin");
 const {addNotification} = require("./notification");
+const {closePopup} = require("./window");
 
 const library = document.getElementById("library")
 const servers = document.getElementById("servers")
@@ -25,6 +26,8 @@ library.addEventListener("click", () => {
 
     activeBtn.toggleAttribute("active", false)
     library.toggleAttribute("active", true)
+
+    closePopup("popup-instance-details")
 
     activeBtn = library
 })
@@ -49,6 +52,8 @@ settings.addEventListener("click", async () => {
     grSettings.style.display = "flex";
 
     await initSettings().catch((err) => addNotification(`Une erreur est survenue lors de l'initialisation des paramètres.`, "error", err))
+
+    closePopup("popup-instance-details")
 
     activeGroup = grSettings;
 
