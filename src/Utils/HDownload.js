@@ -17,9 +17,18 @@ const promises_1 = __importDefault(require("fs/promises"));
 const adm_zip_1 = __importDefault(require("adm-zip"));
 const checksum_1 = __importDefault(require("checksum"));
 const fs_extra_1 = require("fs-extra");
+const fs_1 = require("fs");
 // Download url async
 function downloadAsync(url, dest, callback, opt) {
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        if ((0, fs_1.existsSync)(dest) && (opt === null || opt === void 0 ? void 0 : opt.hash)) {
+            checksum_1.default.file(dest, (err, hash) => {
+                if (hash === opt.hash) {
+                    console.log("Fichier existe déjà et n'est pas corrompu, fichier passé.");
+                    resolve(dest);
+                }
+            });
+        }
         const destDir = dest.slice(0, dest.lastIndexOf("\\"));
         yield promises_1.default.mkdir(destDir, { recursive: true }).catch((err) => reject(err));
         const file = (0, fs_extra_1.createWriteStream)(dest);

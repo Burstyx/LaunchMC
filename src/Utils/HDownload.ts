@@ -2,6 +2,7 @@ import fs from "fs/promises"
 import AdmZip from "adm-zip"
 import checksum from "checksum";
 import { createWriteStream } from "fs-extra";
+import {existsSync} from "fs";
 
 interface DownloadOpt {
     decompress?: boolean,
@@ -18,6 +19,15 @@ type CallbackProgress = (progress: number, byteSent: number) => void;
 // Download url async
 export function downloadAsync(url: string, dest: string, callback?: CallbackProgress, opt?: DownloadOpt) {
     return new Promise<string>(async (resolve, reject) => {
+        if(existsSync(dest) && opt?.hash) {
+            checksum.file(dest, (err, hash) => {
+                if(hash === opt.hash) {
+                    console.log("Fichier existe déjà et n'est pas corrompu, fichier passé.")
+                    resolve(dest)
+                }
+            })
+        }
+
         const destDir = dest.slice(0, dest.lastIndexOf("\\"))
         await fs.mkdir(destDir, {recursive: true}).catch((err) => reject(err))
 
