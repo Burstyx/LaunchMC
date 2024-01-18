@@ -19,7 +19,7 @@ export async function checkForUpdate() {
 
             githubReleaseData = res
 
-            updateAvailable = currentVersion === latestVersion;
+            updateAvailable = currentVersion !== latestVersion;
 
             newVersion = latestVersion
             resolve(updateAvailable)
