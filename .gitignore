@@ -6,3 +6,4 @@ logs/
 *.log
 *.dat
 dist/
+App/*.js

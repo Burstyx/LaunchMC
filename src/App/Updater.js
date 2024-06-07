@@ -29,7 +29,7 @@ function checkForUpdate() {
                 const currentVersion = require("../../package.json").version;
                 const latestVersion = res["tag_name"];
                 githubReleaseData = res;
-                exports.updateAvailable = currentVersion === latestVersion;
+                exports.updateAvailable = currentVersion !== latestVersion;
                 exports.newVersion = latestVersion;
                 resolve(exports.updateAvailable);
             }).catch((err) => reject(err));
